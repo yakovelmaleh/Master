@@ -144,8 +144,8 @@ def create_directory_if_not_exist(dir_name):
 
 
 def start(jira_name):
-    dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     """
+    dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
     print(f'connected to DB: {DB.DB_NAME}_{jira_name.lower()}')
