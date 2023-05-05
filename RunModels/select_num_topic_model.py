@@ -316,6 +316,11 @@ def start1(jira_name):
     create_topic_model2(train_test, jira_name)
     create_topic_model(train, jira_name, valid, labels_train,labels_valid)
 
+def test():
+    data = pd.read_csv(f'../Data/{"Apache"}/features_labels_table_os.csv')
+    data.to_csv('../Models/topic_model/f.csv')
+
+
 def create_directory_if_not_exist(path,dir_name):
     #path = os.getcwd()[:os.getcwd().find("RunModels")]
 
