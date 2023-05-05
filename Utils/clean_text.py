@@ -11,10 +11,6 @@ import nltk
 import warnings
 warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
 
-#nltk.download('stopwords')
-#nltk.download('omw-1.4')
-
-
 def clean_text(text2, project_key):
     """
     this function get the text field and the project name, and clean the text from unwanted signs
@@ -251,6 +247,8 @@ def create_clean_text(data, text_type):
     """
     this function run all the cleaning text function that details above
     """
+    nltk.download('stopwords')
+    nltk.download('omw-1.4')
     stop = stopwords.words('english')
     data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(lambda x: x.replace(' $end$', "."))
     data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(
