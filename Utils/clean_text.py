@@ -11,8 +11,8 @@ import nltk
 import warnings
 warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
 
-nltk.download('stopwords')
-nltk.download('omw-1.4')
+#nltk.download('stopwords')
+#nltk.download('omw-1.4')
 
 
 def clean_text(text2, project_key):
