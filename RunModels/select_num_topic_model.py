@@ -12,6 +12,7 @@ from gensim.models import LsiModel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import Utils.clean_text as clean_text
+from pathlib import Path
 
 def split_train_valid_test(data_to_split):
     """
@@ -318,7 +319,9 @@ def start1(jira_name):
     create_topic_model(train, jira_name, valid, labels_train,labels_valid)
 
 def test():
-    data = pd.read_csv(f'../Data/{"Apache"}/features_labels_table_os.csv')
+    path = Path(os.getcwd()).joinpath('Data/Apache/features_labels_table_os.csv')
+    data = pd.read_csv(str(path))
+    path = Path(os.getcwd()).joinpath('Models/topic/f.csv')
     data.to_csv('../Models/topic_model/f.csv')
 
 
