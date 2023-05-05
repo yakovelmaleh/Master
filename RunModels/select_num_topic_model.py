@@ -51,11 +51,11 @@ def run_random_forest(x_train, x_test, y_train, y_test):
     classification_report = metrics.classification_report(y_test, y_pred)
     print("classification_report RF: \n {}".format(classification_report))
     # Create precision, recall curve
-    average_precision = metrics.average_precision_score(y_test, y_score)
+    average_precision = metrics.average_precision_score(y_test, y_score[:,1])
     print('Average precision-recall score RF: {0:0.2f}'.format(average_precision))
-    auc = metrics.roc_auc_score(y_test, y_score)
+    auc = metrics.roc_auc_score(y_test, y_score[:,1])
     print('AUC roc RF: {}'.format(auc))
-    precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score)
+    precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:,1])
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve RF: {}'.format(area_under_pre_recall_curve))
 
