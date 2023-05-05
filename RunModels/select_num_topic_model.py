@@ -319,10 +319,10 @@ def start1(jira_name):
     create_topic_model(train, jira_name, valid, labels_train,labels_valid)
 
 def test():
-    path = Path(os.getcwd()).joinpath('Data/Apache/features_labels_table_os.csv')
+    path = Path(os.getcwd()).joinpath('Master/Data/Apache/features_labels_table_os.csv')
     data = pd.read_csv(str(path))
-    path = Path(os.getcwd()).joinpath('Models/topic/f.csv')
-    data.to_csv('../Models/topic_model/f.csv')
+    path = Path(os.getcwd()).joinpath('Master/Models/topic_model/f.csv')
+    data.to_csv(path)
 
 
 def create_directory_if_not_exist(path,dir_name):
