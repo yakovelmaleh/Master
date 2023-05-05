@@ -3,11 +3,9 @@ import os
 
 import pandas as pd
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from nltk import bigrams, ngrams
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import Utils.clean_text as clean_text
-import Utils.DataBase as DB
 from pathlib import Path
 
 def split_train_valid_test(data_to_split):
