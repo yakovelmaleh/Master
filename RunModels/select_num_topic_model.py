@@ -136,8 +136,8 @@ def plot_graph(doc_clean, dictionary, doc_term_matrix, model_lsa, start, stop, s
     """
     function who get the data and return the coherence graph in png format
     """
-    create_directory_if_not_exist('../Models', "coherence_values")
-    create_directory_if_not_exist('../Models/coherence_values', project_key)
+    # create_directory_if_not_exist('../Models', "coherence_values")
+    # create_directory_if_not_exist('../Models/coherence_values', project_key)
     model_list, coherence_values = compute_coherence_values(dictionary, doc_term_matrix, doc_clean, model_lsa,
                                                             stop, start, step)
     x = range(start, stop, step)
@@ -146,9 +146,11 @@ def plot_graph(doc_clean, dictionary, doc_term_matrix, model_lsa, start, stop, s
     plt.ylabel("Coherence score")
     plt.title("Select Number of Topics {}".format(project_key))
     plt.legend(("coherence_values"), loc='best')
-    plt.savefig(f'../Models/coherence_values/{project_key}/coherence_{project_key}.png')
+    path = addPath(f'Master/Models/coherence_values/{project_key}/coherence_{project_key}.png')
+    plt.savefig(path)
     plt.ylim(0)
-    plt.savefig(f'../Models/coherence_values/{project_key}/coherence_{project_key}_2.png')
+    path = addPath(f'Master/Models/coherence_values/{project_key}/coherence_{project_key}_2.png')
+    plt.savefig(path)
     plt.close()
 
 
@@ -256,11 +258,10 @@ def create_topic_model(data_train, project_key, data_test, labels_train, labels_
 
         results = pd.concat([results, pd.DataFrame([df.values()], columns=df.keys())], ignore_index=True)
 
-        create_directory_if_not_exist('../Models', 'topic_model')
-        create_directory_if_not_exist('../Models/topic_model', project_key)
-        results.to_csv(
-            f'../Models/topic_model/{project_key}/results_{project_key}_label_is_change_text_num_words_5.csv',
-            index=False)
+        # create_directory_if_not_exist('../Models', 'topic_model')
+        # create_directory_if_not_exist('../Models/topic_model', project_key)
+        path = addPath(f'Master/Models/topic_model/{project_key}/results_{project_key}_label_is_change_text_num_words_5.csv')
+        results.to_csv(path, index=False)
 
 
 def start(jira_name):
@@ -298,8 +299,8 @@ def start(jira_name):
 
 
 def start1(jira_name):
-
-    data = pd.read_csv(f'../Data/{jira_name}/features_labels_table_os.csv')
+    path = addPath(f'/Master/Data/{jira_name}/features_labels_table_os.csv')
+    data = pd.read_csv(path)
     text_type = 'original_summary_description_acceptance_sprint'
     train, valid, test = split_train_valid_test(data)
 
@@ -314,15 +315,13 @@ def start1(jira_name):
     labels_valid['usability_label'] = valid['is_change_text_num_words_5']
     labels_train['issue_key'] = train['issue_key']
     labels_valid['issue_key'] = valid['issue_key']
+    print(finish)
 
-    create_topic_model2(train_test, jira_name)
-    create_topic_model(train, jira_name, valid, labels_train,labels_valid)
+    #create_topic_model2(train_test, jira_name)
+    #create_topic_model(train, jira_name, valid, labels_train,labels_valid)
 
-def test():
-    path = Path(os.getcwd()).joinpath('Master/Data/Apache/features_labels_table_os.csv')
-    data = pd.read_csv(str(path))
-    path = Path(os.getcwd()).joinpath('Master/Models/topic_model/f.csv')
-    data.to_csv(path)
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 
 def create_directory_if_not_exist(path,dir_name):
