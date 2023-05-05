@@ -315,10 +315,11 @@ def start1(jira_name):
     labels_valid['usability_label'] = valid['is_change_text_num_words_5']
     labels_train['issue_key'] = train['issue_key']
     labels_valid['issue_key'] = valid['issue_key']
-    print('finish')
-
-    #create_topic_model2(train_test, jira_name)
-    #create_topic_model(train, jira_name, valid, labels_train,labels_valid)
+    print('start model2')
+    create_topic_model2(train_test, jira_name)
+    print('start model1')
+    create_topic_model(train, jira_name, valid, labels_train,labels_valid)
+    print('finish-ALL')
 
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
