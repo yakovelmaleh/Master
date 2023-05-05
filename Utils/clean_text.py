@@ -247,6 +247,7 @@ def create_clean_text(data, text_type):
     """
     this function run all the cleaning text function that details above
     """
+    nltk.download('wordnet')
     nltk.download('stopwords')
     nltk.download('omw-1.4')
     stop = stopwords.words('english')
