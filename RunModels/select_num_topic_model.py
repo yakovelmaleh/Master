@@ -12,7 +12,6 @@ from gensim.models import LsiModel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import Utils.clean_text as clean_text
-import Utils.DataBase as DB
 
 def split_train_valid_test(data_to_split):
     """
@@ -264,6 +263,7 @@ def create_topic_model(data_train, project_key, data_test, labels_train, labels_
 
 
 def start(jira_name):
+    """
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
@@ -293,6 +293,7 @@ def start(jira_name):
     create_topic_model2(train_test, jira_name)
     create_topic_model(train, jira_name, valid, labels_train,
                        labels_valid)
+                       """
 
 
 def start1(jira_name):
