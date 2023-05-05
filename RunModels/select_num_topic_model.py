@@ -299,7 +299,7 @@ def start(jira_name):
 
 
 def start1(jira_name):
-    path = addPath(f'/Master/Data/{jira_name}/features_labels_table_os.csv')
+    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
     data = pd.read_csv(path)
     text_type = 'original_summary_description_acceptance_sprint'
     train, valid, test = split_train_valid_test(data)
