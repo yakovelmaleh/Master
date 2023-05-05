@@ -6,20 +6,9 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk import bigrams, ngrams
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from numpy import random
-import mysql
-import mysql.connector
 import Utils.clean_text as clean_text
 import Utils.DataBase as DB
-
-
-def choose_data_base(db_name):
-    # connction to SQL
-    mysql_con = mysql.connector.connect(user='root', password='o9r1eN%^ZX', host='localhost',
-                                        database='{}'.format(db_name), auth_plugin='mysql_native_password',
-                                        use_unicode=True)
-    return mysql_con
-
+from pathlib import Path
 
 def split_train_valid_test(data_to_split):
     """
@@ -105,7 +94,7 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
     test_data1 = test_data.copy()
     train_tagged = tag_docs(train_data1, 'clean_text_new')
     test_tagged = tag_docs(test_data1, 'clean_text_new')
-    create_directory_if_not_exist('word_vector')
+    # create_directory_if_not_exist('word_vector')
 
     size_vec = [5, 10, 15, 20]
 
@@ -117,8 +106,9 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
         # Train the Doc2Vec model
         model.train(train_tagged, total_examples=model.corpus_count, epochs=model.epochs)
         # saving the created model
-        create_directory_if_not_exist('word_vector')
-        model.save('..Models/word_vector/doc2vec_{}_{}.model'.format(size, project_key))
+        # create_directory_if_not_exist('word_vector')
+        path = addPath(f'Master/Models/word_vector/{project_key}/doc2vec_{size}_{project_key}.model')
+        model.save(path)
         #model = Doc2Vec.load('doc2vec_{}_{}.model'.format(size,project_key))
         x_train = model.docvecs.vectors_docs
         #x_train = train_data1.copy()
@@ -140,9 +130,8 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
 
         results = results.append(d, ignore_index=True)
         # write the results to excel
-        results.to_csv(
-            './word_vector/results_{project}_label_is_change_text_num_words_5.csv'.format(project = project_key),
-            index=False)
+        path = addPath(f'Master/Models/word_vector/{project_key}/results_{project_key}_label_is_change_text_num_words_5.csv')
+        results.to_csv(path, index=False)
 
 
 def create_directory_if_not_exist(dir_name):
@@ -158,6 +147,7 @@ def create_directory_if_not_exist(dir_name):
 
 def start(jira_name):
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
+    """
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
     print(f'connected to DB: {DB.DB_NAME}_{jira_name.lower()}')
@@ -166,9 +156,11 @@ def start(jira_name):
     cursor.execute('SET NAMES utf8mb4')
     cursor.execute("SET CHARACTER SET utf8mb4")
     cursor.execute("SET character_set_connection=utf8mb4")
-
-    path = ''
+    
     data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con= mysql_con)
+    """
+    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
+    data = pd.read_csv(path)
     text_type = 'original_summary_description_acceptance_sprint'
 
     dict_labels = {'is_change_text_num_words_5': 'num_unusable_issues_cretor_prev_text_word_5_ratio',
@@ -190,6 +182,9 @@ def start(jira_name):
     labels_valid['issue_key'] = valid['issue_key']
 
     create_doc_to_vec(train, valid, labels_train, labels_valid, jira_name)
+
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 
 if __name__ == "__main__":
