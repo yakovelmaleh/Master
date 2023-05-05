@@ -315,7 +315,7 @@ def start1(jira_name):
     labels_valid['usability_label'] = valid['is_change_text_num_words_5']
     labels_train['issue_key'] = train['issue_key']
     labels_valid['issue_key'] = valid['issue_key']
-    print(finish)
+    print('finish')
 
     #create_topic_model2(train_test, jira_name)
     #create_topic_model(train, jira_name, valid, labels_train,labels_valid)
