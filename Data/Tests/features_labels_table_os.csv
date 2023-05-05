@@ -1,0 +1,131 @@
+issue_key,issue_type,project_key,created,epic_link,has_change_story_point_sprint,summary,description,acceptance_criteria,summary_description_acceptance,original_story_points_sprint,creator,reporter,priority,num_all_changes,story_point,num_bugs_issue_link,num_comments,num_issue_links,num_sprints,num_changes_story_points_new,num_changes_summary_description_acceptance,num_sub_tasks,num_changes_sprint,num_changes_story_points_new_sprint,num_comments_before_sprint,num_comments_after_sprint,num_changes_text_before_sprint,num_changes_story_point_before_sprint,time_add_to_sprint,original_summary_sprint,original_description_sprint,original_acceptance_criteria_sprint,num_changes_summary_sprint,num_changes_description_sprint,num_changes_acceptance_criteria_sprint,num_different_words_all_text_sprint,num_ratio_words_all_text_sprint,original_summary_description_acceptance_sprint,num_changes_summary_description_acceptance_sprint,is_change_text_num_words_1,is_change_text_num_words_5,is_change_text_num_words_10,is_change_text_num_words_15,is_change_text_num_words_20,is_change_text_sp_sprint,time_until_add_to_sprint,num_issues_cretor_prev,num_unusable_issues_cretor_prev_text_word_1,num_unusable_issues_cretor_prev_text_word_1_ratio,num_unusable_issues_cretor_prev_text_word_5,num_unusable_issues_cretor_prev_text_word_5_ratio,num_unusable_issues_cretor_prev_text_word_10,num_unusable_issues_cretor_prev_text_word_10_ratio,num_unusable_issues_cretor_prev_text_word_15,num_unusable_issues_cretor_prev_text_word_15_ratio,num_unusable_issues_cretor_prev_text_word_20,num_unusable_issues_cretor_prev_text_word_20_ratio
+ARIA-1,Task,ARIA,"2016-10-14 13:20:49",ARIA-386,0,"Create infrastructure and basic unit tests for core parser and TOSCA extension","Add unit tests for core parser and TOSCA extension",NULL,"Create infrastructure and basic unit tests for core parser and TOSCA extension $end$ Add unit tests for core parser and TOSCA extension $acceptance criteria:$",NULL,"Ran Ziv","Ran Ziv",Major,12,NULL,0,4,2,1,0,1,0,NULL,0,3708,2,1,0,"2017-10-23 15:28:52","Create infrastructure and basic unit tests for core parser and TOSCA extension","Add unit tests for core parser and TOSCA extension",NULL,0,0,0,0,0,"Create infrastructure and basic unit tests for core parser and TOSCA extension $end$ Add unit tests for core parser and TOSCA extension $acceptance criteria:$",0,0,0,0,0,0,0,8978.13,0,0,0,0,0,0,0,0,0,0,0
+ARIA-118,Story,ARIA,"2017-03-08 09:42:52",NULL,0,"plugin.yaml importing","Using a plugin currently requires a user first installs the plugin (using PluginManager), then import the relevant plugin.yaml file in the service template file. The import will currently likely point to a URL, or be a path relative to the service-template yaml file.
+
+Some ideas for improvement and easing the import;
+ - If a plugin contained its plugin.yaml as part of its wagon archive, then once installed, users could import the yaml file more easily using a notation such as {{plugins/openstack.yaml}} (or perhaps {{openstack.yaml}}, having the import mechanism iterate over plugins looking for this resource file or so)
+
+ - The import mechanism could look for imports in the resource-storage as well - There could be a directory on the resource-storage designated for storing global yaml files for import, thereby simplifying reuse of yaml imports across service-templates.
+
+ - Perhaps ARIA should also support importing yaml files by using paths relative to the service-template's package root (as opposed to only looking for paths relative to the current yaml file)? Note that this could lead to ambiguities in some cases.
+
+
+Note that the last two don't necessarily have to do with plugins directly, but it's more likely to be relevant for plugins as they're used across service-templates more often.
+",NULL,"plugin.yaml importing $end$ Using a plugin currently requires a user first installs the plugin (using PluginManager), then import the relevant plugin.yaml file in the service template file. The import will currently likely point to a URL, or be a path relative to the service-template yaml file.
+
+Some ideas for improvement and easing the import;
+ - If a plugin contained its plugin.yaml as part of its wagon archive, then once installed, users could import the yaml file more easily using a notation such as {{plugins/openstack.yaml}} (or perhaps {{openstack.yaml}}, having the import mechanism iterate over plugins looking for this resource file or so)
+
+ - The import mechanism could look for imports in the resource-storage as well - There could be a directory on the resource-storage designated for storing global yaml files for import, thereby simplifying reuse of yaml imports across service-templates.
+
+ - Perhaps ARIA should also support importing yaml files by using paths relative to the service-template's package root (as opposed to only looking for paths relative to the current yaml file)? Note that this could lead to ambiguities in some cases.
+
+
+Note that the last two don't necessarily have to do with plugins directly, but it's more likely to be relevant for plugins as they're used across service-templates more often.
+ $acceptance criteria:$",NULL,"Ran Ziv","Ran Ziv",Minor,28,NULL,0,21,1,1,0,2,0,NULL,0,3708,9,2,0,"2018-02-05 14:47:45","plugin.yaml importing","Using a plugin currently requires a user first installs the plugin (using PluginManager), then import the relevant plugin.yaml file in the service template file. The import will currently likely point to a URL, or be a path relative to the service-template yaml file.
+
+Some ideas for improvement and easing the import;
+ - If a plugin contained its plugin.yaml as part of its wagon archive, then once installed, users could import the yaml file more easily using a notation such as {{plugins/openstack.yaml}} (or perhaps {{openstack.yaml}}, having the import mechanism iterate over plugins looking for this resource file or so)
+
+ - The import mechanism could look for imports in the resource-storage as well - There could be a directory on the resource-storage designated for storing global yaml files for import, thereby simplifying reuse of yaml imports across service-templates.
+
+ - Perhaps ARIA should also support importing yaml files by using paths relative to the service-template's package root (as opposed to only looking for paths relative to the current yaml file)? Note that this could lead to ambiguities in some cases.
+
+
+Note that the last two don't necessarily have to do with plugins directly, but it's more likely to be relevant for plugins as they're used across service-templates more often.
+",NULL,0,0,0,0,0,"plugin.yaml importing $end$ Using a plugin currently requires a user first installs the plugin (using PluginManager), then import the relevant plugin.yaml file in the service template file. The import will currently likely point to a URL, or be a path relative to the service-template yaml file.
+
+Some ideas for improvement and easing the import;
+ - If a plugin contained its plugin.yaml as part of its wagon archive, then once installed, users could import the yaml file more easily using a notation such as {{plugins/openstack.yaml}} (or perhaps {{openstack.yaml}}, having the import mechanism iterate over plugins looking for this resource file or so)
+
+ - The import mechanism could look for imports in the resource-storage as well - There could be a directory on the resource-storage designated for storing global yaml files for import, thereby simplifying reuse of yaml imports across service-templates.
+
+ - Perhaps ARIA should also support importing yaml files by using paths relative to the service-template's package root (as opposed to only looking for paths relative to the current yaml file)? Note that this could lead to ambiguities in some cases.
+
+
+Note that the last two don't necessarily have to do with plugins directly, but it's more likely to be relevant for plugins as they're used across service-templates more often.
+ $acceptance criteria:$",0,0,0,0,0,0,0,8021.07,1,0,0,0,0,0,0,0,0,0,0
+ARIA-389,Story,ARIA,"2017-10-17 19:55:21",NULL,0,"Add Explicit reference to Apache Code of Conduct","As a user and contributor of The Aria Tosca Apache project, I'd like to see a reference to the Apache Code of Conduct for easy reference.",NULL,"Add Explicit reference to Apache Code of Conduct $end$ As a user and contributor of The Aria Tosca Apache project, I'd like to see a reference to the Apache Code of Conduct for easy reference. $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Major,5,NULL,0,1,0,1,0,0,0,NULL,0,3708,1,0,0,"2017-10-23 13:43:15","Add Explicit reference to Apache Code of Conduct","As a user and contributor of The Aria Tosca Apache project, I'd like to see a reference to the Apache Code of Conduct for easy reference.",NULL,0,0,0,0,0,"Add Explicit reference to Apache Code of Conduct $end$ As a user and contributor of The Aria Tosca Apache project, I'd like to see a reference to the Apache Code of Conduct for easy reference. $acceptance criteria:$",0,0,0,0,0,0,0,137.783,0,0,0,0,0,0,0,0,0,0,0
+ARIA-394,Story,ARIA,"2017-10-23 15:53:43",NULL,0,"Periodic Virtual Team Blog","As a user of AriaTosca, I would like to see a bi-weekly video blog rendition of the team's progress, highlights of new functionality, etc... 
+
+Post these on YouTube
+",NULL,"Periodic Virtual Team Blog $end$ As a user of AriaTosca, I would like to see a bi-weekly video blog rendition of the team's progress, highlights of new functionality, etc... 
+
+Post these on YouTube
+ $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Major,10,NULL,0,2,0,2,0,1,0,NULL,0,3708,2,0,0,"2017-11-06 16:29:09","Weekly Virtual Team Blog","As a user of AriaTosca, I would like to see a bi-weekly video blog rendition of the team's progress, highlights of new functionality, etc... 
+
+Post these on YouTube
+",NULL,1,0,0,2,0.0285714,"Weekly Virtual Team Blog $end$ As a user of AriaTosca, I would like to see a bi-weekly video blog rendition of the team's progress, highlights of new functionality, etc... 
+
+Post these on YouTube
+ $acceptance criteria:$",1,1,0,0,0,0,1,336.583,1,0,0,0,0,0,0,0,0,0,0
+ARIA-396,Sub-task,ARIA,"2017-10-24 16:35:32",NULL,0,"Add a note in README that points to a link listing the different versions released","The link should point to https://dist.apache.org/repos/dist/dev/incubator/ariatosca/",NULL,"Add a note in README that points to a link listing the different versions released $end$ The link should point to https://dist.apache.org/repos/dist/dev/incubator/ariatosca/ $acceptance criteria:$",NULL,"Vishwanath jayaraman","Vishwanath jayaraman",Minor,2,NULL,0,0,1,3,0,0,0,NULL,0,3708,0,0,0,"2017-10-24 16:35:32","Add a note in README that points to a link listing the different versions released","The link should point to https://dist.apache.org/repos/dist/dev/incubator/ariatosca/",NULL,0,0,0,0,0,"Add a note in README that points to a link listing the different versions released $end$ The link should point to https://dist.apache.org/repos/dist/dev/incubator/ariatosca/ $acceptance criteria:$",0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+ARIA-397,Sub-task,ARIA,"2017-10-25 16:50:35",NULL,0,"Create a matrix for releases + examples that work together for each release","As a user of A-T, I'd like to see a matrix for releases + examples that work together created. This will help get people started more rapidly for each release and any quirks related to each release. 
+
+
+",NULL,"Create a matrix for releases + examples that work together for each release $end$ As a user of A-T, I'd like to see a matrix for releases + examples that work together created. This will help get people started more rapidly for each release and any quirks related to each release. 
+
+
+ $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Major,7,NULL,0,5,0,3,0,0,0,NULL,0,3708,5,0,0,"2017-10-25 16:50:35","Create a matrix for releases + examples that work together for each release","As a user of A-T, I'd like to see a matrix for releases + examples that work together created. This will help get people started more rapidly for each release and any quirks related to each release. 
+
+
+",NULL,0,0,0,0,0,"Create a matrix for releases + examples that work together for each release $end$ As a user of A-T, I'd like to see a matrix for releases + examples that work together created. This will help get people started more rapidly for each release and any quirks related to each release. 
+
+
+ $acceptance criteria:$",0,0,0,0,0,0,1,0,2,1,0.5,0,0,0,0,0,0,0,0
+ARIA-399,Sub-task,ARIA,"2017-10-25 16:54:28",NULL,0,"create a live running demo env (like ONOS) for Aria-Tosca","As a user of A-T, I would like to have live running demo env (like ONOS) for Aria-Tosca
+This running demo would include: 
+a simple/straight-forward link to images and examples such as this:
+http://onosproject.org/software/
+https://wiki.onosproject.org/display/ONOS/Tutorials
+Quick start with a VM or Container like this (https://wiki.onosproject.org/display/ONOS/Basic+ONOS+Tutorial)
+Updated/complete Docker images stored on Docker Hub and instructions for how to run.
+https://hub.docker.com/r/apacheariatosca/aria/
+Update instructions for running including for releases 
+Create different containers per major examples?",NULL,"create a live running demo env (like ONOS) for Aria-Tosca $end$ As a user of A-T, I would like to have live running demo env (like ONOS) for Aria-Tosca
+This running demo would include: 
+a simple/straight-forward link to images and examples such as this:
+http://onosproject.org/software/
+https://wiki.onosproject.org/display/ONOS/Tutorials
+Quick start with a VM or Container like this (https://wiki.onosproject.org/display/ONOS/Basic+ONOS+Tutorial)
+Updated/complete Docker images stored on Docker Hub and instructions for how to run.
+https://hub.docker.com/r/apacheariatosca/aria/
+Update instructions for running including for releases 
+Create different containers per major examples? $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Minor,23,NULL,0,20,0,3,0,0,0,NULL,0,3708,20,0,0,"2017-10-25 16:54:28","create a live running demo env (like ONOS) for Aria-Tosca","As a user of A-T, I would like to have live running demo env (like ONOS) for Aria-Tosca
+This running demo would include: 
+a simple/straight-forward link to images and examples such as this:
+http://onosproject.org/software/
+https://wiki.onosproject.org/display/ONOS/Tutorials
+Quick start with a VM or Container like this (https://wiki.onosproject.org/display/ONOS/Basic+ONOS+Tutorial)
+Updated/complete Docker images stored on Docker Hub and instructions for how to run.
+https://hub.docker.com/r/apacheariatosca/aria/
+Update instructions for running including for releases 
+Create different containers per major examples?",NULL,0,0,0,0,0,"create a live running demo env (like ONOS) for Aria-Tosca $end$ As a user of A-T, I would like to have live running demo env (like ONOS) for Aria-Tosca
+This running demo would include: 
+a simple/straight-forward link to images and examples such as this:
+http://onosproject.org/software/
+https://wiki.onosproject.org/display/ONOS/Tutorials
+Quick start with a VM or Container like this (https://wiki.onosproject.org/display/ONOS/Basic+ONOS+Tutorial)
+Updated/complete Docker images stored on Docker Hub and instructions for how to run.
+https://hub.docker.com/r/apacheariatosca/aria/
+Update instructions for running including for releases 
+Create different containers per major examples? $acceptance criteria:$",0,0,0,0,0,0,1,0,3,1,0.333333,0,0,0,0,0,0,0,0
+ARIA-401,Sub-task,ARIA,"2017-10-25 18:02:13",NULL,0,"Create a Downloads section/page, with links to the canonical Apache release.","As a user of A-T I would like to see a Downloads section/page created with links to the canonical Apache release.",NULL,"Create a Downloads section/page, with links to the canonical Apache release. $end$ As a user of A-T I would like to see a Downloads section/page created with links to the canonical Apache release. $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Major,2,NULL,0,1,1,3,0,0,0,NULL,0,3708,1,0,0,"2017-10-25 18:02:13","Create a Downloads section/page, with links to the canonical Apache release.","As a user of A-T I would like to see a Downloads section/page created with links to the canonical Apache release.",NULL,0,0,0,0,0,"Create a Downloads section/page, with links to the canonical Apache release. $end$ As a user of A-T I would like to see a Downloads section/page created with links to the canonical Apache release. $acceptance criteria:$",0,0,0,0,0,0,1,0,4,1,0.25,0,0,0,0,0,0,0,0
+ARIA-404,Sub-task,ARIA,"2017-10-25 18:04:23",NULL,0,"Add links to the TOSCA theoretical overview by Tal Liron.","As a user of A-T, I would like links to the TOSCA theoretical overview by Tal Liron added for easy access. Perhaps in the GettingStarted guide.",NULL,"Add links to the TOSCA theoretical overview by Tal Liron. $end$ As a user of A-T, I would like links to the TOSCA theoretical overview by Tal Liron added for easy access. Perhaps in the GettingStarted guide. $acceptance criteria:$",NULL,"Thomas Nadeau","Thomas Nadeau",Major,5,NULL,0,4,0,3,0,0,0,NULL,0,3708,4,0,0,"2017-10-25 18:04:23","Add links to the TOSCA theoretical overview by Tal Liron.","As a user of A-T, I would like links to the TOSCA theoretical overview by Tal Liron added for easy access. Perhaps in the GettingStarted guide.",NULL,0,0,0,0,0,"Add links to the TOSCA theoretical overview by Tal Liron. $end$ As a user of A-T, I would like links to the TOSCA theoretical overview by Tal Liron added for easy access. Perhaps in the GettingStarted guide. $acceptance criteria:$",0,0,0,0,0,0,1,0,5,1,0.2,0,0,0,0,0,0,0,0
+ARIA-405,Story,ARIA,"2017-10-29 21:05:13",NULL,0,"Remove support for Python 2.6","1) No need to block package versions in {{requirements.in}}.
+2) No need to add packages for 2.6 installs to add support for missing features.
+3) No need to test for Python 2.6 -- we can vastly simplify {{tox.ini}} and {{.travis.xml}}.
+4) Change {{setup.py}}.
+5) Change {{README.rst}}.",NULL,"Remove support for Python 2.6 $end$ 1) No need to block package versions in {{requirements.in}}.
+2) No need to add packages for 2.6 installs to add support for missing features.
+3) No need to test for Python 2.6 -- we can vastly simplify {{tox.ini}} and {{.travis.xml}}.
+4) Change {{setup.py}}.
+5) Change {{README.rst}}. $acceptance criteria:$",NULL,"Tal Liron","Tal Liron",Major,3,NULL,0,0,0,1,0,0,0,NULL,0,3708,0,0,0,"2017-10-30 19:42:10","Remove support for Python 2.6","1) No need to block package versions in {{requirements.in}}.
+2) No need to add packages for 2.6 installs to add support for missing features.
+3) No need to test for Python 2.6 -- we can vastly simplify {{tox.ini}} and {{.travis.xml}}.
+4) Change {{setup.py}}.
+5) Change {{README.rst}}.",NULL,0,0,0,0,0,"Remove support for Python 2.6 $end$ 1) No need to block package versions in {{requirements.in}}.
+2) No need to add packages for 2.6 installs to add support for missing features.
+3) No need to test for Python 2.6 -- we can vastly simplify {{tox.ini}} and {{.travis.xml}}.
+4) Change {{setup.py}}.
+5) Change {{README.rst}}. $acceptance criteria:$",0,0,0,0,0,0,0,22.6,0,0,0,0,0,0,0,0,0,0,0

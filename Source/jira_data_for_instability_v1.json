@@ -1,0 +1,8 @@
+{
+  "MongoDB": {
+    "company_url": "https://mongodb.com",
+    "jira_url": "https://jira.mongodb.org",
+    "name": "MongoDB",
+    "rough_issue_count": "137,000"
+  }
+}
