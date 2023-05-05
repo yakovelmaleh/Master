@@ -1,4 +1,3 @@
-import json
 import os.path
 
 import pandas as pd
@@ -12,21 +11,8 @@ from gensim import corpora
 from gensim.models import LsiModel
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from numpy import random
-import mysql
-import mysql.connector
 import Utils.clean_text as clean_text
 import Utils.DataBase as DB
-
-
-def choose_data_base(db_name):
-    """
-    function which gets the name of the data base and return the SQL connection
-    """
-    mysql_con = mysql.connector.connect(user='root', password='o9r1eN%^ZX', host='localhost',
-                                        database='{}'.format(db_name), auth_plugin='mysql_native_password',
-                                        use_unicode=True)
-    return mysql_con
 
 def split_train_valid_test(data_to_split):
     """
@@ -338,6 +324,7 @@ def create_directory_if_not_exist(path,dir_name):
 
 
 if __name__ == "__main__":
+    print("start Apache select num topic model")
     start1("Apache")
     print("finish")
 
