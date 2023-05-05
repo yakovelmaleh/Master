@@ -98,7 +98,7 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
 
     for size in size_vec:
         # Init the Doc2Vec model
-        model = Doc2Vec(size = size, min_count=2, alpha=0.025, seed=5, epochs=50, dm=1)
+        model = Doc2Vec(vector_size=size, min_count=2, alpha=0.025, seed=5, epochs=50, dm=1)
         # Build the Volabulary
         model.build_vocab(train_tagged)
         # Train the Doc2Vec model
