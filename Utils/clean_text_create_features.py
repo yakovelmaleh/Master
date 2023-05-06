@@ -479,6 +479,9 @@ def is_acceptance_empty_tbd(text):
     """
     this function return 1 if the acceptance criteria is empty, 0 else
     """
+    if type(text) is not str:
+        return 0
+
     if text == 'TBD' or text == 'TBD - Placeholder\n\n' or text == '\r\n\r\n' or text == '.\r\n' or text == '- a' or \
             text == '/' or text == '.' or text == '-' or text == '..' or text == '--' or text == '...' or text == 'NA' \
             or text == '?' or text is None or text.lower() == 'tbd':
