@@ -468,10 +468,13 @@ def is_description_empty_tbd(text):
     """
     this function return 1 if the description is empty, 0 else
     """
-    if text == 'TBD' or text == 'TODO' or text == '<p>TBD</p>\r\n' or text == '<p>c</p>\r\n' or \
-            text == '<p>...</p>\r\n' or text is None or text.lower() == 'tbd' or text.lower() == 'todo':
-        return 1
-    else:
+    try:
+        if text == 'TBD' or text == 'TODO' or text == '<p>TBD</p>\r\n' or text == '<p>c</p>\r\n' or \
+                text == '<p>...</p>\r\n' or text is None or text.lower() == 'tbd' or text.lower() == 'todo':
+            return 1
+        else:
+            return 0
+    except Exception as e:
         return 0
 
 
