@@ -41,7 +41,7 @@ def start(jira_name):
     data.to_csv(path)
     """
 
-    path = addPath(f'Data/{jira_name}/features_labels_table_os.csv')
+    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
     data = pd.read_csv(path)
     print(f"size of {jira_name} data: {len(data)}")
 
