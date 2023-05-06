@@ -15,6 +15,7 @@ from wordcloud import WordCloud
 import matplotlib.colors as mcolors
 from numpy import random
 from nltk.corpus import stopwords
+from pathlib import Path
 random.seed(1)
 
 
@@ -121,7 +122,8 @@ def frequency_distribution_word_counts_in_documents(df_dominant_topic, project_k
     plt.tick_params(size=16)
     plt.xticks(np.linspace(0, 800, 9))
     plt.title('Distribution of Issues Word Counts {}'.format(project_key), fontdict=dict(size=20))
-    plt.savefig('..Models/topic_model/distribution_issues_word_counts_{project}.png'.format(project = project_key))
+    path = addPath(f'Master/Models/topic_model/{project_key}/distribution_issues_word_counts_{project_key}.png')
+    plt.savefig(path)
     plt.close()
 
     cols = [color for name, color in mcolors.TABLEAU_COLORS.items()]
@@ -142,9 +144,9 @@ def frequency_distribution_word_counts_in_documents(df_dominant_topic, project_k
     fig.subplots_adjust(top=0.90)
     plt.xticks(np.linspace(0, 1000, 9))
     fig.suptitle('Distribution of Document Word Counts by Dominant Topic {}'.format(project_key), fontsize=22)
-    plt.savefig(
-        '..Models/topic_model/distribution_issues_word_counts_byDominantTopic_{project}.png'.format(
-            project = project_key))
+    path = addPath(f'Master/Models/topic_model/{project_key}/'
+                   f'distribution_issues_word_counts_byDominantTopic_{project_key}.png')
+    plt.savefig(path)
     plt.close()
 
 
@@ -176,9 +178,10 @@ def word_clouds_top_n_keywords_each_topic(stop_words, lda_model, project_key, nu
     plt.axis('off')
     plt.margins(x=0, y=0)
     plt.tight_layout()
-    plt.savefig(
-        '..Models/topic_model/word_clouds_top_n_keywords_each_topic_{project}.png'.format(
-            project = project_key))
+
+    path = addPath(f'Master/Models/topic_model/{project_key}/'
+                   f'word_clouds_top_n_keywords_each_topic_{project_key}.png')
+    plt.savefig(path)
     plt.close()
 
 
@@ -212,9 +215,9 @@ def word_clouds_of_topic_keywords(lda_model, data_words_bigrams, project_key, nu
 
     fig.tight_layout(w_pad=2)
     fig.suptitle('Word Count and Importance of Topic Keywords', fontsize=22, y=1.05)
-    plt.savefig(
-        '..Models/topic_model/word_clouds_of_topic_keywords_{project}.png'.format(
-            project = project_key))
+    path = addPath(f'Master/Models/topic_model/{project_key}/'
+                   f'word_clouds_of_topic_keywords_{project_key}.png')
+    plt.savefig(path)
     plt.close()
 
 
@@ -235,13 +238,19 @@ def create_topic_model(data_train, data_test, number_of_topics, project_key):
         text_train_list.append(row)
     # Creating the term dictionary of our corpus, where every unique term is assigned an index.
     dictionary = corpora.Dictionary(text_train_list)
-    dictionary.save("dictionary_{}".format(project_key))
+
+    path = addPath(f'Master/Models/topic_model/{project_key}/'
+                   f'dictionary_{project_key}')
+    dictionary.save(path)
     # dictionary = corpora.Dictionary.load("dictionary_{}".format(project_key))
     # Converting list of documents (corpus) into Document Term Matrix using dictionary prepared above.
     corpus = [dictionary.doc2bow(doc) for doc in text_train_list]
     # create lda model
     lda_model = create_gensim_lda_model(text_train_list, number_of_topics, words, dictionary, corpus)
-    lda_model.save("lda_model_{}".format(project_key))
+
+    path = addPath(f'Master/Models/lda_models/{project_key}/lda_model_{project_key}')
+    lda_model.save(path)
+
     df_topic_sents_keywords = format_topics_sentences(lda_model, corpus, text_train_list)
     # Format
     df_dominant_topic = df_topic_sents_keywords.reset_index()
@@ -265,4 +274,5 @@ def create_topic_model(data_train, data_test, number_of_topics, project_key):
     return df_dominant_topic, df_dominant_topic_test
 
 
-
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
