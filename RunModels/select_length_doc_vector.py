@@ -127,7 +127,9 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
              'precision_rf': precision_rf, 'recall_rf': recall_rf, 'thresholds_rf': thresholds_rf,
              'y_test': labels_test['usability_label'], 'features': 'only vec'}
 
-        results = results.append(d, ignore_index=True)
+        results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+        #results = results.append(d, ignore_index=True)
+
         # write the results to excel
         path = addPath(f'Master/Models/word_vector/{project_key}/results_{project_key}_label_is_change_text_num_words_5.csv')
         results.to_csv(path, index=False)
