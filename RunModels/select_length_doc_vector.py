@@ -108,8 +108,8 @@ def create_doc_to_vec(train_data, test_data, labels_train, labels_test, project_
         path = addPath(f'Master/Models/word_vector/{project_key}/doc2vec_{size}_{project_key}.model')
         model.save(path)
         #model = Doc2Vec.load('doc2vec_{}_{}.model'.format(size,project_key))
-        x_train =model.dv.vectors
-        # x_train = model.docvecs.vectors_docs
+        #x_train =model.dv.vectors
+        x_train = model.docvecs.vectors_docs
         #x_train = train_data1.copy()
         x_train = pd.DataFrame(x_train)
         x_test = vec_for_learning(model, test_tagged)
