@@ -20,11 +20,11 @@ if __name__ == '__main__':
             with open("logs.txt", "a") as myfile:
                 myfile.write(f"start DB: {jira_name}\n")
                 myfile.write(f"start calculate_time_add_sprint\n")
-            if jira_name != 'Hyperledger' and jira_name != 'IntelDAOS' and jira_name != 'Apache':
+            if jira_name != 'IntelDAOS' and jira_name != 'Apache':
                 print("********************start calculate_time_add_sprint********************")
                 calculate_time_add_sprint.start(jira_name)
 
-            if jira_name != 'Hyperledger' and jira_name != 'IntelDAOS' and jira_name != 'Apache':
+            if jira_name != 'IntelDAOS' and jira_name != 'Apache':
                 print("********************start prepare_data_sql********************")
                 with open("logs.txt", "a") as myfile:
                     myfile.write(f"start prepare_data_sql\n")

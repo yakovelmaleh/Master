@@ -1,4 +1,10 @@
 {
+  "Hyperledger": {
+    "company_url": "https://hyperledger.org/about",
+    "jira_url": "https://jira.hyperledger.org",
+    "name": "Hyperledger",
+    "rough_issue_count": "28,000"
+  },
   "Qt": {
     "company_url": "https://qt.io/company",
     "jira_url": "https://bugreports.qt.io",
