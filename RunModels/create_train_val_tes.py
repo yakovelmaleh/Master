@@ -67,14 +67,17 @@ def start(jira_name):
     # ############################ clean text and create all features ######################
     features_data_train_val = clean_text_create_features.create_feature_data(train, text_type, jira_name)
     features_data_valid = clean_text_create_features.create_feature_data(valid, text_type, jira_name)
-    features_data_train_test = features_data_train_val.append(features_data_valid, ignore_index=True)
+    features_data_train_test = pd.concat([features_data_train_val, features_data_valid],ignore_index=True)
+    #features_data_train_test = features_data_train_val.append(features_data_valid, ignore_index=True)
+
     features_data_test = clean_text_create_features.create_feature_data(test, text_type, jira_name)
     # ########### create doc vec with the script create_doc_vec ################
     train_vec, valid_vec = create_doc_vec.create_doc_to_vec(train, valid, True, size_vec, jira_name, 'Validation')
     features_data_train_val = pd.concat([features_data_train_val, train_vec], axis=1)
     features_data_valid = pd.concat([features_data_valid, valid_vec], axis=1)
 
-    train_val = train.append(valid, ignore_index=True)
+    #train_val = train.append(valid, ignore_index=True)
+    train_val = pd.concat([train,valid], ignore_index=True)
     train_test_vec, test_vec = create_doc_vec.create_doc_to_vec(train_val, test, True, size_vec, jira_name, 'Test')
     features_data_train_test = pd.concat([features_data_train_test, train_test_vec], axis=1)
     features_data_test = pd.concat([features_data_test, test_vec], axis=1)
