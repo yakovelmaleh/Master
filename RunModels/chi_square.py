@@ -1,15 +1,19 @@
 import json
-
+import os
 import pandas as pd
 import sklearn
 from sklearn.feature_selection import RFE
 from sklearn.ensemble import RandomForestClassifier
+from pathlib import Path
 
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 def start(jira_name):
+
     results = pd.DataFrame(columns=['project_key', 'usability_label', 'feature_name', 'chi_square', 'p_value',
                                     'rfe_support', 'rfe_ranking'])
-    path = ''
+
     model = RandomForestClassifier()
 
     text_type = 'original_summary_description_acceptance_sprint'
@@ -25,10 +29,11 @@ def start(jira_name):
         # for each label type (5,10,15,20)
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
         # extract features
+        path = addPath(f'Master/Models/train_test/{jira_name}')
         features_data_train = pd.read_csv(
-            '..Models/train_test/features_data_train_{}_{}.csv'.format(project_key, label_name[0]), low_memory=False)
+            f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
         labels_train = pd.read_csv(
-            '..Models/train_test/labels_train_{}_{}.csv'.format(project_key, label_name[0]), low_memory=False)
+            f'{path}/labels_train_{project_key}_{label_name[0]}.csv', low_memory=False)
         # delete unrelevant features
         del features_data_train['issue_key']
         del features_data_train['created']
@@ -41,6 +46,31 @@ def start(jira_name):
         del features_data_train['avg_word_len']
         del features_data_train['avg_num_word_in_sentence']
         del features_data_train['len_description']
+
+        del features_data_train['len_acceptance']
+
+        del features_data_train['num_stopwords']
+        del features_data_train['num_issues_cretor_prev']
+        del features_data_train['num_changes_text_before_sprint']
+        del features_data_train['ratio_unusable_issues_text_by_previous']
+        del features_data_train['num_comments_before_sprint']
+        del features_data_train['num_changes_story_point_before_sprint']
+        del features_data_train['time_until_add_sprint']
+        del features_data_train['noun_count']
+        del features_data_train['verb_count']
+        del features_data_train['adj_count']
+        del features_data_train['adv_count']
+        del features_data_train['pron_count']
+        del features_data_train['block']
+        del features_data_train['block_by']
+        del features_data_train['duplicate']
+        del features_data_train['relates']
+        del features_data_train['duplicate_by']
+
+        if project_key == 'Apache':
+            features_data_train.drop(
+                ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], axis=1,
+                inplace=True)
 
         print("data {}: \n, \n label_name.key: {}, \n".format(project_key, label_name[0]))
         names = list(features_data_train.columns.values)
@@ -60,10 +90,12 @@ def start(jira_name):
                  'chi_square': chi_square[0][i], 'p_value': chi_square[1][i],
                  'rfe_support': rfe.support_[i], 'rfe_ranking': rfe.ranking_[i]}
 
-            results = results.append(d, ignore_index=True)
+            results = pd.concat([results,pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+            #results = results.append(d, ignore_index=True)
 
     # write the results to excel
-    results.to_csv('..Models/chi_square/chi_square_{}.csv'.format(project_key), index=False)
+    path = addPath(f'Master/Models/chi_square/{jira_name}')
+    results.to_csv(f'{path}/chi_square_{project_key}.csv', index=False)
     print("project key done: {}".format(project_key))
 
 
