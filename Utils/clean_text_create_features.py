@@ -12,6 +12,7 @@ warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
 import nltk
 from string import punctuation
 
+
 """
     this function get the text field and the project name, and clean the text from unwanted signs
     output: the clean text
@@ -491,6 +492,7 @@ def len_description(text):
 
 
 def create_feature_data(data, text_type, project_key):
+    nltk.download('punkt')
     """
     this function get the data and add it features that we can extract from the text, by the help of the functions that details above
     """
