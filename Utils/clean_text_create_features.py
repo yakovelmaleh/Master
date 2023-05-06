@@ -392,6 +392,8 @@ def check_if_has_template(description):
                 return 1
     except TypeError:
         return 0
+    except Exception as e:
+        return 0
     return 0
 
 
