@@ -1,4 +1,6 @@
 import pandas as pd
+import os
+from pathlib import Path
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk import bigrams, ngrams
 from numpy import random
