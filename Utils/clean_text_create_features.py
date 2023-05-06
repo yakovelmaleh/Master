@@ -519,8 +519,10 @@ def create_feature_data(data, text_type, project_key):
 
     features_data['if_acceptance_empty_tbd'] = data['original_acceptance_criteria_sprint'].apply(
          lambda x: is_acceptance_empty_tbd(x))
-        features_data['len_acceptance'] = data['original_acceptance_criteria_sprint'].apply(
+
+    features_data['len_acceptance'] = data['original_acceptance_criteria_sprint'].apply(
             lambda x: len_description(x))
+
     features_data['avg_word_len'] = data['clean_text'].apply(lambda x: avg_word(x))
     features_data['avg_num_word_in_sentence'] = data['clean_text'].apply(lambda x: list_num_word_in_sen(x))
     features_data['has_tbd'] = data['{}'.format(text_type)].apply(lambda x: 1 if (x.lower().count("tbd") or
