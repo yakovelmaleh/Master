@@ -19,13 +19,13 @@ def start(jira_name):
         # read all the data sets and delete from each one the unwanted features by the chi-square results in the excel files
         for label_name in dict_labels.items():
             print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
-            path = addPath(f'Master/Model/train_val/{project_key}')
+            path = addPath(f'Master/Models/train_val/{project_key}')
             features_data_train_valid = pd.read_csv(
                 f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
             features_data_valid = pd.read_csv(
                 f'{path}/features_data_valid_{project_key}_{label_name[0]}.csv', low_memory=False)
 
-            path = addPath(f'Master/Model/train_test/{project_key}')
+            path = addPath(f'Master/Models/train_test/{project_key}')
             features_data_train_test = pd.read_csv(
                 f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
             features_data_test = pd.read_csv(
