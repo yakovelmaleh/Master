@@ -4,6 +4,8 @@ from nltk import bigrams, ngrams
 from numpy import random
 random.seed(1)
 
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 def tag_docs(docs, col):
     tagged = docs.apply(
@@ -29,7 +31,7 @@ this function creates the document vector.
 input: project data
 ouptup: train and test document vector feature
 """
-def create_doc_to_vec(train_data, test_data, is_first, size, project_key):
+def create_doc_to_vec(train_data, test_data, is_first, size, project_key, name):
 
     train_index = train_data.index.values
     test_index = test_data.index.values
@@ -48,7 +50,8 @@ def create_doc_to_vec(train_data, test_data, is_first, size, project_key):
         # Train the Doc2Vec model
         model.train(train_tagged, total_examples=model.corpus_count, epochs=model.epochs)
         # saving the created model
-        model.save('doc2vec_{}_{}.model'.format(size, project_key))
+        path = addPath(f'Master/Models/final_doc2vec_models/{project_key}/doc2vec_{name}_{size}_{project_key}.model')
+        model.save(path)
         # model = Doc2Vec.load('doc2vec_10_{}.model'.format(project_key))
 
         x_train = model.docvecs.vectors_docs
