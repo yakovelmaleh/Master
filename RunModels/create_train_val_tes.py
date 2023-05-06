@@ -39,7 +39,9 @@ def start(jira_name):
     cursor.execute("SET character_set_connection=utf8mb4")
     data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con=mysql_con)
     """
-    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
+
+    path = addPath(f'Data/{jira_name}/features_labels_table_os.csv')
+    data.to_csv(path)
     data = pd.read_csv(path)
     print(f"size of {jira_name} data: {len(data)}")
 
