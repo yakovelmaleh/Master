@@ -86,19 +86,19 @@ def start(jira_name):
 
             if project_key == 'Apache':
                 features_data_train_valid.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'if_acceptance_empty_tbd', 'len_acceptance',
+                                                '11', '12', '13', '14', 'len_acceptance',
                                                 'noun_count', 'verb_count', 'adj_count',
                                                 'adv_count', 'pron_count'], axis=1, inplace=True)
                 features_data_valid.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'if_acceptance_empty_tbd', 'len_acceptance',
+                                                '11', '12', '13', '14', 'len_acceptance',
                                                 'noun_count', 'verb_count', 'adj_count',
                                                 'adv_count', 'pron_count'], axis=1, inplace=True)
                 features_data_train_test.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'if_acceptance_empty_tbd', 'len_acceptance',
+                                                '11', '12', '13', '14', 'len_acceptance',
                                                 'noun_count', 'verb_count', 'adj_count',
                                                 'adv_count', 'pron_count'], axis=1, inplace=True)
                 features_data_test.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'if_acceptance_empty_tbd', 'len_acceptance',
+                                                '11', '12', '13', '14', 'len_acceptance',
                                                 'noun_count', 'verb_count', 'adj_count',
                                                 'adv_count', 'pron_count'], axis=1, inplace=True)
 
