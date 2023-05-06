@@ -88,7 +88,7 @@ def create_issue_links_all(data, path):
                                       "t3.project_key = 'DEVELOPER' ", con=mysql_con_os)
     """
 
-    help_data = pd.read_sql(path)
+    help_data = pd.read_csv(path)
     # run 2 functions which added the number of issue link of each type to the original data
     help_data = remove_extracted_links(help_data)
     data = create_issue_links_features(help_data, data)
