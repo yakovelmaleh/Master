@@ -51,7 +51,7 @@ def start(jira_name):
     data = pd.read_csv(f'{path}/features_labels_table_os.csv')
     print(f"size of {jira_name} data: {len(data)}")
 
-    data = create_issue_link.create_issue_links_all(f'{path}/create_issue_link_data.csv')
+    data = create_issue_link.create_issue_links_all(data,f'{path}/create_issue_link_data.csv')
 
     text_type = 'original_summary_description_acceptance_sprint'
 
