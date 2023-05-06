@@ -1,12 +1,10 @@
 import json
 
-import mysql
 import pandas as pd
-import mysql.connector
 import Utils.clean_text_create_features as clean_text_create_features
 import Utils.create_topic_model as create_topic_model
 import Utils.create_doc_vec as create_doc_vec
-import Utils.DataBase as DB
+from pathlib import Path
 
 
 def split_train_valid_test(data_to_split):
@@ -24,8 +22,12 @@ def split_train_valid_test(data_to_split):
     test = data_to_split.loc[num_rows_valid:, :].reset_index(drop=True)
     return train, valid, test
 
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
+
 
 def start(jira_name):
+    """
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
@@ -35,9 +37,13 @@ def start(jira_name):
     cursor.execute('SET NAMES utf8mb4')
     cursor.execute("SET CHARACTER SET utf8mb4")
     cursor.execute("SET character_set_connection=utf8mb4")
+    data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con=mysql_con)
+    """
+    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
+    data = pd.read_csv(path)
 
     optimal_values = {
-        'A': [5, 10],
+        'Apache': [3, 15],
         'B': [5, 10],
         'C': [5, 10],
         'D': [5, 10],
@@ -51,7 +57,7 @@ def start(jira_name):
                    'is_change_text_num_words_15': 'num_unusable_issues_cretor_prev_text_word_15_ratio',
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
 
-    data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con=mysql_con)
+
     num_topics = optimal_values[jira_name][0]
     size_vec = optimal_values[jira_name][1]
 
@@ -64,12 +70,12 @@ def start(jira_name):
     features_data_train_test = features_data_train_val.append(features_data_valid, ignore_index=True)
     features_data_test = clean_text_create_features.create_feature_data(test, text_type, jira_name)
     # ########### create doc vec with the script create_doc_vec ################
-    train_vec, valid_vec = create_doc_vec.create_doc_to_vec(train, valid, True, size_vec, jira_name)
+    train_vec, valid_vec = create_doc_vec.create_doc_to_vec(train, valid, True, size_vec, jira_name, 'Validation')
     features_data_train_val = pd.concat([features_data_train_val, train_vec], axis=1)
     features_data_valid = pd.concat([features_data_valid, valid_vec], axis=1)
 
     train_val = train.append(valid, ignore_index=True)
-    train_test_vec, test_vec = create_doc_vec.create_doc_to_vec(train_val, test, True, size_vec, jira_name)
+    train_test_vec, test_vec = create_doc_vec.create_doc_to_vec(train_val, test, True, size_vec, jira_name, 'Test')
     features_data_train_test = pd.concat([features_data_train_test, train_test_vec], axis=1)
     features_data_test = pd.concat([features_data_test, test_vec], axis=1)
     # ########### add topic model with the script create_topic_model ################
@@ -118,34 +124,30 @@ def start(jira_name):
 
         # ################################### save the feature table  ####################################
         # train val
+        path = addPath(f'/Master/Models/train_val/{jira_name}')
+
         features_data_train_val.to_csv(
-            '..Models/train_val/features_data_train_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/features_data_train_{jira_name}_{label_name[0]}.csv', index=False)
         features_data_valid.to_csv(
-            '..Models/train_val/features_data_valid_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/features_data_valid_{jira_name}_{label_name[0]}.csv', index=False)
 
         labels_train_val.to_csv(
-            '..Models/train_val/labels_train_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/labels_train_{jira_name}_{label_name[0]}.csv', index=False)
         labels_valid.to_csv(
-            '..Models/train_val/labels_valid_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/labels_valid_{jira_name}_{label_name[0]}.csv', index=False)
 
         # train test
+        path = addPath(f'/Master/Models/train_test/{jira_name}')
+
         features_data_train_test.to_csv(
-            '..Models/train_test/features_data_train_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/features_data_train_{jira_name}_{label_name[0]}.csv', index=False)
         features_data_test.to_csv(
-            '..Models/train_test/features_data_test_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/features_data_test_{jira_name}_{label_name[0]}.csv', index=False)
 
         labels_train_test.to_csv(
-            '..Models/train_test/labels_train_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/labels_train_{jira_name}_{label_name[0]}.csv', index=False)
         labels_test.to_csv(
-            '..Models/train_test/labels_test_{prject}_{label}.csv'.format(prject=jira_name, label=label_name[0]),
-            index=False)
+            f'{path}/labels_test_{jira_name}_{label_name[0]}.csv', index=False)
 
 
 if __name__ == "__main__":
