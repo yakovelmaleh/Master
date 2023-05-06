@@ -207,11 +207,16 @@ def check_if_in_head(name_head, headlines_list):
     """
     function that return 1 if the text contain headline, 0 else
     """
-    if name_head in headlines_list:
-        is_headline = 1
-    else:
-        is_headline = 0
-    return is_headline
+    try:
+        headlines_list = headlines_list()
+        if name_head in headlines_list:
+            is_headline = 1
+        else:
+            is_headline = 0
+        return is_headline
+
+    except Exception as e:
+        return 0
 
 
 def clean_text(text):
@@ -280,8 +285,6 @@ def get_headlines(issue_description2):
                     heads.append('notes')
 
     return heads
-
-
 
 def check_if_has_code(text):
     """
@@ -519,7 +522,7 @@ def create_feature_data(data, text_type, project_key):
         lambda x: len([word for word in nltk.tokenize.word_tokenize(x) if word.isalnum()]))
 
     features_data['has_acceptance_criteria'] = data['original_description_sprint'].apply(
-        lambda x: check_if_in_head('acceptance criteria', get_headlines(x)))
+        lambda x: check_if_in_head('acceptance criteria', lambda:get_headlines(x)))
 
     features_data['if_acceptance_empty_tbd'] = data['original_acceptance_criteria_sprint'].apply(
          lambda x: is_acceptance_empty_tbd(x))
