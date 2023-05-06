@@ -1,5 +1,5 @@
 import json
-
+import os
 import pandas as pd
 import Utils.clean_text_create_features as clean_text_create_features
 import Utils.create_topic_model as create_topic_model
@@ -41,6 +41,7 @@ def start(jira_name):
     """
     path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
     data = pd.read_csv(path)
+    print(f"size of {jira_name} data: {len(data)}")
 
     optimal_values = {
         'Apache': [3, 15],
