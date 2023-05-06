@@ -5,6 +5,7 @@ import Utils.clean_text_create_features as clean_text_create_features
 import Utils.create_topic_model as create_topic_model
 import Utils.create_doc_vec as create_doc_vec
 from pathlib import Path
+import Utils.create_issue_link as create_issue_link
 
 
 def split_train_valid_test(data_to_split):
@@ -37,21 +38,20 @@ def start(jira_name):
     cursor.execute('SET NAMES utf8mb4')
     cursor.execute("SET CHARACTER SET utf8mb4")
     cursor.execute("SET character_set_connection=utf8mb4")
-    data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con=mysql_con)
+    data = pd.read_sql(f"select t3.issue_key as issue_key1, t2.issue_key as issue_key2,
+                                      t3.time_add_to_sprint, t2.created, t2.from_string, t2.to_string, t2.field, 
+                                      t3.time_add_to_sprint>t2.created as if_before from 
+                                      data_base_os_apache.features_labels_table_os t3 left join 
+                                      data_base_os_apache.all_changes_os t2 ON t3.issue_key = t2.issue_key 
+                                      and t2.field = 'Link' where t3.issue_key is not null", con=mysql_con)
     data.to_csv(path)
     """
+    path = addPath(f'Master/Data/{jira_name}')
 
-    path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
-    data = pd.read_csv(path)
+    data = pd.read_csv(f'{path}/features_labels_table_os.csv')
     print(f"size of {jira_name} data: {len(data)}")
 
-    optimal_values = {
-        'Apache': [3, 15],
-        'B': [5, 10],
-        'C': [5, 10],
-        'D': [5, 10],
-        'E': [5, 10]
-    }
+    data = create_issue_link.create_issue_links_all(f'{path}/create_issue_link_data.csv')
 
     text_type = 'original_summary_description_acceptance_sprint'
 
@@ -60,6 +60,13 @@ def start(jira_name):
                    'is_change_text_num_words_15': 'num_unusable_issues_cretor_prev_text_word_15_ratio',
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
 
+    optimal_values = {
+        'Apache': [3, 15],
+        'B': [5, 10],
+        'C': [5, 10],
+        'D': [5, 10],
+        'E': [5, 10]
+    }
 
     num_topics = optimal_values[jira_name][0]
     size_vec = optimal_values[jira_name][1]
@@ -130,7 +137,7 @@ def start(jira_name):
 
         # ################################### save the feature table  ####################################
         # train val
-        path = addPath(f'/Master/Models/train_val/{jira_name}')
+        path = addPath(f'Master/Models/train_val/{jira_name}')
 
         features_data_train_val.to_csv(
             f'{path}/features_data_train_{jira_name}_{label_name[0]}.csv', index=False)
@@ -143,7 +150,7 @@ def start(jira_name):
             f'{path}/labels_valid_{jira_name}_{label_name[0]}.csv', index=False)
 
         # train test
-        path = addPath(f'/Master/Models/train_test/{jira_name}')
+        path = addPath(f'Master/Models/train_test/{jira_name}')
 
         features_data_train_test.to_csv(
             f'{path}/features_data_train_{jira_name}_{label_name[0]}.csv', index=False)
