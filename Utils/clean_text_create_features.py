@@ -491,11 +491,13 @@ def is_acceptance_empty_tbd(text):
 
 
 def len_description(text):
-    if text is None:
+    try:
+        if text is None:
+            return 0
+        else:
+            return len(text)
+    except Exception as e:
         return 0
-    else:
-        return len(text)
-
 
 def create_feature_data(data, text_type, project_key):
     nltk.download('punkt')
