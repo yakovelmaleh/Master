@@ -3,6 +3,12 @@ import json
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
+from pathlib import Path
+import os
+
+
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 def run_random_forest(x_train, x_test, y_train, y_test):
     """
@@ -163,16 +169,16 @@ def start(jira_name):
     # for each feature group run random forest prediction model and write the results to excel
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
+
+        path = addPath(f'Master/Models/train_val_after_chi/{project_key}')
         features_data_train1 = pd.read_csv(
-            '..Models/train_val_after_chi/features_data_train_{}_{}.csv'.format(project_key, label_name[0]),
-            low_memory=False)
+            f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
         features_data_valid1 = pd.read_csv(
-            '..Models/train_val_after_chi/features_data_valid_{}_{}.csv'.format(project_key, label_name[0]),
-            low_memory=False)
-        labels_train = pd.read_csv(
-            './train_val/labels_train_{}_{}.csv'.format(project_key, label_name[0]), low_memory=False)
-        labels_valid = pd.read_csv(
-            './train_val/labels_valid_{}_{}.csv'.format(project_key, label_name[0]), low_memory=False)
+            f'{path}/features_data_valid_{project_key}_{label_name[0]}.csv', low_memory=False)
+
+        path = addPath(f'Master/Models/train_val/{project_key}')
+        labels_train = pd.read_csv(f'{path}/labels_train_{project_key}_{label_name[0]}.csv', low_memory=False)
+        labels_valid = pd.read_csv(f'{path}/labels_valid_{project_key}_{label_name[0]}.csv', low_memory=False)
 
         num_group = 0
         for feature in features_vector:
@@ -209,11 +215,12 @@ def start(jira_name):
                  'area_under_roc_curve_rf': area_under_roc_curve_rf, 'y_pred_rf': y_pred_rf,
                  'y_valid': labels_valid['usability_label']}
 
-            results = results.append(d, ignore_index=True)
+            results = pd.concat([results,  pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+            #results = results.append(d, ignore_index=True)
             num_group = num_group + 1
 
-        results.to_csv('..Models/feature_selection/results_groups2_{}_label_{}.csv'.format(project_key,
-                                                                                    label_name[0]), index=False)
+        path =addPath(f'Master/Models/feature_selection/{project_key}')
+        results.to_csv(f'{path}/results_groups2_{project_key}_label_{label_name[0]}.csv', index=False)
 
         results = pd.DataFrame(
             columns=['project_key', 'usability_label', 'group', 'features', 'feature_importance', 'accuracy_rf',
