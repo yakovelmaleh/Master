@@ -166,14 +166,13 @@ def create_pre_rec_curve(y_test, y_score, average_precision,project_key,label,al
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
+    path = addPath(f'Master/Models/results_best_para/{project_key}')
     if all_but_one_group:
         plt.savefig(
-            './results_best_para/pre_recall_curve_groups_{}_{}_{}.png'.format(
-                project_key, label, algorithm))
+            f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
     else:
         plt.savefig(
-            './results_best_para/pre_recall_curve_{}_{}_{}.png'.format(
-                project_key, label, algorithm))
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}.png')
     plt.close()
     return area
 
