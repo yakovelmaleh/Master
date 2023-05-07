@@ -13,6 +13,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingClassifier
 
 from xgboost import XGBClassifier
+from pathlib import Path
+import os
+
+
+def addPath(path):
+    return str(Path(os.getcwd()).joinpath(path))
 
 """
 this script run the all the different model types,
@@ -271,16 +277,17 @@ def run_model_grid(x_train, y_train, project_key, label, all_but_one_group, path
          'n_estimators_rf': best_para_rf['n_estimators'], 'max_features_rf': best_para_rf['max_features'],
          'max_depth_rf': best_para_rf['max_depth']}
 
-    rf_results = rf_results.append(d, ignore_index=True)
+    rf_results = pd.concat([rf_results, pd.DataFrame([d.values()], columns=d.keys())],
+                           ignore_index=True)
+    # rf_results = rf_results.append(d, ignore_index=True)
 
+    path = addPath(f'Master/Models/optimization_results/{project_key}')
     if all_but_one_group:
         rf_results.to_csv(
-            '{}/optimization_results/grid_results_groups_{}_label_{}_RF.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/grid_results_groups_{project_key}_label_{label}_RF.csv', index=False)
     else:
         rf_results.to_csv(
-            '{}/optimization_results/grid_results_{}_label_{}_RF.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/grid_results_{project_key}_label_{label}_RF.csv', index=False)
 
     # XGboost:
     xgboost_results = pd.DataFrame(columns=['project_key', 'usability_label', 'features', 'n_estimators_xgboost',
@@ -296,16 +303,17 @@ def run_model_grid(x_train, y_train, project_key, label, all_but_one_group, path
          'scale_pos_weight_xgboost': best_para_xgboost['scale_pos_weight'],
          'min_child_weight_xgboost':  best_para_xgboost['min_child_weight']}
 
-    xgboost_results = xgboost_results.append(d, ignore_index=True)
+    xgboost_results = pd.concat([xgboost_results, pd.DataFrame([d.values()], columns=d.keys())],
+                           ignore_index=True)
+    # xgboost_results = xgboost_results.append(d, ignore_index=True)
 
+    path = addPath(f'Master/Models/optimization_results/{project_key}')
     if all_but_one_group:
         xgboost_results.to_csv(
-            '{}/optimization_results/grid_results_groups_{}_label_{}_XGboost.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/optimization_results/grid_results_groups_{project_key}_label_{label}_XGboost.csv', index=False)
     else:
         xgboost_results.to_csv(
-            '{}/optimization_results/grid_results_{}_label_{}_XGboost.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/grid_results_{project_key}_label_{label}_XGboost.csv', index=False)
 
     # NN:
     nn_results = pd.DataFrame(columns=['project_key', 'usability_label', 'features', 'hidden_layer_sizes_nn',
@@ -326,15 +334,17 @@ def run_model_grid(x_train, y_train, project_key, label, all_but_one_group, path
          'activation_nn': best_para_nn['activation'], 'solver_nn': best_para_nn['solver'],
          'alpha_nn': best_para_nn['alpha'], 'learning_rate_nn': best_para_nn['learning_rate']}
 
-    nn_results = nn_results.append(d, ignore_index=True)
+    nn_results = pd.concat([nn_results, pd.DataFrame([d.values()], columns=d.keys())],
+                           ignore_index=True)
+    # nn_results = nn_results.append(d, ignore_index=True)
+
+    path = addPath(f'Master/Models/optimization_results/{project_key}')
     if all_but_one_group:
         nn_results.to_csv(
-            '{}/optimization_results/grid_results_groups_{}_label_{}_NN.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/grid_results_groups_{project_key}_label_{label}_NN.csv', index=False)
     else:
         nn_results.to_csv(
-            '{}/optimization_results/grid_results_{}_label_{}_NN.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/grid_results_{project_key}_label_{label}_NN.csv', index=False)
 
 
 def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label, all_but_one_group, path):
@@ -389,14 +399,18 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                  'max_depth': max_depth, 'min_samples_split': min_sample_split,
                                  'min_samples_leaf': min_sample_leaf, 'bootstrap': bootstrap}
 
-                            rf_results = rf_results.append(d, ignore_index=True)
+                            rf_results = pd.concat([rf_results, pd.DataFrame([d.values()], columns=d.keys())],
+                                                ignore_index=True)
+                            #rf_results = rf_results.append(d, ignore_index=True)
 
     if all_but_one_group:
+        path = addPath(f'Master/Models/optimization_results/{project_key}')
         rf_results.to_csv(
-            '{}/optimization_results/results_groups_{}_label_{}_RF.csv'.format(path, project_key, label), index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_RF.csv', index=False)
     else:
+        path = addPath(f'Master/Models/optimization_results/{project_key}')
         rf_results.to_csv(
-            '{}/optimization_results/results_{}_label_{}_RF.csv'.format(path, project_key, label), index=False)
+            f'{path}/optimization_results/results_{project_key}_label_{label}_RF.csv', index=False)
 
     # XGboost:
     xgboost_results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy_xgboost',
@@ -435,14 +449,17 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                              'max_depth': max_depth, 'min_samples_split': min_sample_split,
                              'min_samples_leaf': min_sample_leaf}
 
-                        xgboost_results = xgboost_results.append(d, ignore_index=True)
+                        xgboost_results = pd.concat([xgboost_results, pd.DataFrame([d.values()], columns=d.keys())],
+                                               ignore_index=True)
+                        #xgboost_results = xgboost_results.append(d, ignore_index=True)
 
     if all_but_one_group:
+        path = addPath(f'Master/Models/optimization_results/{project_key}')
         xgboost_results.to_csv(
-            '{}/optimization_results/results_groups_{}_label_{}_XGboost.csv'.format(path, project_key, label), index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_XGboost.csv', index=False)
     else:
         xgboost_results.to_csv(
-            '{}/optimization_results/results_{}_label_{}_XGboost.csv'.format(path, project_key, label), index=False)
+            f'{path}/results_{project_key}_label_{label}_XGboost.csv', index=False)
 
     # NN:
     nn_results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy_nn',
@@ -489,13 +506,15 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                              'max_iterations': max_iteration, 'solver': solver, 'num_batches_size': num_batch,
                              'activation': activation}
 
-                        nn_results = nn_results.append(d, ignore_index=True)
+                        nn_results = pd.concat([nn_results, pd.DataFrame([d.values()], columns=d.keys())],
+                                               ignore_index=True)
+                        #nn_results = nn_results.append(d, ignore_index=True)
 
     if all_but_one_group:
+        path = addPath(f'Master/Models/optimization_results/{project_key}')
         nn_results.to_csv(
-            '{}/optimization_results/results_groups_{}_label_{}_NN.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_NN.csv', index=False)
     else:
+        path = addPath(f'Master/Models/optimization_results/{project_key}')
         nn_results.to_csv(
-            '{}/optimization_results/results_{}_label_{}_NN.csv'.format(path,
-                project_key, label), index=False)
+            f'{path}/results_{project_key}_label_{label}_NN.csv', index=False)

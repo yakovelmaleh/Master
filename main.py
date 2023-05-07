@@ -5,6 +5,7 @@ import RunModels.create_train_val_tes as create_train_val_tes
 import RunModels.chi_square as chi_square
 import RunModels.remove_features as remove_features
 import RunModels.feature_selection_groups as feature_selection_groups
+import RunModels.run_train_val_optimization as run_train_val_optimization
 
 if __name__ == '__main__':
     """
@@ -13,7 +14,8 @@ if __name__ == '__main__':
     create_train_val_tes.start('Apache')
     chi_square.start('Apache')
     remove_features.start('Apache')
+    feature_selection_groups.start('Apache')
     """
     print('start Apache')
-    feature_selection_groups.start('Apache')
+    run_train_val_optimization.start('Apache')
     print('finish Apache')
