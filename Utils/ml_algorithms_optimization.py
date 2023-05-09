@@ -439,7 +439,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
          'min_samples_leaf': best_params['min_samples_leaf']
          }
 
-    rf_results = pd.concat([rf_results, pd.DataFrame([d.values()], columns=d.keys())],
+    xgboost_results = pd.concat([xgboost_results, pd.DataFrame([d.values()], columns=d.keys())],
                            ignore_index=True)
 
     path = addPath(f'Master/Models/optimization_results/{project_key}')
