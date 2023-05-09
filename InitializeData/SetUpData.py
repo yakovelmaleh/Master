@@ -787,6 +787,7 @@ def startSetUp(jira_name, jira_obj):
     name_map = {field['name']: field['id'] for field in all_fields}
 
     flag = True
+    MongoDB_issue_num = 0
     for project_name in auth_jira.projects():
         size = 100
         initial = 0
@@ -824,6 +825,11 @@ def startSetUp(jira_name, jira_obj):
             *************** run over all issues****************
             for each issue, extract all the data fields from the net into the sql tables, some by using the fucntion in the start
             """
+            if flag and MongoDB_issue_num < 16000:
+                MongoDB_issue_num += len(issues)
+                continue
+
+            flag = False
             for issue in issues:
                 try:
                     time.sleep(1)
