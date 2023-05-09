@@ -265,40 +265,6 @@ def create_topic_model(data_train, project_key, data_test, labels_train, labels_
 
 
 def start(jira_name):
-    """
-    dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
-    mysql_con = DB.connectToSpecificDB(dbName)
-    cursor = mysql_con.cursor()
-    print(f'connected to DB: {DB.DB_NAME}_{jira_name.lower()}')
-
-    # Enforce UTF-8 for the connection
-    cursor.execute('SET NAMES utf8mb4')
-    cursor.execute("SET CHARACTER SET utf8mb4")
-    cursor.execute("SET character_set_connection=utf8mb4")
-
-    data = pd.read_sql(f"SELECT * FROM {dbName}.features_labels_table_os", con=mysql_con)
-    text_type = 'original_summary_description_acceptance_sprint'
-    train, valid, test = split_train_valid_test(data)
-
-    clean_text.create_clean_text(train, text_type)
-    clean_text.create_clean_text(valid, text_type)
-    clean_text.create_clean_text(test, text_type)
-    train_test = pd.concat([train, valid], ignore_index=True)
-
-    labels_train = pd.DataFrame()
-    labels_valid = pd.DataFrame()
-    labels_train['usability_label'] = train['is_change_text_num_words_5'] # check way only 5
-    labels_valid['usability_label'] = valid['is_change_text_num_words_5']
-    labels_train['issue_key'] = train['issue_key']
-    labels_valid['issue_key'] = valid['issue_key']
-
-    create_topic_model2(train_test, jira_name)
-    create_topic_model(train, jira_name, valid, labels_train,
-                       labels_valid)
-                       """
-
-
-def start1(jira_name):
     path = addPath(f'Master/Data/{jira_name}/features_labels_table_os.csv')
     data = pd.read_csv(path)
     text_type = 'original_summary_description_acceptance_sprint'
@@ -334,7 +300,7 @@ def create_directory_if_not_exist(path,dir_name):
 
 if __name__ == "__main__":
     print("start Apache select num topic model")
-    start1("Apache")
+    start("Apache")
     print("finish")
 
     """
