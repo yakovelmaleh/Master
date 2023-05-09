@@ -45,7 +45,7 @@ def start(jira_name):
             parameters_xg = pd.read_csv(
                 f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
             parameters_nn = pd.read_csv(
-                f'{path}/results_groups_{project_key}_label_{label}_NN.csv', low_memory=False)
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
         # all groups
         else:
 
