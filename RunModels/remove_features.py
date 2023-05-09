@@ -35,7 +35,7 @@ def start(jira_name):
                 if label_name[0] == 'is_change_text_num_words_5':
                     features_data_train_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
                                                     'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    #ssssssssssssssss
+
                     features_data_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
                                                     'if_description_empty_tbd','priority'], axis=1, inplace=True)
                     features_data_train_test.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
