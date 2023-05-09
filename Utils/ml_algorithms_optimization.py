@@ -409,8 +409,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                             'confusion_matrix_xgboost', 'classification_report_xgboost',
                                             'area_under_pre_recall_curve_xgboost', 'avg_precision_xgboost',
                                             'area_under_roc_curve_xgboost', 'y_pred_xgboost', 'num_trees',
-                                            'max_features', 'max_depth', 'min_samples_split', 'min_samples_leaf',
-                                            'scale_pos_weight', 'min_child_weight'
+                                            'max_features', 'max_depth', 'min_samples_split', 'min_samples_leaf'
                                             ])
     parmas ={
         'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
@@ -418,9 +417,6 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
         'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
         'min_samples_leaf': [1, 2, 4],
         'min_samples_split': [2, 5, 10],
-        'scale_pos_weight': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                             y_train[y_train == 0].count() / float(y_train[y_train == 1].count())],
-        'min_child_weight': range(1, 6, 2),
     }
 
     accuracy_xgboost, confusion_matrix_xgboost, classification_report_xgboost, \
@@ -440,8 +436,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
          'y_pred_xgboost': y_pred_xgboost, 'num_trees': best_params['n_estimators'],
          'max_features': best_params['max_features'],
          'max_depth': best_params['max_depth'], 'min_samples_split': best_params['min_samples_split'],
-         'min_samples_leaf': best_params['min_samples_leaf'], 'scale_pos_weight': best_params['scale_pos_weight'],
-         'min_child_weight': best_params['min_child_weight']
+         'min_samples_leaf': best_params['min_samples_leaf']
          }
 
     rf_results = pd.concat([rf_results, pd.DataFrame([d.values()], columns=d.keys())],
