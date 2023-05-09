@@ -27,35 +27,6 @@ in the main function we run the prediction every time with different parameters,
 and return the results
 """
 
-def down_sampling1(x, y, is_down):
-    # down_sampling:
-    # Indicies of each class' observations
-
-    y0_indices = [i for i in range(len(y)) if y[i] == 0]
-    y1_indices = [i for i in range(len(y)) if y[i] == 1]
-    # Number of observations in each class
-    num_class0 = len(y0_indices)
-    num_class1 = len(y1_indices)
-    if is_down:
-        # For every observation of class 0, randomly sample from class 1 without replacement
-        np.random.seed(77)
-        i_class0_downsampled = np.random.choice(y0_indices, size=num_class1, replace=False)
-        # Join together class 0's target vector with the downsampled class 1's target vector
-        y = y[i_class0_downsampled].append(y[y1_indices], ignore_index=True)
-        x = pd.DataFrame(x)
-        x = x.iloc[i_class0_downsampled].append(x.iloc[y1_indices], ignore_index=True)
-    else:
-        #  ######## up sampling: ##################
-        # For every observation in class 0, randomly sample from class 1 with replacement
-        np.random.seed(77)
-        i_class1_upsampled = np.random.choice(y1_indices, size=int(num_class0), replace=True)
-        # Join together class 1's upsampled target vector with class 0's target vector
-        y = y[i_class1_upsampled].append(y[y0_indices], ignore_index=True)
-        x = pd.DataFrame(x)
-        x = x.iloc[i_class1_upsampled].append(x.iloc[y0_indices], ignore_index=True)
-
-    return x, y
-
 
 def run_random_forest(x_train, x_test, y_train, y_test, num_trees, max_feature, max_depths, min_sample_split,
                       min_sample_leaf, bootstraps,project_key,label,all_but_one_group):
