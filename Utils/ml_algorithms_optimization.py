@@ -522,8 +522,8 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
 
     # Train the model
     clf.fit(x_train, y_train)
-    feature_imp = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
-    print(f"feature importance {model_name}:{feature_imp}")
+    # feature_imp = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
+    # print(f"feature importance {model_name}:{feature_imp}")
     y_pred = clf.predict(x_test)
     y_score = clf.predict_proba(x_test)
     accuracy = metrics.accuracy_score(y_test, y_pred)
@@ -543,4 +543,4 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
-            y_pred, feature_imp, clf.best_params_]
+            y_pred, 0, clf.best_params_]
