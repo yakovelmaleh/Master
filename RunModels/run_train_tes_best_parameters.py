@@ -222,7 +222,7 @@ def start(jira_name):
 
         path = addPath(f'Master/Models/results_best_para/{project_key}')
         if all_but_one_group:
-            results.to_csv(f'{path}/results_groups_{project_key}.csv', index=False)
+            results.to_csv(f'{path}/results_groups_{project_key}_{label_name[0]}.csv', index=False)
         else:
             results.to_csv(
                 f'{path}/results_{project_key}.csv', index=False)
