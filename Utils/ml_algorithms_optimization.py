@@ -482,9 +482,10 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
     }
     accuracy_nn, confusion_matrix_nn, classification_report_nn, \
         area_under_pre_recall_curve_nn, avg_pre_nn, avg_auc_nn, \
-        y_pred_nn, best_params = run_best_params_CV(model=MLPClassifier(),dict=parmas, model_name='NN', x_train=x_train_nn,
+        y_pred_nn, features, best_params = run_best_params_CV(model=MLPClassifier(),dict=parmas, model_name='NN', x_train=x_train_nn,
                                                     x_test=x_test_nn, y_train=y_train, y_test=y_test, project_key=project_key, label=label,
                                                     all_but_one_group=all_but_one_group)
+
 
     d = {'project_key': project_key, 'usability_label': label,
          'accuracy_nn': accuracy_nn, 'confusion_matrix_nn': confusion_matrix_nn,
@@ -517,6 +518,11 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
 
     # Train the model
     clf.fit(x_train, y_train)
+
+    try:
+        features = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
+    except:
+        features = 0
     # feature_imp = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
     # print(f"feature importance {model_name}:{feature_imp}")
     y_pred = clf.predict(x_test)
@@ -538,4 +544,4 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
-            y_pred, 0, clf.best_params_]
+            y_pred, features, clf.best_params_]
