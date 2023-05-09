@@ -427,7 +427,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
         area_under_pre_recall_curve_xgboost, avg_pre_xgboost, avg_auc_xgboost, \
         y_pred_xgboost, feature_importance, best_params = run_best_params_CV(model=GradientBoostingClassifier(),
                                                                              dict=parmas,model_name='XGboost',
-                                                                             x_train, x_test, y_train, y_test,
+                                                                             x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test,
                                                                              project_key=project_key, label=label,
                                                                              all_but_one_group=all_but_one_group)
 
@@ -487,9 +487,9 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
     }
     accuracy_nn, confusion_matrix_nn, classification_report_nn, \
         area_under_pre_recall_curve_nn, avg_pre_nn, avg_auc_nn, \
-        y_pred_nn, best_params = run_best_params_CV(model=,x_train_nn,dict=parmas, model_name='NN', x_test_nn, y_train,
-                                       y_test, project_key=project_key, label=label,
-                                       all_but_one_group=all_but_one_group)
+        y_pred_nn, best_params = run_best_params_CV(model=MLPClassifier(),dict=parmas, model_name='NN', x_train=x_train_nn,
+                                                    x_test=x_test_nn, y_train=y_train, y_test=y_test, project_key=project_key, label=label,
+                                                    all_but_one_group=all_but_one_group)
 
     d = {'project_key': project_key, 'usability_label': label,
          'accuracy_nn': accuracy_nn, 'confusion_matrix_nn': confusion_matrix_nn,
