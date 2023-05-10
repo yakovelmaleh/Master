@@ -8,6 +8,7 @@ import Utils.DataBase as DB
 
 
 def start(jira_name):
+
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
