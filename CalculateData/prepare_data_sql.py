@@ -343,7 +343,7 @@ def add_cal_columns_(mysql_con, sql_add_columns, main_data, change_summary, chan
                 print(i)
         except Exception as e:
             with open("logs.txt", "a") as myfile:
-                myfile.write(f'ERROR: index:{i}, issue_key:{issue_name}\n', e)
+                myfile.write(f'ERROR: index:{i}, issue_key:{issue_name}\n message:{e}')
 
 def start(jira_name):
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
