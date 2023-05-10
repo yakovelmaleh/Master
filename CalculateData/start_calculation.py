@@ -20,16 +20,16 @@ if __name__ == '__main__':
             with open("logs.txt", "a") as myfile:
                 myfile.write(f"start DB: {jira_name}\n")
                 myfile.write(f"start calculate_time_add_sprint\n")
-            if jira_name != 'IntelDAOS' and jira_name != 'Apache':
+            if jira_name != 'IntelDAOS' and jira_name != 'Apache' and jira_name != 'Qt':
                 print("********************start calculate_time_add_sprint********************")
                 calculate_time_add_sprint.start(jira_name)
 
-            if jira_name != 'IntelDAOS' and jira_name != 'Apache':
+            if jira_name != 'IntelDAOS' and jira_name != 'Apache' and jira_name != 'Qt':
                 print("********************start prepare_data_sql********************")
                 with open("logs.txt", "a") as myfile:
                     myfile.write(f"start prepare_data_sql\n")
                 prepare_data_sql.start(jira_name)
-            if jira_name != 'Apache':
+            if jira_name != 'Apache' and jira_name != 'Qt':
                 print("********************start add_body_clean_comments********************")
                 with open("logs.txt", "a") as myfile:
                     myfile.write(f"start add_body_clean_comments\n")
@@ -45,10 +45,10 @@ if __name__ == '__main__':
                     myfile.write(f"start delete_no_sprint_no_done\n")
                 delete_no_sprint_no_done.start(jira_name)
 
-            print("********************start create_combine_columns_summary_description********************")
-            with open("logs.txt", "a") as myfile:
-                myfile.write(f"start create_combine_columns_summary_description\n")
-            create_combine_columns_summary_description.start(jira_name)
+                print("********************start create_combine_columns_summary_description********************")
+                with open("logs.txt", "a") as myfile:
+                    myfile.write(f"start create_combine_columns_summary_description\n")
+                create_combine_columns_summary_description.start(jira_name)
 
             print("********************start calculate_ratio_nltk********************")
             with open("logs.txt", "a") as myfile:

@@ -1,6 +1,6 @@
 import json
 import os
-import pandas as pd
+
 import RunModels.select_num_topic_model as select_num_topic_model
 import RunModels.select_length_doc_vector as select_length_doc_vector
 import RunModels.create_train_val_tes as create_train_val_tes
@@ -9,6 +9,8 @@ import RunModels.remove_features as remove_features
 import RunModels.feature_selection_groups as feature_selection_groups
 import RunModels.run_train_val_optimization as run_train_val_optimization
 import RunModels.run_train_tes_best_parameters as run_train_tes_best_parameters
+import pandas as pd
+# import Utils.DataBase as DB
 
 
 def createFolders(jira_name):
@@ -61,15 +63,16 @@ def createFolders(jira_name):
 
 
 
-"""
+
 def create_feature_csv(jira_name):
+    """
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
 
     #delete Attachment
-    comments_data = pd.read_sql(f'SELECT * FROM {dbName}.comments_os', con=mysql_con)
+    comments_data = pd.read_sql(f'SELECT * FROM {dbName}.features_labels_table_os', con=mysql_con)
     comments_data.to_csv(f'Data/{jira_name}/features_labels_table_os.csv')
-"""
+    """
 
 
 if __name__ == '__main__':
@@ -89,6 +92,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
+            #create_feature_csv(jira_name)
             select_num_topic_model.start(jira_name)
             select_length_doc_vector.start(jira_name)
 

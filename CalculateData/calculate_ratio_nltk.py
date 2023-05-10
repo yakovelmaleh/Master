@@ -23,29 +23,39 @@ def start(jira_name):
                             num_ratio_words_all_text_sprint_new =%s
                            WHERE (issue_key=%s)"""
 
-    for i in range(0, len(data)):
-        issue_key = data['issue_key'][i]
-        original_text = data['original_summary_description_acceptance_sprint'][i]
-        text_last = data['summary_description_acceptance'][i]
-        different = nltk.edit_distance(original_text.split(), text_last.split())
-        length_text_original = len(original_text.split())
-        if length_text_original == 0:
-            length_text_original = 1
-        ratio = different/length_text_original
+    if jira_name == 'Qt':
+        init = 5000
+    else:
+        init = 0
 
-        # update the results in the SQL table
+    for i in range(init, len(data)):
         try:
-            cursor = mysql_con.cursor()
-            cursor.execute(sql_update_columns, (int(different), float(ratio), issue_key))
-            mysql_con.commit()
-            cursor.close()
-        except mysql.connector.IntegrityError:
-            print("ERROR: Kumquat already exists!")
+            issue_key = data['issue_key'][i]
+            original_text = data['original_summary_description_acceptance_sprint'][i]
+            text_last = data['summary_description_acceptance'][i]
+            different = nltk.edit_distance(original_text.split(), text_last.split())
+            length_text_original = len(original_text.split())
+            if length_text_original == 0:
+                length_text_original = 1
+            ratio = different/length_text_original
+
+            # update the results in the SQL table
+            try:
+                cursor = mysql_con.cursor()
+                cursor.execute(sql_update_columns, (int(different), float(ratio), issue_key))
+                mysql_con.commit()
+                cursor.close()
+            except mysql.connector.IntegrityError:
+                print("ERROR: Kumquat already exists!")
+            except Exception as e:
+                print(f"ERROR: issueKey = {issue_key}\n" + e)
+            if i % 100 == 0:
+                with open("logs.txt", "a") as myfile:
+                    myfile.write(f'{i}\n')
+                print(i)
         except Exception as e:
-            print(f"ERROR: issueKey = {issue_key}\n" + e)
-        if i % 100 == 0:
             with open("logs.txt", "a") as myfile:
-                myfile.write(f'{i}\n')
+                myfile.write(f'ERROR: index:{i}\n issue_key: {data["issue_key"][i]}\n error massage: {e}')
             print(i)
 
 
