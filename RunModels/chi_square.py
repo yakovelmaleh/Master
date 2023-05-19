@@ -67,10 +67,19 @@ def start(jira_name):
         del features_data_train['relates']
         del features_data_train['duplicate_by']
 
-        if project_key == 'Apache':
+        if project_key == 'Apache' or project_key == 'Hyperledger':
             features_data_train.drop(
                 ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], axis=1,
                 inplace=True)
+
+        if project_key == 'IntelDAOS':
+            features_data_train.drop(
+                ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], axis=1, inplace=True)
+
+        if project_key == 'Jira' or project_key == 'MariaDB':
+            features_data_train.drop(
+                ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
+                 '18', '19'], axis=1, inplace=True)
 
         print("data {}: \n, \n label_name.key: {}, \n".format(project_key, label_name[0]))
         names = list(features_data_train.columns.values)
