@@ -1,6 +1,6 @@
 from setfit import SetFitModel
 import pandas as pd
-import Classic_BERT
+import BERT.Classic_BERT as Classic_BERT
 
 
 def start(jira_name, main_path):
