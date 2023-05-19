@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from funcsigs import signature
 from transformers import TFBertForSequenceClassification, BertTokenizer
-import run_fit_setfit_bert
+import BERT.run_fit_setfit_bert as run_fit_setfit_bert
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn import metrics
