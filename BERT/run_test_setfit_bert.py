@@ -1,6 +1,7 @@
 from setfit import SetFitModel
 import pandas as pd
 import BERT.Classic_BERT as Classic_BERT
+import numpy as np
 
 
 def start(jira_name, main_path):
@@ -19,6 +20,8 @@ def start(jira_name, main_path):
         test_labels = list(test['label'])
 
         test_predictions = model(test_sentence)
+        test_predictions = np.array(test_predictions)
+
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, precision, recall, thresholds =\
             Classic_BERT.get_report(model=model, kind_of_bert="SetFit", jira_name=jira_name, main_path=main_path,
