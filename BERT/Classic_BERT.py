@@ -46,8 +46,8 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, jira_name, label, path
 
 def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predictions, x_test, test_labels):
 
-    y_score = predict_proba(model, x_test)
-    positive_class_probabilities = [prob[1] for prob in y_score]
+    y_score = model.predict_proba(x_test)
+    # positive_class_probabilities = [prob[1] for prob in y_score]
 
     accuracy = metrics.accuracy_score(test_labels, test_predictions)
     print(f"Accuracy {jira_name} {k_unstable}-unstable:", accuracy)
@@ -59,19 +59,19 @@ def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predi
     print(f"classification_report {jira_name} {k_unstable}-unstable: \n {classific_report}")
 
     # Create precision, recall curve
-    average_precision = metrics.average_precision_score(test_labels, positive_class_probabilities)
+    average_precision = metrics.average_precision_score(test_labels, y_score[:, 1])
     print(f'Average precision-recall score {jira_name} {k_unstable}-unstable: {average_precision}')
 
-    auc = metrics.roc_auc_score(test_labels, positive_class_probabilities)
+    auc = metrics.roc_auc_score(test_labels, y_score[:, 1])
     print(f'AUC roc {jira_name} {k_unstable}-unstable: {auc}')
 
-    precision, recall, thresholds = metrics.precision_recall_curve(test_labels, positive_class_probabilities)
+    precision, recall, thresholds = metrics.precision_recall_curve(test_labels, y_score[:, 1])
 
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {jira_name} {k_unstable}-unstable: {area_under_pre_recall_curve}')
 
     path = f'{main_path}BERT/Results/{jira_name}'
-    create_pre_rec_curve(test_labels, positive_class_probabilities,
+    create_pre_rec_curve(test_labels, y_score[:, 1],
                          average_precision, kind_of_bert, jira_name, k_unstable, path)
 
     return [accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc,
