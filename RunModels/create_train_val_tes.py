@@ -6,6 +6,7 @@ import Utils.create_topic_model as create_topic_model
 import Utils.create_doc_vec as create_doc_vec
 from pathlib import Path
 import Utils.create_issue_link as create_issue_link
+# import Utils.DataBase as DB
 
 
 def split_train_valid_test(data_to_split):
@@ -23,12 +24,13 @@ def split_train_valid_test(data_to_split):
     test = data_to_split.loc[num_rows_valid:, :].reset_index(drop=True)
     return train, valid, test
 
+
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
 
-def start(jira_name):
-    """
+"""
+def pre_create_issue_link_data(jira_name):
     dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
     mysql_con = DB.connectToSpecificDB(dbName)
     cursor = mysql_con.cursor()
@@ -39,13 +41,17 @@ def start(jira_name):
     cursor.execute("SET CHARACTER SET utf8mb4")
     cursor.execute("SET character_set_connection=utf8mb4")
     data = pd.read_sql(f"select t3.issue_key as issue_key1, t2.issue_key as issue_key2,
-                                      t3.time_add_to_sprint, t2.created, t2.from_string, t2.to_string, t2.field, 
-                                      t3.time_add_to_sprint>t2.created as if_before from 
-                                      data_base_os_apache.features_labels_table_os t3 left join 
-                                      data_base_os_apache.all_changes_os t2 ON t3.issue_key = t2.issue_key 
+                                      t3.time_add_to_sprint, t2.created, t2.from_string, t2.to_string, t2.field,
+                                      t3.time_add_to_sprint>t2.created as if_before from
+                                      data_base_os_{jira_name.lower()}.features_labels_table_os t3 left join
+                                      data_base_os_{jira_name.lower()}.all_changes_os t2 ON t3.issue_key = t2.issue_key
                                       and t2.field = 'Link' where t3.issue_key is not null", con=mysql_con)
+    path = addPath(f'Data/{jira_name}/create_issue_link_data.csv')
     data.to_csv(path)
-    """
+"""
+
+
+def start(jira_name):
     path = addPath(f'Master/Data/{jira_name}')
 
     data = pd.read_csv(f'{path}/features_labels_table_os.csv')
