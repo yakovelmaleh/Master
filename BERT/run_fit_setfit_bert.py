@@ -36,6 +36,12 @@ def get_data_train_with_labels(jira_name, main_path, k_unstable):
     train_data = train_data.drop('issue_key', axis=1)
     valid_data = valid_data.drop('issue_key', axis=1)
 
+    return train_data, valid_data
+
+
+def get_dataset_train_with_labels(jira_name, main_path, k_unstable):
+    train_data, valid_data = get_data_train_with_labels(jira_name, main_path, k_unstable)
+
     train_data = Dataset(pa.Table.from_pandas(train_data))
     valid_data = Dataset(pa.Table.from_pandas(valid_data))
 
@@ -45,7 +51,7 @@ def get_data_train_with_labels(jira_name, main_path, k_unstable):
 def start(jira_name, main_path):
     for num in [5, 10, 15, 20]:
         # Load Data and valid
-        train, valid = get_data_train_with_labels(jira_name, main_path, num)
+        train, valid = get_dataset_train_with_labels(jira_name, main_path, num)
 
         # Simulate the few-shot regime by sampling 8 examples per class
         train_dataset = sample_dataset(train, label_column="label", num_samples=8)
