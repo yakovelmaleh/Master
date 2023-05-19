@@ -7,5 +7,6 @@ if __name__ == '__main__':
     run_setfit_bert.start('Apache', 'Master/')
     run_test_setfit_bert.start('Apache', 'Master/')
     """
+    print('Start Classic_BERT APACHE')
     Classic_BERT.start('Apache', 'Master/')
 
