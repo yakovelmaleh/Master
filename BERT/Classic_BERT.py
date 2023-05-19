@@ -114,6 +114,11 @@ def batch_encode(tokenizer, data):
 
 
 def start(jira_name, main_path):
+    results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy',
+                                    'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
+                                    'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
+                                    'recall', 'thresholds'])
+
     for k_unstable in [5,10,15,20]:
 
         # Load the BERT model and tokenizer
@@ -163,27 +168,27 @@ def start(jira_name, main_path):
             validation_data=([val_input_ids, val_attention_mask], val_labels)
         )
 
-        # Evaluate the model on the test data
-        test_loss, test_accuracy = model.evaluate([test_input_ids, test_attention_mask], test_labels)
-
-        # Print the test loss and accuracy
-        print(f"Test Loss {jira_name} {k_unstable}:", test_loss)
-        print(f"Test Accuracy {jira_name} {k_unstable}: ", test_accuracy)
-
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
-        predicted_labels = np.argmax(predictions, axis=1)
+        predictions = np.array(predictions)
 
-        # Convert the predicted labels to a numpy array
-        predicted_labels = np.array(predicted_labels)
+        accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc, \
+            y_pred, precision, recall, thresholds =\
+            get_report(model=model, kind_of_bert="Classic", jira_name=jira_name, main_path=main_path,
+                       k_unstable=k_unstable, test_predictions=predictions,
+                       x_test=[test_input_ids, test_attention_mask], test_labels=test_labels)
 
-        # Print the classification report
-        report = classification_report(test_labels, predicted_labels, output_dict=True)
-        print(report)
+        d = {
+            'jira_name': jira_name, 'usability_label': k_unstable,
+            'accuracy': accuracy, 'confusion_matrix': confusion_matrix, 'classification_report': classific_report,
+            'area_under_pre_recall_curve': area_under_pre_recall_curve, 'avg_precision': average_precision,
+            'area_under_roc_curve': auc, 'y_pred': y_pred, 'precision': precision, 'recall': recall,
+            'thresholds': thresholds
+        }
 
-        df = pd.DataFrame(report).transpose()
+        results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
-        df.to_csv(f'{main_path}BERT/Results/{jira_name}/classic_BERT_{k_unstable}.csv')
+    results.to_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result.csv', index=False)
 
 
 
