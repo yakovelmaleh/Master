@@ -62,10 +62,10 @@ def start(jira_name):
 
     optimal_values = {
         'Apache': [3, 15],
-        'B': [5, 10],
-        'C': [5, 10],
-        'D': [5, 10],
-        'E': [5, 10]
+        'Hyperledger': [2, 15],
+        'IntelDAOS': [4, 10],
+        'Jira': [2, 20],
+        'MariaDB': [2, 20],
     }
 
     num_topics = optimal_values[jira_name][0]
