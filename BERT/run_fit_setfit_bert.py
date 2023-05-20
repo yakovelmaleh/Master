@@ -10,8 +10,8 @@ def get_data_train_with_labels(jira_name, main_path, k_unstable):
     all_features = pd.read_csv(path)
 
     path = f"{main_path}Models/train_val/{jira_name}"
-    train_keys = pd.read_csv(f'{path}/features_data_train_Apache_is_change_text_num_words_{k_unstable}.csv')
-    valid_keys = pd.read_csv(f'{path}/features_data_valid_Apache_is_change_text_num_words_{k_unstable}.csv')
+    train_keys = pd.read_csv(f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv')
+    valid_keys = pd.read_csv(f'{path}/features_data_valid_{jira_name}_is_change_text_num_words_{k_unstable}.csv')
 
     train_keys = train_keys[['issue_key']]
     valid_keys = valid_keys[['issue_key']]
@@ -76,7 +76,7 @@ def start(jira_name, main_path):
         trainer.train()
         metrics = trainer.evaluate()
 
-        trainer.push_to_hub(f"YakovElm/Apache{num}SetFitModel")
+        trainer.push_to_hub(f"YakovElm/{jira_name}{num}SetFitModel")
         print(f"Metrics of {num}:")
         print(metrics)
         print(f'finish {num}')

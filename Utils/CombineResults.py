@@ -41,8 +41,39 @@ def new_raw(data, k_unstable):
     return pd.DataFrame([d.values()], columns=d.keys())
 
 
+def combineResultsBert(jira_name, main_path):
+
+    result_classic_5 = pd.read_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_5.csv')
+    result_classic_10 = pd.read_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_10.csv')
+    result_classic_15 = pd.read_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_15.csv')
+    result_classic_20 = pd.read_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_20.csv')
+    result_set_fit = pd.read_csv(f'{main_path}BERT/Results/{jira_name}/SetFit_result.csv')
+
+    output = pd.DataFrame(columns=['k_unstable', 'Classic_BERT_PRC', 'SetFit_PRC', 'Classic_BERT_ROC', 'SetFit_ROC',
+                                   'Classic_BERT_Acc', 'SetFit_Acc'])
+
+    output = pd.concat([output, add_new_bert_raw(5, result_classic_5, result_set_fit, 0)], ignore_index=True)
+
+    output = pd.concat([output, add_new_bert_raw(10, result_classic_10, result_set_fit, 1)], ignore_index=True)
+
+    output = pd.concat([output, add_new_bert_raw(15, result_classic_15, result_set_fit, 2)], ignore_index=True)
+
+    output = pd.concat([output, add_new_bert_raw(20, result_classic_20, result_set_fit, 3)], ignore_index=True)
+
+    output.to_csv(f'{main_path}BERT/Results/{jira_name}/combineResultsBert.csv')
 
 
+def add_new_bert_raw(k_unstable, classic_bert, set_fit, num):
+    d = {
+        'k_unstable': k_unstable,
+        'Classic_BERT_PRC': classic_bert['area_under_pre_recall_curve'][4],
+        'Classic_BERT_ROC': classic_bert['area_under_roc_curve'][4],
+        'Classic_BERT_Acc': classic_bert['accuracy'][4],
+        'SetFit_PRC': set_fit['area_under_pre_recall_curve'][num],
+        'SetFit_ROC': set_fit['area_under_roc_curve'][num],
+        'SetFit_Acc': set_fit['accuracy'][num],
+    }
+    return pd.DataFrame([d.values()], columns=d.keys())
 
 
 

@@ -12,6 +12,9 @@ import RunModels.run_train_tes_best_parameters as run_train_tes_best_parameters
 import pandas as pd
 # import Utils.DataBase as DB
 import Utils.CombineResults as CombineResults
+import BERT.run_fit_setfit_bert as run_fit_setfit_bert
+import BERT.run_test_setfit_bert as run_test_setfit_bert
+import BERT.Classic_BERT as Classic_BERT
 
 
 def createFolders(jira_name):
@@ -94,7 +97,9 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            CombineResults.combineResults(jira_name, f'Master/Models/results_best_para/{jira_name}')
+            run_fit_setfit_bert.start(jira_name, 'Master/')
+            run_test_setfit_bert.start(jira_name, 'Master/')
+            Classic_BERT.start(jira_name, 'Master/')
             #create_feature_csv(jira_name)
         except Exception as e:
             print(e)

@@ -94,7 +94,7 @@ def get_test_data(jira_name, main_path, k_unstable):
         ['issue_key', 'original_summary_description_acceptance_sprint', f'is_change_text_num_words_{k_unstable}']]
 
     path = f"{main_path}Models/train_test/{jira_name}"
-    test_keys = pd.read_csv(f'{path}/features_data_test_Apache_is_change_text_num_words_{k_unstable}.csv')
+    test_keys = pd.read_csv(f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{k_unstable}.csv')
 
     test_keys = test_keys[['issue_key']]
     test_data = test_keys.join(all_features.set_index('issue_key'), on='issue_key')
