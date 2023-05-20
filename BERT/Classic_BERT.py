@@ -7,6 +7,8 @@ import numpy as np
 from sklearn.metrics import classification_report
 from sklearn import metrics
 import pandas as pd
+from scipy.special import softmax
+from transformers import TrainingArguments, Trainer
 
 
 def predict_proba(model, x_test):
@@ -44,9 +46,14 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, jira_name, label, path
     return area
 
 
-def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predictions, x_test, test_labels):
+def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predictions, x_test, test_labels,
+               threshold=None):
 
-    y_score = model.predict_proba(x_test)
+    if kind_of_bert == 'Classic':
+        y_score = softmax(test_predictions, axis=1)
+        test_predictions = np.where(y_score[:, 1] >= threshold, 1, 0)
+    else:
+        y_score = model.predict_proba(x_test)
     # positive_class_probabilities = [prob[1] for prob in y_score]
 
     accuracy = metrics.accuracy_score(test_labels, test_predictions)
@@ -70,9 +77,10 @@ def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predi
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {jira_name} {k_unstable}-unstable: {area_under_pre_recall_curve}')
 
-    path = f'{main_path}BERT/Results/{jira_name}'
-    create_pre_rec_curve(test_labels, y_score[:, 1],
-                         average_precision, kind_of_bert, jira_name, k_unstable, path)
+    if threshold is None or threshold == 0.5:
+        path = f'{main_path}BERT/Results/{jira_name}'
+        create_pre_rec_curve(test_labels, y_score[:, 1],
+                             average_precision, kind_of_bert, jira_name, k_unstable, path)
 
     return [accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc,
             test_predictions, precision, recall, thresholds]
@@ -114,7 +122,7 @@ def batch_encode(tokenizer, data):
 
 
 def start(jira_name, main_path):
-    results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy',
+    results = pd.DataFrame(columns=['jira_name', 'usability_label', 'threshold', 'accuracy',
                                     'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
                                     'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
                                     'recall', 'thresholds'])
@@ -141,6 +149,39 @@ def start(jira_name, main_path):
         val_encoded = batch_encode(tokenizer, val_sentences)
         test_encoded = batch_encode(tokenizer, test_sentences)
 
+        batch_size = 32
+        metric_name = "f1"
+
+        args = TrainingArguments(
+            f"bert-finetuned-sem_eval-english",
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            learning_rate=3e-5,
+            per_device_train_batch_size=batch_size,
+            per_device_eval_batch_size=batch_size,
+            num_train_epochs=3,
+            weight_decay=0.01,
+            load_best_model_at_end=True,
+            metric_for_best_model=metric_name,
+        )
+
+        trainer = Trainer(
+            model,
+            args,
+            train_dataset=train_encoded,
+            eval_dataset=val_encoded,
+            tokenizer=tokenizer,
+        )
+
+        trainer.train()
+        trainer.evaluate()
+
+        trainer.push_to_hub(f'YakovElm/{jira_name}{k_unstable}Classic')
+        print(f'Save {jira_name}{k_unstable}Classic model')
+
+        y_predictions = trainer.model(test_encoded)
+        predictions = np.array(y_predictions)
+        """
         train_input_ids = train_encoded['input_ids']
         train_attention_mask = train_encoded['attention_mask']
         train_labels = tf.convert_to_tensor(train_labels)
@@ -149,9 +190,7 @@ def start(jira_name, main_path):
         val_attention_mask = val_encoded['attention_mask']
         val_labels = tf.convert_to_tensor(val_labels)
 
-        test_input_ids = test_encoded['input_ids']
-        test_attention_mask = test_encoded['attention_mask']
-        test_labels = tf.convert_to_tensor(test_labels)
+
 
         # Compile the BERT classification model
         optimizer = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0)
@@ -171,29 +210,51 @@ def start(jira_name, main_path):
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
         predictions = np.array(predictions)
+        """
 
-        accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc, \
-            y_pred, precision, recall, thresholds =\
-            get_report(model=model, kind_of_bert="Classic", jira_name=jira_name, main_path=main_path,
-                       k_unstable=k_unstable, test_predictions=predictions,
-                       x_test=[test_input_ids, test_attention_mask], test_labels=test_labels)
+        test_input_ids = test_encoded['input_ids']
+        test_attention_mask = test_encoded['attention_mask']
+        test_labels = tf.convert_to_tensor(test_labels)
 
-        d = {
-            'jira_name': jira_name, 'usability_label': k_unstable,
-            'accuracy': accuracy, 'confusion_matrix': confusion_matrix, 'classification_report': classific_report,
-            'area_under_pre_recall_curve': area_under_pre_recall_curve, 'avg_precision': average_precision,
-            'area_under_roc_curve': auc, 'y_pred': y_pred, 'precision': precision, 'recall': recall,
-            'thresholds': thresholds
-        }
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.25)
 
-        results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.5)
 
-    results.to_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result.csv', index=False)
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.75)
+
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.9)
+
+        results.to_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv', index=False)
+
+        results = pd.DataFrame(columns=['jira_name', 'usability_label', 'threshold', 'accuracy',
+                                        'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
+                                        'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
+                                        'recall', 'thresholds'])
 
 
+def add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                      test_attention_mask, test_labels, threshold):
 
+    accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc, \
+        y_pred, precision, recall, thresholds = \
+        get_report(model=model, kind_of_bert="Classic", jira_name=jira_name, main_path=main_path,
+                   k_unstable=k_unstable, test_predictions=predictions,
+                   x_test=[test_input_ids, test_attention_mask], test_labels=test_labels, threshold=threshold)
 
+    d = {
+        'jira_name': jira_name, 'usability_label': k_unstable, 'threshold': threshold,
+        'accuracy': accuracy, 'confusion_matrix': confusion_matrix, 'classification_report': classific_report,
+        'area_under_pre_recall_curve': area_under_pre_recall_curve, 'avg_precision': average_precision,
+        'area_under_roc_curve': auc, 'y_pred': y_pred, 'precision': precision, 'recall': recall,
+        'thresholds': thresholds
+    }
 
+    results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+    return results
 
 
 
