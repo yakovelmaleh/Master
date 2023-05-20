@@ -130,57 +130,66 @@ def start(jira_name, main_path):
     for k_unstable in [5,10,15,20]:
 
         # Load the BERT model and tokenizer
-        model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased')
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-        train, valid = run_fit_setfit_bert.get_data_train_with_labels(jira_name, main_path, k_unstable)
         test = get_test_data(jira_name, main_path, k_unstable)
-
-        train_sentences = list(train['sentence'])
-        train_labels = list(train['label'])
-
-        val_sentences = list(valid['sentence'])
-        val_labels = list(valid['label'])
 
         test_sentences = list(test['sentence'])
         test_labels = list(test['label'])
 
-        train_encoded = batch_encode(tokenizer, train_sentences)
-        val_encoded = batch_encode(tokenizer, val_sentences)
         test_encoded = batch_encode(tokenizer, test_sentences)
-
-        train_input_ids = train_encoded['input_ids']
-        train_attention_mask = train_encoded['attention_mask']
-        train_labels = tf.convert_to_tensor(train_labels)
-
-        val_input_ids = val_encoded['input_ids']
-        val_attention_mask = val_encoded['attention_mask']
-        val_labels = tf.convert_to_tensor(val_labels)
 
         test_input_ids = test_encoded['input_ids']
         test_attention_mask = test_encoded['attention_mask']
         test_labels = tf.convert_to_tensor(test_labels)
 
-        # Compile the BERT classification model
-        optimizer = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0)
-        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        metric = tf.keras.metrics.SparseCategoricalAccuracy('accuracy')
-        model.compile(optimizer=optimizer, loss=loss, metrics=[metric])
+        if jira_name == 'Apache' and k_unstable == 5:
+            model = TFBertForSequenceClassification.from_pretrained(f'YakovElm/{jira_name}{k_unstable}Classic')
 
-        # Train the model with validation data
-        model.fit(
-            [train_input_ids, train_attention_mask],
-            train_labels,
-            epochs=3,
-            batch_size=32,
-            validation_data=([val_input_ids, val_attention_mask], val_labels)
-        )
+        else:
+            model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased')
+            train, valid = run_fit_setfit_bert.get_data_train_with_labels(jira_name, main_path, k_unstable)
 
-        model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}Classic")
+            train_sentences = list(train['sentence'])
+            train_labels = list(train['label'])
+
+            val_sentences = list(valid['sentence'])
+            val_labels = list(valid['label'])
+
+            train_encoded = batch_encode(tokenizer, train_sentences)
+            val_encoded = batch_encode(tokenizer, val_sentences)
+
+            train_input_ids = train_encoded['input_ids']
+            train_attention_mask = train_encoded['attention_mask']
+            train_labels = tf.convert_to_tensor(train_labels)
+
+            val_input_ids = val_encoded['input_ids']
+            val_attention_mask = val_encoded['attention_mask']
+            val_labels = tf.convert_to_tensor(val_labels)
+
+            # Compile the BERT classification model
+            optimizer = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0)
+            loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+            metric = tf.keras.metrics.SparseCategoricalAccuracy('accuracy')
+            model.compile(optimizer=optimizer, loss=loss, metrics=[metric])
+
+            # Train the model with validation data
+            model.fit(
+                [train_input_ids, train_attention_mask],
+                train_labels,
+                epochs=3,
+                batch_size=32,
+                validation_data=([val_input_ids, val_attention_mask], val_labels)
+            )
+
+            model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}Classic")
 
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
-        predictions = np.array(predictions)
+        predictions = predictions[0]
+
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.05)
 
         results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
                                     test_attention_mask, test_labels, 0.25)
