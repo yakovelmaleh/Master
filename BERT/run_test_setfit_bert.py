@@ -12,7 +12,7 @@ def start(jira_name, main_path):
                                     'recall', 'thresholds'])
 
     for k_unstable in [5, 10, 15, 20]:
-        model = SetFitModel.from_pretrained(f"YakovElm/Apache{k_unstable}SetFitModel")
+        model = SetFitModel.from_pretrained(f"YakovElm/{jira_name}{k_unstable}SetFitModel")
 
         # get test data
         test = Classic_BERT.get_test_data(jira_name, main_path, k_unstable)
