@@ -20,8 +20,9 @@ def combineResults(jira_name, main_path):
                         new_raw(result_20, 20)], ignore_index=True)
     output.to_csv(f'{main_path}/combineResults.csv')
 
+
 def new_raw(data, k_unstable):
-    return {
+    d = {
         'k_unstable': k_unstable,
         'AUC_PRC_Rnd': data['area_under_pre_recall_curve'][5],
         'AUC_PRC_RF': data['area_under_pre_recall_curve'][0],
@@ -36,6 +37,9 @@ def new_raw(data, k_unstable):
         'Acc_NN': data['accuracy'][2],
         'Acc_XG': data['accuracy'][1],
     }
+
+    return pd.DataFrame([d.values()], columns=d.keys())
+
 
 
 
