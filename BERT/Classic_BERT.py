@@ -149,39 +149,6 @@ def start(jira_name, main_path):
         val_encoded = batch_encode(tokenizer, val_sentences)
         test_encoded = batch_encode(tokenizer, test_sentences)
 
-        batch_size = 32
-        metric_name = "f1"
-
-        args = TrainingArguments(
-            f"bert-finetuned-sem_eval-english",
-            evaluation_strategy="epoch",
-            save_strategy="epoch",
-            learning_rate=3e-5,
-            per_device_train_batch_size=batch_size,
-            per_device_eval_batch_size=batch_size,
-            num_train_epochs=3,
-            weight_decay=0.01,
-            load_best_model_at_end=True,
-            metric_for_best_model=metric_name,
-        )
-
-        trainer = Trainer(
-            model,
-            args,
-            train_dataset=train_encoded,
-            eval_dataset=val_encoded,
-            tokenizer=tokenizer,
-        )
-
-        trainer.train()
-        trainer.evaluate()
-
-        trainer.push_to_hub(f'YakovElm/{jira_name}{k_unstable}Classic')
-        print(f'Save {jira_name}{k_unstable}Classic model')
-
-        y_predictions = trainer.model(test_encoded)
-        predictions = np.array(y_predictions)
-        """
         train_input_ids = train_encoded['input_ids']
         train_attention_mask = train_encoded['attention_mask']
         train_labels = tf.convert_to_tensor(train_labels)
@@ -190,7 +157,9 @@ def start(jira_name, main_path):
         val_attention_mask = val_encoded['attention_mask']
         val_labels = tf.convert_to_tensor(val_labels)
 
-
+        test_input_ids = test_encoded['input_ids']
+        test_attention_mask = test_encoded['attention_mask']
+        test_labels = tf.convert_to_tensor(test_labels)
 
         # Compile the BERT classification model
         optimizer = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0)
@@ -207,14 +176,11 @@ def start(jira_name, main_path):
             validation_data=([val_input_ids, val_attention_mask], val_labels)
         )
 
+        model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}Classic")
+
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
         predictions = np.array(predictions)
-        """
-
-        test_input_ids = test_encoded['input_ids']
-        test_attention_mask = test_encoded['attention_mask']
-        test_labels = tf.convert_to_tensor(test_labels)
 
         results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
                                     test_attention_mask, test_labels, 0.25)
