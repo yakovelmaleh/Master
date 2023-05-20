@@ -1,4 +1,3 @@
-from datasets import load_dataset
 from sentence_transformers.losses import CosineSimilarityLoss
 from datasets import Dataset
 import pyarrow as pa
