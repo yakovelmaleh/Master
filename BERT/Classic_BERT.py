@@ -113,7 +113,7 @@ def batch_encode(tokenizer, data):
     return tokenizer.batch_encode_plus(
         data,
         add_special_tokens=True,
-        max_length=512,
+        max_length=128,
         padding='max_length',
         truncation=True,
         return_attention_mask=True,
