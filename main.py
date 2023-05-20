@@ -11,6 +11,7 @@ import RunModels.run_train_val_optimization as run_train_val_optimization
 import RunModels.run_train_tes_best_parameters as run_train_tes_best_parameters
 import pandas as pd
 # import Utils.DataBase as DB
+import Utils.CombineResults as CombineResults
 
 
 def createFolders(jira_name):
@@ -93,14 +94,8 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
+            CombineResults.combineResults(jira_name, f'Master/Models/results_best_para/{jira_name}')
             #create_feature_csv(jira_name)
-            create_train_val_tes.start(jira_name)
-            chi_square.start(jira_name)
-            remove_features.start(jira_name)
-            feature_selection_groups.start(jira_name)
-            run_train_val_optimization.start(jira_name)
-            run_train_tes_best_parameters.start(jira_name)
-
         except Exception as e:
             print(e)
 
