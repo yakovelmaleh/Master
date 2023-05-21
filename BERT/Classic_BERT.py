@@ -143,7 +143,8 @@ def start(jira_name, main_path):
         test_attention_mask = test_encoded['attention_mask']
         test_labels = tf.convert_to_tensor(test_labels)
 
-        if jira_name == 'Apache' and k_unstable == 5:
+        if jira_name == 'Apache' or jira_name == 'Hyperledger' or jira_name == 'IntelDAOS' or jira_name == 'Jira'\
+                or jira_name == 'MariaDB':
             model = TFBertForSequenceClassification.from_pretrained(f'YakovElm/{jira_name}{k_unstable}Classic')
 
         else:

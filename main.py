@@ -97,7 +97,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            run_fit_setfit_bert.start(jira_name, 'Master/')
+            #run_fit_setfit_bert.start(jira_name, 'Master/')
             run_test_setfit_bert.start(jira_name, 'Master/')
             Classic_BERT.start(jira_name, 'Master/')
             #create_feature_csv(jira_name)
