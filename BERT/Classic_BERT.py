@@ -143,8 +143,8 @@ def start(jira_name, main_path):
         test_attention_mask = test_encoded['attention_mask']
         test_labels = tf.convert_to_tensor(test_labels)
 
-        if jira_name == 'Apache' or jira_name == 'Hyperledger' or jira_name == 'IntelDAOS' or jira_name == 'Jira'\
-                or jira_name == 'MariaDB':
+        if jira_name == 'Apache' or jira_name == 'Hyperledger' or\
+                jira_name == 'IntelDAOS' or jira_name == 'Jira' or jira_name == 'MariaDB':
             model = TFBertForSequenceClassification.from_pretrained(f'YakovElm/{jira_name}{k_unstable}Classic')
 
         else:
@@ -204,7 +204,10 @@ def start(jira_name, main_path):
         results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
                                     test_attention_mask, test_labels, 0.9)
 
+        print('start to save')
+        print(f'path: {main_path}BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv')
         results.to_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv', index=False)
+        print('ended to save')
 
         results = pd.DataFrame(columns=['jira_name', 'usability_label', 'threshold', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',

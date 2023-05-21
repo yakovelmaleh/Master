@@ -11,7 +11,7 @@ if __name__ == '__main__':
     run_test_setfit_bert.start('Apache', 'Master/')
     Classic_BERT.start('Apache', 'Master/')
     """
-    print('Start combine_BERT APACHE')
+    print('Start Classic BERT')
     CombineResults.combineResultsBert('Apache', 'Master/')
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            CombineResults.combineResultsBert(jira_name, 'Master/')
+            Classic_BERT.start(jira_name, 'Master/')
         except Exception as e:
             print(e)
 
