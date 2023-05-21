@@ -72,6 +72,7 @@ def start(jira_name):
         'IntelDAOS': [4, 10],
         'Jira': [2, 20],
         'MariaDB': [2, 20],
+        'Qt': [2,15]
     }
 
     num_topics = optimal_values[jira_name][0]
