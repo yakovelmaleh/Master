@@ -251,13 +251,14 @@ def create_clean_text(data, text_type):
     nltk.download('stopwords')
     nltk.download('omw-1.4')
     stop = stopwords.words('english')
-    if type(data['{}'.format(text_type)]) is str:
-        data['{}'.format(text_type)] = ""
-    else:
-        data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(lambda x: x.replace(' $end$', "."))
-        data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(
-            lambda x: x.replace(' $acceptance criteria:$', "."))
-        data['clean_text'] = data.apply(lambda x: clean_text(x['{}'.format(text_type)], x['project_key']), axis=1)
+    for i in range(data['{}'.format(text_type)]):
+        if type(data['{}'.format(text_type)][i]) is not str:
+            data['{}'.format(text_type)][i] = ""
+
+    data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(lambda x: x.replace(' $end$', "."))
+    data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(
+        lambda x: x.replace(' $acceptance criteria:$', "."))
+    data['clean_text'] = data.apply(lambda x: clean_text(x['{}'.format(text_type)], x['project_key']), axis=1)
     basic_pre_processing(data)
 
 
