@@ -89,7 +89,7 @@ if __name__ == '__main__':
     feature_selection_groups.start('Apache')
     run_train_val_optimization.start('Apache')
     run_train_tes_best_parameters.start(jira_name)
-    """
+    
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         print("start: ", jira_name)
         try:
             #run_fit_setfit_bert.start(jira_name, 'Master/')
-            run_test_setfit_bert.start(jira_name, 'Master/')
+            #run_test_setfit_bert.start(jira_name, 'Master/')
             Classic_BERT.start(jira_name, 'Master/')
             #create_feature_csv(jira_name)
         except Exception as e:
@@ -106,4 +106,7 @@ if __name__ == '__main__':
 
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
+    """
+    select_num_topic_model.start('Qt')
+    select_length_doc_vector.start('Qt')
     print('FINISH ALL')
