@@ -251,7 +251,7 @@ def create_clean_text(data, text_type):
     nltk.download('stopwords')
     nltk.download('omw-1.4')
     stop = stopwords.words('english')
-    for i in range(data['{}'.format(text_type)]):
+    for i in range(len(data['{}'.format(text_type)])):
         if type(data['{}'.format(text_type)][i]) is not str:
             data['{}'.format(text_type)][i] = ""
 
