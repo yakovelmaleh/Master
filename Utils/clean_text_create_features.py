@@ -509,6 +509,9 @@ def create_feature_data(data, text_type, project_key):
     """
     stop = stopwords.words('english')
     features_data = pd.DataFrame()
+    for i in range(len(data['{}'.format(text_type)])):
+        if type(data['{}'.format(text_type)][i]) is not str:
+            data['{}'.format(text_type)][i] = ""
     data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(lambda x: x.replace(' $end$', "."))
     data['{}'.format(text_type)] = data['{}'.format(text_type)].apply(
         lambda x: x.replace(' $acceptance criteria:$', "."))
