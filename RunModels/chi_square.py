@@ -67,7 +67,7 @@ def start(jira_name):
         del features_data_train['relates']
         del features_data_train['duplicate_by']
 
-        if project_key == 'Apache' or project_key == 'Hyperledger':
+        if project_key == 'Apache' or project_key == 'Hyperledger' or project_key == 'Qt':
             features_data_train.drop(
                 ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], axis=1,
                 inplace=True)
