@@ -1,4 +1,10 @@
 {
+  "Apache": {
+    "company_url": "https://apache.org/",
+    "jira_url": "https://issues.apache.org/jira",
+    "name": "Apache",
+    "rough_issue_count": "1,015,000"
+  },
   "Hyperledger": {
     "company_url": "https://hyperledger.org/about",
     "jira_url": "https://jira.hyperledger.org",
