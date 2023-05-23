@@ -7,9 +7,8 @@ from sklearn.metrics import classification_report
 from sklearn import metrics
 import pandas as pd
 from scipy.special import softmax
-from transformers import TrainingArguments, Trainer
 import Utils.clean_text as clean_text
-import run_fit_setfit_bert_clean_data
+import BERT_With_Cleaning.run_fit_setfit_bert_clean_data as run_fit_setfit_bert_clean_data
 
 
 def predict_proba(model, x_test):
