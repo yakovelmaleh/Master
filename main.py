@@ -65,6 +65,12 @@ def createFolders(jira_name):
     os.mkdir(f'Models/word_vector/{jira_name}')
     open(f'Models/word_vector/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'BERT/Results/{jira_name}')
+    open(f'BERT/Results/{jira_name}/file.txt', 'x')
+
+    os.mkdir(f'BERT_With_Cleaning/Results/{jira_name}')
+    open(f'BERT_With_Cleaning/Results/{jira_name}/file.txt', 'x')
+
 
 
 

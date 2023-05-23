@@ -2,13 +2,14 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from funcsigs import signature
 from transformers import TFBertForSequenceClassification, BertTokenizer
-import BERT.run_fit_setfit_bert as run_fit_setfit_bert
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn import metrics
 import pandas as pd
 from scipy.special import softmax
 from transformers import TrainingArguments, Trainer
+import Utils.clean_text as clean_text
+import run_fit_setfit_bert_clean_data
 
 
 def predict_proba(model, x_test):
@@ -48,7 +49,6 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, jira_name, label, path
 
 def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predictions, x_test, test_labels,
                threshold=None):
-
     if kind_of_bert == 'Classic':
         y_score = softmax(test_predictions, axis=1)
         test_predictions = np.where(y_score[:, 1] >= threshold, 1, 0)
@@ -78,7 +78,7 @@ def get_report(model, kind_of_bert, jira_name, main_path, k_unstable, test_predi
     print(f'area_under_pre_recall_curve {jira_name} {k_unstable}-unstable: {area_under_pre_recall_curve}')
 
     if threshold is None or threshold == 0.5:
-        path = f'{main_path}BERT/Results/{jira_name}'
+        path = f'{main_path}BERT_With_Cleaning/Results/{jira_name}'
         create_pre_rec_curve(test_labels, y_score[:, 1],
                              average_precision, kind_of_bert, jira_name, k_unstable, path)
 
@@ -91,7 +91,7 @@ def get_test_data(jira_name, main_path, k_unstable):
     all_features = pd.read_csv(path)
 
     all_features = all_features[
-        ['issue_key', 'original_summary_description_acceptance_sprint', f'is_change_text_num_words_{k_unstable}']]
+        ['issue_key', 'project_key', 'original_summary_description_acceptance_sprint', f'is_change_text_num_words_{k_unstable}']]
 
     path = f"{main_path}Models/train_test/{jira_name}"
     test_keys = pd.read_csv(f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{k_unstable}.csv')
@@ -121,18 +121,25 @@ def batch_encode(tokenizer, data):
     )
 
 
+def clean_data(data):
+    clean_text.create_clean_text(data, 'sentence')
+    data['sentence'] = data['clean_text']
+    return data.drop(columns=['clean_text', 'clean_text_new', 'project_key'])
+
+
 def start(jira_name, main_path):
     results = pd.DataFrame(columns=['jira_name', 'usability_label', 'threshold', 'accuracy',
                                     'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
                                     'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
                                     'recall', 'thresholds'])
 
-    for k_unstable in [5,10,15,20]:
+    for k_unstable in [5, 10, 15, 20]:
 
         # Load the BERT model and tokenizer
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
         test = get_test_data(jira_name, main_path, k_unstable)
+        test = clean_data(test)
 
         test_sentences = list(test['sentence'])
         test_labels = list(test['label'])
@@ -143,13 +150,15 @@ def start(jira_name, main_path):
         test_attention_mask = test_encoded['attention_mask']
         test_labels = tf.convert_to_tensor(test_labels)
 
-        if jira_name == 'Apache' or jira_name == 'Hyperledger' or jira_name == 'IntelDAOS' or \
-                jira_name == 'Jira' or jira_name == 'MariaDB':
-            model = TFBertForSequenceClassification.from_pretrained(f'YakovElm/{jira_name}{k_unstable}Classic')
+        if jira_name == 'Nothing':
+            model = TFBertForSequenceClassification. \
+                from_pretrained(f'YakovElm/{jira_name}{k_unstable}Classic_with_cleaning')
 
         else:
             model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased')
-            train, valid = run_fit_setfit_bert.get_data_train_with_labels(jira_name, main_path, k_unstable)
+            train, valid = run_fit_setfit_bert_clean_data.get_data_train_with_labels(jira_name, main_path, k_unstable)
+            train = clean_data(train)
+            valid = clean_data(valid)
 
             train_sentences = list(train['sentence'])
             train_labels = list(train['label'])
@@ -183,7 +192,7 @@ def start(jira_name, main_path):
                 validation_data=([val_input_ids, val_attention_mask], val_labels)
             )
 
-            model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}Classic")
+            model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}Classic_with_cleaning")
 
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
@@ -204,10 +213,14 @@ def start(jira_name, main_path):
         results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
                                     test_attention_mask, test_labels, 0.9)
 
-        print('start to save')
-        print(f'path: {main_path}BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv')
-        results.to_csv(f'{main_path}BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv', index=False)
-        print('ended to save')
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.95)
+
+        results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
+                                    test_attention_mask, test_labels, 0.99)
+
+        results.to_csv(f'{main_path}BERT_With_Cleaning/Results/'
+                       f'{jira_name}/Classic_with_cleaning_result_{k_unstable}.csv', index=False)
 
         results = pd.DataFrame(columns=['jira_name', 'usability_label', 'threshold', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
@@ -217,7 +230,6 @@ def start(jira_name, main_path):
 
 def add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
                       test_attention_mask, test_labels, threshold):
-
     accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc, \
         y_pred, precision, recall, thresholds = \
         get_report(model=model, kind_of_bert="Classic", jira_name=jira_name, main_path=main_path,
@@ -234,13 +246,3 @@ def add_new_threshold(results, model, jira_name, main_path, k_unstable, predicti
 
     results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
     return results
-
-
-
-
-
-
-
-
-
-
