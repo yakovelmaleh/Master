@@ -1,6 +1,6 @@
 from setfit import SetFitModel
 import pandas as pd
-import Classic_BERT_with_clean as Classic_BERT_with_clean
+import BERT_With_Cleaning.Classic_BERT_with_clean as Classic_BERT_with_clean
 import numpy as np
 
 
