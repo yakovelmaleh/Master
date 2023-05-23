@@ -113,12 +113,6 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
-    create_train_val_tes.start('Qt')
-    chi_square.start('Qt')
-    remove_features.start('Qt')
-    feature_selection_groups.start('Qt')
-    run_train_val_optimization.start('Qt')
-    run_train_tes_best_parameters.start('Qt')
     run_fit_setfit_bert.start('Qt', 'Master/')
     run_test_setfit_bert.start('Qt', 'Master/')
     Classic_BERT.start('Qt', 'Master/')

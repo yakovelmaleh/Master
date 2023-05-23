@@ -49,6 +49,11 @@ def get_dataset_train_with_labels(jira_name, main_path, k_unstable):
 
 def start(jira_name, main_path):
     for num in [5, 10, 15, 20]:
+
+        if jira_name == 'Qt' and num <= 10:
+            print(f'pass {jira_name} with {num} unstable SetFit model')
+            continue
+
         # Load Data and valid
         train, valid = get_dataset_train_with_labels(jira_name, main_path, num)
 
