@@ -113,7 +113,4 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
-    run_fit_setfit_bert.start('Qt', 'Master/')
-    run_test_setfit_bert.start('Qt', 'Master/')
-    Classic_BERT.start('Qt', 'Master/')
     print('FINISH ALL')
