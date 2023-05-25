@@ -71,6 +71,12 @@ def createFolders(jira_name):
     os.mkdir(f'BERT_With_Cleaning/Results/{jira_name}')
     open(f'BERT_With_Cleaning/Results/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'Instability_With_BERT/Results/{jira_name}')
+    open(f'Instability_With_BERT/Results/{jira_name}/file.txt', 'x')
+
+    os.mkdir(f'Instability_With_BERT/Data/{jira_name}')
+    open(f'Instability_With_BERT/Data/{jira_name}/file.txt', 'x')
+
 
 
 
