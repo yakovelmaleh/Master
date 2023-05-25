@@ -206,7 +206,7 @@ def start(jira_name):
 
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
-        path = addPath(f'Master/Instability_With_BERT/results/{project_key}')
+        path = addPath(f'Master/Instability_With_BERT/Results/{project_key}')
         results.to_csv(f'{path}/results_{project_key}_{label_name[0]}.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
