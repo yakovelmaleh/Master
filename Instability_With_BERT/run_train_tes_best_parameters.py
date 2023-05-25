@@ -24,7 +24,7 @@ def start(jira_name):
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
     project_key = jira_name
 
-    add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master')
+    add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
 
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
