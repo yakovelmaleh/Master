@@ -126,7 +126,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
     plt.xlim([0.0, 1.0])
     plt.title('Precision-Recall curve {0}: Area under Curve={1:0.2f}'.format(project_key, auc))
 
-    path = addPath(f'Master/Instability_With_BERT/results/{project_key}')
+    path = addPath(f'Master/Instability_With_BERT/Results/{project_key}')
     if all_but_one_group:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
