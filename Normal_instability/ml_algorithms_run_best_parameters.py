@@ -228,7 +228,7 @@ def run_generic_model(clf, model_name, x_train, x_test, y_train, y_test, project
     auc = metrics.roc_auc_score(y_test, y_score[:, 1])
     print(f'AUC roc {model_name}: {auc}')
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1])
-    area_under_pre_recall_curve = metrics.aucmetrics.auc(recall, precision)
+    area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
     create_pre_rec_curve(y_test, y_score[:, 1], average_precision, model_name, project_key, label, all_but_one_group)
 
