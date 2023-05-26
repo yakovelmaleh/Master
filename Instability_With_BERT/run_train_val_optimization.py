@@ -62,24 +62,7 @@ def start(jira_name):
 
         # get only train of the test set
 
-        path = addPath(f'Master/Models/train_test_after_all_but/{project_key}')
-        features_data_train_test = pd.read_csv(
-            f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
-
-        features_data_train_test = add_bert_predictions(data=features_data_train_test, data_name='train_test',
-                                                        k_unstable=label_name[0])
-
-        path = addPath(f'Master/Models/train_test/{project_key}')
-        labels_train_test = pd.read_csv(
-            f'{path}/labels_train_{project_key}_{label_name[0]}.csv', low_memory=False)
-
-        names2 = list(features_data_train_test.columns.values)
-        if 'dominant_topic' in names2:
-            features_data_train_test = pd.get_dummies(features_data_train_test, columns=['dominant_topic'],
-                                                      drop_first=True)
-
         # run optimization:
-        full_optimization = True
         ml_algorithms_optimization.run_model_optimization(features_data_train, features_data_valid,
                                                           labels_train['usability_label'],
                                                           labels_valid['usability_label'], project_key,
