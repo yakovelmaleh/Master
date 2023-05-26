@@ -4,6 +4,8 @@ import BERT.run_fit_setfit_bert as run_setfit_bert
 import BERT.run_test_setfit_bert as run_test_setfit_bert
 import BERT.Classic_BERT as Classic_BERT
 import Utils.CombineResults as CombineResults
+import BERT.Classic_BERT_32 as Classic_BERT_32
+import BERT.Classic_BERT_64 as Classic_BERT_64
 
 if __name__ == '__main__':
     """
@@ -20,7 +22,8 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            CombineResults.combineResultsBert(jira_name, 'Master/')
+            Classic_BERT_32.start(jira_name, 'Master/')
+            Classic_BERT_64.start(jira_name, 'Master/')
             #Classic_BERT.start(jira_name, 'Master/')
         except Exception as e:
             print(e)
