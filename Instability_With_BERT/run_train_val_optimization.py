@@ -36,9 +36,11 @@ def start(jira_name):
         features_data_valid = pd.read_csv(
             f'{path}/features_data_valid_{project_key}_{label_name[0]}.csv', low_memory=False)
 
+        print('Added BERT Predictions')
+
         # add bert instability
         features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
-        features_data_test = add_bert_predictions(data=features_data_test, data_name='valid', k_unstable=label_name[0])
+        features_data_valid = add_bert_predictions(data=features_data_valid, data_name='valid', k_unstable=label_name[0])
 
         path = addPath(f'Master/Models/train_val/{project_key}')
         labels_train = pd.read_csv(
