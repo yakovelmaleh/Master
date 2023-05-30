@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from sklearn.model_selection import RandomizedSearchCV
-
 from funcsigs import signature
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
@@ -147,7 +146,7 @@ def create_pre_rec_curve(y_test, y_score, average_precision, project_key, label,
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
     else:
         plt.savefig(
-            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}.png')
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_2.png')
     plt.close()
     return area
 
@@ -339,11 +338,12 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                        'area_under_roc_curve_rf', 'y_pred_rf', 'num_trees', 'max_features',
                                        'max_depth', 'min_samples_split', 'min_samples_leaf', 'bootstrap'])
     parmas = {
+        'class_weight': ["balanced", 'balanced_subsample', None],
         'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
-        'max_features': ['auto', 'sqrt'],
+        'max_features': ['auto', 'sqrt', 'log2', None],
         'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
-        'min_samples_leaf': [1, 2, 3, 4, 5, 10, 15, 20, 50, 100],
-        'min_samples_split': [2, 3, 4, 5, 10, 15, 20, 50, 100],
+        'min_samples_leaf': [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        'min_samples_split': [2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100],
         'bootstrap': [True, False]
     }
 
@@ -363,7 +363,9 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
          'avg_precision_rf': avg_pre_rf, 'area_under_roc_curve_rf': avg_auc_rf,
          'y_pred_rf': y_pred_rf, 'num_trees': best_params['n_estimators'], 'max_features': best_params['max_features'],
          'max_depth': best_params['max_depth'], 'min_samples_split': best_params['min_samples_split'],
-         'min_samples_leaf': best_params['min_samples_leaf'], 'bootstrap': best_params['bootstrap']}
+         'min_samples_leaf': best_params['min_samples_leaf'],
+         'class_weight': best_params['class_weight'],
+         'bootstrap': best_params['bootstrap']}
 
     rf_results = pd.concat([rf_results, pd.DataFrame([d.values()], columns=d.keys())],
                            ignore_index=True)
@@ -372,7 +374,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
 
     if all_but_one_group:
         rf_results.to_csv(
-            f'{path}/results_groups_{project_key}_label_{label}_RF.csv', index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_RF_2.csv', index=False)
     else:
         rf_results.to_csv(
             f'{path}/results_{project_key}_label_{label}_RF.csv', index=False)
@@ -386,10 +388,12 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                             ])
     parmas = {
         'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
-        'max_features': ['auto', 'sqrt'],
+        'max_features': ['auto', 'sqrt', 'log2', None],
         'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
         'min_samples_leaf': [1, 2, 4, 5, 10, 15, 20, 50, 100],
         'min_samples_split': [2, 5, 10, 15, 20, 50, 100],
+        'learning_rate': [0.0001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.15, 0.2],
+        'subsample': [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     }
 
     accuracy_xgboost, confusion_matrix_xgboost, classification_report_xgboost, \
@@ -410,7 +414,9 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
          'y_pred_xgboost': y_pred_xgboost, 'num_trees': best_params['n_estimators'],
          'max_features': best_params['max_features'],
          'max_depth': best_params['max_depth'], 'min_samples_split': best_params['min_samples_split'],
-         'min_samples_leaf': best_params['min_samples_leaf']
+         'min_samples_leaf': best_params['min_samples_leaf'],
+         'learning_rate': best_params['learning_rate'],
+         'subsample': best_params['subsample']
          }
 
     xgboost_results = pd.concat([xgboost_results, pd.DataFrame([d.values()], columns=d.keys())],
@@ -420,7 +426,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
 
     if all_but_one_group:
         xgboost_results.to_csv(
-            f'{path}/results_groups_{project_key}_label_{label}_XGboost.csv', index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_XGboost_2.csv', index=False)
     else:
         xgboost_results.to_csv(
             f'{path}/results_{project_key}_label_{label}_XGboost.csv', index=False)
@@ -444,13 +450,13 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
 
     parmas = {
         'solver': ['adam', 'sgd', 'lbfgs'],
-        'hidden_layer_sizes': [(10,), (20,), (30,), (50,), (70,), (100,), (50, 50, 50), (5, 20, 30), (30, 70, 30),
-                               (100, 50, 100)],
+        'hidden_layer_sizes': [(10,), (20,), (30,), (50,), (70,), (100,),(64, 32) , (50, 50, 50), (5, 20, 30), (30, 70, 30),
+                               (100, 50, 100),(32, 64),(64,32,64,32,64)],
         'random_state': [1],
-        'max_iter': [200, 400, 600, 800, 1000, 1500, 2000],
+        'max_iter': [200, 300, 400, 500,  600, 800, 1000, 1500, 2000],
         'batch_size': ['auto', 20, 30, 40, 50, 100],
         'activation': ['logistic', 'tanh', 'relu'],
-        'alpha': [0.0001, 0.005, 0.01, 0.05],
+        'alpha': [0.0001, 0.005, 0.01, 0.05, 0.07, 0.1, 0.15, 0.2],
         'learning_rate': ['constant', 'adaptive'],
     }
     accuracy_nn, confusion_matrix_nn, classification_report_nn, \
@@ -478,7 +484,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
     path = addPath(f'Master/Instability_With_BERT/Parameters/{project_key}')
     if all_but_one_group:
         nn_results.to_csv(
-            f'{path}/results_groups_{project_key}_label_{label}_NN.csv', index=False)
+            f'{path}/results_groups_{project_key}_label_{label}_NN_2.csv', index=False)
     else:
         nn_results.to_csv(
             f'{path}/results_{project_key}_label_{label}_NN.csv', index=False)
