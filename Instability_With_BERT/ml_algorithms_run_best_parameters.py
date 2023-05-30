@@ -129,7 +129,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
     path = addPath(f'Master/Instability_With_BERT/Results/{project_key}')
     if all_but_one_group:
         plt.savefig(
-            f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
+            f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}_2.png')
 
     else:
         plt.savefig(
@@ -140,7 +140,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
 
 
 def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
-           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, project_key, label, all_but_one_group):
+           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, class_weight, project_key, label, all_but_one_group):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -152,13 +152,13 @@ def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
     random_num_rf = 7
     clf = RandomForestClassifier(n_estimators=num_trees_rf, max_features=max_feature_rf, max_depth=max_depth_rf,
                                  random_state=7, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
-                                 bootstrap=bootstrap)
+                                 bootstrap=bootstrap, class_weight=class_weight)
 
     return run_generic_model(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 
 
 def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
-           max_features, min_samples_split, min_samples_leaf, project_key, label, all_but_one_group):
+           max_features, min_samples_split, min_samples_leaf, learning_rate, subsample, project_key, label, all_but_one_group):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -168,7 +168,8 @@ def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
     x_test = x_test.drop(columns=['issue_key'])
 
     clf = GradientBoostingClassifier(n_estimators=num_trees, max_depth=max_depth_xg, max_features=max_features,
-                                     min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf)
+                                     min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
+                                     learning_rate=learning_rate, subsample=subsample)
 
     return run_generic_model(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 

@@ -43,11 +43,11 @@ def start(jira_name):
 
         path = addPath(f'Master/Instability_With_BERT/Parameters/{project_key}/')
         parameters_rf = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
         parameters_xg = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost_2.csv', low_memory=False)
         parameters_nn = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN_2.csv', low_memory=False)
 
         path = addPath(f'Master/Models/train_test/{project_key}/')
         labels_train = pd.read_csv(
@@ -79,13 +79,14 @@ def start(jira_name):
         min_samples_leaf = parameters_rf['min_samples_leaf'][0]
         min_samples_split = parameters_rf['min_samples_split'][0]
         bootstrap = parameters_rf['bootstrap'][0]
+        class_weight = parameters_rf['class_weight'][0]
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_RF(features_data_train, features_data_test, labels_train,
-                                                       labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
-                                                       min_samples_split, bootstrap, project_key, label_name[0],
-                                                       all_but_one_group)
+                                                     labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
+                                                     min_samples_split, bootstrap, class_weight, project_key,
+                                                     label_name[0], all_but_one_group)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -103,12 +104,14 @@ def start(jira_name):
         max_features = parameters_xg['max_features'][0]
         min_samples_split = parameters_xg['min_samples_split'][0]
         min_samples_leaf = parameters_xg['min_samples_leaf'][0]
+        learning_rate = parameters_xg['learning_rate'][0]
+        subsample = parameters_xg['subsample'][0]
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_XG(features_data_train, features_data_test, labels_train,
                                                      labels_test, num_trees, max_depth, max_features,
-                                                     min_samples_split, min_samples_leaf,
+                                                     min_samples_split, min_samples_leaf, learning_rate, subsample,
                                                      project_key, label_name[0], all_but_one_group)
 
         d = {
@@ -207,7 +210,7 @@ def start(jira_name):
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
         path = addPath(f'Master/Instability_With_BERT/Results/{project_key}')
-        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}.csv', index=False)
+        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_2.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',

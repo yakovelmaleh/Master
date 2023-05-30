@@ -11,11 +11,7 @@ if __name__ == '__main__':
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
         print(f"start: {jira_name} Instability without BERT")
-        try:
-            run_train_val_optimization.start(jira_name)
-            run_train_tes_best_parameters.start(jira_name)
-        except Exception as e:
-            print(f"*****************************ERROR*****************************")
-            print(e)
+        run_train_val_optimization.start(jira_name)
+        run_train_tes_best_parameters.start(jira_name)
         print(f'finish {jira_name}')
     print('FINISH ALL')
