@@ -20,7 +20,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            SetFit.start(jira_name, 'Master/')
+            Classic_BERT.start(jira_name, 'Master/')
         except Exception as e:
             print(e)
 

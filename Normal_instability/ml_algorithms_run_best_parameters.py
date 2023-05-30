@@ -129,7 +129,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
     path = addPath(f'Master/Normal_instability/Results/{project_key}')
     if all_but_one_group:
         plt.savefig(
-            f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
+            f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}_2.png')
 
     else:
         plt.savefig(

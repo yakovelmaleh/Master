@@ -200,19 +200,19 @@ def start(jira_name, main_path):
             predictions = predictions[0]
 
             results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
-                                        test_attention_mask, test_labels, 0.05, size)
+                                        test_attention_mask, test_labels, 0.05, size, ratio_name)
 
             results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
-                                        test_attention_mask, test_labels, 0.25, size)
+                                        test_attention_mask, test_labels, 0.25, size, ratio_name)
 
             results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
-                                        test_attention_mask, test_labels, 0.5, size)
+                                        test_attention_mask, test_labels, 0.5, size, ratio_name)
 
             results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
-                                        test_attention_mask, test_labels, 0.75, size)
+                                        test_attention_mask, test_labels, 0.75, size, ratio_name)
 
             results = add_new_threshold(results, model, jira_name, main_path, k_unstable, predictions, test_input_ids,
-                                        test_attention_mask, test_labels, 0.9, size)
+                                        test_attention_mask, test_labels, 0.9, size, ratio_name)
 
             print('start to save')
             print(f'path: {main_path}BERT_Balance_Data/'

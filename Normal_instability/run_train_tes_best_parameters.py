@@ -34,13 +34,13 @@ def start(jira_name):
         features_data_test = pd.read_csv(
             f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
-        path = addPath(f'Master/Models/optimization_results/{project_key}/')
+        path = addPath(f'Master/Models/Normal_instability/{project_key}/')
         parameters_rf = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
         parameters_xg = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost_2.csv', low_memory=False)
         parameters_nn = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN_2.csv', low_memory=False)
 
         path = addPath(f'Master/Models/train_test/{project_key}/')
         labels_train = pd.read_csv(
@@ -200,7 +200,7 @@ def start(jira_name):
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
         path = addPath(f'Master/Normal_instability/Results/{project_key}')
-        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}.csv', index=False)
+        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_2.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
