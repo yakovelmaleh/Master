@@ -125,6 +125,9 @@ def start(jira_name, main_path):
 
     for k_unstable in [5,10,15,20]:
 
+        if (jira_name == 'Qt' or jira_name == 'Hyperledger') and k_unstable != 20:
+            continue
+
         # Load the BERT model and tokenizer
         tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
