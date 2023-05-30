@@ -7,8 +7,8 @@ import RunModels.create_train_val_tes as create_train_val_tes
 import RunModels.chi_square as chi_square
 import RunModels.remove_features as remove_features
 import RunModels.feature_selection_groups as feature_selection_groups
-import RunModels.run_train_val_optimization as run_train_val_optimization
-import RunModels.run_train_tes_best_parameters as run_train_tes_best_parameters
+import Normal_instability.run_train_val_optimization as run_train_val_optimization
+import Normal_instability.run_train_tes_best_parameters as run_train_tes_best_parameters
 import pandas as pd
 # import Utils.DataBase as DB
 import Utils.CombineResults as CombineResults
@@ -86,6 +86,9 @@ def createFolders(jira_name):
     os.mkdir(f'BERT_Balance_Data/Results/{jira_name}')
     open(f'BERT_Balance_Data/Results/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'Normal_instability/Parameters/{jira_name}')
+    open(f'Normal_instability/Parameters/{jira_name}/file.txt', 'x')
+
 
 
 def create_feature_csv(jira_name):
@@ -127,4 +130,14 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
+    print('Start BERT')
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+        jira_data_sources = json.load(f)
+
+    print('START ALL')
+    for jira_name, jira_obj in jira_data_sources.items():
+        print(f"start: {jira_name} Instability without BERT")
+        run_train_val_optimization.start(jira_name)
+        run_train_tes_best_parameters.start(jira_name)
+        print(f'finish {jira_name}')
     print('FINISH ALL')
