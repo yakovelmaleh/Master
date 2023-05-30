@@ -74,12 +74,12 @@ def start(jira_name):
 
         # RF:
         num_trees = parameters_rf['num_trees'][0]
-        max_feature = parameters_rf['max_features'][0]
+        max_feature = parameters_rf['max_features'][0] if type(parameters_rf['max_features'][0]) is not float else None
         max_depth = parameters_rf['max_depth'][0]
         min_samples_leaf = parameters_rf['min_samples_leaf'][0]
         min_samples_split = parameters_rf['min_samples_split'][0]
         bootstrap = parameters_rf['bootstrap'][0]
-        class_weight = parameters_rf['class_weight'][0]
+        class_weight = parameters_rf['class_weight'][0] if type(parameters_rf['class_weight'][0]) is not float else None
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
@@ -101,7 +101,7 @@ def start(jira_name):
         # xgboost
         num_trees = parameters_xg['num_trees'][0]
         max_depth = parameters_xg['max_depth'][0]
-        max_features = parameters_xg['max_features'][0]
+        max_features = parameters_xg['max_features'][0] if type(parameters_xg['max_features'][0]) is not float else None
         min_samples_split = parameters_xg['min_samples_split'][0]
         min_samples_leaf = parameters_xg['min_samples_leaf'][0]
         learning_rate = parameters_xg['learning_rate'][0]
