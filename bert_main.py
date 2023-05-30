@@ -2,10 +2,10 @@ import json
 
 import BERT.run_fit_setfit_bert as run_setfit_bert
 import BERT.run_test_setfit_bert as run_test_setfit_bert
-import BERT.Classic_BERT as Classic_BERT
 import Utils.CombineResults as CombineResults
 import BERT.Classic_BERT_32 as Classic_BERT_32
 import BERT.Classic_BERT_64 as Classic_BERT_64
+import BERT_Balance_Data.Classic_BERT as Classic_BERT
 
 if __name__ == '__main__':
     """
@@ -14,7 +14,6 @@ if __name__ == '__main__':
     Classic_BERT.start('Apache', 'Master/')
     """
     print('Start Classic BERT')
-    #CombineResults.combineResultsBert('Apache', 'Master/')
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
@@ -22,9 +21,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            Classic_BERT_32.start(jira_name, 'Master/')
-            Classic_BERT_64.start(jira_name, 'Master/')
-            #Classic_BERT.start(jira_name, 'Master/')
+            Classic_BERT.start(jira_name, 'Master/')
         except Exception as e:
             print(e)
 

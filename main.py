@@ -83,6 +83,8 @@ def createFolders(jira_name):
     os.mkdir(f'Instability_With_BERT/Parameters/{jira_name}')
     open(f'Instability_With_BERT/Parameters/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'BERT_Balance_Data/Results/{jira_name}')
+    open(f'BERT_Balance_Data/Results/{jira_name}/file.txt', 'x')
 
 
 
