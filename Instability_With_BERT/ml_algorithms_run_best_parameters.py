@@ -140,7 +140,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
 
 
 def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
-           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, class_weight, project_key, label, all_but_one_group):
+           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, random_state, class_weight, project_key, label, all_but_one_group):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -149,16 +149,15 @@ def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
     x_train = x_train.drop(columns=['issue_key'])
     x_test = x_test.drop(columns=['issue_key'])
 
-    random_num_rf = 7
     clf = RandomForestClassifier(n_estimators=num_trees_rf, max_features=max_feature_rf, max_depth=max_depth_rf,
-                                 random_state=7, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
+                                 random_state=random_state, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
                                  bootstrap=bootstrap, class_weight=class_weight)
 
     return run_generic_model(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 
 
 def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
-           max_features, min_samples_split, min_samples_leaf, learning_rate, subsample, project_key, label, all_but_one_group):
+           max_features, min_samples_split, min_samples_leaf, learning_rate, subsample, random_state, project_key, label, all_but_one_group):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -169,13 +168,13 @@ def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
 
     clf = GradientBoostingClassifier(n_estimators=num_trees, max_depth=max_depth_xg, max_features=max_features,
                                      min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
-                                     learning_rate=learning_rate, subsample=subsample)
+                                     learning_rate=learning_rate, subsample=subsample, random_state=random_state)
 
     return run_generic_model(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 
 
 def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
-           hidden_layer_size, learning_rate_nn, activation_nn, max_iterations, num_batches_size,
+           hidden_layer_size, learning_rate_nn, activation_nn, max_iterations, num_batches_size, random_state,
            project_key, label, all_but_one_group):
     x_train = x_train.drop(columns=['created'])
     x_test = x_test.drop(columns=['created'])
@@ -198,7 +197,7 @@ def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
     a = a.replace(",", "")
     b = tuple(map(int, a.split()))
 
-    clf = MLPClassifier(solver=solver_nn, alpha=alpha_nn, hidden_layer_sizes=b, random_state=7,
+    clf = MLPClassifier(solver=solver_nn, alpha=alpha_nn, hidden_layer_sizes=b, random_state=random_state,
                         max_iter=max_iterations, learning_rate=learning_rate_nn,
                         activation=activation_nn, batch_size=num_batches_size)
 

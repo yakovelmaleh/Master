@@ -2,9 +2,12 @@ import Normal_instability.ml_algorithms_run_best_parameters as ml_algorithms_run
 import pandas as pd
 from pathlib import Path
 import os
+import numpy as np
+
 
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
+
 
 def start(jira_name):
     """
@@ -67,18 +70,22 @@ def start(jira_name):
 
         # RF:
         num_trees = parameters_rf['num_trees'][0]
-        max_feature = parameters_rf['max_features'][0]
+        max_feature = parameters_rf['max_features'][0]\
+            if type(parameters_rf['max_features'][0]) is not np.float64 else None
         max_depth = parameters_rf['max_depth'][0]
         min_samples_leaf = parameters_rf['min_samples_leaf'][0]
         min_samples_split = parameters_rf['min_samples_split'][0]
         bootstrap = parameters_rf['bootstrap'][0]
+        class_weight = parameters_rf['class_weight'][0]\
+            if type(parameters_rf['class_weight'][0]) is not np.float64 else None
+        random_state = int(parameters_rf['random_state'][0])
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_RF(features_data_train, features_data_test, labels_train,
-                                                       labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
-                                                       min_samples_split, bootstrap, project_key, label_name[0],
-                                                       all_but_one_group)
+                                                     labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
+                                                     min_samples_split, bootstrap, random_state, class_weight, project_key,
+                                                     label_name[0], all_but_one_group)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -93,15 +100,20 @@ def start(jira_name):
         # xgboost
         num_trees = parameters_xg['num_trees'][0]
         max_depth = parameters_xg['max_depth'][0]
-        max_features = parameters_xg['max_features'][0]
+        max_features = parameters_xg['max_features'][0]\
+            if type(parameters_xg['max_features'][0]) is not np.float64 else None
         min_samples_split = parameters_xg['min_samples_split'][0]
         min_samples_leaf = parameters_xg['min_samples_leaf'][0]
+        learning_rate = parameters_xg['learning_rate'][0]
+        subsample = parameters_xg['subsample'][0]
+        random_state = int(parameters_xg['random_state'][0])
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_XG(features_data_train, features_data_test, labels_train,
                                                      labels_test, num_trees, max_depth, max_features,
-                                                     min_samples_split, min_samples_leaf,
+                                                     min_samples_split, min_samples_leaf, learning_rate, subsample,
+                                                     random_state,
                                                      project_key, label_name[0], all_but_one_group)
 
         d = {
@@ -122,13 +134,15 @@ def start(jira_name):
         alpha = parameters_nn['alpha'][0]
         learning_rate = parameters_nn['learning_rate'][0]
         num_batches_size = parameters_nn['num_batches_size'][0]
+        random_state = int(parameters_nn['random_state'][0])
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_NN(features_data_train, features_data_test, labels_train,
                                                      labels_test, solver, alpha, hidden_layer_size,
-                                                     learning_rate, activation,max_iterations,num_batches_size,
-                                                     project_key, label_name[0], all_but_one_group)
+                                                     learning_rate, activation, max_iterations, num_batches_size,
+                                                     random_state, project_key, label_name[0], all_but_one_group)
+
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -206,7 +220,3 @@ def start(jira_name):
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
                                         'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
                                         'recall', 'thresholds'])
-
-
-if __name__ == "__main__":
-    print('Hello World')
