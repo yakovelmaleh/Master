@@ -1,6 +1,6 @@
 import json
-import Instability_With_BERT.run_train_val_optimization as run_train_val_optimization
-import Instability_With_BERT.run_train_tes_best_parameters as run_train_tes_best_parameters
+import Instability_sample_weight.run_train_val_optimization as run_train_val_optimization
+import Instability_sample_weight.run_train_tes_best_parameters as run_train_tes_best_parameters
 
 if __name__ == '__main__':
 
