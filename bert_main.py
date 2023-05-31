@@ -1,5 +1,5 @@
 import json
-import NLP_Models.Deberta as Deberta
+import NLP_Models.DeBERTaV3 as DeBERTaV3
 
 if __name__ == '__main__':
     """
@@ -15,6 +15,6 @@ if __name__ == '__main__':
     print('START ALL Deberta')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        Deberta.start(jira_name)
+        DeBERTaV3.start(jira_name)
     print('FINISH ALL')
 
