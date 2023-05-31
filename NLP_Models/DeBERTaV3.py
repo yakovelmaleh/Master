@@ -17,7 +17,8 @@ def start(jira_name):
 
     for k_unstable in [5, 10, 15, 20]:
         tokenizer = DebertaTokenizer.from_pretrained("microsoft/deberta-base")
-        model = DebertaForSequenceClassification.from_pretrained("microsoft/deberta-v3-base")
+        model = DebertaForSequenceClassification.from_pretrained("microsoft/deberta-v3-base",
+                                                                 ignore_mismatched_sizes=True)
 
         data = GetNLPData.get_data_train(jira_name, 'Master/', k_unstable)
         data_texts = data['sentence'].tolist()
