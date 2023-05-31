@@ -37,7 +37,7 @@ def start(jira_name):
         features_data_test = pd.read_csv(
             f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
-        path = addPath(f'Master/Models/Normal_instability/{project_key}/')
+        path = addPath(f'Master/Normal_instability/{project_key}/')
         parameters_rf = pd.read_csv(
             f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
         parameters_xg = pd.read_csv(
