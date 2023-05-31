@@ -1,6 +1,5 @@
 import json
-
-import BERT_Balance_Data.SetFit as SetFit
+import NLP_Models.Electra as Electra
 
 if __name__ == '__main__':
     """
@@ -9,13 +8,13 @@ if __name__ == '__main__':
     Classic_BERT.start('Apache', 'Master/')
     
     """
-    print('Start SetFit BERT')
+    print('Start Classic BERT')
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
-    print('START ALL')
+    print('START ALL Electra')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        SetFit.start(jira_name, 'Master/')
+        Electra.start(jira_name)
     print('FINISH ALL')
 
