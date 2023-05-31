@@ -132,6 +132,10 @@ def start(jira_name, main_path):
 
     for k_unstable in [5,10,15,20]:
 
+        # for testing
+        if jira_name == 'Apache' and k_unstable == 5:
+            continue
+
         ratio_lst = get_ratio(jira_name, main_path, k_unstable)
         for ratio in ratio_lst:
             if ratio == 0.5:

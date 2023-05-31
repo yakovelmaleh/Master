@@ -11,7 +11,7 @@ if __name__ == '__main__':
     run_setfit_bert.start('Apache', 'Master/')
     run_test_setfit_bert.start('Apache', 'Master/')
     Classic_BERT.start('Apache', 'Master/')
-    """
+    
     print('Start Classic BERT')
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
@@ -21,3 +21,6 @@ if __name__ == '__main__':
         print("start: ", jira_name)
         SetFit.start(jira_name, 'Master/')
     print('FINISH ALL')
+    """
+    print('Start Classic BERT')
+    Classic_BERT.start('Apache', 'Master/')
