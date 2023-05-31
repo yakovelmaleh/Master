@@ -275,13 +275,13 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
             y_pred, features, clf.best_params_]
 
 
-def run_best_params_CV_with_sample_weight(model, dict, model_name, x_train, x_test, y_train, y_test, project_key, label,
+def run_best_params_CV_with_sample_weight(model, diction, model_name, x_train, x_test, y_train, y_test, project_key, label,
                                           all_but_one_group):
     """
     this function predict with the best params per model
     """
 
-    clf = RandomizedSearchCV(estimator=model, param_distributions=dict, cv=3, verbose=0, random_state=42)
+    clf = RandomizedSearchCV(estimator=model, param_distributions=diction, cv=3, verbose=0, random_state=42)
 
     # Train the model
     class_weights = dict(
