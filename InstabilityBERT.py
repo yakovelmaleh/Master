@@ -1,6 +1,6 @@
 import json
-# import Data_60_20.run_train_val_optimization as run_train_val_optimization
-import Data_60_20.run_train_tes_best_parameters as run_train_tes_best_parameters
+import Instability_sample_weight.run_train_val_optimization as run_train_val_optimization
+import Instability_sample_weight.run_train_tes_best_parameters as run_train_tes_best_parameters
 
 if __name__ == '__main__':
 
@@ -10,7 +10,8 @@ if __name__ == '__main__':
 
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} Instability with BERT 60:20")
+        print(f"start: {jira_name} Instability with sample_weight")
+        run_train_val_optimization.start(jira_name)
         run_train_tes_best_parameters.start(jira_name)
         print(f'finish {jira_name}')
-    print('FINISH ALL Instability with BERT 60:20')
+    print('FINISH ALL Instability with sample_weight')
