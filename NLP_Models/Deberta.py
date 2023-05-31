@@ -20,7 +20,7 @@ def start(jira_name):
                                     'area_under_roc_curve', 'y_pred'])
 
     for k_unstable in [5, 10, 15, 20]:
-        tokenizer = DebertaTokenizer.from_pretrained('path_to_pretrained_model')
+        tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
         model = DebertaModel.from_pretrained('microsoft/deberta-base')
 
         data = GetNLPData.get_data_train(jira_name, 'Master/', k_unstable)
