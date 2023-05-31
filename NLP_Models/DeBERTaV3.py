@@ -16,8 +16,8 @@ def start(jira_name):
                                        'area_under_roc_curve', 'y_pred'])
 
     for k_unstable in [5, 10, 15, 20]:
-        tokenizer = DebertaTokenizer.from_pretrained("microsoft/deberta-v3")
-        model = DebertaForSequenceClassification.from_pretrained("microsoft/deberta-v3")
+        tokenizer = DebertaTokenizer.from_pretrained("microsoft/deberta-v3-base")
+        model = DebertaForSequenceClassification.from_pretrained("microsoft/deberta-v3-base")
 
         data = GetNLPData.get_data_train(jira_name, 'Master/', k_unstable)
         data_texts = data['sentence'].tolist()
