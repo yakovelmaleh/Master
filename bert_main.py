@@ -1,5 +1,5 @@
 import json
-import NLP_Models.Deberta as Deberta
+import NLP_Models.DeBERTaV3 as DeBERTaV3
 
 if __name__ == '__main__':
     """
@@ -12,9 +12,9 @@ if __name__ == '__main__':
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
-    print('START ALL Electra')
+    print('START ALL DeBERTaV3')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        Deberta.start(jira_name)
+        DeBERTaV3.start(jira_name)
     print('FINISH ALL')
 
