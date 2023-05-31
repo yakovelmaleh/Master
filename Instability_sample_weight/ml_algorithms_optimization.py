@@ -86,7 +86,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
     accuracy_rf, confusion_matrix_rf, classification_report_rf, \
         area_under_pre_recall_curve_rf, avg_pre_rf, avg_auc_rf, y_pred_rf, \
         feature_importance, best_params = \
-        run_best_params_CV_with_sample_weight(model=RandomForestClassifier(), dict=parmas,
+        run_best_params_CV_with_sample_weight(model=RandomForestClassifier(), diction=parmas,
                                               model_name="RF",
                                               x_train=x_train, x_test=x_test, y_train=y_train,
                                               y_test=y_test, project_key=project_key, label=label,
@@ -139,7 +139,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
         area_under_pre_recall_curve_xgboost, avg_pre_xgboost, avg_auc_xgboost, \
         y_pred_xgboost, feature_importance, best_params = \
         run_best_params_CV_with_sample_weight(model=GradientBoostingClassifier(),
-                                              dict=parmas, model_name='XGboost',
+                                              diction=parmas, model_name='XGboost',
                                               x_train=x_train, x_test=x_test,
                                               y_train=y_train, y_test=y_test,
                                               project_key=project_key, label=label,
