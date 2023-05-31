@@ -76,6 +76,12 @@ def createFolders(jira_name):
     os.mkdir(f'Normal_instability/Parameters/{jira_name}')
     open(f'Normal_instability/Parameters/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'Instability_sample_weight/Results/{jira_name}')
+    open(f'Instability_sample_weight/Results/{jira_name}/file.txt', 'x')
+
+    os.mkdir(f'Instability_sample_weight/Parameters/{jira_name}')
+    open(f'Instability_sample_weight/Parameters/{jira_name}/file.txt', 'x')
+
 
 
 def create_feature_csv(jira_name):
