@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import matplotlib.pyplot as plt
 from funcsigs import signature
+import numpy as np
 
 
 def create_pre_rec_curve(y_test, y_score, auc, algorithm, jira_name, label, path):
