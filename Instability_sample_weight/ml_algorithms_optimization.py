@@ -288,7 +288,8 @@ def run_best_params_CV_with_sample_weight(model, dict, model_name, x_train, x_te
         zip([0, 1], [(len(y_train) / (2 * np.bincount(y_train)))[0], (len(y_train) / (2 * np.bincount(y_train)))[1]]))
     sample_weight = np.array([class_weights[label] for label in y_train])
 
-    clf.fit(x_train, y_train, fit_params={'sample_weight': sample_weight})
+    fit_params = {'sample_weight': sample_weight}
+    clf.fit(x_train, y_train, **fit_params)
 
     try:
         features = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
