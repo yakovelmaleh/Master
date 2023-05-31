@@ -239,9 +239,6 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
     clf = RandomizedSearchCV(estimator=model, param_distributions=dict, cv=3, verbose=0, random_state=42)
     clf.fit(x_train, y_train)
 
-    # Train the model
-    clf.fit(x_train, y_train)
-
     try:
         features = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
     except:
