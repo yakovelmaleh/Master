@@ -60,7 +60,7 @@ def start(jira_name):
         ml_algorithms_optimization.run_model_optimization(features_data_train, features_data_valid,
                                                           labels_train['usability_label'],
                                                           labels_valid['usability_label'], project_key,
-                                                          label_name[0], all_but_one_group, path=path)
+                                                          label_name[0], all_but_one_group)
 
 
 if __name__ == "__main__":
