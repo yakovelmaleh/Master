@@ -71,10 +71,10 @@ def start(jira_name):
                 attention_mask = batch['attention_mask'].to(device)
 
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-                predicted_labels = torch.argmax(outputs.logits, dim=1)
+                predicted_labels = torch.argmax(outputs[0], dim=1)
+                probabilities = F.softmax(outputs[0], dim=1)
 
         y_pred = predicted_labels.tolist()
-        probabilities = F.softmax(outputs.logits, dim=1)
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
             get_results(y_score=probabilities, y_pred=y_pred, model_name=f'DeBERTaV3{k_unstable}_model',

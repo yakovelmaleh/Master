@@ -49,13 +49,6 @@ def start(jira_name):
 
                 # Forward pass
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-                logits = outputs.logits
-
-                # Compute loss
-                loss = loss_fn(logits, labels)
-
-                # Backpropagation
-                loss.backward()
                 optimizer.step()
 
         # save model
@@ -81,10 +74,10 @@ def start(jira_name):
                 # Forward pass
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
 
-                _, predicted_labels = torch.max(outputs.logits, dim=1)
+                _, predicted_labels = torch.max(outputs[0], dim=1)
+                probabilities = F.softmax(outputs[0], dim=1)
 
         y_pred = predicted_labels.tolist()
-        probabilities = F.softmax(outputs.logits, dim=1)
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
             get_results(y_score=probabilities, y_pred=y_pred, model_name=f'Deberta{k_unstable}_model',
