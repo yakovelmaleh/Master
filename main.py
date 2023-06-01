@@ -118,7 +118,33 @@ def createBalanceFile():
     result.to_csv('BERT_Balance_Results.csv')
 
 
+def createBERTsize():
+    result = pd.DataFrame(columns=['k_unstable', '32', '64', '128', '256', '512'])
+    for k_unstable in [5, 10, 15, 20]:
+        d = {f"k_unstable": k_unstable}
+        for num in [32, 64, 128, 256, 512]:
+            with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+                jira_data_sources = json.load(f)
 
+            total = 0
+            sum = 0
+            for jira_name, jira_obj in jira_data_sources.items():
+                try:
+                    if k_unstable == 128:
+                        results = pd.read_csv(f'Classic_result_{k_unstable}.csv')
+                    else:
+                        results = pd.read_csv(f'Classic_{num}_result_{k_unstable}.csv')
+
+                    size = len(pd.read_csv(f'Data/{jira_name}/features_labels_table_os.csv'))
+                    total += size
+                    print(results['area_under_pre_recall_curve'][0])
+                    sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
+                except:
+                    print(jira_name)
+
+            d[f'{num}'] = sum / float(total)
+        result = pd.concat([result, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+    result.to_csv('BERT_Size_Results.csv')
 
 def create_feature_csv(jira_name):
     """
@@ -159,4 +185,4 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
-    createBalanceFile()
+    createBERTsize()
