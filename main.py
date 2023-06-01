@@ -91,7 +91,7 @@ def createFolders(jira_name):
     open(f'NLP_Models/Results/{jira_name}/file.txt', 'x')
 
 def createBalanceFile():
-    results = pd.DataFrame(columns=['k_unstable', 'Half', '1', '2', '3', '4'])
+    result = pd.DataFrame(columns=['k_unstable', 'Half', '1', '2', '3', '4'])
     for k_unstable in [5, 10, 15, 20]:
         d = {f"k_unstable": k_unstable}
         for num in ['Half', 1, 2, 3, 4]:
@@ -114,8 +114,8 @@ def createBalanceFile():
                     print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
 
             d[f'{num}'] = sum / float(total)
-        results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
-    results.to_csv('BERT_Balance_Results.csv')
+        result = pd.concat([result, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+    result.to_csv('BERT_Balance_Results.csv')
 
 
 
