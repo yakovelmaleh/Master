@@ -101,9 +101,12 @@ def createBalanceFile():
         for jira_name, jira_obj in jira_data_sources.items():
             try:
                 results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
+                print(f'{jira_name} here')
+                print(results['size'])
                 size = int(results['size'])
                 total += size
-                sum += (size * float(results['area_under_pre_recall_curve']))
+                print(results['area_under_pre_recall_curve'])
+                sum = sum + (size * float(results['area_under_pre_recall_curve']))
             except:
                 print(jira_name)
                 print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
