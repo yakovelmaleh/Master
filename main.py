@@ -92,7 +92,7 @@ def createFolders(jira_name):
 
 def createBalanceFile():
     d = dict()
-    for num in ['half', 1, 2, 3, 4]:
+    for num in ['Half', 1, 2, 3, 4]:
         with open('Master/Source/jira_data_for_instability_cluster.json') as f:
             jira_data_sources = json.load(f)
 
