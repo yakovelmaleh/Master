@@ -102,11 +102,11 @@ def createBalanceFile():
             try:
                 results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
                 print(f'{jira_name} here')
-                print(results['size'])
-                size = int(results['size'])
+                print(results['size'][0])
+                size = int(results['size'][0])
                 total += size
-                print(results['area_under_pre_recall_curve'])
-                sum = sum + (size * float(results['area_under_pre_recall_curve']))
+                print(results['area_under_pre_recall_curve'][0])
+                sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
             except:
                 print(jira_name)
                 print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
