@@ -26,7 +26,7 @@ def start(jira_name):
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
     project_key = jira_name
 
-    add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
+    # add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
 
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
@@ -42,10 +42,10 @@ def start(jira_name):
             f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
         # add bert instability
-        features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
-        features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
+        # features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
+        # features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
 
-        path = addPath(f'Master/Instability_With_BERT/Parameters/{project_key}/')
+        path = addPath(f'Master/Normal_instability/Parameters/{project_key}/')
         parameters_rf = pd.read_csv(
             f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
         parameters_xg = pd.read_csv(
@@ -225,7 +225,7 @@ def start(jira_name):
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
         path = addPath(f'Master/Data_60_20/Results/{project_key}')
-        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_BERT_128.csv', index=False)
+        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_Normal.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
