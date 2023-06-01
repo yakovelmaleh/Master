@@ -1,6 +1,8 @@
 import json
 import os
 
+import pandas as pd
+
 import Normal_instability.run_train_val_optimization as run_train_val_optimization
 import Normal_instability.run_train_tes_best_parameters as run_train_tes_best_parameters
 
@@ -88,6 +90,27 @@ def createFolders(jira_name):
     os.mkdir(f'NLP_Models/Results/{jira_name}')
     open(f'NLP_Models/Results/{jira_name}/file.txt', 'x')
 
+def createBalanceFile():
+    d = dict()
+    for num in ['half', 1, 2, 3, 4]:
+        with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+            jira_data_sources = json.load(f)
+
+        total = 0
+        sum = 0
+        for jira_name, jira_obj in jira_data_sources.items():
+            try:
+                results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
+                size = results['size']
+                total += size
+                sum += (size*results['area_under_pre_recall_curve'])
+            except:
+                "s"
+
+        d[f'{num}'] = sum/total
+
+    pd.DataFrame([d.values()], columns=d.keys()).to_csv('BERT_Balance_results.csv')
+
 
 
 
@@ -130,15 +153,4 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
-    print('Start BERT')
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
-        jira_data_sources = json.load(f)
-
-    print('START ALL')
-    for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} Instability without BERT")
-        if jira_name != 'Apache':
-            run_train_val_optimization.start(jira_name)
-        run_train_tes_best_parameters.start(jira_name)
-        print(f'finish {jira_name}')
-    print('FINISH ALL')
+    createBalanceFile()
