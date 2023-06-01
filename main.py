@@ -101,13 +101,13 @@ def createBalanceFile():
         for jira_name, jira_obj in jira_data_sources.items():
             try:
                 results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
-                size = results['size']
+                size = int(results['size'])
                 total += size
-                sum += (size*results['area_under_pre_recall_curve'])
+                sum += (size * float(results['area_under_pre_recall_curve']))
             except:
                 "s"
 
-        d[f'{num}'] = sum/total
+        d[f'{num}'] = sum / float(total)
 
     pd.DataFrame([d.values()], columns=d.keys()).to_csv('BERT_Balance_results.csv')
 
