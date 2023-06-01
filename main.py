@@ -129,18 +129,15 @@ def createBERTsize():
             total = 0
             sum = 0
             for jira_name, jira_obj in jira_data_sources.items():
-                try:
-                    if k_unstable == 128:
-                        results = pd.read_csv(f'Classic_result_{k_unstable}.csv')
-                    else:
-                        results = pd.read_csv(f'Classic_{num}_result_{k_unstable}.csv')
+                if k_unstable == 128:
+                    results = pd.read_csv(f'Classic_result_{k_unstable}.csv')
+                else:
+                    results = pd.read_csv(f'Classic_{num}_result_{k_unstable}.csv')
 
-                    size = len(pd.read_csv(f'Data/{jira_name}/features_labels_table_os.csv'))
-                    total += size
-                    print(results['area_under_pre_recall_curve'][0])
-                    sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
-                except:
-                    print(jira_name)
+                size = len(pd.read_csv(f'Master/Data/{jira_name}/features_labels_table_os.csv'))
+                total += size
+                print(results['area_under_pre_recall_curve'][0])
+                sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
 
             d[f'{num}'] = sum / float(total)
         result = pd.concat([result, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
