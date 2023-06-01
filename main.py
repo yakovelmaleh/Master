@@ -91,29 +91,31 @@ def createFolders(jira_name):
     open(f'NLP_Models/Results/{jira_name}/file.txt', 'x')
 
 def createBalanceFile():
-    d = dict()
-    for num in ['Half', 1, 2, 3, 4]:
-        with open('Master/Source/jira_data_for_instability_cluster.json') as f:
-            jira_data_sources = json.load(f)
+    results = pd.DataFrame(columns=['k_unstable', 'Half', '1', '2', '3', '4'])
+    for k_unstable in [5, 10, 15, 20]:
+        d = {f"k_unstable": k_unstable}
+        for num in ['Half', 1, 2, 3, 4]:
+            with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+                jira_data_sources = json.load(f)
 
-        total = 0
-        sum = 0
-        for jira_name, jira_obj in jira_data_sources.items():
-            try:
-                results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
-                print(f'{jira_name} here')
-                print(results['size'][0])
-                size = int(results['size'][0])
-                total += size
-                print(results['area_under_pre_recall_curve'][0])
-                sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
-            except:
-                print(jira_name)
-                print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
+            total = 0
+            sum = 0
+            for jira_name, jira_obj in jira_data_sources.items():
+                try:
+                    results = pd.read_csv(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_{k_unstable}_ratio_{num}.csv')
+                    print(f'{jira_name} here')
+                    print(results['size'][0])
+                    size = int(results['size'][0])
+                    total += size
+                    print(results['area_under_pre_recall_curve'][0])
+                    sum = sum + (size * float(results['area_under_pre_recall_curve'][0]))
+                except:
+                    print(jira_name)
+                    print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
 
-        d[f'{num}'] = sum / float(total)
-
-    pd.DataFrame([d.values()], columns=d.keys()).to_csv('BERT_Balance_results.csv')
+            d[f'{num}'] = sum / float(total)
+        results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
+    results.to_csv('BERT_Balance_Results.csv')
 
 
 
