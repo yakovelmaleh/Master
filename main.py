@@ -105,7 +105,8 @@ def createBalanceFile():
                 total += size
                 sum += (size * float(results['area_under_pre_recall_curve']))
             except:
-                "s"
+                print(jira_name)
+                print(f'Master/BERT_Balance_Data/Results/{jira_name}/Classic_result_5_ratio_{num}.csv')
 
         d[f'{num}'] = sum / float(total)
 
