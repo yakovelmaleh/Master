@@ -130,9 +130,9 @@ def createBERTsize():
             sum = 0
             for jira_name, jira_obj in jira_data_sources.items():
                 if k_unstable == 128:
-                    results = pd.read_csv(f'Classic_result_{k_unstable}.csv')
+                    results = pd.read_csv(f'Master/BERT/Results/{jira_name}/Classic_result_{k_unstable}.csv')
                 else:
-                    results = pd.read_csv(f'Classic_{num}_result_{k_unstable}.csv')
+                    results = pd.read_csv(f'Master/BERT/Results/{jira_name}/Classic_{num}_result_{k_unstable}.csv')
 
                 size = len(pd.read_csv(f'Master/Data/{jira_name}/features_labels_table_os.csv'))
                 total += size
