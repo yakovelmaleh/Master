@@ -6,13 +6,13 @@ import pandas as pd
 
 
 def getData(jira_name, label):
-    path = f'Master/Models/train_test_after_all_but/{jira_name}/'
+    path = f'Master/Models/train_test_after_all_but/{jira_name}'
     features_data_train = pd.read_csv(
         f'{path}/features_data_train_{jira_name}_{label}.csv', low_memory=False)
     features_data_test = pd.read_csv(
         f'{path}/features_data_test_{jira_name}_{label}.csv', low_memory=False)
 
-    path = f'Master/Models/train_test/{jira_name}/'
+    path = f'Master/Models/train_test/{jira_name}'
     labels_train = pd.read_csv(
         f'{path}/labels_train_{jira_name}_{label}.csv', low_memory=False)
     labels_test = pd.read_csv(
