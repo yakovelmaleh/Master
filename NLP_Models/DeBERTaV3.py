@@ -67,7 +67,9 @@ def start(jira_name):
 
         model.eval()  # Set the model to evaluation mode
 
-        model.eval()
+        all_predicted_labels = []
+        all_probabilities = []
+
         with torch.no_grad():
             for batch in eval_dataloader:
                 input_ids = batch[0].to(device)
@@ -77,10 +79,14 @@ def start(jira_name):
                 predicted_labels = torch.argmax(outputs[0], dim=1)
                 probabilities = F.softmax(outputs[0], dim=1)
 
-        y_pred = predicted_labels.tolist()
+                all_predicted_labels.extend(predicted_labels.tolist())
+                all_probabilities.extend(probabilities.tolist())
+
+        y_pred = all_predicted_labels
+        y_score = torch.tensor(all_probabilities)
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
-            get_results(y_score=probabilities, y_pred=y_pred, model_name=f'DeBERTaV3{k_unstable}_model',
+            get_results(y_score=y_score, y_pred=y_pred, model_name=f'DeBERTaV3{k_unstable}_model',
                           y_test=eval_labels, project_key=jira_name, label=k_unstable)
 
         d = {'project_key': jira_name, 'usability_label': k_unstable,
