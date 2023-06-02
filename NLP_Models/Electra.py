@@ -35,28 +35,30 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
+        if jira_name == 'Apache' and k_unstable == 5:
+            model = ElectraForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
+        else:
+            for epoch in range(num_epochs):
+                for batch in dataloader:
+                    # Get batch input and labels
+                    batch_input_ids, batch_attention_masks, batch_labels = batch
+                    batch_input_ids = batch_input_ids.to(device)
+                    batch_attention_masks = batch_attention_masks.to(device)
+                    batch_labels = batch_labels.to(device)
 
-        for epoch in range(num_epochs):
-            for batch in dataloader:
-                # Get batch input and labels
-                batch_input_ids, batch_attention_masks, batch_labels = batch
-                batch_input_ids = batch_input_ids.to(device)
-                batch_attention_masks = batch_attention_masks.to(device)
-                batch_labels = batch_labels.to(device)
+                    # Zero gradients
+                    optimizer.zero_grad()
 
-                # Zero gradients
-                optimizer.zero_grad()
+                    # Forward pass
+                    outputs = model(input_ids=batch_input_ids, attention_mask=batch_attention_masks, labels=batch_labels)
 
-                # Forward pass
-                outputs = model(input_ids=batch_input_ids, attention_mask=batch_attention_masks, labels=batch_labels)
+                    # Compute loss and perform backpropagation
+                    loss = outputs.loss
+                    loss.backward()
+                    optimizer.step()
 
-                # Compute loss and perform backpropagation
-                loss = outputs.loss
-                loss.backward()
-                optimizer.step()
-
-        # save model
-        model = model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
+            # save model
+            model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
 
         # Evaluation loop (assuming you have a separate evaluation dataset)
         data = GetNLPData.get_test_data(jira_name, 'Master/', k_unstable)
@@ -71,9 +73,6 @@ def start(jira_name):
 
         model.eval()  # Set the model to evaluation mode
 
-        total_correct = 0
-        total_samples = 0
-
         with torch.no_grad():
             for eval_batch in eval_dataloader:
                 eval_input_ids, eval_attention_masks, eval_labels = eval_batch
@@ -84,8 +83,6 @@ def start(jira_name):
                 eval_outputs = model(input_ids=eval_input_ids, attention_mask=eval_attention_masks)
 
                 _, predicted_labels = torch.max(eval_outputs.logits, dim=1)
-                total_samples += eval_labels.size(0)
-                total_correct += (predicted_labels == eval_labels).sum().item()
 
         y_pred = predicted_labels.tolist()
         probabilities = F.softmax(eval_outputs.logits, dim=1)
