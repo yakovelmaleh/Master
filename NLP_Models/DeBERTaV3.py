@@ -70,8 +70,8 @@ def start(jira_name):
         model.eval()
         with torch.no_grad():
             for batch in eval_dataloader:
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
+                input_ids = batch[0].to(device)
+                attention_mask = batch[1].to(device)
 
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask)
                 predicted_labels = torch.argmax(outputs[0], dim=1)
