@@ -291,6 +291,11 @@ def run_best_params_CV_with_sample_weight(model, diction, model_name, x_train, x
     fit_params = {'sample_weight': sample_weight}
     clf.fit(x_train, y_train, **fit_params)
 
+    # Test sample_weight
+    class_weights = dict(
+        zip([0, 1], [(len(y_test) / (2 * np.bincount(y_test)))[0], (len(y_test) / (2 * np.bincount(y_test)))[1]]))
+    sample_weight = np.array([class_weights[label] for label in y_test])
+
     try:
         features = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
     except:

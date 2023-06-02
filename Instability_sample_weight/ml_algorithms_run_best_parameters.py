@@ -155,7 +155,7 @@ def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
                                  random_state=random_state, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
                                  bootstrap=bootstrap, class_weight=class_weight)
 
-    return run_generic_model(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 
 
 def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
@@ -172,7 +172,7 @@ def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
                                      min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
                                      learning_rate=learning_rate, subsample=subsample, random_state=random_state)
 
-    return run_generic_model(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
 
 
 def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
@@ -250,6 +250,12 @@ def run_generic_model_with_sample_weight(clf, model_name, x_train, x_test,
 
     # Train the model
     clf.fit(x_train, y_train, sample_weight=sample_weight)
+
+    # Test sample_weight
+    class_weights = dict(
+        zip([0, 1], [(len(y_test) / (2 * np.bincount(y_test)))[0], (len(y_test) / (2 * np.bincount(y_test)))[1]]))
+    sample_weight = np.array([class_weights[label] for label in y_test])
+
     try:
         feature_imp = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
     except:
