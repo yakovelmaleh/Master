@@ -36,21 +36,23 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
+        if jira_name == 'Apache' and k_unstable == 5:
+            model = DebertaForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_DeBERTaV3Model")
+        else:
+            for epoch in range(num_epochs):
+                for batch in dataloader:
+                    input_ids = batch[0].to(device)
+                    attention_mask = batch[1].to(device)
+                    labels = batch[2].to(device)
 
-        for epoch in range(num_epochs):
-            for batch in dataloader:
-                input_ids = batch[0].to(device)
-                attention_mask = batch[1].to(device)
-                labels = batch[2].to(device)
+                    optimizer.zero_grad()
+                    outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                    loss = outputs.loss
+                    loss.backward()
+                    optimizer.step()
 
-                optimizer.zero_grad()
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                loss = outputs.loss
-                loss.backward()
-                optimizer.step()
-
-        # save model
-        model = model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}_DeBERTaV3Model")
+            # save model
+            model.push_to_hub(f"YakovElm/{jira_name}{k_unstable}_DeBERTaV3Model")
 
         # Evaluation loop (assuming you have a separate evaluation dataset)
         data = GetNLPData.get_test_data(jira_name, 'Master/', k_unstable)
