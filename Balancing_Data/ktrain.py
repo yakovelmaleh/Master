@@ -15,51 +15,46 @@ def start(jira_name):
 
     for k_unstable in [5, 10, 15, 20]:
 
-        train, valid = GetNLPData.get_data_train_with_labels(jira_name, 'Master/', k_unstable)
-        train_texts = train['sentence'].tolist()
-        val_texts = valid['sentence'].tolist()
-        train_labels = train['label'].tolist()
-        val_labels = valid['label'].tolist()
+        train = GetNLPData.get_data_train(jira_name, 'Master/', k_unstable)
+        test = GetNLPData.get_test_data(jira_name, 'Master/', k_unstable)
 
-        trn = text.texts_from_array(train_texts, train_labels)
-        val = text.texts_from_array(val_texts, val_labels)
-
-        # Create a TextDataBunch
-        data = text.TextDataBunch.from_datasets(train_data=trn, valid_data=val, classes=[0, 1],
-                                                tokenizer='distilbert-base-uncased',
-                                                preprocess_mode='distilbert', train_bs=6, valid_bs=6)
+        # Pre Processing
+        trn, val, preproc = text.texts_from_array(x_train=train['sentence'], y_train=train['label'],
+                                                  x_test=test['sentence'], y_test=test['label'],
+                                                  class_names=[0, 1],
+                                                  val_pct=0.1,
+                                                  max_features=30000,
+                                                  maxlen=350,
+                                                  preprocess_mode='distilbert',
+                                                  ngram_range=1)
 
         # Load the pre-trained DistilBERT model
-        model_name = 'distilbert-base-uncased'
-        model = text.text_classifier(name='distilbert', train_data=data, preproc=data.preprocess)
+        model = text.text_classifier('distilbert', train_data=trn, preproc=preproc)
 
         # Set the class weights
-        class_weights = class_weight.compute_class_weight('balanced', [1, 0], train_labels)
+        class_weights = class_weight.compute_class_weight('balanced', [1, 0], train['label'].tolist())
 
         # Create a Learner object
-        learner = ktrain.get_learner(model, train_data=data, val_data=val, batch_size=6)  # Use separate validation data
+        learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=6)
+        learner.lr_find(show_plot=True, max_epochs=5)
 
-        # Fit the model with class weights
-        learner.fit_onecycle(3e-5, 3, class_weight=class_weights)  # Adjust the learning rate and epochs as needed
+        learner.autofit(2e-5, 3, class_weight=class_weights)
 
         # Evaluate the model
-        learner.validate(class_names=[0, 1])
+        learner.validate()
         learner.push_to_hub(f'YakovElm/{jira_name}_Ktrain_{ktrain}')
 
-        test = GetNLPData.get_test_data(jira_name, 'Master/', k_unstable)
-        test_texts = test['sentence'].tolist()
         test_labels = test['label'].tolist()
 
-        test_preprocessed = data.preprocess_test(test_texts)
+        # Preprocess the test data
+        test_preprocessed = preproc.preprocess_test(test['sentence'])
+
         # Create a test dataloader
-        test_dataloader = data.test_dl(test_preprocessed)
+        test_dataloader = preproc.create_dataloader(test_preprocessed, batch_size=32, shuffle=False)
 
         # Predict on the test data
         y_pred = learner.predict(test_dataloader)
         y_score = learner.predict_proba(test_dataloader=test_dataloader)
-
-        # Get the predicted labels
-        predicted_labels = [data.classes[prediction] for prediction in y_pred]
 
         precision, recall, thresholds = metrics.precision_recall_curve(test_labels, y_score[:, 1])
         d = {
