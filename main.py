@@ -90,6 +90,12 @@ def createFolders(jira_name):
     os.mkdir(f'NLP_Models/Results/{jira_name}')
     open(f'NLP_Models/Results/{jira_name}/file.txt', 'x')
 
+    os.mkdir(f'KNN/Results/{jira_name}')
+    open(f'KNN/Results/{jira_name}/file.txt', 'x')
+
+    os.mkdir(f'Balancing_Data/Results/{jira_name}')
+    open(f'Balancing_Data/Results/{jira_name}/file.txt', 'x')
+
 def createBalanceFile():
     result = pd.DataFrame(columns=['k_unstable', 'Half', '1', '2', '3', '4'])
     for k_unstable in [5, 10, 15, 20]:
