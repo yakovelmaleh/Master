@@ -48,7 +48,6 @@ def start(jira_name):
 
         # Evaluate the model
         learner.validate()
-        learner.push_to_hub(f'YakovElm/{jira_name}_Ktrain_{ktrain}')
 
         test_labels = test['label'].tolist()
 
