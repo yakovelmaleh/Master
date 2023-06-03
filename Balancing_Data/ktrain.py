@@ -19,8 +19,8 @@ def start(jira_name):
         test = GetNLPData.get_test_data(jira_name, 'Master/', k_unstable)
 
         # Pre Processing
-        trn, val, preproc = text.texts_from_array(x_train=train['sentence'], y_train=train['label'],
-                                                  x_test=test['sentence'], y_test=test['label'],
+        trn, val, preproc = text.texts_from_array(x_train=train['sentence'].tolist(), y_train=train['label'].tolist(),
+                                                  x_test=test['sentence'].tolist(), y_test=test['label'].tolist(),
                                                   class_names=[0, 1],
                                                   val_pct=0.1,
                                                   max_features=30000,
@@ -47,7 +47,7 @@ def start(jira_name):
         test_labels = test['label'].tolist()
 
         # Preprocess the test data
-        test_preprocessed = preproc.preprocess_test(test['sentence'])
+        test_preprocessed = preproc.preprocess_test(test['sentence'].tolist())
 
         # Create a test dataloader
         test_dataloader = preproc.create_dataloader(test_preprocessed, batch_size=32, shuffle=False)
