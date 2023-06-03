@@ -35,7 +35,7 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
-        if jira_name == 'Apache':
+        if jira_name == 'Apache' and k_unstable == 5:
             model = ElectraForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
         else:
             for epoch in range(num_epochs):
@@ -85,8 +85,8 @@ def start(jira_name):
 
                 eval_outputs = model(input_ids=eval_input_ids, attention_mask=eval_attention_masks)
 
-                predicted_labels = torch.argmax(eval_outputs[0], dim=1)
-                probabilities = F.softmax(eval_outputs[0], dim=1)
+                _, predicted_labels = torch.max(eval_outputs.logits, dim=1)
+                probabilities = F.softmax(eval_outputs.logits, dim=1)
 
                 all_predicted_labels.extend(predicted_labels.tolist())
                 all_probabilities.extend(probabilities.tolist())
@@ -109,7 +109,7 @@ def start(jira_name):
 
     path = f'Master/NLP_Models/Results/{jira_name}'
     results.to_csv(
-        f'{path}/Results_Electra_{jira_name}.csv', index=False)
+        f'{path}/Results_Electra_{jira_name}_label_{k_unstable}.csv', index=False)
 
 
 def get_results(y_score, y_pred, model_name, y_test, project_key, label):
