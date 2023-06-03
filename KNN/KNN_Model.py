@@ -16,6 +16,7 @@ def toFloat(data):
         float_value = float(datetime_value.strftime("%Y%m%d"))
         data.loc[i, 'created'] = float_value
         data.loc[i, 'issue_key'] = calculate_ascii_sum(data['issue_key'][i])
+    data = data.fillna(0)
     return data
 
 def getData(jira_name, label):
