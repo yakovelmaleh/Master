@@ -109,7 +109,7 @@ def start(jira_name):
 
     path = f'Master/NLP_Models/Results/{jira_name}'
     results.to_csv(
-        f'{path}/Results_Electra_{jira_name}_label_{k_unstable}.csv', index=False)
+        f'{path}/Results_Electra_{jira_name}.csv', index=False)
 
 
 def get_results(y_score, y_pred, model_name, y_test, project_key, label):
