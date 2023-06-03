@@ -35,7 +35,7 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
-        if jira_name == 'Apache' and k_unstable == 5:
+        if jira_name == 'Apache':
             model = ElectraForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
         else:
             for epoch in range(num_epochs):
@@ -73,6 +73,9 @@ def start(jira_name):
 
         model.eval()  # Set the model to evaluation mode
 
+        all_predicted_labels = []
+        all_probabilities = []
+
         with torch.no_grad():
             for eval_batch in eval_dataloader:
                 eval_input_ids, eval_attention_masks, eval_labels = eval_batch
@@ -82,10 +85,14 @@ def start(jira_name):
 
                 eval_outputs = model(input_ids=eval_input_ids, attention_mask=eval_attention_masks)
 
-                _, predicted_labels = torch.max(eval_outputs.logits, dim=1)
+                predicted_labels = torch.argmax(outputs[0], dim=1)
+                probabilities = F.softmax(outputs[0], dim=1)
 
-        y_pred = predicted_labels.tolist()
-        probabilities = F.softmax(eval_outputs.logits, dim=1)
+                all_predicted_labels.extend(predicted_labels.tolist())
+                all_probabilities.extend(probabilities.tolist())
+
+        y_pred = all_predicted_labels
+        y_score = torch.tensor(all_probabilities)
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
             get_results(y_score=probabilities, y_pred=y_pred, model_name=f'Electra{k_unstable}_model',
@@ -102,7 +109,7 @@ def start(jira_name):
 
     path = f'Master/NLP_Models/Results/{jira_name}'
     results.to_csv(
-        f'{path}/Results_Electra_{jira_name}_label_{k_unstable}.csv', index=False)
+        f'{path}/Results_Electra_{jira_name}.csv', index=False)
 
 
 def get_results(y_score, y_pred, model_name, y_test, project_key, label):
