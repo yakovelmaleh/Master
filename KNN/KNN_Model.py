@@ -55,7 +55,7 @@ def run_KNN(x_train, x_test, y_train, y_test, jira_name, k_unstable, knn_number)
     knn = KNeighborsClassifier(n_neighbors=knn_number)
 
     label_encoder = LabelEncoder()
-    y_train_encoded = label_encoder.fit_transform(y_train[:, 0].reshape(-1))
+    y_train_encoded = label_encoder.fit_transform(y_train.iloc[:, 0].values)
 
     # Undersample the majority class
     rus = RandomUnderSampler(random_state=42)
