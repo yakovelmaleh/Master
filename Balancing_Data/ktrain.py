@@ -33,7 +33,8 @@ def start(jira_name):
         model = text.text_classifier('distilbert', train_data=trn, preproc=preproc)
 
         # Set the class weights
-        class_weights = class_weight.compute_class_weight('balanced', np.unique(train['label']), train['label'].tolist())
+        class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(train['label']),
+                                                          y=train['label'].tolist())
 
         # Create a Learner object
         learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=6)
