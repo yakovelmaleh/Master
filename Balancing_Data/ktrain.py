@@ -5,6 +5,7 @@ import Utils.GetNLPData as GetNLPData
 import pandas as pd
 from sklearn import metrics
 from sklearn.utils import class_weight
+import numpy as np
 
 
 def start(jira_name):
@@ -21,7 +22,7 @@ def start(jira_name):
         # Pre Processing
         trn, val, preproc = text.texts_from_array(x_train=train['sentence'].tolist(), y_train=train['label'].tolist(),
                                                   x_test=test['sentence'].tolist(), y_test=test['label'].tolist(),
-                                                  class_names=[0, 1],
+                                                  class_names=np.unique(train['label']),
                                                   val_pct=0.1,
                                                   max_features=30000,
                                                   maxlen=350,
@@ -32,7 +33,7 @@ def start(jira_name):
         model = text.text_classifier('distilbert', train_data=trn, preproc=preproc)
 
         # Set the class weights
-        class_weights = class_weight.compute_class_weight('balanced', [1, 0], train['label'].tolist())
+        class_weights = class_weight.compute_class_weight('balanced', np.unique(train['label']), train['label'].tolist())
 
         # Create a Learner object
         learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=6)
