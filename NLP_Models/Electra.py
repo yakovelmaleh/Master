@@ -85,8 +85,8 @@ def start(jira_name):
 
                 eval_outputs = model(input_ids=eval_input_ids, attention_mask=eval_attention_masks)
 
-                predicted_labels = torch.argmax(outputs[0], dim=1)
-                probabilities = F.softmax(outputs[0], dim=1)
+                predicted_labels = torch.argmax(eval_outputs[0], dim=1)
+                probabilities = F.softmax(eval_outputs[0], dim=1)
 
                 all_predicted_labels.extend(predicted_labels.tolist())
                 all_probabilities.extend(probabilities.tolist())
