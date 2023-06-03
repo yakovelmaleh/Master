@@ -25,8 +25,9 @@ def start(jira_name):
         val = text.texts_from_array(val_texts, val_labels)
 
         # Create a TextDataBunch
-        data = text.TransformerTextDataBunch.from_datasets(trn_dataset=trn, val_dataset=val, classes=[0, 1],
-                                                           preprocess_mode='distilbert')
+        data = text.TransformerDataBunch.from_datasets(train_data=trn, valid_data=val, classes=[0, 1],
+                                                       tokenizer='distilbert-base-uncased',
+                                                       train_bs=6, valid_bs=6)
 
         # Load the pre-trained DistilBERT model
         model_name = 'distilbert-base-uncased'
