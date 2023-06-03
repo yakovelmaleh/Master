@@ -4,7 +4,19 @@ import Utils.Add_BERT_predication as Add_BERT_predication
 from sklearn import metrics
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from datetime import datetime
 
+
+def calculate_ascii_sum(string):
+    return sum(ord(char) for char in string)
+
+def toFloat(data):
+    for i in range(len(data['created'])):
+        datetime_value = datetime.strptime(data['created'][i], "%Y-%m-%d %H:%M:%S")
+        float_value = float(datetime_value.strftime("%Y%m%d"))
+        data.loc[i, 'created'] = float_value
+        data.loc[i, 'issue_key'] = calculate_ascii_sum(data['issue_key'][i])
+    return data
 
 def getData(jira_name, label):
     path = f'Master/Models/train_test_after_all_but/{jira_name}'
@@ -12,6 +24,9 @@ def getData(jira_name, label):
         f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
     features_data_test = pd.read_csv(
         f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
+
+    features_data_test = toFloat(features_data_test)
+    features_data_train = toFloat(features_data_train)
 
     path = f'Master/Models/train_test/{jira_name}'
     labels_train = pd.read_csv(
