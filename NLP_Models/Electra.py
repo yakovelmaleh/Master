@@ -35,7 +35,7 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
-        if jira_name == 'Apache' and k_unstable == 5:
+        if jira_name == 'Apache':
             model = ElectraForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
         else:
             for epoch in range(num_epochs):
