@@ -3,6 +3,7 @@ from imblearn.under_sampling import RandomUnderSampler
 import Utils.Add_BERT_predication as Add_BERT_predication
 from sklearn import metrics
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 
 def getData(jira_name, label):
@@ -53,9 +54,12 @@ def run_KNN(x_train, x_test, y_train, y_test, jira_name, k_unstable, knn_number)
     # Create an instance of the KNeighborsClassifier
     knn = KNeighborsClassifier(n_neighbors=knn_number)
 
+    label_encoder = LabelEncoder()
+    y_train_encoded = label_encoder.fit_transform(y_train)
+
     # Undersample the majority class
     rus = RandomUnderSampler(random_state=42)
-    x_train_resampled, y_train_resampled = rus.fit_resample(x_train, y_train)
+    x_train_resampled, y_train_resampled = rus.fit_resample(x_train, y_train_encoded)
 
     # Fit the KNeighborsClassifier on the resampled data
     knn.fit(x_train_resampled, y_train_resampled)
