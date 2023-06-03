@@ -8,15 +8,15 @@ import pandas as pd
 def getData(jira_name, label):
     path = f'Master/Models/train_test_after_all_but/{jira_name}'
     features_data_train = pd.read_csv(
-        f'{path}/features_data_train_{jira_name}_{label}.csv', low_memory=False)
+        f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
     features_data_test = pd.read_csv(
-        f'{path}/features_data_test_{jira_name}_{label}.csv', low_memory=False)
+        f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
 
     path = f'Master/Models/train_test/{jira_name}'
     labels_train = pd.read_csv(
-        f'{path}/labels_train_{jira_name}_{label}.csv', low_memory=False)
+        f'{path}/labels_train_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
     labels_test = pd.read_csv(
-        f'{path}/labels_test_{jira_name}_{label}.csv', low_memory=False)
+        f'{path}/labels_test_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
 
     return features_data_train, features_data_test, labels_train, labels_test
 
