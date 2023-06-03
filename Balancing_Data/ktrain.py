@@ -36,11 +36,15 @@ def start(jira_name):
         class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(train['label']),
                                                           y=train['label'].tolist())
 
+        weights = {}
+        for index, weight in enumerate(class_weights):
+            weights[index] = weight
+
         # Create a Learner object
         learner = ktrain.get_learner(model, train_data=trn, val_data=val, batch_size=6)
         learner.lr_find(show_plot=True, max_epochs=5)
 
-        learner.autofit(2e-5, 3, class_weight=class_weights)
+        learner.autofit(2e-5, 3, class_weight=weights)
 
         # Evaluate the model
         learner.validate()
