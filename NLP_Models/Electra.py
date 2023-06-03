@@ -95,7 +95,7 @@ def start(jira_name):
         y_score = torch.tensor(all_probabilities)
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
-            get_results(y_score=probabilities, y_pred=y_pred, model_name=f'Electra{k_unstable}_model',
+            get_results(y_score=y_score, y_pred=y_pred, model_name=f'Electra{k_unstable}_model',
                           y_test=eval_labels, project_key=jira_name, label=k_unstable)
 
         d = {'project_key': jira_name, 'usability_label': k_unstable,
