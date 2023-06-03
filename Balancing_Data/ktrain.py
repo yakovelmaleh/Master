@@ -22,7 +22,7 @@ def start(jira_name):
         val_labels = valid['label'].tolist()
 
         trn = text.texts_from_array(train_texts, train_labels)
-        val = text.texts_from_array(val_texts, val_texts)
+        val = text.texts_from_array(val_texts, val_labels)
 
         # Create a TextDataBunch
         data = text.TransformerTextDataBunch.from_datasets(trn_dataset=trn, val_dataset=val, classes=[0, 1],
