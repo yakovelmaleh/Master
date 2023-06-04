@@ -68,11 +68,11 @@ def start(jira_name, with_bert):
 
         path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}/')
         parameters_rf = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF.csv', low_memory=False)
         parameters_xg = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost_2.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
         parameters_nn = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN_2.csv', low_memory=False)
+            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
 
         path = addPath(f'Master/Models/train_val/{project_key}/')
         labels_train = pd.read_csv(
