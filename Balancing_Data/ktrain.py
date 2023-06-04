@@ -51,15 +51,9 @@ def start(jira_name):
 
         test_labels = test['label'].tolist()
 
-        # Preprocess the test data
-        test_preprocessed = preproc.preprocess_test(test['sentence'].tolist())
-
-        # Create a test dataloader
-        test_dataloader = preproc.create_dataloader(test_preprocessed, batch_size=32, shuffle=False)
-
-        # Predict on the test data
-        y_pred = learner.predict(test_dataloader)
-        y_score = learner.predict_proba(test_dataloader=test_dataloader)
+        predictor = ktrain.get_predictor(learner.model, preproc)
+        y_pred = predictor.predict(test['sentence'].tolist())
+        y_score = predictor.predict_proba(test['sentence'].tolist())
 
         precision, recall, thresholds = metrics.precision_recall_curve(test_labels, y_score[:, 1])
         d = {
