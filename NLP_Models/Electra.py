@@ -35,7 +35,7 @@ def start(jira_name):
 
         # Move the model to the device
         model.to(device)
-        if jira_name == 'Apache' and k_unstable == 5:
+        if jira_name == 'Apache':
             model = ElectraForSequenceClassification.from_pretrained(f"YakovElm/{jira_name}{k_unstable}_ElectraModel")
         else:
             for epoch in range(num_epochs):
@@ -78,10 +78,10 @@ def start(jira_name):
 
         with torch.no_grad():
             for eval_batch in eval_dataloader:
-                eval_input_ids, eval_attention_masks, eval_labels = eval_batch
+                eval_input_ids, eval_attention_masks, a = eval_batch
                 eval_input_ids = eval_input_ids.to(device)
                 eval_attention_masks = eval_attention_masks.to(device)
-                eval_labels = eval_labels.to(device)
+                a = a.to(device)
 
                 eval_outputs = model(input_ids=eval_input_ids, attention_mask=eval_attention_masks)
 
