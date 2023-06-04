@@ -1,7 +1,7 @@
 import json
 import Instability_sample_weight.run_train_val_optimization as run_train_val_optimization
-import Instability_sample_weight.run_train_tes_best_parameters as run_train_tes_best_parameters
-import Data_60_20.run_train_tes_best_parameters as run_train_tes_best_parameters
+import KNN.KNN_Model as KNN_Model
+import KNN.KNN_Model as KNN_Model
 
 if __name__ == '__main__':
 
@@ -11,8 +11,7 @@ if __name__ == '__main__':
 
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} Instability with Data_60_20 with sampling")
-        run_train_tes_best_parameters.start(jira_name, True)
-        run_train_tes_best_parameters.start(jira_name, False)
+        print(f"start: {jira_name} Instability with KNN_Model")
+        KNN_Model.start(jira_name)
         print(f'finish {jira_name}')
-    print('FINISH ALL Instability with sampling')
+    print('FINISH ALL Instability with KNN_Model')
