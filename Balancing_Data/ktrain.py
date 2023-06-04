@@ -62,7 +62,7 @@ def start(jira_name):
             'accuracy': metrics.accuracy_score(test_labels, y_pred),
             'confusion_matrix': metrics.confusion_matrix(test_labels, y_pred),
             'classification_report': metrics.classification_report(test_labels, y_pred),
-            'area_under_pre_recall_curve': metrics.auc(test_labels, precision),
+            'area_under_pre_recall_curve': metrics.auc(recall, precision),
             'avg_precision': metrics.average_precision_score(test_labels, y_score[:, 1]),
             'area_under_roc_curve': metrics.roc_auc_score(test_labels, y_score[:, 1]),
             'y_pred': y_pred,
