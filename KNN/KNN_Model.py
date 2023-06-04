@@ -10,6 +10,7 @@ from datetime import datetime
 def calculate_ascii_sum(string):
     return sum(ord(char) for char in string)
 
+
 def toFloat(data):
     for i in range(len(data['created'])):
         datetime_value = datetime.strptime(data['created'][i], "%Y-%m-%d %H:%M:%S")
@@ -84,6 +85,7 @@ def run_KNN(x_train, x_test, y_train, y_test, jira_name, k_unstable, knn_number)
     # Predict on the test data
     y_pred = knn.predict(x_test)
     y_score = knn.predict_proba(x_test)
+    y_test = y_test.iloc[:, 0].values
 
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1])
 
