@@ -19,15 +19,13 @@ def toFloat(data):
     data = data.fillna(0)
     return data
 
+
 def getData(jira_name, label):
     path = f'Master/Models/train_test_after_all_but/{jira_name}'
     features_data_train = pd.read_csv(
         f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
     features_data_test = pd.read_csv(
         f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{label}.csv', low_memory=False)
-
-    features_data_test = toFloat(features_data_test)
-    features_data_train = toFloat(features_data_train)
 
     path = f'Master/Models/train_test/{jira_name}'
     labels_train = pd.read_csv(
@@ -52,6 +50,9 @@ def start(jira_name):
         # add bert instability
         x_train = add_bert_predictions(data=x_train, data_name='train', k_unstable=k_unstable)
         x_test = add_bert_predictions(data=x_test, data_name='test', k_unstable=k_unstable)
+
+        x_train = toFloat(x_train)
+        x_test = toFloat(x_test)
 
         # Create an instance of the KNeighborsClassifier
         for knn_number in [1, 3, 5, 7]:
