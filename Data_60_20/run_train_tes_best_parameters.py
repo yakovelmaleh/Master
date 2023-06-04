@@ -4,12 +4,28 @@ import pandas as pd
 from pathlib import Path
 import os
 import numpy as np
+from datetime import datetime
+
 
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
 
-def start(jira_name):
+def calculate_ascii_sum(string):
+    return sum(ord(char) for char in string)
+
+
+def toFloat(data):
+    for i in range(len(data['created'])):
+        datetime_value = datetime.strptime(data['created'][i], "%Y-%m-%d %H:%M:%S")
+        float_value = float(datetime_value.strftime("%Y%m%d"))
+        data.loc[i, 'created'] = float_value
+        data.loc[i, 'issue_key'] = calculate_ascii_sum(data['issue_key'][i])
+    data = data.fillna(0)
+    return data
+
+
+def start(jira_name, with_bert):
     """
     this script read all the feature data (train and test), and run prediction script with the best parametrs and features, and run the script ml_algorithms_run_best_parameters
     which get the features and parameters and run + return the results to all the different models.
@@ -26,7 +42,8 @@ def start(jira_name):
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
     project_key = jira_name
 
-    # add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
+    if with_bert:
+        add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
 
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
@@ -42,10 +59,14 @@ def start(jira_name):
             f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
         # add bert instability
-        # features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
-        # features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
+        if with_bert:
+            features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
+            features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
 
-        path = addPath(f'Master/Normal_instability/Parameters/{project_key}/')
+        features_data_train = toFloat(features_data_train)
+        features_data_test = toFloat(features_data_test)
+
+        path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}/')
         parameters_rf = pd.read_csv(
             f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_2.csv', low_memory=False)
         parameters_xg = pd.read_csv(
@@ -224,8 +245,11 @@ def start(jira_name):
 
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
-        path = addPath(f'Master/Data_60_20/Results/{project_key}')
-        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_Normal.csv', index=False)
+        path = f'Master/Data_60_20/Results/{project_key}/results_{project_key}_{label_name[0]}_with_sampling_'
+        if with_bert:
+            results.to_csv(f'{path}_bert.csv', index=False)
+        else:
+            results.to_csv(f'{path}_Normal.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',

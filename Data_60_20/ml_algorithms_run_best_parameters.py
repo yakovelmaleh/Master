@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingClassifier
 from pathlib import Path
 import os
+import numpy as np
 
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
@@ -43,7 +44,7 @@ def run_is_empty(x_train, x_test, y_train, y_test, project_key, label, all_but_o
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_empty: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Empty', project_key, label, all_but_one_group)
+    # create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Empty', project_key, label, all_but_one_group)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             x_test['label_is_empty'], [], precision, recall, thresholds]
@@ -73,7 +74,7 @@ def run_is_zero(x_train, x_test, y_train, y_test, project_key, label, all_but_on
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_zero: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Zero', project_key, label, all_but_one_group)
+    # create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Zero', project_key, label, all_but_one_group)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_score['all'], [], precision, recall, thresholds]
@@ -104,7 +105,7 @@ def run_random(x_train, x_test, y_train, y_test, project_key, label, all_but_one
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_random: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Random', project_key, label, all_but_one_group)
+    # create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Random', project_key, label, all_but_one_group)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred['pred'], [], precision, recall, thresholds]
@@ -144,16 +145,12 @@ def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
     x_train = x_train.copy()
     x_test = x_test.copy()
 
-    x_train = x_train.drop(columns=['created'])
-    x_test = x_test.drop(columns=['created'])
-    x_train = x_train.drop(columns=['issue_key'])
-    x_test = x_test.drop(columns=['issue_key'])
-
     clf = RandomForestClassifier(n_estimators=num_trees_rf, max_features=max_feature_rf, max_depth=max_depth_rf,
                                  random_state=random_state, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
                                  bootstrap=bootstrap, class_weight=class_weight)
 
-    return run_generic_model(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "RF", x_train, x_test, y_train, y_test,
+                                                project_key, label, all_but_one_group)
 
 
 def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
@@ -161,25 +158,17 @@ def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
     x_train = x_train.copy()
     x_test = x_test.copy()
 
-    x_train = x_train.drop(columns=['created'])
-    x_test = x_test.drop(columns=['created'])
-    x_train = x_train.drop(columns=['issue_key'])
-    x_test = x_test.drop(columns=['issue_key'])
-
     clf = GradientBoostingClassifier(n_estimators=num_trees, max_depth=max_depth_xg, max_features=max_features,
                                      min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
                                      learning_rate=learning_rate, subsample=subsample, random_state=random_state)
 
-    return run_generic_model(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "XGboost", x_train, x_test, y_train, y_test,
+                                                project_key, label, all_but_one_group)
 
 
 def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
            hidden_layer_size, learning_rate_nn, activation_nn, max_iterations, num_batches_size, random_state,
            project_key, label, all_but_one_group):
-    x_train = x_train.drop(columns=['created'])
-    x_test = x_test.drop(columns=['created'])
-    x_train = x_train.drop(columns=['issue_key'])
-    x_test = x_test.drop(columns=['issue_key'])
 
     x_train_nn = x_train.copy()
     x_test_nn = x_test.copy()
@@ -230,7 +219,50 @@ def run_generic_model(clf, model_name, x_train, x_test, y_train, y_test, project
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1])
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
-    create_pre_rec_curve(y_test, y_score[:, 1], average_precision, model_name, project_key, label, all_but_one_group)
+    # create_pre_rec_curve(y_test, y_score[:, 1], average_precision, model_name, project_key, label, all_but_one_group)
+
+    return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
+            y_pred, feature_imp, precision, recall, thresholds]
+
+
+def run_generic_model_with_sample_weight(clf, model_name, x_train, x_test,
+                                         y_train, y_test, project_key, label, all_but_one_group):
+    class_weights = dict(
+        zip([0, 1], [(len(y_train) / (2 * np.bincount(y_train)))[0], (len(y_train) / (2 * np.bincount(y_train)))[1]]))
+    sample_weight = np.array([class_weights[label] for label in y_train])
+
+    # Train the model
+    clf.fit(x_train, y_train, sample_weight=sample_weight)
+
+    # Test sample_weight
+    class_weights = dict(
+        zip([0, 1], [(len(y_test) / (2 * np.bincount(y_test)))[0], (len(y_test) / (2 * np.bincount(y_test)))[1]]))
+    sample_weight = np.array([class_weights[label] for label in y_test])
+
+    try:
+        feature_imp = pd.Series(clf.feature_importances_, index=list(x_train.columns.values)).sort_values(ascending=False)
+    except:
+        feature_imp = []
+
+    y_pred = clf.predict(x_test)
+    y_score = clf.predict_proba(x_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+    # Model Accuracy
+    print(f"Accuracy {model_name}:", accuracy)
+    confusion_matrix = metrics.confusion_matrix(y_test, y_pred, sample_weight=sample_weight)
+    print(f"confusion_matrix {model_name}: \n {confusion_matrix}")
+    classification_report = metrics.classification_report(y_test, y_pred,sample_weight=sample_weight)
+    print(f"classification_report {model_name}: \n {classification_report}")
+    # Create precision, recall curve
+    average_precision = metrics.average_precision_score(y_test, y_score[:, 1],sample_weight=sample_weight)
+    print(f'Average precision-recall score {model_name}: {average_precision}')
+    auc = metrics.roc_auc_score(y_test, y_score[:, 1])
+    print(f'AUC roc {model_name}: {auc}')
+    precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1], sample_weight=sample_weight)
+    area_under_pre_recall_curve = metrics.auc(recall, precision)
+    print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
+    #create_pre_rec_curve2(y_test, y_score[:, 1], sample_weight,
+    #                      average_precision, model_name, project_key, label, all_but_one_group)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred, feature_imp, precision, recall, thresholds]
