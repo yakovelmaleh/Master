@@ -1,5 +1,6 @@
 import json
-import Instability_sample_weight.run_train_tes_best_parameters as run_train_tes_best_parameters
+
+import DoubleCheck.run_train_tes_best_parameters as run_train_tes_best_parameters
 
 if __name__ == '__main__':
 
@@ -9,7 +10,7 @@ if __name__ == '__main__':
 
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} Instability with sample_weight")
+        print(f"start: {jira_name} Instability with Double Check")
         run_train_tes_best_parameters.start(jira_name)
         print(f'finish {jira_name}')
-    print('FINISH ALL Instability with sample_weight')
+    print('FINISH ALL Instability with Double Check')
