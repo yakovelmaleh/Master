@@ -15,6 +15,6 @@ if __name__ == '__main__':
     print('START ALL Classic_BERT')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        Classic_BERT.start(jira_name)
+        Classic_BERT.start(jira_name, 'Master/')
     print('FINISH ALL')
 
