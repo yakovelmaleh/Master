@@ -54,7 +54,7 @@ def start(jira_name):
         # Step 3: Train the model
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
-        batch_size = 2
+        batch_size = 32
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
