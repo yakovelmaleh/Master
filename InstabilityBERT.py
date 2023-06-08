@@ -6,7 +6,7 @@ import KNN.KNN_Model_with_dropping_without_BERT as KNN_Model_with_dropping_witho
 if __name__ == '__main__':
 
     print('Start BERT')
-    with open('Source/jira_data_for_instability_cluster.json') as f:
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     print('START ALL')
