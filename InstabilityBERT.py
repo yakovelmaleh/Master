@@ -1,6 +1,6 @@
 import json
 
-import DoubleCheck.run_train_tes_best_parameters as run_train_tes_best_parameters
+import KNN.KNN_Model_with_dropping as KNN_Model_with_dropping
 
 if __name__ == '__main__':
 
@@ -10,8 +10,8 @@ if __name__ == '__main__':
 
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} Instability with Double Check")
+        print(f"start: {jira_name} KNN_Model_with_dropping")
         if jira_name not in ['Apache', 'Hyperledger', 'IntelDAOS']:
-            run_train_tes_best_parameters.start(jira_name)
+            KNN_Model_with_dropping.start(jira_name)
         print(f'finish {jira_name}')
-    print('FINISH ALL Instability with Double Check')
+    print('FINISH ALL KNN_Model_with_dropping')
