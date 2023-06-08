@@ -1,6 +1,6 @@
 import json
 
-import KNN.KNN_Model_with_dropping as KNN_Model_with_dropping
+import KNN.KNN_Model_with_dropping_without_BERT as KNN_Model_with_dropping_without_BERT
 
 if __name__ == '__main__':
 
@@ -10,8 +10,8 @@ if __name__ == '__main__':
 
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
-        print(f"start: {jira_name} KNN_Model_with_dropping")
+        print(f"start: {jira_name} KNN_Model_with_dropping_without_BERT")
         if jira_name not in ['Apache', 'Hyperledger', 'IntelDAOS']:
-            KNN_Model_with_dropping.start(jira_name)
+            KNN_Model_with_dropping_without_BERT.start(jira_name)
         print(f'finish {jira_name}')
-    print('FINISH ALL KNN_Model_with_dropping')
+    print('FINISH ALL KNN_Model_with_dropping_without_BERT')
