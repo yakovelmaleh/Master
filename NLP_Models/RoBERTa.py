@@ -14,7 +14,6 @@ def start(jira_name):
     results = pd.DataFrame(columns=['project_key', 'usability_label',
                                        'accuracy', 'confusion_matrix', 'classification_report',
                                        'area_under_pre_recall_curve', 'avg_precision',
-                                       'area_under_pre_recall_curve', 'avg_precision',
                                        'area_under_roc_curve', 'y_pred'])
 
     for k_unstable in [5, 10, 15, 20]:
