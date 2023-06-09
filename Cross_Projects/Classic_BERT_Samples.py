@@ -138,7 +138,7 @@ def start():
 
         if flag:
             model = TFBertForSequenceClassification.from_pretrained(
-                f"YakovElm/Cross_Project_{k_unstable}_Classic_MSE_Samples")
+                f"YakovElm/Cross_Project_{k_unstable}_Classic_Cross_Entropy_Samples")
 
         else:
             model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased')
@@ -177,7 +177,7 @@ def start():
                 validation_data=([val_input_ids, val_attention_mask], val_labels)
             )
 
-            model.push_to_hub(f"YakovElm/Cross_Project_{k_unstable}_Classic_MSE_Samples")
+            model.push_to_hub(f"YakovElm/Cross_Project_{k_unstable}_Classic_Cross_Entropy_Samples")
 
         # Assuming you have predictions for the test data
         predictions = model.predict([test_input_ids, test_attention_mask])
@@ -190,7 +190,8 @@ def start():
         results = add_new_threshold(results, main_path, k_unstable, predictions, test_labels, 0.9)
         results = add_new_threshold(results, main_path, k_unstable, predictions, test_labels, 0.998)
 
-        results.to_csv(f'{main_path}Cross_Projects/Results/Cross_Projects_Classic_result_{k_unstable}_Samples.csv', index=False)
+        results.to_csv(f'{main_path}Cross_Projects/Results/Cross_Projects_Classic_result_{k_unstable}'
+                       f'_Cross_Entropy_Samples.csv', index=False)
         results = pd.DataFrame(columns=['usability_label', 'threshold', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
                                         'avg_precision', 'area_under_roc_curve', 'y_pred', 'precision',
