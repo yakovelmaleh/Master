@@ -1,5 +1,5 @@
 import pandas as pd
-
+import json
 
 def get_test_data(jira_name, main_path, k_unstable):
     path = f"{main_path}Data/{jira_name}/features_labels_table_os.csv"
@@ -90,3 +90,29 @@ def get_data_train(jira_name, main_path, k_unstable):
     train_data = pd.concat([train_data, valid_data], ignore_index=True)
 
     return train_data
+
+
+def get_data_all_train_valid(main_path, k_unstable):
+    train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
+    valid_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+        jira_data_sources = json.load(f)
+
+    for jira_name, jira_obj in jira_data_sources.items():
+        temp_train, temp_valid = get_data_train_with_labels(jira_name, main_path, k_unstable)
+        train_data = pd.concat([train_data, temp_train], ignore_index=True)
+        valid_data = pd.concat([valid_data, temp_valid], ignore_index=True)
+
+    return train_data, valid_data
+
+
+def get_data_all_test(main_path, k_unstable):
+    test_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+        jira_data_sources = json.load(f)
+
+    for jira_name, jira_obj in jira_data_sources.items():
+        temp = get_test_data(jira_name, main_path, k_unstable)
+        test_data = pd.concat([test_data, temp], ignore_index=True)
+
+    return test_data
