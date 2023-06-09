@@ -1,5 +1,5 @@
 import json
-import Cross_Projects.Classic_BERT_Samples as Classic_BERT_Samples
+import Cross_Projects.Classic_BERT_MSE_Samples_2 as Classic_BERT_MSE_Samples_2
 
 if __name__ == '__main__':
     """
@@ -19,5 +19,5 @@ if __name__ == '__main__':
     print('FINISH ALL')
     """
 
-    Classic_BERT_Samples.start()
+    Classic_BERT_MSE_Samples_2.start()
 
