@@ -1,5 +1,5 @@
 import json
-import Sample_BERT.Classic_BERT as Classic_BERT
+import Sample_BERT.Classic_BERT_2 as Classic_BERT
 
 if __name__ == '__main__':
     """
