@@ -167,8 +167,8 @@ def start(jira_name, main_path):
             # Compile the BERT classification model
             optimizer = tf.keras.optimizers.Adam(learning_rate=3e-5, epsilon=1e-08, clipnorm=1.0)
 
-            class_weights = {0: (len(train_labels) / (2 * np.bincount(train_labels)))[0],
-                             1: (len(train_labels) / (2 * np.bincount(train_labels)))[1]}
+            class_weights = [(len(train_labels) / (2 * np.bincount(train_labels)))[0],
+                             (len(train_labels) / (2 * np.bincount(train_labels)))[1]]
 
             loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
             metric = tf.keras.metrics.SparseCategoricalAccuracy('accuracy')
