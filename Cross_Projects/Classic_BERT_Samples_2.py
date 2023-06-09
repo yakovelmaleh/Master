@@ -41,7 +41,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, label, path):
     plt.ylabel('Precision')
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title('Precision-Recall curve: Area under Curve={1:0.2f}'.format(auc))
+    plt.title('Precision-Recall curve')
 
     plt.savefig(f'{path}/pre_recall_curve_groups_{label}_{algorithm}_Samples_2.png')
     plt.close()
@@ -73,11 +73,6 @@ def get_report(kind_of_bert, main_path, k_unstable, test_predictions, test_label
 
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {k_unstable}-unstable: {area_under_pre_recall_curve}')
-
-    if threshold is None or threshold == 0.5:
-        path = f'{main_path}Cross_Projects/Results'
-        create_pre_rec_curve(test_labels, y_score[:, 1],
-                             average_precision, kind_of_bert, k_unstable, path)
 
     return [accuracy, confusion_matrix, classific_report, area_under_pre_recall_curve, average_precision, auc,
             test_predictions, precision, recall, thresholds]
