@@ -1,5 +1,5 @@
 import json
-import Cross_Projects.Classic_BERT as Classic_BERT
+import Cross_Projects.Classic_BERT_without_valid as Classic_BERT_without_valid
 
 if __name__ == '__main__':
     """
@@ -18,5 +18,5 @@ if __name__ == '__main__':
         SetFit.start(jira_name, 'Master/')
     print('FINISH ALL')
     """
-    Classic_BERT.start()
+    Classic_BERT_without_valid.start()
 
