@@ -59,7 +59,6 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, label, path):
     plt.ylabel('Precision')
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
-    plt.title('Precision-Recall curve: Area under Curve={1:0.2f}'.format(auc))
 
     plt.savefig(f'{path}/pre_recall_curve_groups_{label}_{algorithm}_MSE_Samples.png')
     plt.close()
