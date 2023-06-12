@@ -1,5 +1,5 @@
 import json
-import Cross_Projects.Classic_BERT_Samples_2 as Classic_BERT_Samples_2
+import Balancing_Data.ktrain_all_data as ktrain_all_data
 
 if __name__ == '__main__':
     """
@@ -19,5 +19,5 @@ if __name__ == '__main__':
     print('FINISH ALL')
     """
 
-    Classic_BERT_Samples_2.start()
+    ktrain_all_data.start()
 
