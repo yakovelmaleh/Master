@@ -1,4 +1,4 @@
-import Instability_sample_weight.Add_BERT_predication as Add_BERT_predication
+
 import Cross_Project_Instability.ml_algorithms_run_best_parameters as ml_algorithms_run_best_parameters
 import pandas as pd
 from pathlib import Path
@@ -27,7 +27,7 @@ def start():
         features_data_train = GetInstabilityData.get_data_all_train('Master/', k_unstable)
         features_data_test = GetInstabilityData.get_data_all_test('Master/', k_unstable)
 
-        path = addPath(f'Master/Instability_sample_weight/Parameters')
+        path = addPath(f'Master/Cross_Project_Instability/Parameters')
         parameters_rf = pd.read_csv(
             f'{path}/results_groups_label_{k_unstable}_RF.csv', low_memory=False)
         parameters_xg = pd.read_csv(
