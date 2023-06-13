@@ -43,7 +43,7 @@ def create_pre_rec_curve(y_test, y_score, average_precision, label, all_but_one_
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
-    path = addPath(f'Master/Instability_sample_weight/Parameters')
+    path = addPath(f'Master/Cross_Project_Instability/Parameters')
     if all_but_one_group:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{label}_{algorithm}.png')
