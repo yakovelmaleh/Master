@@ -5,7 +5,7 @@ import json
 def get_test_data(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_test_after_all_but/{jira_name}/'
     features_data_test = pd.read_csv(
-        f'{path}/features_data_test_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return features_data_test
 
@@ -13,9 +13,9 @@ def get_test_data(jira_name, main_path, k_unstable):
 def get_data_train_valid(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_val_after_all_but/{jira_name}'
     features_data_train = pd.read_csv(
-        f'{path}/features_data_train_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
     features_data_valid = pd.read_csv(
-        f'{path}/features_data_valid_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/features_data_valid_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return features_data_train, features_data_valid
 
@@ -23,9 +23,9 @@ def get_data_train_valid(jira_name, main_path, k_unstable):
 def get_label_train_valid(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_val/{jira_name}'
     labels_train = pd.read_csv(
-        f'{path}/labels_train_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/labels_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
     labels_valid = pd.read_csv(
-        f'{path}/labels_valid_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/labels_valid_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return labels_train, labels_valid
 
@@ -33,7 +33,7 @@ def get_label_train_valid(jira_name, main_path, k_unstable):
 def get_label_train(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_test/{jira_name}'
     labels_train = pd.read_csv(
-        f'{path}/labels_train_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/labels_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return labels_train
 
@@ -41,7 +41,7 @@ def get_label_train(jira_name, main_path, k_unstable):
 def get_label_test(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_test/{jira_name}'
     labels_test = pd.read_csv(
-        f'{path}/labels_test_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/labels_test_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return labels_test
 
@@ -49,7 +49,7 @@ def get_label_test(jira_name, main_path, k_unstable):
 def get_data_train(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_test_after_all_but/{jira_name}/'
     features_data_train = pd.read_csv(
-        f'{path}/features_data_train_{jira_name}_{k_unstable}.csv', low_memory=False)
+        f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
     return features_data_train
 
