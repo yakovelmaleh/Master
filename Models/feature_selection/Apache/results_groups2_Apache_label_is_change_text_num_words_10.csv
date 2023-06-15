@@ -1,0 +1,708 @@
+project_key,usability_label,group,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,y_valid
+Apache,is_change_text_num_words_10,all,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_stopwords', 'time_until_add_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by']","ratio_unusable_issues_text_by_previous    0.045384
+11                                        0.043919
+6                                         0.042844
+12                                        0.042324
+0                                         0.041647
+len_description                           0.040965
+13                                        0.040686
+3                                         0.040329
+9                                         0.039485
+2                                         0.039377
+num_issues_cretor_prev                    0.039302
+8                                         0.038998
+10                                        0.038711
+4                                         0.038488
+5                                         0.038445
+avg_word_len                              0.037551
+14                                        0.037531
+1                                         0.037432
+7                                         0.037334
+avg_num_word_in_sentence                  0.036659
+len_sum_desc                              0.036244
+num_words                                 0.033985
+num_stopwords                             0.031137
+time_until_add_sprint                     0.020951
+num_sentences                             0.018373
+original_story_points_sprint              0.017544
+num_question_marks                        0.011910
+num_changes_text_before_sprint            0.006497
+dominant_topic_2                          0.004841
+dominant_topic_1                          0.004114
+duplicate                                 0.003553
+block                                     0.003309
+block_by                                  0.002980
+num_changes_story_point_before_sprint     0.002615
+relates                                   0.002274
+has_template                              0.001140
+num_headlines                             0.000530
+has_acceptance_criteria                   0.000462
+duplicate_by                              0.000131
+pron_count                                0.000000
+adv_count                                 0.000000
+num_comments_before_sprint                0.000000
+noun_count                                0.000000
+verb_count                                0.000000
+adj_count                                 0.000000
+len_acceptance                            0.000000
+dtype: float64",0.864406779661017,"[[1326    0]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.22921512743383282,0.23216732863693343,0.6756656804733727,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,only_a_nlp,"['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic']","11                  0.072960
+6                   0.071897
+9                   0.070314
+12                  0.067624
+10                  0.066939
+0                   0.066669
+3                   0.065911
+13                  0.065591
+1                   0.065057
+8                   0.063574
+14                  0.062573
+4                   0.062512
+5                   0.062012
+7                   0.061910
+2                   0.061836
+dominant_topic_2    0.006772
+dominant_topic_1    0.005849
+dtype: float64",0.864406779661017,"[[1326    0]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.25500796119766744,0.2586360488146926,0.6620728912866922,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,only_b_text,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'num_stopwords']","avg_word_len                0.194064
+len_description             0.192708
+len_sum_desc                0.176779
+num_stopwords               0.129172
+avg_num_word_in_sentence    0.120953
+num_words                   0.114954
+num_sentences               0.045129
+num_question_marks          0.019688
+has_template                0.003997
+has_acceptance_criteria     0.001450
+num_headlines               0.001106
+len_acceptance              0.000000
+noun_count                  0.000000
+verb_count                  0.000000
+adj_count                   0.000000
+adv_count                   0.000000
+pron_count                  0.000000
+dtype: float64",0.864406779661017,"[[1319    7]
+ [ 201    7]]","              precision    recall  f1-score   support
+
+           0       0.87      0.99      0.93      1326
+           1       0.50      0.03      0.06       208
+
+    accuracy                           0.86      1534
+   macro avg       0.68      0.51      0.49      1534
+weighted avg       0.82      0.86      0.81      1534
+",0.20811245196278616,0.20994038250979094,0.6386091048845575,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,only_c_jira,"['num_comments_before_sprint', 'num_changes_text_before_sprint', 'time_until_add_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by']","time_until_add_sprint                    0.787052
+original_story_points_sprint             0.078716
+num_changes_text_before_sprint           0.049022
+relates                                  0.022259
+block                                    0.019121
+block_by                                 0.018252
+num_changes_story_point_before_sprint    0.012907
+duplicate                                0.010000
+duplicate_by                             0.002672
+num_comments_before_sprint               0.000000
+dtype: float64",0.8539765319426337,"[[1308   18]
+ [ 206    2]]","              precision    recall  f1-score   support
+
+           0       0.86      0.99      0.92      1326
+           1       0.10      0.01      0.02       208
+
+    accuracy                           0.85      1534
+   macro avg       0.48      0.50      0.47      1534
+weighted avg       0.76      0.85      0.80      1534
+",0.15744228551555878,0.1551529028498301,0.5586313667478827,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,only_d_writer,"['num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous']","ratio_unusable_issues_text_by_previous    0.539357
+num_issues_cretor_prev                    0.460643
+dtype: float64",0.7737940026075619,"[[1164  162]
+ [ 185   23]]","              precision    recall  f1-score   support
+
+           0       0.86      0.88      0.87      1326
+           1       0.12      0.11      0.12       208
+
+    accuracy                           0.77      1534
+   macro avg       0.49      0.49      0.49      1534
+weighted avg       0.76      0.77      0.77      1534
+",0.14215630408565788,0.1456079839355625,0.5570650597517114,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,all_but_a,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'num_stopwords', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'time_until_add_sprint']","len_description                           0.114061
+avg_word_len                              0.112781
+len_sum_desc                              0.107510
+num_issues_cretor_prev                    0.106205
+ratio_unusable_issues_text_by_previous    0.094409
+avg_num_word_in_sentence                  0.091117
+num_words                                 0.085775
+num_stopwords                             0.083778
+time_until_add_sprint                     0.060000
+num_sentences                             0.041310
+original_story_points_sprint              0.041167
+num_question_marks                        0.017501
+num_changes_text_before_sprint            0.012352
+block                                     0.006146
+relates                                   0.006016
+block_by                                  0.005585
+num_changes_story_point_before_sprint     0.004804
+duplicate                                 0.004265
+has_template                              0.002591
+has_acceptance_criteria                   0.001163
+num_headlines                             0.001072
+duplicate_by                              0.000392
+num_comments_before_sprint                0.000000
+len_acceptance                            0.000000
+noun_count                                0.000000
+verb_count                                0.000000
+adj_count                                 0.000000
+adv_count                                 0.000000
+pron_count                                0.000000
+dtype: float64",0.833116036505867,"[[1264   62]
+ [ 194   14]]","              precision    recall  f1-score   support
+
+           0       0.87      0.95      0.91      1326
+           1       0.18      0.07      0.10       208
+
+    accuracy                           0.83      1534
+   macro avg       0.53      0.51      0.50      1534
+weighted avg       0.77      0.83      0.80      1534
+",0.20138605254832673,0.20385752710451194,0.6710537765402019,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,all_but_b,"['num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'time_until_add_sprint']","6                                         0.058450
+11                                        0.057712
+12                                        0.056651
+9                                         0.056470
+0                                         0.056302
+ratio_unusable_issues_text_by_previous    0.056057
+3                                         0.054079
+8                                         0.053139
+13                                        0.052652
+10                                        0.052583
+5                                         0.052413
+1                                         0.052305
+num_issues_cretor_prev                    0.051695
+2                                         0.051560
+4                                         0.051510
+7                                         0.051169
+14                                        0.051097
+time_until_add_sprint                     0.026420
+original_story_points_sprint              0.020485
+num_changes_text_before_sprint            0.007747
+dominant_topic_2                          0.006539
+dominant_topic_1                          0.005330
+block                                     0.004344
+duplicate                                 0.004096
+num_changes_story_point_before_sprint     0.003326
+block_by                                  0.003080
+relates                                   0.002618
+duplicate_by                              0.000173
+num_comments_before_sprint                0.000000
+dtype: float64",0.8617992177314211,"[[1322    4]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.2202213645992048,0.22221659237261474,0.6625750522102332,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,all_but_c,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_stopwords']","11                                        0.048696
+ratio_unusable_issues_text_by_previous    0.047817
+6                                         0.046578
+len_description                           0.045872
+0                                         0.045392
+12                                        0.044938
+13                                        0.044701
+3                                         0.043112
+9                                         0.042206
+4                                         0.041238
+8                                         0.041137
+5                                         0.041049
+1                                         0.040984
+2                                         0.040978
+10                                        0.040850
+num_issues_cretor_prev                    0.040783
+avg_word_len                              0.040464
+7                                         0.040034
+14                                        0.039721
+len_sum_desc                              0.038420
+avg_num_word_in_sentence                  0.038105
+num_words                                 0.034154
+num_stopwords                             0.031552
+num_sentences                             0.018478
+num_question_marks                        0.012808
+dominant_topic_2                          0.004635
+dominant_topic_1                          0.003583
+has_template                              0.000935
+has_acceptance_criteria                   0.000406
+num_headlines                             0.000374
+pron_count                                0.000000
+adv_count                                 0.000000
+adj_count                                 0.000000
+verb_count                                0.000000
+noun_count                                0.000000
+len_acceptance                            0.000000
+dtype: float64",0.863102998696219,"[[1324    2]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.21197551912209445,0.21491849389587822,0.6645583159299222,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,all_but_d,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_stopwords', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'time_until_add_sprint']","11                                       0.048986
+6                                        0.047243
+12                                       0.045593
+13                                       0.045474
+3                                        0.045461
+0                                        0.045277
+len_description                          0.044964
+9                                        0.044813
+10                                       0.042448
+2                                        0.042380
+1                                        0.042344
+8                                        0.041705
+avg_word_len                             0.041588
+14                                       0.041478
+4                                        0.041388
+7                                        0.040472
+5                                        0.040263
+len_sum_desc                             0.039895
+avg_num_word_in_sentence                 0.039612
+num_words                                0.036008
+num_stopwords                            0.034042
+time_until_add_sprint                    0.023178
+original_story_points_sprint             0.019375
+num_sentences                            0.019309
+num_question_marks                       0.012413
+num_changes_text_before_sprint           0.006871
+dominant_topic_2                         0.004931
+dominant_topic_1                         0.004128
+duplicate                                0.003731
+block                                    0.003588
+block_by                                 0.002915
+relates                                  0.002801
+num_changes_story_point_before_sprint    0.002652
+has_template                             0.001622
+has_acceptance_criteria                  0.000548
+num_headlines                            0.000395
+duplicate_by                             0.000109
+pron_count                               0.000000
+adv_count                                0.000000
+num_comments_before_sprint               0.000000
+noun_count                               0.000000
+verb_count                               0.000000
+adj_count                                0.000000
+len_acceptance                           0.000000
+dtype: float64",0.864406779661017,"[[1326    0]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.28347104347021385,0.28703543854441316,0.7079399437289707,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,a_and_b,"['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'num_stopwords']","11                          0.052393
+6                           0.050679
+0                           0.050239
+3                           0.049108
+13                          0.049037
+12                          0.048059
+len_description             0.047727
+9                           0.047631
+10                          0.046215
+8                           0.045648
+2                           0.045362
+1                           0.045148
+14                          0.045026
+avg_word_len                0.044628
+5                           0.043757
+7                           0.043636
+4                           0.043594
+len_sum_desc                0.042707
+avg_num_word_in_sentence    0.041170
+num_words                   0.037919
+num_stopwords               0.036061
+num_sentences               0.020346
+num_question_marks          0.012215
+dominant_topic_2            0.004870
+dominant_topic_1            0.004307
+has_template                0.001523
+has_acceptance_criteria     0.000580
+num_headlines               0.000415
+len_acceptance              0.000000
+noun_count                  0.000000
+verb_count                  0.000000
+adj_count                   0.000000
+adv_count                   0.000000
+pron_count                  0.000000
+dtype: float64",0.863754889178618,"[[1325    1]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.2578699052177937,0.26117165046070734,0.6880057866341802,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,a_and_c,"['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'time_until_add_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by']","6                                        0.066064
+11                                       0.065066
+9                                        0.064270
+12                                       0.062680
+0                                        0.061710
+10                                       0.061122
+3                                        0.060728
+13                                       0.059535
+1                                        0.058541
+8                                        0.058403
+14                                       0.057974
+4                                        0.057847
+2                                        0.057127
+5                                        0.057106
+7                                        0.056587
+time_until_add_sprint                    0.030259
+original_story_points_sprint             0.023371
+num_changes_text_before_sprint           0.008557
+dominant_topic_2                         0.007009
+dominant_topic_1                         0.006197
+block                                    0.004801
+duplicate                                0.004218
+relates                                  0.003747
+num_changes_story_point_before_sprint    0.003697
+block_by                                 0.003214
+duplicate_by                             0.000169
+num_comments_before_sprint               0.000000
+dtype: float64",0.864406779661017,"[[1326    0]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      1.00      0.93      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.27221972826347773,0.27537206254218505,0.6805096298874581,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,a_and_d,"['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'dominant_topic', 'num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous']","6                                         0.063438
+11                                        0.063390
+12                                        0.061024
+9                                         0.060994
+ratio_unusable_issues_text_by_previous    0.060662
+0                                         0.060282
+3                                         0.058973
+13                                        0.057916
+8                                         0.057598
+10                                        0.056868
+5                                         0.056567
+2                                         0.056089
+14                                        0.055656
+1                                         0.055215
+4                                         0.055145
+7                                         0.054872
+num_issues_cretor_prev                    0.053567
+dominant_topic_2                          0.006263
+dominant_topic_1                          0.005480
+dtype: float64",0.8565840938722294,"[[1314   12]
+ [ 208    0]]","              precision    recall  f1-score   support
+
+           0       0.86      0.99      0.92      1326
+           1       0.00      0.00      0.00       208
+
+    accuracy                           0.86      1534
+   macro avg       0.43      0.50      0.46      1534
+weighted avg       0.75      0.86      0.80      1534
+",0.20506322689629586,0.2069298462977275,0.6501152975983293,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,b_and_c,"['num_comments_before_sprint', 'num_changes_text_before_sprint', 'time_until_add_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'num_stopwords']","len_description                          0.148636
+avg_word_len                             0.148512
+len_sum_desc                             0.139999
+avg_num_word_in_sentence                 0.109298
+num_stopwords                            0.107565
+num_words                                0.102790
+time_until_add_sprint                    0.078830
+original_story_points_sprint             0.049162
+num_sentences                            0.045962
+num_question_marks                       0.018971
+num_changes_text_before_sprint           0.014564
+block                                    0.007411
+relates                                  0.006597
+block_by                                 0.005574
+num_changes_story_point_before_sprint    0.005153
+duplicate                                0.003984
+has_template                             0.003961
+has_acceptance_criteria                  0.001364
+num_headlines                            0.001125
+duplicate_by                             0.000541
+len_acceptance                           0.000000
+noun_count                               0.000000
+verb_count                               0.000000
+adj_count                                0.000000
+adv_count                                0.000000
+pron_count                               0.000000
+num_comments_before_sprint               0.000000
+dtype: float64",0.8650586701434159,"[[1320    6]
+ [ 201    7]]","              precision    recall  f1-score   support
+
+           0       0.87      1.00      0.93      1326
+           1       0.54      0.03      0.06       208
+
+    accuracy                           0.87      1534
+   macro avg       0.70      0.51      0.50      1534
+weighted avg       0.82      0.87      0.81      1534
+",0.22253449365622913,0.22473770950485622,0.6594859467455622,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,b_and_d,"['num_issues_cretor_prev', 'num_question_marks', 'has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'num_sentences', 'num_words', 'avg_word_len', 'avg_num_word_in_sentence', 'has_acceptance_criteria', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'num_stopwords']","avg_word_len                0.160513
+len_description             0.156707
+num_issues_cretor_prev      0.153357
+len_sum_desc                0.145392
+avg_num_word_in_sentence    0.107887
+num_stopwords               0.106653
+num_words                   0.103486
+num_sentences               0.042846
+num_question_marks          0.018848
+has_template                0.002865
+has_acceptance_criteria     0.001446
+len_acceptance              0.000000
+noun_count                  0.000000
+verb_count                  0.000000
+adj_count                   0.000000
+adv_count                   0.000000
+pron_count                  0.000000
+dtype: float64",0.8063885267275098,"[[1205  121]
+ [ 176   32]]","              precision    recall  f1-score   support
+
+           0       0.87      0.91      0.89      1326
+           1       0.21      0.15      0.18       208
+
+    accuracy                           0.81      1534
+   macro avg       0.54      0.53      0.53      1534
+weighted avg       0.78      0.81      0.79      1534
+",0.20228421826664345,0.2052008778777838,0.6558131018679662,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,c_and_d,"['num_comments_before_sprint', 'num_changes_text_before_sprint', 'time_until_add_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'num_issues_cretor_prev', 'ratio_unusable_issues_text_by_previous']","num_issues_cretor_prev                    0.323118
+ratio_unusable_issues_text_by_previous    0.275248
+time_until_add_sprint                     0.251671
+original_story_points_sprint              0.076435
+num_changes_text_before_sprint            0.026786
+relates                                   0.012798
+block                                     0.010146
+block_by                                  0.009377
+num_changes_story_point_before_sprint     0.008347
+duplicate                                 0.004715
+duplicate_by                              0.001360
+num_comments_before_sprint                0.000000
+dtype: float64",0.7764015645371578,"[[1171  155]
+ [ 188   20]]","              precision    recall  f1-score   support
+
+           0       0.86      0.88      0.87      1326
+           1       0.11      0.10      0.10       208
+
+    accuracy                           0.78      1534
+   macro avg       0.49      0.49      0.49      1534
+weighted avg       0.76      0.78      0.77      1534
+",0.15255327028156684,0.1563679677128731,0.5781231871446803,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"
+Apache,is_change_text_num_words_10,only_b_else,"['has_template', 'len_sum_desc', 'len_description', 'len_acceptance', 'has_acceptance_criteria']","len_sum_desc               0.498639
+len_description            0.498044
+has_template               0.001862
+has_acceptance_criteria    0.001455
+len_acceptance             0.000000
+dtype: float64",0.8585397653194263,"[[1314   12]
+ [ 205    3]]","              precision    recall  f1-score   support
+
+           0       0.87      0.99      0.92      1326
+           1       0.20      0.01      0.03       208
+
+    accuracy                           0.86      1534
+   macro avg       0.53      0.50      0.48      1534
+weighted avg       0.77      0.86      0.80      1534
+",0.17824421475314897,0.17971899571642191,0.5802460407239818,[0 0 0 ... 0 0 0],"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1529    0
+1530    0
+1531    0
+1532    0
+1533    0
+Name: usability_label, Length: 1534, dtype: int64"

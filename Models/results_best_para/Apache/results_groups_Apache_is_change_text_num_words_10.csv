@@ -1,0 +1,148 @@
+project_key,usability_label,Model,feature_importance,accuracy,confusion_matrix,classification_report,area_under_pre_recall_curve,avg_precision,area_under_roc_curve,y_pred,precision,recall,thresholds
+Apache,is_change_text_num_words_10,RF,"num_issues_cretor_prev                    0.131852
+len_description                           0.115892
+ratio_unusable_issues_text_by_previous    0.107095
+avg_word_len                              0.099807
+len_sum_desc                              0.098297
+avg_num_word_in_sentence                  0.087257
+num_words                                 0.083230
+num_stopwords                             0.076129
+time_until_add_sprint                     0.046432
+original_story_points_sprint              0.039615
+num_sentences                             0.038490
+num_question_marks                        0.019691
+num_changes_text_before_sprint            0.013955
+dominant_topic_2                          0.013764
+dominant_topic_1                          0.010542
+block                                     0.003376
+relates                                   0.003112
+block_by                                  0.002788
+has_template                              0.002484
+num_changes_story_point_before_sprint     0.002320
+duplicate                                 0.001573
+num_headlines                             0.000888
+has_acceptance_criteria                   0.000778
+duplicate_by                              0.000635
+num_comments_before_sprint                0.000000
+dtype: float64",0.923127035830619,"[[1417    0]
+ [ 118    0]]","              precision    recall  f1-score   support
+
+           0       0.92      1.00      0.96      1417
+           1       0.00      0.00      0.00       118
+
+    accuracy                           0.92      1535
+   macro avg       0.46      0.50      0.48      1535
+weighted avg       0.85      0.92      0.89      1535
+",0.12315170196095424,0.1255608811689805,0.6659928471466334,[0 0 0 ... 0 0 0],[0.07687296 0.07747866 0.0781457  ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[0.00000000e+00 3.61010830e-05 8.19726427e-05 ... 3.83731462e-01
+ 4.13151464e-01 4.59209393e-01]"
+Apache,is_change_text_num_words_10,XGboost,"num_issues_cretor_prev                    0.129396
+len_description                           0.125401
+avg_word_len                              0.111813
+ratio_unusable_issues_text_by_previous    0.100749
+len_sum_desc                              0.098630
+avg_num_word_in_sentence                  0.088853
+num_words                                 0.079512
+num_stopwords                             0.077580
+time_until_add_sprint                     0.053583
+num_sentences                             0.036672
+original_story_points_sprint              0.034451
+dominant_topic_1                          0.011741
+num_question_marks                        0.011538
+dominant_topic_2                          0.010874
+num_changes_text_before_sprint            0.010398
+relates                                   0.003768
+block                                     0.002808
+block_by                                  0.002503
+has_template                              0.002467
+duplicate                                 0.002268
+num_changes_story_point_before_sprint     0.002127
+has_acceptance_criteria                   0.001176
+duplicate_by                              0.000946
+num_headlines                             0.000747
+num_comments_before_sprint                0.000000
+dtype: float64",0.923127035830619,"[[1417    0]
+ [ 118    0]]","              precision    recall  f1-score   support
+
+           0       0.92      1.00      0.96      1417
+           1       0.00      0.00      0.00       118
+
+    accuracy                           0.92      1535
+   macro avg       0.46      0.50      0.48      1535
+weighted avg       0.85      0.92      0.89      1535
+",0.12017603141334829,0.12362633362729723,0.6370465174694688,[0 0 0 ... 0 0 0],[0.07687296 0.07692308 0.07697326 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[1.12770015e-08 2.52297856e-08 3.55847489e-08 ... 2.50905583e-01
+ 2.64562094e-01 4.30485960e-01]"
+Apache,is_change_text_num_words_10,NN,[],0.8781758957654723,"[[1337   80]
+ [ 107   11]]","              precision    recall  f1-score   support
+
+           0       0.93      0.94      0.93      1417
+           1       0.12      0.09      0.11       118
+
+    accuracy                           0.88      1535
+   macro avg       0.52      0.52      0.52      1535
+weighted avg       0.86      0.88      0.87      1535
+",0.08619304768119126,0.08842500750186202,0.5075535566905494,[0 0 0 ... 0 0 0],[0.07687296 0.07692308 0.07697326 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[7.38163396e-16 9.29642642e-16 1.16644130e-15 ... 1.00000000e+00
+ 1.00000000e+00 1.00000000e+00]"
+Apache,is_change_text_num_words_10,Empty,[],0.923127035830619,"[[1417    0]
+ [ 118    0]]","              precision    recall  f1-score   support
+
+           0       0.92      1.00      0.96      1417
+           1       0.00      0.00      0.00       118
+
+    accuracy                           0.92      1535
+   macro avg       0.46      0.50      0.48      1535
+weighted avg       0.85      0.92      0.89      1535
+",0.5384364820846905,0.07687296416938111,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: label_is_empty, Length: 1535, dtype: int64",[0.07687296 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_10,Zero,[],0.923127035830619,"[[1417    0]
+ [ 118    0]]","              precision    recall  f1-score   support
+
+           0       0.92      1.00      0.96      1417
+           1       0.00      0.00      0.00       118
+
+    accuracy                           0.92      1535
+   macro avg       0.46      0.50      0.48      1535
+weighted avg       0.85      0.92      0.89      1535
+",0.5384364820846905,0.07687296416938111,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: all, Length: 1535, dtype: int64",[0.07687296 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_10,Random,[],0.495114006514658,"[[696 721]
+ [ 54  64]]","              precision    recall  f1-score   support
+
+           0       0.93      0.49      0.64      1417
+           1       0.08      0.54      0.14       118
+
+    accuracy                           0.50      1535
+   macro avg       0.50      0.52      0.39      1535
+weighted avg       0.86      0.50      0.60      1535
+",0.09846450278656707,0.10110357442194469,0.5419362941521237,"0       1
+1       0
+2       0
+3       1
+4       1
+       ..
+1530    1
+1531    1
+1532    1
+1533    0
+1534    1
+Name: pred, Length: 1535, dtype: int64",[0.07687296 0.07692308 0.07697326 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[1.24212426e-04 1.68324972e-03 2.23763443e-03 ... 9.99213458e-01
+ 9.99601620e-01 9.99903049e-01]"
