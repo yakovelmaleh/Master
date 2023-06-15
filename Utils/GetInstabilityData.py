@@ -72,7 +72,7 @@ def get_data_train(jira_name, main_path, k_unstable):
 def get_data_all_train_valid(main_path, k_unstable):
     train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
     valid_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+    with open(f'{main_path}Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     for jira_name, jira_obj in jira_data_sources.items():
@@ -90,7 +90,7 @@ def get_data_all_train_valid(main_path, k_unstable):
 def get_all_labels_train_valid(main_path, k_unstable):
     train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
     valid_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+    with open(f'{main_path}Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     for jira_name, jira_obj in jira_data_sources.items():
