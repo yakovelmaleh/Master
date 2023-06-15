@@ -31,27 +31,6 @@ def start(jira_name):
             features_data_test = pd.read_csv(
                 f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
-            if project_key == 'Apache':
-                if label_name[0] == 'is_change_text_num_words_5':
-                    features_data_train_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-
-                    features_data_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    features_data_train_test.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    features_data_test.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                else:
-                    features_data_train_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd','has_please',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    features_data_valid.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd','has_please',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    features_data_train_test.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd','has_please',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-                    features_data_test.drop(['has_code', 'has_url', 'if_acceptance_empty_tbd', 'has_tbd','has_please',
-                                                    'if_description_empty_tbd','priority'], axis=1, inplace=True)
-
             # update the new data
             # write train val
             path = addPath(f'Master/Models/train_val_after_chi/{project_key}')
@@ -83,24 +62,6 @@ def start(jira_name):
                 f'{path}/features_data_train_{project_key}_{label_name[0]}.csv', low_memory=False)
             features_data_test = pd.read_csv(
                 f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
-
-            if project_key == 'Apache':
-                features_data_train_valid.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'len_acceptance',
-                                                'noun_count', 'verb_count', 'adj_count',
-                                                'adv_count', 'pron_count'], axis=1, inplace=True)
-                features_data_valid.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'len_acceptance',
-                                                'noun_count', 'verb_count', 'adj_count',
-                                                'adv_count', 'pron_count'], axis=1, inplace=True)
-                features_data_train_test.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'len_acceptance',
-                                                'noun_count', 'verb_count', 'adj_count',
-                                                'adv_count', 'pron_count'], axis=1, inplace=True)
-                features_data_test.drop(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                                '11', '12', '13', '14', 'len_acceptance',
-                                                'noun_count', 'verb_count', 'adj_count',
-                                                'adv_count', 'pron_count'], axis=1, inplace=True)
 
             # write train val
             path = addPath(f'Master/Models/train_val_after_all_but/{project_key}')
