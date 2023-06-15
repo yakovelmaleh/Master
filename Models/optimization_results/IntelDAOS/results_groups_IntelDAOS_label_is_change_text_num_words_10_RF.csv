@@ -1,0 +1,19 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap
+IntelDAOS,is_change_text_num_words_10,"['num_headlines', 'has_code', 'has_url', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'if_acceptance_empty_tbd', 'len_acceptance', 'avg_word_len', 'avg_num_word_in_sentence', 'has_tbd', 'has_please', 'len_description', 'if_description_empty_tbd', 'num_stopwords', 'num_issues_cretor_prev', 'priority', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ratio_unusable_issues_text_by_previous', 'dominant_topic_1', 'dominant_topic_2', 'dominant_topic_3']",0,0.8738738738738738,"[[291   0]
+ [ 42   0]]","              precision    recall  f1-score   support
+
+           0       0.87      1.00      0.93       291
+           1       0.00      0.00      0.00        42
+
+    accuracy                           0.87       333
+   macro avg       0.44      0.50      0.47       333
+weighted avg       0.76      0.87      0.82       333
+",0.2496503001872056,0.2553567038239122,0.5338733431516937,"[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]",200,sqrt,50,10,2,True
