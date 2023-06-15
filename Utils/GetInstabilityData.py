@@ -2,11 +2,22 @@ import pandas as pd
 import json
 
 
+def remove_0_n(jira_name, data):
+    if jira_name == 'Apache' or jira_name == 'Hyperledger' or jira_name == 'Qt':
+        data = data.drop(columns=[str(x) for x in range(0, 15)])
+    if jira_name == 'IntelDAOS':
+        data = data.drop(columns=[str(x) for x in range(0, 10)])
+    if jira_name == 'Jira' or jira_name == 'MariaDB':
+        data = data.drop(columns=[str(x) for x in range(0, 20)])
+
+    return data
+
 def get_test_data(jira_name, main_path, k_unstable):
     path = f'{main_path}Models/train_test_after_all_but/{jira_name}/'
     features_data_test = pd.read_csv(
         f'{path}/features_data_test_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
+    features_data_test = remove_0_n(jira_name, features_data_test)
     return features_data_test
 
 
@@ -16,6 +27,9 @@ def get_data_train_valid(jira_name, main_path, k_unstable):
         f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
     features_data_valid = pd.read_csv(
         f'{path}/features_data_valid_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
+
+    features_data_train = remove_0_n(jira_name, features_data_train)
+    features_data_valid = remove_0_n(jira_name, features_data_valid)
 
     return features_data_train, features_data_valid
 
@@ -51,6 +65,7 @@ def get_data_train(jira_name, main_path, k_unstable):
     features_data_train = pd.read_csv(
         f'{path}/features_data_train_{jira_name}_is_change_text_num_words_{k_unstable}.csv', low_memory=False)
 
+    features_data_train = remove_0_n(jira_name, features_data_train)
     return features_data_train
 
 
