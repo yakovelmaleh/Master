@@ -55,11 +55,11 @@ def start(jira_name, contains_bert):
                 f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
         else:
             parameters_rf = pd.read_csv(
-                f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_without_bert.csv', low_memory=False)
+                f'{path}/results_{project_key}_label_{label_name[0]}_RF_without_bert.csv', low_memory=False)
             parameters_xg = pd.read_csv(
-                f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost_without_bert.csv', low_memory=False)
+                f'{path}/results_{project_key}_label_{label_name[0]}_XGboost_without_bert.csv', low_memory=False)
             parameters_nn = pd.read_csv(
-                f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN_without_bert.csv', low_memory=False)
+                f'{path}/results_{project_key}_label_{label_name[0]}_NN_without_bert.csv', low_memory=False)
 
         path = addPath(f'Master/Models/train_test/{project_key}/')
         labels_train = pd.read_csv(
