@@ -21,7 +21,7 @@ def start():
 
         features_data_train = GetInstabilityData.get_all_data_except('Master/', k_unstable, ['MariaDB', 'Qt'])
         features_data_valid = GetInstabilityData.get_all_data_project('MariaDB', 'Master/', k_unstable)
-        labels_train = GetInstabilityData.get_all_label_except('../', k_unstable, ['MariaDB', 'Qt'])
+        labels_train = GetInstabilityData.get_all_label_except('Master/', k_unstable, ['MariaDB', 'Qt'])
         labels_valid = GetInstabilityData.get_all_label_project('MariaDB', 'Master/', k_unstable)
 
         names = list(features_data_train.columns.values)
