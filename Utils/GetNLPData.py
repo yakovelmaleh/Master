@@ -128,3 +128,16 @@ def get_data_all_train(main_path, k_unstable):
         train_data = pd.concat([train_data, temp_train], ignore_index=True)
 
     return train_data
+
+
+def get_data_all_train_except(project, main_path, k_unstable):
+    train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+        jira_data_sources = json.load(f)
+
+    for jira_name, jira_obj in jira_data_sources.items():
+        if jira_name != project:
+            temp_train = get_data_train(jira_name, main_path, k_unstable)
+            train_data = pd.concat([train_data, temp_train], ignore_index=True)
+
+    return train_data
