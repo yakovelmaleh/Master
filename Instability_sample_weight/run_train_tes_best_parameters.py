@@ -8,7 +8,8 @@ import numpy as np
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
-def start(jira_name):
+
+def start(jira_name, contains_bert):
     """
     this script read all the feature data (train and test), and run prediction script with the best parametrs and features, and run the script ml_algorithms_run_best_parameters
     which get the features and parameters and run + return the results to all the different models.
@@ -25,11 +26,12 @@ def start(jira_name):
                    'is_change_text_num_words_20': 'num_unusable_issues_cretor_prev_text_word_20_ratio'}
     project_key = jira_name
 
-    add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
+    if contains_bert:
+        add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
 
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
-        all_but_one_group = True
+        with_bert = contains_bert
 
         # by the best group:
         path = addPath(f'Master/Models/train_test_after_all_but/{project_key}/')
@@ -38,9 +40,10 @@ def start(jira_name):
         features_data_test = pd.read_csv(
             f'{path}/features_data_test_{project_key}_{label_name[0]}.csv', low_memory=False)
 
-        # add bert instability
-        features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
-        features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
+        if contains_bert:
+            # add bert instability
+            features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
+            features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
 
         path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}/')
         parameters_rf = pd.read_csv(
@@ -90,7 +93,7 @@ def start(jira_name):
             ml_algorithms_run_best_parameters.run_RF(features_data_train, features_data_test, labels_train,
                                                      labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
                                                      min_samples_split, bootstrap, random_state, class_weight, project_key,
-                                                     label_name[0], all_but_one_group)
+                                                     label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -119,7 +122,7 @@ def start(jira_name):
                                                      labels_test, num_trees, max_depth, max_features,
                                                      min_samples_split, min_samples_leaf, learning_rate, subsample,
                                                      random_state,
-                                                     project_key, label_name[0], all_but_one_group)
+                                                     project_key, label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -146,7 +149,7 @@ def start(jira_name):
             ml_algorithms_run_best_parameters.run_NN(features_data_train, features_data_test, labels_train,
                                                      labels_test, solver, alpha, hidden_layer_size,
                                                      learning_rate, activation, max_iterations, num_batches_size,
-                                                     random_state, project_key, label_name[0], all_but_one_group)
+                                                     random_state, project_key, label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -173,7 +176,7 @@ def start(jira_name):
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_is_empty(features_data_train, features_data_test, labels_train,
-                                                           labels_test, project_key, label_name[0], all_but_one_group)
+                                                           labels_test, project_key, label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -189,7 +192,7 @@ def start(jira_name):
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_is_zero(features_data_train, features_data_test, labels_train,
-                                                          labels_test, project_key, label_name[0], all_but_one_group)
+                                                          labels_test, project_key, label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -205,7 +208,7 @@ def start(jira_name):
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc, \
             y_pred, feature_imp, precision, recall, thresholds = \
             ml_algorithms_run_best_parameters.run_random(features_data_train, features_data_test, labels_train,
-                                                         labels_test, project_key, label_name[0], all_but_one_group)
+                                                         labels_test, project_key, label_name[0], with_bert)
 
         d = {
             'project_key': project_key, 'usability_label': label_name[0], 'feature_importance': feature_imp,
@@ -218,7 +221,10 @@ def start(jira_name):
         results = pd.concat([results, pd.DataFrame([d.values()], columns=d.keys())], ignore_index=True)
 
         path = addPath(f'Master/Instability_sample_weight/Results/{project_key}')
-        results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_2.csv', index=False)
+        if contains_bert:
+            results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_2.csv', index=False)
+        else:
+            results.to_csv(f'{path}/results_{project_key}_{label_name[0]}_without_bert.csv', index=False)
 
         results = pd.DataFrame(columns=['project_key', 'usability_label', 'Model', 'feature_importance', 'accuracy',
                                         'confusion_matrix', 'classification_report', 'area_under_pre_recall_curve',
