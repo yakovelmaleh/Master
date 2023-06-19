@@ -46,12 +46,20 @@ def start(jira_name, contains_bert):
             features_data_test = add_bert_predictions(data=features_data_test, data_name='test', k_unstable=label_name[0])
 
         path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}/')
-        parameters_rf = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF.csv', low_memory=False)
-        parameters_xg = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
-        parameters_nn = pd.read_csv(
-            f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
+        if contains_bert:
+            parameters_rf = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF.csv', low_memory=False)
+            parameters_xg = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost.csv', low_memory=False)
+            parameters_nn = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN.csv', low_memory=False)
+        else:
+            parameters_rf = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_RF_without_bert.csv', low_memory=False)
+            parameters_xg = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_XGboost_without_bert.csv', low_memory=False)
+            parameters_nn = pd.read_csv(
+                f'{path}/results_groups_{project_key}_label_{label_name[0]}_NN_without_bert.csv', low_memory=False)
 
         path = addPath(f'Master/Models/train_test/{project_key}/')
         labels_train = pd.read_csv(
