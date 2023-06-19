@@ -1,5 +1,5 @@
 import json
-import Balancing_Data.ktrain_all_data as ktrain_all_data
+import Cross_model_on_One.Electra as Electra
 
 if __name__ == '__main__':
     """
@@ -19,5 +19,5 @@ if __name__ == '__main__':
     print('FINISH ALL')
     """
 
-    ktrain_all_data.start()
+    Electra.start('Jira')
 
