@@ -6,7 +6,7 @@ import Cross_Project_Instability_1_project_Test.run_train_val_optimization as ru
 if __name__ == '__main__':
     """
     print('Start BERT')
-    """
+    
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
@@ -17,6 +17,10 @@ if __name__ == '__main__':
         run_train_tes_best_parameters.start()
         print(f'finish {jira_name}')
     print('FINISH ALL KNN_Model_with_dropping')
+    """
+
+    run_train_val_optimization.start()
+    run_train_tes_best_parameters.start()
 
 
 
