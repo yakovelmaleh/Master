@@ -22,7 +22,7 @@ get the data with the best features and hyper parameters, make predictions and r
 """
 
 
-def run_is_empty(x_train, x_test, y_train, y_test, project_key, label, all_but_one_group):
+def run_is_empty(x_train, x_test, y_train, y_test, project_key, label, without_bert):
     """
     this function predict by if is empty and return the results
     """
@@ -45,13 +45,13 @@ def run_is_empty(x_train, x_test, y_train, y_test, project_key, label, all_but_o
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_empty: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Empty', project_key, label, all_but_one_group)
+    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Empty', project_key, label, without_bert)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             x_test['label_is_empty'], [], precision, recall, thresholds]
 
 
-def run_is_zero(x_train, x_test, y_train, y_test, project_key, label, all_but_one_group):
+def run_is_zero(x_train, x_test, y_train, y_test, project_key, label, without_bert):
     """
     this function predict by is zero and return the results
     """
@@ -75,13 +75,13 @@ def run_is_zero(x_train, x_test, y_train, y_test, project_key, label, all_but_on
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_zero: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Zero', project_key, label, all_but_one_group)
+    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Is_Zero', project_key, label, without_bert)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_score['all'], [], precision, recall, thresholds]
 
 
-def run_random(x_train, x_test, y_train, y_test, project_key, label, all_but_one_group):
+def run_random(x_train, x_test, y_train, y_test, project_key, label, without_bert):
     """
     this function predict randomly and return the results
     """
@@ -106,13 +106,13 @@ def run_random(x_train, x_test, y_train, y_test, project_key, label, all_but_one
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score['1'], pos_label=1)
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print('area_under_pre_recall_curve is_random: {}'.format(area_under_pre_recall_curve))
-    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Random', project_key, label, all_but_one_group)
+    create_pre_rec_curve(y_test, y_score['1'], average_precision, 'Random', project_key, label, without_bert)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred['pred'], [], precision, recall, thresholds]
 
 
-def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, all_but_one_group):
+def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, without_bert):
     """
     this function create the precision and recall curve and save the fig results 
     """
@@ -129,20 +129,21 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, project_key, label, al
     plt.title('Precision-Recall curve {0}: Area under Curve={1:0.2f}'.format(project_key, auc))
 
     path = addPath(f'Master/Instability_sample_weight/Results/{project_key}')
-    if all_but_one_group:
+    if without_bert:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}_2.png')
 
     else:
         plt.savefig(
-            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}.png')
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_without_bert.png')
 
     plt.close()
     return area
 
 
 def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
-           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, random_state, class_weight, project_key, label, all_but_one_group):
+           max_depth_rf, min_samples_leaf, min_samples_split, bootstrap, random_state, class_weight, project_key, label,
+           without_bert):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -152,14 +153,15 @@ def run_RF(x_train, x_test, y_train, y_test, num_trees_rf, max_feature_rf,
     x_test = x_test.drop(columns=['issue_key'])
 
     clf = RandomForestClassifier(n_estimators=num_trees_rf, max_features=max_feature_rf, max_depth=max_depth_rf,
-                                 random_state=random_state, min_samples_leaf=min_samples_leaf, min_samples_split=min_samples_split,
-                                 bootstrap=bootstrap, class_weight=class_weight)
+                                 random_state=random_state, min_samples_leaf=min_samples_leaf,
+                                 min_samples_split=min_samples_split, bootstrap=bootstrap, class_weight=class_weight)
 
-    return run_generic_model_with_sample_weight(clf, "RF", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "RF", x_train, x_test, y_train, y_test, project_key, label,
+                                                without_bert)
 
 
 def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
-           max_features, min_samples_split, min_samples_leaf, learning_rate, subsample, random_state, project_key, label, all_but_one_group):
+           max_features, min_samples_split, min_samples_leaf, learning_rate, subsample, random_state, project_key, label, without_bert):
     x_train = x_train.copy()
     x_test = x_test.copy()
 
@@ -172,12 +174,12 @@ def run_XG(x_train, x_test, y_train, y_test, num_trees, max_depth_xg,
                                      min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf,
                                      learning_rate=learning_rate, subsample=subsample, random_state=random_state)
 
-    return run_generic_model_with_sample_weight(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, all_but_one_group)
+    return run_generic_model_with_sample_weight(clf, "XGboost", x_train, x_test, y_train, y_test, project_key, label, without_bert)
 
 
 def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
            hidden_layer_size, learning_rate_nn, activation_nn, max_iterations, num_batches_size, random_state,
-           project_key, label, all_but_one_group):
+           project_key, label, without_bert):
     x_train = x_train.drop(columns=['created'])
     x_test = x_test.drop(columns=['created'])
     x_train = x_train.drop(columns=['issue_key'])
@@ -207,10 +209,10 @@ def run_NN(x_train, x_test, y_train, y_test, solver_nn, alpha_nn,
                         activation=activation_nn, batch_size=num_batches_size)
 
     return run_generic_model(clf, "NN", X_train_resampled, x_test_nn1, y_train_resampled,
-                             y_test, project_key, label, all_but_one_group)
+                             y_test, project_key, label, without_bert)
 
 
-def run_generic_model(clf, model_name, x_train, x_test, y_train, y_test, project_key, label, all_but_one_group):
+def run_generic_model(clf, model_name, x_train, x_test, y_train, y_test, project_key, label, without_bert):
 
     # Train the model
     clf.fit(x_train, y_train)
@@ -236,14 +238,14 @@ def run_generic_model(clf, model_name, x_train, x_test, y_train, y_test, project
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1])
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
-    create_pre_rec_curve(y_test, y_score[:, 1], average_precision, model_name, project_key, label, all_but_one_group)
+    create_pre_rec_curve(y_test, y_score[:, 1], average_precision, model_name, project_key, label, without_bert)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred, feature_imp, precision, recall, thresholds]
 
 
 def run_generic_model_with_sample_weight(clf, model_name, x_train, x_test,
-                                         y_train, y_test, project_key, label, all_but_one_group):
+                                         y_train, y_test, project_key, label, without_bert):
     class_weights = dict(
         zip([0, 1], [(len(y_train) / (2 * np.bincount(y_train)))[0], (len(y_train) / (2 * np.bincount(y_train)))[1]]))
     sample_weight = np.array([class_weights[label] for label in y_train])
@@ -279,13 +281,13 @@ def run_generic_model_with_sample_weight(clf, model_name, x_train, x_test,
     area_under_pre_recall_curve = metrics.auc(recall, precision)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
     create_pre_rec_curve2(y_test, y_score[:, 1], sample_weight,
-                          average_precision, model_name, project_key, label, all_but_one_group)
+                          average_precision, model_name, project_key, label, without_bert)
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred, feature_imp, precision, recall, thresholds]
 
 
-def create_pre_rec_curve2(y_test, y_score, sample_weight, auc, algorithm, project_key, label, all_but_one_group):
+def create_pre_rec_curve2(y_test, y_score, sample_weight, auc, algorithm, project_key, label, without_bert):
     """
     this function create the precision and recall curve and save the fig results
     """
@@ -303,13 +305,13 @@ def create_pre_rec_curve2(y_test, y_score, sample_weight, auc, algorithm, projec
     plt.title('Precision-Recall curve {0}: Area under Curve={1:0.2f}'.format(project_key, auc))
 
     path = addPath(f'Master/Instability_sample_weight/Results/{project_key}')
-    if all_but_one_group:
+    if without_bert:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}_2.png')
 
     else:
         plt.savefig(
-            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}.png')
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_without_bert.png')
 
     plt.close()
     return area

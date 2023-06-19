@@ -9,7 +9,8 @@ import os
 def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
-def start(jira_name):
+
+def start(jira_name, contains_bert):
     """
     this script read all the feature data (train and validation only), and run the optimization of the hyper parameters (ml_algorithms_optimization)
     """
@@ -22,12 +23,12 @@ def start(jira_name):
                    }
 
     project_key = jira_name
-
-    add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
+    if contains_bert:
+        add_bert_predictions = Add_BERT_predication.start(jira_name, 'Master/')
 
     for label_name in dict_labels.items():
         print("data: {}, \n label_name.key: {}, \n".format(project_key, label_name[0]))
-        all_but_one_group = True
+        with_bert = contains_bert
         # get data
 
         path = addPath(f'Master/Models/train_val_after_all_but/{project_key}')
@@ -38,9 +39,10 @@ def start(jira_name):
 
         print('Added BERT Predictions')
 
-        # add bert instability
-        features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
-        features_data_valid = add_bert_predictions(data=features_data_valid, data_name='valid', k_unstable=label_name[0])
+        if contains_bert:
+            # add bert instability
+            features_data_train = add_bert_predictions(data=features_data_train, data_name='train', k_unstable=label_name[0])
+            features_data_valid = add_bert_predictions(data=features_data_valid, data_name='valid', k_unstable=label_name[0])
 
         path = addPath(f'Master/Models/train_val/{project_key}')
         labels_train = pd.read_csv(
@@ -68,7 +70,7 @@ def start(jira_name):
         ml_algorithms_optimization.run_model_optimization(features_data_train, features_data_valid,
                                                           labels_train['usability_label'],
                                                           labels_valid['usability_label'], project_key,
-                                                          label_name[0], all_but_one_group)
+                                                          label_name[0], with_bert)
 
 
 if __name__ == "__main__":

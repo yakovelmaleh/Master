@@ -28,7 +28,7 @@ and return the results
 """
 
 
-def create_pre_rec_curve(y_test, y_score, average_precision, project_key, label, all_but_one_group, algorithm):
+def create_pre_rec_curve(y_test, y_score, average_precision, project_key, label, without_bert, algorithm):
     """
     this function create the precision and recall curve and save the fig results 
     """
@@ -44,17 +44,17 @@ def create_pre_rec_curve(y_test, y_score, average_precision, project_key, label,
     plt.xlim([0.0, 1.0])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
     path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}')
-    if all_but_one_group:
+    if without_bert:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
     else:
         plt.savefig(
-            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_2.png')
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_without_bert.png')
     plt.close()
     return area
 
 
-def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label, all_but_one_group):
+def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label, without_bert):
     print(list(x_train))
     x_train = x_train.drop(columns=['created'])
     x_test = x_test.drop(columns=['created'])
@@ -90,7 +90,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                               model_name="RF",
                                               x_train=x_train, x_test=x_test, y_train=y_train,
                                               y_test=y_test, project_key=project_key, label=label,
-                                              all_but_one_group=all_but_one_group)
+                                              without_bert=without_bert)
 
     d = {'project_key': project_key, 'usability_label': label, 'features': features,
          'feature_importance': feature_importance, 'accuracy_rf': accuracy_rf,
@@ -110,12 +110,12 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
 
     path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}')
 
-    if all_but_one_group:
+    if without_bert:
         rf_results.to_csv(
             f'{path}/results_groups_{project_key}_label_{label}_RF.csv', index=False)
     else:
         rf_results.to_csv(
-            f'{path}/results_{project_key}_label_{label}_RF.csv', index=False)
+            f'{path}/results_{project_key}_label_{label}_RF_without_bert.csv', index=False)
 
     # XGboost:
     xgboost_results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy_xgboost',
@@ -143,7 +143,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                               x_train=x_train, x_test=x_test,
                                               y_train=y_train, y_test=y_test,
                                               project_key=project_key, label=label,
-                                              all_but_one_group=all_but_one_group)
+                                              without_bert=without_bert)
 
     d = {'project_key': project_key, 'usability_label': label,
          'accuracy_xgboost': accuracy_xgboost,
@@ -165,12 +165,12 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
 
     path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}')
 
-    if all_but_one_group:
+    if without_bert:
         xgboost_results.to_csv(
             f'{path}/results_groups_{project_key}_label_{label}_XGboost.csv', index=False)
     else:
         xgboost_results.to_csv(
-            f'{path}/results_{project_key}_label_{label}_XGboost.csv', index=False)
+            f'{path}/results_{project_key}_label_{label}_XGboost_without_bert.csv', index=False)
 
     # NN:
     nn_results = pd.DataFrame(columns=['project_key', 'usability_label', 'accuracy_nn',
@@ -210,7 +210,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                                                               x_train=X_train_resampled,
                                                               x_test=x_test_nn, y_train=y_train_resampled, y_test=y_test,
                                                               project_key=project_key, label=label,
-                                                              all_but_one_group=all_but_one_group)
+                                                              without_bert=without_bert)
 
     d = {'project_key': project_key, 'usability_label': label,
          'accuracy_nn': accuracy_nn, 'confusion_matrix_nn': confusion_matrix_nn,
@@ -227,16 +227,16 @@ def run_model_optimization(x_train, x_test, y_train, y_test, project_key, label,
                            ignore_index=True)
 
     path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}')
-    if all_but_one_group:
+    if without_bert:
         nn_results.to_csv(
             f'{path}/results_groups_{project_key}_label_{label}_NN.csv', index=False)
     else:
         nn_results.to_csv(
-            f'{path}/results_{project_key}_label_{label}_NN.csv', index=False)
+            f'{path}/results_{project_key}_label_{label}_NN_without_bert.csv', index=False)
 
 
 def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test, project_key, label,
-                       all_but_one_group):
+                       without_bert):
     """
     this function predict with the best params per model
     """
@@ -267,7 +267,7 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
     auc = metrics.roc_auc_score(y_test, y_score[:, 1], average='macro', sample_weight=None, max_fpr=None)
     print(f'AUC roc {model_name}: {auc}')
     area_under_pre_recall_curve = create_pre_rec_curve(y_test, y_score, average_precision, project_key=project_key,
-                                                       label=label, all_but_one_group=all_but_one_group,
+                                                       label=label, without_bert=without_bert,
                                                        algorithm=model_name)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
 
@@ -276,7 +276,7 @@ def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test
 
 
 def run_best_params_CV_with_sample_weight(model, diction, model_name, x_train, x_test, y_train, y_test, project_key, label,
-                                          all_but_one_group):
+                                          without_bert):
     """
     this function predict with the best params per model
     """
@@ -318,14 +318,14 @@ def run_best_params_CV_with_sample_weight(model, diction, model_name, x_train, x
     print(f'AUC roc {model_name}: {auc}')
     area_under_pre_recall_curve = create_pre_rec_curve2(y_test, y_score, average_precision, sample_weight,
                                                         project_key=project_key, label=label,
-                                                        all_but_one_group=all_but_one_group, algorithm=model_name)
+                                                        without_bert=without_bert, algorithm=model_name)
     print(f'area_under_pre_recall_curve {model_name}: {area_under_pre_recall_curve}')
 
     return [accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc,
             y_pred, features, clf.best_params_]
 
 
-def create_pre_rec_curve2(y_test, y_score, average_precision, sample_weight, project_key, label, all_but_one_group, algorithm):
+def create_pre_rec_curve2(y_test, y_score, average_precision, sample_weight, project_key, label, without_bert, algorithm):
     """
     this function create the precision and recall curve and save the fig results
     """
@@ -342,12 +342,12 @@ def create_pre_rec_curve2(y_test, y_score, average_precision, sample_weight, pro
     plt.xlim([0.0, 1.0])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
     path = addPath(f'Master/Instability_sample_weight/Parameters/{project_key}')
-    if all_but_one_group:
+    if without_bert:
         plt.savefig(
             f'{path}/pre_recall_curve_groups_{project_key}_{label}_{algorithm}.png')
     else:
         plt.savefig(
-            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_2.png')
+            f'{path}/pre_recall_curve_{project_key}_{label}_{algorithm}_without_bert.png')
     plt.close()
 
     return area
