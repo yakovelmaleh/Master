@@ -40,7 +40,7 @@ def create_pre_rec_curve(y_test, y_score, auc, algorithm, label, all_but_one_gro
     path = addPath(f'Master/Cross_Project_Instability_1_project_Test/Results')
     if auc_PRC_path is not None:
         plt.savefig(
-            f'{path}/pre_recall_curve_groups_{label}_{algorithm}_2.png')
+            f'{auc_PRC_path}/AUC_PRC_TEST_{label}_{algorithm}.png')
 
     plt.close()
     return area
@@ -212,7 +212,7 @@ def create_pre_rec_curve2(y_test, y_score, sample_weight, auc, algorithm, label,
 
     if auc_PRC_path is not None:
         plt.savefig(
-            f'{auc_PRC_path}/pre_recall_curve_groups_{label}_{algorithm}.png')
+            f'{auc_PRC_path}/AUC_PRC_TEST_{label}_{algorithm}.png')
 
     plt.close()
     return area

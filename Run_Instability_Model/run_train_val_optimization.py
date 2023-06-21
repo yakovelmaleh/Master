@@ -8,14 +8,18 @@ def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
 
-def start(features_data_train, features_data_valid, labels_train, labels_valid, path_to_save,
-          auc_PRC_path=None):
+def start(features_data_train_list, features_data_valid_list, labels_train_list, labels_valid_list,
+          path_to_save):
     """
     this script read all the feature data (train and validation only), and run the optimization of the hyper parameters (ml_algorithms_optimization)
     """
 
     for k_unstable in [5, 10, 15, 20]:
         all_but_one_group = True
+        features_data_train = features_data_train_list[f'{k_unstable}']
+        features_data_valid = features_data_valid_list[f'{k_unstable}']
+        labels_train = labels_train_list[f'{k_unstable}']
+        labels_valid = labels_valid_list[f'{k_unstable}']
 
         names = list(features_data_train.columns.values)
         if 'dominant_topic' in names:
@@ -36,5 +40,4 @@ def start(features_data_train, features_data_valid, labels_train, labels_valid, 
                                                           labels_train['usability_label'],
                                                           labels_valid['usability_label'], k_unstable,
                                                           all_but_one_group,
-                                                          parameters_path=f'{path_to_save}/Parameters',
-                                                          auc_PRC_path=auc_PRC_path)
+                                                          parameters_path=path_to_save)

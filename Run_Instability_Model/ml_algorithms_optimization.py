@@ -31,7 +31,7 @@ and return the results
 def create_pre_rec_curve(y_test, y_score, average_precision, label, all_but_one_group, algorithm,
                          auc_PRC_path=None):
     """
-    this function create the precision and recall curve and save the fig results 
+    this function create the precision and recall curve and save the fig results
     """
     precision, recall, thresholds = metrics.precision_recall_curve(y_test, y_score[:, 1], pos_label=1)
     area = metrics.auc(recall, precision)
@@ -46,13 +46,12 @@ def create_pre_rec_curve(y_test, y_score, average_precision, label, all_but_one_
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
     if auc_PRC_path is not None:
         plt.savefig(
-            f'{auc_PRC_path}/pre_recall_curve_groups_{label}_{algorithm}.png')
+            f'{auc_PRC_path}/AUC_PRC_VALIDATION_{label}_{algorithm}.png')
     plt.close()
     return area
 
 
-def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_group, parameters_path,
-                           auc_PRC_path=None):
+def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_group, parameters_path):
     print(list(x_train))
     x_train = x_train.drop(columns=['created'])
     x_test = x_test.drop(columns=['created'])
@@ -89,7 +88,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                                               x_train=x_train, x_test=x_test, y_train=y_train,
                                               y_test=y_test, label=label,
                                               all_but_one_group=all_but_one_group,
-                                              auc_PRC_path=auc_PRC_path)
+                                              auc_PRC_path=parameters_path)
 
     d = {'usability_label': label, 'features': features,
          'feature_importance': feature_importance, 'accuracy_rf': accuracy_rf,
@@ -108,7 +107,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                            ignore_index=True)
 
     rf_results.to_csv(
-        f'{parameters_path}/results_groups_label_{label}_RF.csv', index=False)
+        f'{parameters_path}/Parameters_{label}_RF.csv', index=False)
 
     # XGboost:
     xgboost_results = pd.DataFrame(columns=['usability_label', 'accuracy_xgboost',
@@ -136,7 +135,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                                               x_train=x_train, x_test=x_test,
                                               y_train=y_train, y_test=y_test, label=label,
                                               all_but_one_group=all_but_one_group,
-                                              auc_PRC_path=auc_PRC_path)
+                                              auc_PRC_path=parameters_path)
 
     d = {'usability_label': label,
          'accuracy_xgboost': accuracy_xgboost,
@@ -157,7 +156,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                                 ignore_index=True)
 
     xgboost_results.to_csv(
-        f'{parameters_path}/results_groups_label_{label}_XGboost.csv', index=False)
+        f'{parameters_path}/Parameters_{label}_XGboost.csv', index=False)
 
     # NN:
     nn_results = pd.DataFrame(columns=['usability_label', 'accuracy_nn',
@@ -198,7 +197,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                                                               x_test=x_test_nn, y_train=y_train_resampled, y_test=y_test,
                                                             label=label,
                                                               all_but_one_group=all_but_one_group,
-                                                              auc_PRC_path=auc_PRC_path)
+                                                              auc_PRC_path=parameters_path)
 
     d = {'usability_label': label,
          'accuracy_nn': accuracy_nn, 'confusion_matrix_nn': confusion_matrix_nn,
@@ -215,7 +214,7 @@ def run_model_optimization(x_train, x_test, y_train, y_test, label, all_but_one_
                            ignore_index=True)
 
     nn_results.to_csv(
-        f'{parameters_path}/results_groups_label_{label}_NN.csv', index=False)
+        f'{parameters_path}/Parameters_{label}_NN.csv', index=False)
 
 
 def run_best_params_CV(model, dict, model_name, x_train, x_test, y_train, y_test, label,
@@ -327,7 +326,7 @@ def create_pre_rec_curve2(y_test, y_score, average_precision, sample_weight, lab
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
     if auc_PRC_path is not None:
         plt.savefig(
-            f'{auc_PRC_path}/pre_recall_curve_groups_{label}_{algorithm}.png')
+            f'{auc_PRC_path}/AUC_PRC_VALIDATION_{label}_{algorithm}.png')
     plt.close()
 
     return area

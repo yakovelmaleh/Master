@@ -1,13 +1,9 @@
 import json
-
-import Instability_sample_weight.run_train_tes_best_parameters as run_train_tes_best_parameters
-import Instability_sample_weight.run_train_val_optimization as run_train_val_optimization
-
+import Only_Instability_Cross_Project.run_cross_project as run_cross_project
 if __name__ == '__main__':
     """
     print('Start BERT')
     
-    """
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
@@ -19,7 +15,12 @@ if __name__ == '__main__':
         run_train_tes_best_parameters.start(jira_name, False)
         print(f'finish {jira_name}')
     print('FINISH ALL KNN_Model_with_dropping')
-
+    """
+    run_cross_project.run_all(
+        lambda test, valid, main_path:
+        run_cross_project.run_whole_project_as_a_test(test_jira_name=test,
+                                                      validation_jira_name=valid,
+                                                      main_path=main_path), "Master/")
 
 
 

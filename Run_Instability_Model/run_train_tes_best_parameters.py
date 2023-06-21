@@ -9,8 +9,8 @@ def addPath(path):
     return str(Path(os.getcwd()).joinpath(path))
 
 
-def start(features_data_train, features_data_test, labels_train, labels_test, path_to_save,
-          parameters_path, auc_PRC_path=None):
+def start(features_data_train_list, features_data_test_list, labels_train_list,
+          labels_test_list, path_to_save, parameters_path):
     """
     this script read all the feature data (train and test), and run prediction script with the best parametrs and features, and run the script ml_algorithms_run_best_parameters
     which get the features and parameters and run + return the results to all the different models.
@@ -24,12 +24,17 @@ def start(features_data_train, features_data_test, labels_train, labels_test, pa
     for k_unstable in [5, 10, 15, 20]:
         all_but_one_group = True
 
+        features_data_train = features_data_train_list[f'{k_unstable}']
+        features_data_test = features_data_test_list[f'{k_unstable}']
+        labels_train = labels_train_list[f'{k_unstable}']
+        labels_test = labels_test_list[f'{k_unstable}']
+
         parameters_rf = pd.read_csv(
-            f'{parameters_path}/results_groups_label_{k_unstable}_RF.csv', low_memory=False)
+            f'{parameters_path}/Parameters_{k_unstable}_RF.csv', low_memory=False)
         parameters_xg = pd.read_csv(
-            f'{parameters_path}/results_groups_label_{k_unstable}_XGboost.csv', low_memory=False)
+            f'{parameters_path}/Parameters_{k_unstable}_XGboost.csv', low_memory=False)
         parameters_nn = pd.read_csv(
-            f'{parameters_path}/results_groups_label_{k_unstable}_NN.csv', low_memory=False)
+            f'{parameters_path}/Parameters_{k_unstable}_NN.csv', low_memory=False)
 
         names = list(features_data_train.columns.values)
         if 'dominant_topic' in names:
@@ -65,7 +70,7 @@ def start(features_data_train, features_data_test, labels_train, labels_test, pa
             ml_algorithms_run_best_parameters.run_RF(features_data_train, features_data_test, labels_train,
                                                      labels_test, num_trees, max_feature, max_depth, min_samples_leaf,
                                                      min_samples_split, bootstrap, random_state, class_weight,
-                                                     k_unstable, all_but_one_group, auc_PRC_path)
+                                                     k_unstable, all_but_one_group, path_to_save)
 
         d = {
             'usability_label': k_unstable, 'feature_importance': feature_imp,
@@ -93,7 +98,7 @@ def start(features_data_train, features_data_test, labels_train, labels_test, pa
             ml_algorithms_run_best_parameters.run_XG(features_data_train, features_data_test, labels_train,
                                                      labels_test, num_trees, max_depth, max_features,
                                                      min_samples_split, min_samples_leaf, learning_rate, subsample,
-                                                     random_state, k_unstable, all_but_one_group, auc_PRC_path)
+                                                     random_state, k_unstable, all_but_one_group, path_to_save)
 
         d = {
             'usability_label': k_unstable, 'feature_importance': feature_imp,
@@ -120,7 +125,7 @@ def start(features_data_train, features_data_test, labels_train, labels_test, pa
             ml_algorithms_run_best_parameters.run_NN(features_data_train, features_data_test, labels_train,
                                                      labels_test, solver, alpha, hidden_layer_size,
                                                      learning_rate, activation, max_iterations, num_batches_size,
-                                                     random_state, k_unstable, all_but_one_group, auc_PRC_path)
+                                                     random_state, k_unstable, all_but_one_group, path_to_save)
 
         d = {
             'usability_label': k_unstable, 'feature_importance': feature_imp,

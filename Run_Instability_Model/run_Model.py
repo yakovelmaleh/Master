@@ -8,12 +8,10 @@ def start(features_data_optimization_train,
           labels_optimization_train,
           labels_optimization_valid,
           main_path,
-          auc_PRC_optimization_path,
           features_data_train,
           features_data_test,
           labels_train,
           labels_test,
-          auc_PRC_path,
           jira_name=None):
 
     for dirName in ['Parameters', 'Results']:
@@ -21,25 +19,33 @@ def start(features_data_optimization_train,
             os.mkdir(f'{main_path}/{dirName}')
             open(f'{main_path}/{dirName}/file.txt', 'x')
 
-    run_train_val_optimization.start(features_data_train=features_data_optimization_train,
-                                     features_data_valid=features_data_optimization_valid,
-                                     labels_train=labels_optimization_train,
-                                     labels_valid=labels_optimization_valid,
-                                     path_to_save=main_path,
+        if jira_name is not None:
+            path = f'{main_path}/{dirName}/{jira_name}'
+            if not os.path.exists(path):
+                os.mkdir(path)
+                open(f'{path}/file.txt', 'x')
+
+    path_to_save_optimization = f'{main_path}/Parameters'\
+        if jira_name is None else f'{main_path}/Parameters/{jira_name}'
+    auc_PRC_optimization_path = f'{main_path}/Parameters'\
+        if jira_name is None else f'{main_path}/Parameters/{jira_name}'
+
+    auc_PRC_path = f'{main_path}/Results'\
+        if jira_name is None else f'{main_path}/Results/{jira_name}'
+    path_to_save = f'{main_path}/Results'\
+        if jira_name is None else f'{main_path}/Results/{jira_name}'
+
+    run_train_val_optimization.start(features_data_train_list=features_data_optimization_train,
+                                     features_data_valid_list=features_data_optimization_valid,
+                                     labels_valid_list=labels_optimization_train,
+                                     labels_train_list=labels_optimization_valid,
+                                     path_to_save=path_to_save_optimization,
                                      auc_PRC_path=auc_PRC_optimization_path)
 
-    if jira_name is not None:
-        path_to_save = f'{main_path}/Results/{jira_name}'
-        if not os.path.exists(path_to_save):
-            os.mkdir(path_to_save)
-            open(f'{path_to_save}/file.txt', 'x')
-    else:
-        path_to_save = f'{main_path}/Results'
-
-    run_train_tes_best_parameters.start(features_data_train=features_data_train,
-                                        features_data_test=features_data_test,
-                                        labels_train=labels_train,
-                                        labels_test=labels_test,
+    run_train_tes_best_parameters.start(features_data_train_list=features_data_train,
+                                        features_data_test_list=features_data_test,
+                                        labels_train_list=labels_train,
+                                        labels_test_list=labels_test,
                                         path_to_save=path_to_save,
-                                        parameters_path=f'{main_path}/Parameters',
+                                        parameters_path=path_to_save_optimization,
                                         auc_PRC_path=auc_PRC_path)
