@@ -18,9 +18,9 @@ if __name__ == '__main__':
     """
     run_cross_project.run_all(
         lambda test, valid, main_path:
-        run_cross_project.run_only_test_project_as_a_test(test_jira_name=test,
-                                                          validation_jira_name=valid,
-                                                          main_path=main_path), "Master/")
+        run_cross_project.run_whole_project_as_a_test(test_jira_name=test,
+                                                      validation_jira_name=valid,
+                                                      main_path=main_path), "Master/")
 
 
 
