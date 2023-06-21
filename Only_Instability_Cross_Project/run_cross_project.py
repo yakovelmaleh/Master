@@ -47,7 +47,7 @@ def run_whole_project_as_a_test(test_jira_name, validation_jira_name, main_path)
 
 
 def run_only_test_project_as_a_test(test_jira_name, validation_jira_name, main_path):
-    main_path = f'{main_path}Only_Instability_Cross_Project/Classic'
+    main_path = f'{main_path}Only_Instability_Cross_Project/Only_test_on_the_test_project'
     if not os.path.exists(main_path):
         os.mkdir(f'{main_path}')
         open(f'{main_path}/file.txt', 'x')
