@@ -171,7 +171,7 @@ def get_data_all_train(main_path, k_unstable):
 
 def get_all_data_except(main_path, k_unstable, irrelevantProject):
     train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+    with open(f'{main_path}Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     for jira_name, jira_obj in jira_data_sources.items():
@@ -189,7 +189,7 @@ def get_all_data_except(main_path, k_unstable, irrelevantProject):
 
 def get_all_label_except(main_path, k_unstable, irrelevantProject):
     train_data = pd.DataFrame(columns=['idx', 'sentence', 'label'])
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
+    with open(f'{main_path}Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     for jira_name, jira_obj in jira_data_sources.items():

@@ -32,8 +32,8 @@ def start(features_data_optimization_train,
 
     run_train_val_optimization.start(features_data_train_list=features_data_optimization_train,
                                      features_data_valid_list=features_data_optimization_valid,
-                                     labels_valid_list=labels_optimization_train,
-                                     labels_train_list=labels_optimization_valid,
+                                     labels_train_list=labels_optimization_train,
+                                     labels_valid_list=labels_optimization_valid,
                                      path_to_save=path_to_save_optimization)
 
     run_train_tes_best_parameters.start(features_data_train_list=features_data_train,
