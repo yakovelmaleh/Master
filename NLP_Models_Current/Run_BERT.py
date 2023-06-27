@@ -8,10 +8,10 @@ import pandas as pd
 
 def run_over_sampling(jira_name, main_path='Master/'):
     model_name = 'Over_Sampling'
-    main_path = f'{main_path}NLP_Models_Current/{model_name}'
-    if not os.path.exists(main_path):
-        os.mkdir(f'{main_path}')
-        open(f'{main_path}/file.txt', 'x')
+    main_path_to_save = f'{main_path}NLP_Models_Current/{model_name}'
+    if not os.path.exists(main_path_to_save):
+        os.mkdir(f'{main_path_to_save}')
+        open(f'{main_path_to_save}/file.txt', 'x')
 
     data_train_list, data_valid_list = get_train_data_list_over_sampling(jira_name)
     data_test_list = get_test_data_list(jira_name)
@@ -19,7 +19,7 @@ def run_over_sampling(jira_name, main_path='Master/'):
                                                    train_data_list=data_train_list, valid_data_list=data_valid_list,
                                                    test_data_list=data_test_list, path_to_save=path_to_save)
 
-    run_Model.run_NLP_Model(main_path=main_path, jira_name=jira_name, model_to_run=model_to_run)
+    run_Model.run_NLP_Model(main_path=main_path_to_save, jira_name=jira_name, model_to_run=model_to_run)
 
 
 def run_under_sampling(jira_name, main_path='Master/'):
