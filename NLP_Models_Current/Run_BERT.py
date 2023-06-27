@@ -3,8 +3,6 @@ import Utils.NLP_Models.run_Model as run_Model
 import Utils.NLP_Models.Classic_BERT as BERT
 import Utils.GetNLPData as GetData
 
-import pandas as pd
-
 
 def run_over_sampling(jira_name, main_path='Master/'):
     model_name = 'Over_Sampling'
