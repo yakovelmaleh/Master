@@ -1,5 +1,5 @@
 import json
-import NLP_Models_Current.Run_RoBERTaV2 as run_model
+import NLP_Models_Current.Run_BERT as run_model
 
 if __name__ == '__main__':
     """
@@ -16,6 +16,6 @@ if __name__ == '__main__':
     print('START')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        run_model.start(jira_name, 'Master/')
+        run_model.start(jira_name)
     print('FINISH ALL')
 
