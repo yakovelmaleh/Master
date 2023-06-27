@@ -4,7 +4,7 @@ import Utils.GetNLPData as GetData
 import os
 
 
-def start(jira_name, main_path):
+def start(jira_name, main_path='Master/'):
     main_path = f'{main_path}NLP_Models_Current/Classic_Within_only_description'
     if not os.path.exists(main_path):
         os.mkdir(f'{main_path}')
@@ -24,7 +24,7 @@ def get_test_data_list(project_name, main_path='Master/'):
     output = dict()
     for k_unstable in [5, 10, 15, 20]:
         output[f'{k_unstable}'] = \
-            GetData.get(project_name, main_path, k_unstable)
+            GetData.get_test_data(project_name, main_path, k_unstable)
 
     return output
 
