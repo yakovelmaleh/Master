@@ -20,16 +20,16 @@ def start(jira_name, main_path):
     run_Model.run_NLP_Model(main_path=main_path, jira_name=jira_name, model_to_run=model_to_run)
 
 
-def get_train_data_list(project_name, main_path='Master/'):
+def get_test_data_list(project_name, main_path='Master/'):
     output = dict()
     for k_unstable in [5, 10, 15, 20]:
         output[f'{k_unstable}'] = \
-            GetData.get_test_data(project_name, main_path, k_unstable)
+            GetData.get(project_name, main_path, k_unstable)
 
     return output
 
 
-def get_test_data_list(project_name, main_path='Master/'):
+def get_train_data_list(project_name, main_path='Master/'):
     output = dict()
     for k_unstable in [5, 10, 15, 20]:
         output[f'{k_unstable}'] = \
