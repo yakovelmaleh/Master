@@ -16,6 +16,6 @@ if __name__ == '__main__':
     print('START')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        run_model.start(jira_name)
+        run_model.run_over_sampling(jira_name)
     print('FINISH ALL')
 
