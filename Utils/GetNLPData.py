@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+from sklearn.utils import resample
 
 def get_test_data(jira_name, main_path, k_unstable):
     path = f"{main_path}Data/{jira_name}/features_labels_table_os.csv"
@@ -141,3 +142,24 @@ def get_data_all_train_except(project, main_path, k_unstable):
             train_data = pd.concat([train_data, temp_train], ignore_index=True)
 
     return train_data
+
+
+def over_sample(data):
+    minority_class = data[data['label'] == 1]
+    majority_class = data[data['label'] == 0]
+    oversampled_minority = resample(minority_class, replace=True, n_samples=len(majority_class), random_state=42)
+    oversampled_train_data = pd.concat([majority_class, oversampled_minority])
+    oversampled_train_data = oversampled_train_data.sample(frac=1, random_state=42)
+
+    return oversampled_train_data
+
+
+def under_sample(data):
+    minority_class = data[data['label'] == 1]
+    majority_class = data[data['label'] == 0]
+    minority_class = majority_class.sample(n=len(minority_class), random_state=42)
+
+    oversampled_train_data = pd.concat([majority_class, minority_class])
+    oversampled_train_data = oversampled_train_data.sample(frac=1, random_state=42)
+
+    return oversampled_train_data
