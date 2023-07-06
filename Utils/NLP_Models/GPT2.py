@@ -19,10 +19,10 @@ def start(jira_name, train_data_list, test_data_list, model_name, path_to_save):
         train_data = train_data_list[f'{k_unstable}']
         test_data = test_data_list[f'{k_unstable}']
 
-        x_train = train_data['sentence']
+        x_train = list(train_data['sentence'])
         y_train = list(train_data['label'].astype(float))
 
-        x_test = test_data['sentence']
+        x_test = list(test_data['sentence'])
         y_test = list(test_data['label'].astype(float))
 
         x_train_tokenized = tokenizer.batch_encode_plus(
