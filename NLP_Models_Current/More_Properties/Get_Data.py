@@ -96,3 +96,12 @@ def get_test_data(jira_name, main_path, k_unstable):
     test_data = test_data.drop('issue_key', axis=1)
 
     return test_data
+
+
+def get_train_data_list(project_name, main_path='Master/'):
+    output = dict()
+    for k_unstable in [5, 10, 15, 20]:
+        train, valid = get_data_train_valid_with_labels(project_name, main_path, k_unstable)
+        output[f'{k_unstable}'] = pd.concat([train, valid], ignore_index=True)
+
+    return output
