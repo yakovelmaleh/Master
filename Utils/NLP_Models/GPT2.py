@@ -14,7 +14,7 @@ def start(jira_name, train_data_list, test_data_list, model_name, path_to_save):
                                        'area_under_roc_curve', 'y_pred'])
 
     for k_unstable in [5, 10, 15, 20]:
-        tokenizer = AutoTokenizer.from_pretrained('microsoft/DialogRPT-updow')
+        tokenizer = AutoTokenizer.from_pretrained('microsoft/DialogRPT-updown')
 
         train_data = train_data_list[f'{k_unstable}']
         test_data = test_data_list[f'{k_unstable}']
