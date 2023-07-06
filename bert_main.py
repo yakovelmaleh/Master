@@ -1,5 +1,5 @@
 import json
-import NLP_Models_Current.More_Properties.Run_RoBERTaV1 as run_model
+import NLP_Models_Current.More_Properties.Run_BERT as run_model
 
 if __name__ == '__main__':
     """
