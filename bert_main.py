@@ -1,5 +1,5 @@
 import json
-import NLP_Models_Current.Normal.Run_GPT2 as run_model
+import NLP_Models_Current.More_Properties.Run_gtp as run_model
 
 if __name__ == '__main__':
     """
@@ -16,6 +16,6 @@ if __name__ == '__main__':
     print('START')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        run_model.run_normal(jira_name)
+        run_model.more_properties(jira_name)
     print('FINISH ALL')
 
