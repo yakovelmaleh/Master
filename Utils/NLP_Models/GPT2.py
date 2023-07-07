@@ -102,6 +102,7 @@ def start(jira_name, train_data_list, test_data_list, model_name, path_to_save):
 
         y_pred = all_predicted_labels
         y_score = torch.tensor(all_probabilities)
+        y_score = [[y, 1-y] for y in y_score]
 
         accuracy, confusion_matrix, classification_report, area_under_pre_recall_curve, average_precision, auc =\
             Get_Results.get_results(y_score=y_score, y_pred=y_pred,
