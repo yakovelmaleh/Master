@@ -28,8 +28,8 @@ def get_train_valid_sets_for_optimize(jira_name, main_path, N):
 
         previous_labels = add_N_columns_based_on_the_previous_labels(jira_name, N, k_unstable)
 
-        train_output[f'{k_unstable}'] = pd.merge(features_data_train, previous_labels, on='A', how='inner')
-        valid_output[f'{k_unstable}'] = pd.merge(features_data_valid, previous_labels, on='A', how='inner')
+        train_output[f'{k_unstable}'] = pd.merge(features_data_train, previous_labels, on='issue_key', how='inner')
+        valid_output[f'{k_unstable}'] = pd.merge(features_data_valid, previous_labels, on='issue_key', how='inner')
 
     return train_output, valid_output
 
@@ -50,7 +50,7 @@ def get_test_sets_for_prediction(jira_name, main_path, N):
     for k_unstable in [5, 10, 15, 20]:
         test_set = GetData.get_test_data(jira_name, main_path, k_unstable)
         previous_labels = add_N_columns_based_on_the_previous_labels(jira_name, N, k_unstable)
-        test_output[f'{k_unstable}'] = pd.merge(test_set, previous_labels, on='A', how='inner')
+        test_output[f'{k_unstable}'] = pd.merge(test_set, previous_labels, on='issue_key', how='inner')
 
     return test_output
 
@@ -72,7 +72,7 @@ def get_train_sets_for_prediction(jira_name, main_path, N):
 
         previous_labels = add_N_columns_based_on_the_previous_labels(jira_name, N, k_unstable)
 
-        train_output[f'{k_unstable}'] = pd.merge(features_data_train, previous_labels, on='A', how='inner')
+        train_output[f'{k_unstable}'] = pd.merge(features_data_train, previous_labels, on='issue_key', how='inner')
 
     return train_output
 
