@@ -3,9 +3,8 @@ import os
 
 import pandas as pd
 import RunModels.create_train_val_tes as create_train_val_tes
+import Robert_Course.Previous_Labels_Models.previous_labels_model as Previous_model
 
-import Normal_instability.run_train_val_optimization as run_train_val_optimization
-import Normal_instability.run_train_tes_best_parameters as run_train_tes_best_parameters
 
 def createFolders(jira_name):
     os.mkdir(f'Data/{jira_name}')
@@ -196,7 +195,7 @@ if __name__ == '__main__':
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
         try:
-            create_train_val_tes.start(jira_name)
+            Previous_model.run('Master/', jira_name)
 
         except Exception as e:
             print(e)
