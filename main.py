@@ -188,7 +188,7 @@ if __name__ == '__main__':
     #run_train_tes_best_parameters.start('Apache')
     #createFolders('Hyperledger')
     """
-    with open('Source/jira_data_for_instability_cluster.json') as f:
+    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 
     print('START ALL')
