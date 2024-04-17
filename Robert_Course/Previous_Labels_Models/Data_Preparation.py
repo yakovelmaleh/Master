@@ -15,7 +15,7 @@ def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: in
         shifted_values = shifted_values.fillna(0)  # Fill NaN with 0
         df[f'previous_label_{i}'] = shifted_values.astype(int)  # Convert to int if needed
 
-    df = df.drop(['is_change_text_num_words_{k_unstable}'])
+    df = df.drop(columns=['is_change_text_num_words_{k_unstable}'])
     return df
 
 
