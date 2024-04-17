@@ -4,7 +4,7 @@ import Utils.GetInstabilityData as GetData
 
 def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: int):
     df = pd.read_csv(f'Master/Data/{jira_name}/features_labels_table_os.csv')
-    df = df['issue_key', f'is_change_text_num_words_{k_unstable}']
+    df = df[['issue_key', f'is_change_text_num_words_{k_unstable}']]
 
     if df.columns[0].startswith('is_change_text_num_words_'):
         df = df.iloc[1:]
