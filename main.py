@@ -194,8 +194,4 @@ if __name__ == '__main__':
     print('START ALL')
     for jira_name, jira_obj in jira_data_sources.items():
         print("start: ", jira_name)
-        try:
-            Previous_model.run('Master/', jira_name)
-
-        except Exception as e:
-            print(e)
+        Previous_model.run('Master/', jira_name)
