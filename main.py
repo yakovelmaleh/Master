@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 import RunModels.create_train_val_tes as create_train_val_tes
-import Robert_Course.Previous_Labels_Models.previous_labels_model as Previous_model
+import Robert_Course.Only_Previous_Label_Models.only_previous_labels_model as Previous_model
 
 
 def createFolders(jira_name):
