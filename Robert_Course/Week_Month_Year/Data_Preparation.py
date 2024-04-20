@@ -33,9 +33,9 @@ def convert_nan_to_binary(df: pd.DataFrame, column_name: str):
     return df
 
 
-def count_earlier_within_week(row, df, count):
+def count_earlier_within_week(row, df, count, k_unstable):
     earlier_dates = df.loc[(df['created'] < row['created']) & (df['created'] + pd.Timedelta(days=count) >= row['created'])]
-    return len(earlier_dates), earlier_dates['value'].sum()
+    return len(earlier_dates), earlier_dates[f'is_change_text_num_words_{k_unstable}'].sum()
 
 
 def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: int):
@@ -55,7 +55,7 @@ def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: in
     df['created'] = pd.to_datetime(df['created'])
     for time, count in [('W', 7), ('M', 30), ('Y', 365)]:
         df[f'count_earlier_within_{time}'], df[f'sum_{time}'] = zip(*df.apply(count_earlier_within_week,
-                                                                              args=(df, count), axis=1))
+                                                                              args=(df, count, k_unstable), axis=1))
     # Add N columns
     for i in range(1, N + 1):
         shifted_values = df[f'is_change_text_num_words_{k_unstable}'].shift(i)
