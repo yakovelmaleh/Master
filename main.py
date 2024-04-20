@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 import RunModels.create_train_val_tes as create_train_val_tes
-import Robert_Course.Add_Dummies_Features.previous_labels_and_dummies_model as Previous_model
+import Robert_Course.Week_Month_Year.previous_labels_and_dummies_and_WMY_model as Previous_model
 
 
 def createFolders(jira_name):
