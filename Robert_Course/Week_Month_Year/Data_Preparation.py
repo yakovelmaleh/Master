@@ -52,6 +52,7 @@ def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: in
     if df.columns[0].startswith('is_change_text_num_words_'):
         df = df.iloc[1:]
 
+    df['created'] = pd.to_datetime(df['created'])
     for time, count in [('W', 7), ('M', 30), ('Y', 365)]:
         df[f'count_earlier_within_{time}'], df[f'sum_{time}'] = zip(*df.apply(count_earlier_within_week,
                                                                               args=(df, count), axis=1))
