@@ -34,13 +34,13 @@ def convert_nan_to_binary(df: pd.DataFrame, column_name: str):
 
 
 def count_earlier_within_week(row, df, count):
-    earlier_dates = df.loc[(df['date'] < row['date']) & (df['date'] + pd.Timedelta(days=count) >= row['date'])]
+    earlier_dates = df.loc[(df['created'] < row['created']) & (df['created'] + pd.Timedelta(days=count) >= row['created'])]
     return len(earlier_dates), earlier_dates['value'].sum()
 
 
 def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: int):
     df = pd.read_csv(f'Master/Data/{jira_name}/features_labels_table_os.csv')
-    df = df[['issue_key', f'is_change_text_num_words_{k_unstable}',
+    df = df[['issue_key', f'is_change_text_num_words_{k_unstable}', 'created',
              'issue_type', 'project_key', 'creator', 'reporter', 'priority',
              'original_summary_sprint', 'original_description_sprint', 'original_acceptance_criteria_sprint'
              ]]
@@ -61,7 +61,7 @@ def add_N_columns_based_on_the_previous_labels(jira_name, N: int, k_unstable: in
         shifted_values = shifted_values.fillna(0)  # Fill NaN with 0
         df[f'previous_label_{i}'] = shifted_values.astype(int)  # Convert to int if needed
 
-    df = df.drop(columns=[f'is_change_text_num_words_{k_unstable}'])
+    df = df.drop(columns=[f'is_change_text_num_words_{k_unstable}', 'created'])
 
     for column in column_list_to_convert:
         df = get_dummies(df, column)
