@@ -49,10 +49,14 @@ def start(path, data_path, jiraName, jira_object):
     delete_no_sprint_no_done.start(path_to_load, path_to_save)
 
     print("********************start create_combine_columns_summary_description********************")
-    create_combine_columns_summary_description.start(jira_name)
+    path_to_load = path_to_save
+    path_to_save = f'{path_to_save_prefix}\\create_combine_columns_summary_description'
+    create_combine_columns_summary_description.start(path_to_load, path_to_save)
 
     print("********************start calculate_ratio_nltk********************")
-    calculate_ratio_nltk.start(jira_name)
+    path_to_load = path_to_save
+    path_to_save = f'{path_to_save_prefix}\\calculate_ratio_nltk'
+    calculate_ratio_nltk.start(path_to_load, path_to_save)
 
     print("********************start create_feature_lable_table********************")
     create_feature_lable_table.start(jira_name)
