@@ -1,13 +1,12 @@
 import json
 import os.path
-import sys
 
 import Using_CSV_files.CalculateData.start_calculation as start_calculation
 import Data_Analysis.JQL_Queries as JQL
 
 
 def Simple_Data():
-    path_to_Data_folder = os.path.join(os.getcwd(), "Using_CSV_files", "Data")
+    path_to_Data_folder = os.path.join("Using_CSV_files", "Data")
     current_dir = "Simple_Data"
     json_file_name = "jira_data_for_instability_cluster.json"
 
