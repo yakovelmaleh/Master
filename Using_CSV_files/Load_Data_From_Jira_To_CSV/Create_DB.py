@@ -13,7 +13,7 @@ def create_DB(path, production=True):
     if production and os.path.exists(path):
         raise Exception("DB name already exist!")
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
 
     df = pd.DataFrame(columns=TableColumns.get_properties(TableColumns.AllChangesOS))
     df.set_index(["issue_key", "chronological_number"], inplace=True)
