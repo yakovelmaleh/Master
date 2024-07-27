@@ -23,7 +23,7 @@ def not_Null(element):
 
 
 class Changes:
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
         self.issue_key = not_Null(issue_key)
@@ -39,7 +39,7 @@ class Changes:
 
 
 class ChangesWithWords(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, is_diff_more_than_ten: int = None,
                  chronological_number: int = None, ratio_different_char_next: float = None,
@@ -83,10 +83,10 @@ class ChangesWithWords(Changes):
 
 
 class AllChangesOS(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, field: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None,
-                 time_add_to_sprint: pd.Timespamp = None, is_after_sprint: int = None,
+                 time_add_to_sprint: pd.Timestamp = None, is_after_sprint: int = None,
                  time_from_sprint: float = None, is_after_close: int = None):
         super().__init__(
             issue_key=not_Null(issue_key),
@@ -135,7 +135,7 @@ create table which is saving all the changes in description field
 
 
 class ChangesDescriptionOS(ChangesWithWords):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, is_diff_more_than_ten: int = None,
                  chronological_number: int = None, ratio_different_char_next: float = None,
@@ -234,7 +234,7 @@ create table which is saving all the changes in sprint
 
 
 class ChangesSprintOS(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
         super().__init__(
@@ -274,7 +274,7 @@ create table which is saving all the changes in story point field
 
 
 class ChangesStoryPointsOS(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
         super().__init__(
@@ -314,7 +314,7 @@ create table which is saving all the changes in summary field
 
 
 class ChangesSummaryOS(ChangesWithWords):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, is_diff_more_than_ten: int = None,
                  chronological_number: int = None, ratio_different_char_next: float = None,
@@ -413,7 +413,7 @@ create table which is saving all the changes in criteria field
 
 
 class ChangesCriteriaOS(ChangesWithWords):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timespamp = None,
+    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
                  different_time_from_creat: float = None, is_first_setup: int = None, is_diff_more_than_ten: int = None,
                  chronological_number: int = None, ratio_different_char_next: float = None,
@@ -675,7 +675,7 @@ create table which is saving all the attachment files info
 
 class AttachmentOS:
     def __init__(self, issue_key: str, project_key: str, attachment_id: int, file_type: str, creator: str,
-                 created: pd.Timespamp):
+                 created: pd.Timestamp):
         self.issue_key = not_Null(issue_key)
         self.project_key = not_Null(project_key)
         self.attachment_id = not_Null(attachment_id)
@@ -729,11 +729,11 @@ create the main table with all the nessecary data, and extra
 
 
 class MainTableOS:
-    def __init__(self, issue_key: str, issue_id: str, project_key: str, created: pd.Timespamp, creator: str, reporter: str,
-                 assignee: str = None, date_of_first_response: pd.Timespamp = None, epic_link: str = None,
-                 issue_type: str = None, last_updated: pd.Timespamp = None, priority: str = None,
+    def __init__(self, issue_key: str, issue_id: str, project_key: str, created: pd.Timestamp, creator: str, reporter: str,
+                 assignee: str = None, date_of_first_response: pd.Timestamp = None, epic_link: str = None,
+                 issue_type: str = None, last_updated: pd.Timestamp = None, priority: str = None,
                  prograss: float = None,
-                 prograss_total: float = None, resolution: str = None, resolution_date: pd.Timespamp = None,
+                 prograss_total: float = None, resolution: str = None, resolution_date: pd.Timestamp = None,
                  status_name: str = None, status_description: str = None, time_estimate: float = None,
                  time_origion_estimate: float = None, time_spent: float = None, attachment: int = None,
                  is_attachment: int = None, pull_request_url: int = None, images: int = None,
