@@ -1,0 +1,50 @@
+{
+  "Apache": {
+    "company_url": "https://apache.org/",
+    "jira_url": "https://issues.apache.org/jira",
+    "name": "Apache",
+    "rough_issue_count": "1,015,000"
+  },
+  "Hyperledger": {
+    "company_url": "https://hyperledger.org/about",
+    "jira_url": "https://jira.hyperledger.org",
+    "name": "Hyperledger",
+    "rough_issue_count": "28,000"
+  },
+  "IntelDAOS": {
+    "company_url": "https://wiki.hpdd.intel.com/display/DC/DAOS+Community+Home",
+    "jira_url": "https://daosio.atlassian.net",
+    "name": "IntelDAOS",
+    "rough_issue_count": "9,000"
+  },
+  "Jira": {
+    "company_url": "https://www.atlassian.com/company",
+    "jira_url": "https://jira.atlassian.com",
+    "name": "Jira",
+    "rough_issue_count": "275,000"
+  },
+  "MariaDB": {
+    "company_url": "https://mariadb.org/",
+    "jira_url": "https://jira.mariadb.org",
+    "name": "MariaDB",
+    "rough_issue_count": "30,000"
+  },
+  "MongoDB": {
+    "company_url": "https://mongodb.com",
+    "jira_url": "https://jira.mongodb.org",
+    "name": "MongoDB",
+    "rough_issue_count": "137,000"
+  },
+  "Qt": {
+    "company_url": "https://qt.io/company",
+    "jira_url": "https://bugreports.qt.io",
+    "name": "Qt",
+    "rough_issue_count": "147,000"
+  },
+  "RedHat": {
+    "company_url": "https://redhat.com/en/about/company",
+    "jira_url": "https://issues.redhat.com",
+    "name": "RedHat",
+    "rough_issue_count": "353,000"
+  }
+}
