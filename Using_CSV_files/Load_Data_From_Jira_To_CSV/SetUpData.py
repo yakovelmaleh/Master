@@ -947,7 +947,7 @@ def getFromDictOrDefault(issue, name_map, key, default):
         return None
 
 
-def startSetUp(jira_obj, query):
+def startSetUp(jira_obj, query_base):
     # run for all the 5 projects:
     auth_jira = JIRA(jira_obj['jira_url'])
     all_fields = auth_jira.fields()
@@ -959,15 +959,15 @@ def startSetUp(jira_obj, query):
         while True:
             start = initial * size
             changelogFlag = True
+            query = f"project={project_name} AND {query_base}"
             try:
-                query = f"project={project_name} AND {query}"
                 issues = auth_jira.search_issues(query, start, size, expand='changelog')
             except:
                 try:
                     issues = auth_jira.search_issues(query, start, size)
                     changelogFlag = False
                 except:
-                    query = f"project='{project_name}' AND {query}"
+                    query = f"project='{project_name}' AND {query_base}"
                     try:
                         issues = auth_jira.search_issues(query, start, size, expand='changelog')
                         changelogFlag = True
