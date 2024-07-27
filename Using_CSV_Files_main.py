@@ -7,7 +7,7 @@ import Data_Analysis.JQL_Queries as JQL
 
 
 def Simple_Data():
-    path_to_Data_folder = os.path.join(os.getcwd(), "Using_CSV_files", "Using_CSV_files/Data")
+    path_to_Data_folder = os.path.join(os.getcwd(), "Using_CSV_files", "Data")
     current_dir = "Simple_Data"
     json_file_name = "jira_data_for_instability_cluster.json"
 
