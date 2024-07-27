@@ -5,12 +5,6 @@
     "name": "Apache",
     "rough_issue_count": "1,015,000"
   },
-  "Hyperledger": {
-    "company_url": "https://hyperledger.org/about",
-    "jira_url": "https://jira.hyperledger.org",
-    "name": "Hyperledger",
-    "rough_issue_count": "28,000"
-  },
   "IntelDAOS": {
     "company_url": "https://wiki.hpdd.intel.com/display/DC/DAOS+Community+Home",
     "jira_url": "https://daosio.atlassian.net",
@@ -22,6 +16,12 @@
     "jira_url": "https://jira.atlassian.com",
     "name": "Jira",
     "rough_issue_count": "275,000"
+  },
+  "JiraEcosystem": {
+    "company_url": "https://ecosystem.atlassian.net",
+    "jira_url": "https://ecosystem.atlassian.net",
+    "name": "JiraEcosystem",
+    "rough_issue_count": "42,000"
   },
   "MariaDB": {
     "company_url": "https://mariadb.org/",
@@ -46,5 +46,11 @@
     "jira_url": "https://issues.redhat.com",
     "name": "RedHat",
     "rough_issue_count": "353,000"
+  },
+  "Sakai": {
+    "company_url": "https://sakailms.org/",
+    "jira_url": "https://jira.sakaiproject.org",
+    "name": "Sakai",
+    "rough_issue_count": "51,000"
   }
 }

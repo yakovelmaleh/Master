@@ -36,7 +36,7 @@ def date_of_first_response(issue, name_map):
             except:
                 issue_data_of_first_response = None
 
-    if issue_data_of_first_response == None:
+    if issue_data_of_first_response is None:
         try:
             comments = issue.fields.comment.comments
             if len(comments) > 0:
