@@ -1,4 +1,5 @@
 import json
+import os.path
 from typing import List
 import pandas as pd
 import Using_CSV_files.FilesActivity as FilesActivity
@@ -18,11 +19,11 @@ def start(path_to_load, path_to_save):
     ###################################################################################
     """
 
-    mainDf = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.MainTableOS]}')
+    mainDf = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.MainTableOS]))
     mainObjectList: List[TableColumns.MainTableOS] = \
         [TableColumns.createMainObjectFromDataFrame(row) for index, row in mainDf.iterrows()]
 
-    commentDf = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.CommentsOS]}')
+    commentDf = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.CommentsOS]))
     commentObjectList: List[TableColumns.CommentsOS] = \
         [TableColumns.createCommentsOSObjectFromDataFrame(row) for index, row in commentDf.iterrows()]
 
@@ -70,7 +71,7 @@ def get_insert_function(path_to_save, path_to_load, issue_key, logger):
         return element.issue_key == issue_key
 
     def insertElements(classType, classFunction):
-        df = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[classType]}')
+        df = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[classType]))
         objectList: List[classType] = \
             [classFunction(row)
              for index, row in df.iterrows()]

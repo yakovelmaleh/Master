@@ -1,32 +1,16 @@
 import difflib
 import os
 from typing import List
-import argparse
-
 import pandas as pd
-
-import Data_Analysis.JQL_Queries as JQL
 from jira import JIRA
 import datetime
 import time
 import json
 import Using_CSV_files.FilesActivity as FilesActivity
-
-"""
-import CreateDB
-import mysql.connector
-from urllib.request import urlopen
-import xml.etree.ElementTree as ET
-import xmltodict
-from xml.etree import ElementTree
-from github import Github
-import git_pull_request
-import git
-"""
 import re
 from Using_CSV_files.Load_Data_From_Jira_To_CSV import TableColumns, Logger, Create_DB
 
-## Global Variables
+
 path = None
 logger = None
 
@@ -438,7 +422,8 @@ def get_issue_acceptance_cri(issue, name_map):
 
 
 def create_date_from_string(date):
-    return datetime.datetime.strptime(date[:-5], '%Y-%m-%dT%H:%M:%S.%f')
+    datetime_object = datetime.datetime.strptime(date[:-5], '%Y-%m-%dT%H:%M:%S.%f')
+    return pd.Timestamp(datetime_object)
 
 
 def get_image(issue):
@@ -861,8 +846,8 @@ def get_sprint_info(auth_jira, issue, name_map):
                     create_date_from_string(issue.fields.updated) if issue.fields.updated is not None else None)
                 is_over = 0
             else:
-                start_date = datetime.datetime.strptime(start_date1, '%Y-%m-%d')
-                end_date = datetime.datetime.strptime(end_date1, '%Y-%m-%d')
+                start_date = pd.Timestamp(datetime.datetime.strptime(start_date1, '%Y-%m-%d'))
+                end_date = pd.Timestamp(datetime.datetime.strptime(end_date1, '%Y-%m-%d'))
             try:
                 sprints.append(TableColumns.SprintsOS(
                     issue_key=issue_key,
@@ -962,7 +947,7 @@ def getFromDictOrDefault(issue, name_map, key, default):
         return None
 
 
-def startSetUp(jira_name, jira_obj):
+def startSetUp(jira_obj, query):
     # run for all the 5 projects:
     auth_jira = JIRA(jira_obj['jira_url'])
     all_fields = auth_jira.fields()
@@ -975,20 +960,14 @@ def startSetUp(jira_name, jira_obj):
             start = initial * size
             changelogFlag = True
             try:
-                query = f"project={project_name} AND {JQL.filter_by_resolution(jira_name)}" \
-                        f" AND {JQL.filter_by_status(jira_name)} AND {JQL.filter_by_noBugs()} " \
-                        f" AND {JQL.filter_by_resolutionDate()} AND " \
-                        f"{JQL.filter_by_NotEmptySprint()}"
+                query = f"project={project_name} AND {query}"
                 issues = auth_jira.search_issues(query, start, size, expand='changelog')
             except:
                 try:
                     issues = auth_jira.search_issues(query, start, size)
                     changelogFlag = False
                 except:
-                    query = f"project='{project_name}' AND {JQL.filter_by_resolution(jira_name)}" \
-                            f" AND {JQL.filter_by_status(jira_name)} AND {JQL.filter_by_noBugs()} " \
-                            f" AND {JQL.filter_by_resolutionDate()} AND " \
-                            f"{JQL.filter_by_NotEmptySprint()}"
+                    query = f"project='{project_name}' AND {query}"
                     try:
                         issues = auth_jira.search_issues(query, start, size, expand='changelog')
                         changelogFlag = True
@@ -1158,27 +1137,32 @@ def getMaxWords(func, maxNumber):
     return output
 
 
-def createDB(path):
-    Create_DB.create_DB(path)
+def createDB(path, production=True):
+    Create_DB.create_DB(path, production)
 
 
-def alreadyExist(cursor, issueKey, issueID):
-    cursor.execute(
-        f'SELECT * FROM data_base_os_apache.main_table_os where issue_key="{issueKey}" and issue_id={issueID}')
-    results = cursor.fetchall()
-    return len(results) > 0
+def start(path_to_save, jira_object, query):
+    global path
+    global logger
 
-
-def start(path_to_save, jiraName, jira_object):
+    createDB(path_to_save, False)
     path = path_to_save
 
     logger = Logger.get_logger_with_path_and_name(path_to_save, "SetUpData")
-    createDB(path_to_save)
 
-    startSetUp(jiraName, jira_object)
+    startSetUp(jira_object, query)
 
 
 if __name__ == '__main__':
+    path_to_save = os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data", "Apache")
+
+    with open(os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data",
+                           "jira_data_for_instability.json")) as f:
+        jira_data_sources = json.load(f)
+
+    jiraName = "Apache"
+    ## start(path_to_save, jiraName, jira_data_sources[jiraName])
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--jiraName', help='Jira repo Name')
     parser.add_argument('--path', type=str, help='path')
@@ -1194,3 +1178,4 @@ if __name__ == '__main__':
         jira_data_sources = json.load(f)
 
     startSetUp(jiraName, jira_data_sources[jiraName])
+    """

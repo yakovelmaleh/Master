@@ -1,4 +1,6 @@
 import json
+import os.path
+
 import pandas as pd
 import datetime
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.Logger as Logger
@@ -53,9 +55,9 @@ def add_column_time_add_to_sprint(path_to_save, main_table, change_sprint, sprin
 def start(path_to_load, path_to_save):
     Create_DB.create_DB(path_to_save)
 
-    main_data = pd.read_csv(f'{path_to_load}\\main_table_os.csv')
-    changes_sprint = pd.read_csv(f'{path_to_load}\\changes_sprint_os.csv')
-    sprints = pd.read_csv(f'{path_to_load}\\sprints_os.csv')
+    main_data = pd.read_csv(os.path.join(path_to_load, 'main_table_os.csv'))
+    changes_sprint = pd.read_csv(os.path.join(path_to_load, 'changes_sprint_os.csv'))
+    sprints = pd.read_csv(os.path.join(path_to_load, 'sprints_os.csv'))
 
     add_column_time_add_to_sprint(path_to_save, main_data, changes_sprint, sprints)
 

@@ -4,19 +4,16 @@ import Using_CSV_files.Load_Data_From_Jira_To_CSV.TableColumns as TableColumns
 import argparse
 
 
-def create_DB(path):
+def create_DB(path, production=True):
     # Validate Path is valid
-    if not os.path.exists(path):
-        raise Exception("Invalid path")
 
     if "Using_CSV_files\\Data" not in path:
         raise Exception(f"path contains Using_CSV_files folder: {path}")
-    if "DB_name" not in path:
-        raise Exception(f"path contains DB_name: {path}")
 
-    if os.path.exists(path):
+    if production and os.path.exists(path):
         raise Exception("DB name already exist!")
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.mkdir(path)
 
     df = pd.DataFrame(columns=TableColumns.get_properties(TableColumns.AllChangesOS))
     df.set_index(["issue_key", "chronological_number"], inplace=True)

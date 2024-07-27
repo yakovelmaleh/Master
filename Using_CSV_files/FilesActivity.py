@@ -50,7 +50,7 @@ primaryKeys = {
 
 
 def get_File(path, className):
-    return pd.read_csv(f'{path}\\{filesNames[className]}', index_col=primaryKeys[className])
+    return pd.read_csv(os.path.join(path, filesNames[className]), index_col=primaryKeys[className])
 
 
 # def get element
@@ -64,7 +64,7 @@ def insert_element(path, className, element, logger) -> bool:
     else:
         new_row = pd.DataFrame([element.__dict__])
         new_row.set_index(primaryKeys[className], inplace=True)
-        new_row.to_csv(f"{path}\\{filesNames[className]}", mode='a', index=True, header=False)
+        new_row.to_csv(os.path.join(path, filesNames[className]), mode='a', index=True, header=False)
         logger.info(f"Element {element} in {filesNames[className]}")
         return True
 

@@ -161,33 +161,7 @@ def create_feature_csv(jira_name):
 
 
 if __name__ == '__main__':
-    """
-    select_topic.start('Apache')
-    select_doc_vec.start('Apache')
-    create_train_val_tes.start('Apache')
-    chi_square.start('Apache')
-    remove_features.start('Apache')
-    feature_selection_groups.start('Apache')
-    run_train_val_optimization.start('Apache')
-    run_train_tes_best_parameters.start(jira_name)
-    
-    with open('Master/Source/jira_data_for_instability_cluster.json') as f:
-        jira_data_sources = json.load(f)
 
-    print('START ALL')
-    for jira_name, jira_obj in jira_data_sources.items():
-        print("start: ", jira_name)
-        try:
-            #run_fit_setfit_bert.start(jira_name, 'Master/')
-            #run_test_setfit_bert.start(jira_name, 'Master/')
-            Classic_BERT.start(jira_name, 'Master/')
-            #create_feature_csv(jira_name)
-        except Exception as e:
-            print(e)
-
-    #run_train_tes_best_parameters.start('Apache')
-    #createFolders('Hyperledger')
-    """
     with open('Master/Source/jira_data_for_instability_cluster.json') as f:
         jira_data_sources = json.load(f)
 

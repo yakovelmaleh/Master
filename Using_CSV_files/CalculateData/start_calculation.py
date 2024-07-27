@@ -1,4 +1,5 @@
 import json
+import os
 import calculate_time_add_sprint
 import prepare_data_sql
 import add_body_clean_comments
@@ -11,14 +12,13 @@ import calculate_features_all_num_bad_issue
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.SetUpData as SetUpData
 
 
-def start(path, data_path, jiraName, jira_object):
+def start(path, data_path, jira_object, query):
     # Create the folders!!!!!!!!!!!!!
-    print(f"********************start {jiraName}********************")
     print(f"********************start SetUpData********************")
 
-    path_to_save_prefix = f'{path}\\{data_path}\\{jira_name}'
+    path_to_save_prefix = os.path.join(path, data_path, jira_name)
     path_to_save = f'{path_to_save_prefix}\\Downloaded_Data'
-    SetUpData.start(path_to_save, jiraName, jira_object)
+    SetUpData.start(path_to_save, jira_object, query)
 
     print(f"********************start calculate_time_add_sprint********************")
 
@@ -59,12 +59,14 @@ def start(path, data_path, jiraName, jira_object):
     calculate_ratio_nltk.start(path_to_load, path_to_save)
 
     print("********************start create_feature_lable_table********************")
-    create_feature_lable_table.start(jira_name)
+    path_to_load = path_to_save
+    path_to_save = f'{path_to_save_prefix}\\create_feature_lable_table'
+    create_feature_lable_table.start(path_to_load, path_to_save)
 
     print("********************start calculate_features_all_num_bad_issue********************")
-    calculate_features_all_num_bad_issue.start(jira_name)
-
-    print(f"********************finish {jiraName}********************")
+    path_to_load = path_to_save
+    path_to_save = f'{path_to_save_prefix}\\calculate_features_all_num_bad_issue'
+    calculate_features_all_num_bad_issue.start(path_to_load, path_to_save)
 
 
 if __name__ == '__main__':

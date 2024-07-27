@@ -1,63 +1,53 @@
 import json
-import mysql
+import os.path
+import pandas as pd
+import Using_CSV_files.Load_Data_From_Jira_To_CSV.Create_DB as Create_DB
 
-import Utils.DataBase as DB
+def add_relevant_column(feature_table: pd.DataFrame, column_name: str, ratio_column_name: str = None,
+                        value: str = None):
+    feature_table[column_name] = 0
+    if value is None:
+        feature_table_help = feature_table[['issue_key', 'created', 'creator']]
+        for index, row in feature_table.iterrows():
+            # Create the condition
+            condition = (
+                    (feature_table_help['issue_key'] == feature_table['issue_key']) &
+                    (feature_table_help['created'] > row['created']) &
+                    (feature_table_help['creator'] == row['creator'])
+            )
+            feature_table.at[index, column_name] = condition.sum()
+    else:
+        feature_table_help = feature_table[['issue_key', 'created', 'creator', value]]
+        feature_table[ratio_column_name] = 0
+        for index, row in feature_table.iterrows():
+            # Create the condition
+            condition = (
+                    (feature_table_help['issue_key'] == feature_table['issue_key']) &
+                    (feature_table_help['created'] > row['created']) &
+                    (feature_table_help['creator'] == row['creator']) &
+                    (feature_table_help[value] > 0)
+            )
 
+            feature_table.at[index, column_name] = condition.sum()
+            if row['num_issues_cretor_prev'] == 0:
+                feature_table.at[index, ratio_column_name] = 0
+            else:
+                feature_table.at[index, ratio_column_name] = \
+                    condition.sum() / row['num_issues_cretor_prev']
 
-def run_query(cursor, mysql_con, query):
-    try:
-        cursor.execute(query)
-        mysql_con.commit()
-    except mysql.connector.IntegrityError:
-        print("ERROR: Kumquat already exists!")
-    except Exception as e:
-        print(f"ERROR: query: {query}\n {e}")
-
-
-def addColumn(cursor, mysql_con, dbName, columnName, ratioName, value):
-    run_query(cursor, mysql_con,
-              f"""
-            create table {dbName}.help_cal_features_bad_text select issue_key, created as created2, creator as creator2,
-             (select count(*) from {dbName}.features_labels_table_os m
-              WHERE (f.creator = m.creator and f.project_key = m.project_key 
-                    and f.created > m.created and {value} > 0 )) as num_unusable_text
-              from {dbName}.features_labels_table_os f
-            """)
-
-    run_query(cursor, mysql_con,
-              f'Alter table {dbName}.features_labels_table_os add column {columnName} INT(11)')
-
-    run_query(cursor, mysql_con, f"""
-            UPDATE {dbName}.features_labels_table_os t1
-            INNER JOIN {dbName}.help_cal_features_bad_text t2 ON t1.issue_key = t2.issue_key 
-            SET t1.{columnName} = t2.num_unusable_text
-            """)
-    run_query(cursor, mysql_con, 'drop table help_cal_features_bad_text')
-
-    run_query(cursor, mysql_con,
-              f'Alter table {dbName}.features_labels_table_os add column {ratioName} float')
-
-    run_query(cursor, mysql_con, 'SET SQL_SAFE_UPDATES = 0')
-    run_query(cursor, mysql_con, f"""
-            UPDATE {dbName}.features_labels_table_os SET {ratioName}= 
-            CASE
-                WHEN {columnName} = 0 then 0  
-                ELSE {columnName}/num_issues_cretor_prev  
-            END
-            """)
+    return feature_table
 
 
+def add_relevant_columns_startWith(feature_table: pd.DataFrame, soffix: int):
+    return add_relevant_column(feature_table=feature_table,
+                               column_name=f'num_unusable_issues_cretor_prev_text_word_{soffix}',
+                               ratio_column_name=f'num_unusable_issues_cretor_prev_text_word_{soffix}_ratio',
+                               value=f'is_change_text_num_words_{soffix}')
 
-def start(jira_name):
-    dbName = f"{DB.DB_NAME}_{jira_name.lower()}"
-    mysql_con = DB.connectToSpecificDB(dbName)
-    cursor = mysql_con.cursor()
-    print(f'connected to DB: {DB.DB_NAME}_{jira_name.lower()}')
 
-    # Enforce UTF-8 for the connection
-    cursor.execute('SET NAMES utf8mb4')
-    cursor.execute("SET CHARACTER SET utf8mb4")
-    cursor.execute("SET character_set_connection=utf8mb4")
+def start(path_to_load, path_to_save):
+    Create_DB.create_DB(path_to_save)
+    feature_table = pd.read_csv(os.path.join(path_to_load, "feature_table.csv"))
 
     """
     ###################################################################
@@ -67,40 +57,13 @@ def start(jira_name):
     ###################################################################
     """
 
-    ####################### add table and then combine to feature table #######################
+    feature_table = add_relevant_column(feature_table=feature_table,
+                                        column_name='num_issues_cretor_prev')
 
-    run_query(cursor, mysql_con, f"""
-       create table {dbName}.help_cal_features select issue_key, created as created2, creator as creator2,
-        (select count(*) from {dbName}.features_labels_table_os m
-            WHERE (f.creator = m.creator and f.project_key = m.project_key 
-            and f.created > m.created)) as num_issues
-        from {dbName}.features_labels_table_os f
-        """)
+    for k_unstable in [1, 5, 10, 15, 20]:
+        feature_table = add_relevant_columns_startWith(feature_table, k_unstable)
 
-    run_query(cursor, mysql_con,
-              f'Alter table {dbName}.features_labels_table_os add column num_issues_cretor_prev INT')
-
-    run_query(cursor, mysql_con, f"""
-        UPDATE {dbName}.features_labels_table_os t1
-        INNER JOIN {dbName}.help_cal_features t2 ON t1.issue_key = t2.issue_key 
-        SET t1.num_issues_cretor_prev = t2.num_issues
-        """)
-    run_query(cursor, mysql_con, 'drop table help_cal_features')
-
-    addColumn(cursor, mysql_con, dbName, "num_unusable_issues_cretor_prev_text_word_1",
-              "num_unusable_issues_cretor_prev_text_word_1_ratio", "is_change_text_num_words_1")
-
-    addColumn(cursor, mysql_con, dbName, "num_unusable_issues_cretor_prev_text_word_5",
-              "num_unusable_issues_cretor_prev_text_word_5_ratio", "is_change_text_num_words_5")
-
-    addColumn(cursor, mysql_con, dbName, "num_unusable_issues_cretor_prev_text_word_10",
-              "num_unusable_issues_cretor_prev_text_word_10_ratio", "is_change_text_num_words_10")
-
-    addColumn(cursor, mysql_con, dbName, "num_unusable_issues_cretor_prev_text_word_15",
-              "num_unusable_issues_cretor_prev_text_word_15_ratio", "is_change_text_num_words_15")
-
-    addColumn(cursor, mysql_con, dbName, "num_unusable_issues_cretor_prev_text_word_20",
-              "num_unusable_issues_cretor_prev_text_word_20_ratio", "is_change_text_num_words_20")
+    feature_table.to_csv(os.path.join(path_to_save, "feature_table.csv"))
 
 
 if __name__ == '__main__':

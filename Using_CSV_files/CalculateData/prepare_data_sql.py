@@ -1,4 +1,6 @@
 import json
+import os.path
+
 import pandas as pd
 import math
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.Create_DB as Create_DB
@@ -329,12 +331,15 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
 def start(path_to_load, path_to_save):
     Create_DB.create_DB(path_to_save)
 
-    main_data = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.MainTableOS]}')
-    changes_summary = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.ChangesSummaryOS]}')
-    changes_description = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.ChangesDescriptionOS]}')
-    changes_story_points = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.ChangesStoryPointsOS]}')
-    changes_acceptance = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.ChangesCriteriaOS]}')
-    comments = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.CommentsOS]}')
+    main_data = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.MainTableOS]))
+    changes_summary = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.ChangesSummaryOS]))
+    changes_description = pd.read_csv(os.path.join(path_to_load,
+                                                   FilesActivity.filesNames[TableColumns.ChangesDescriptionOS]))
+    changes_story_points = pd.read_csv(os.path.join(path_to_load,
+                                                    FilesActivity.filesNames[TableColumns.ChangesStoryPointsOS]))
+    changes_acceptance = pd.read_csv(os.path.join(path_to_load,
+                                                  FilesActivity.filesNames[TableColumns.ChangesCriteriaOS]))
+    comments = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.CommentsOS]))
 
     mainDataObjectList: List[TableColumns.MainTableOS] = \
         [TableColumns.createMainObjectFromDataFrame(row) for index, row in main_data.iterrows()]

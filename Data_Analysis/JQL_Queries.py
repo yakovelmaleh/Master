@@ -25,7 +25,8 @@ def filter_byOptionalPR(project_name):
 
 
 resolution = {
-    'Apache': '("Auto Closed",Done,Fixed,Implemented)',
+    'Apache': '("Auto Closed",Delivered,Done,Duplicate,Fixed,"Feedback Received",Implemented,"Pending Closed",'
+              ' Resolved)',
     'Hyperledger': '(Done)',
     'IntelDAOS': '(Done,Fixed,Fixed-Verified)',
     'JFrog': '(Done)',
@@ -44,7 +45,9 @@ resolution = {
 }
 
 status = {
-    'Apache': '(Done,Closed,"Auto Closed",Completed, Resolved, Closed,Completed, Fixed)',
+    'Apache': '(Accepted,"Auto Closed","Changes Suggested",Closed,Completed,Continued,Done,FixedInBranch,'
+              ' Fixed,"Fix Released/Published",Passed,"Pull Request Available","Pull Request Merged",Ported,'
+              '"Patch Reviewed",Resolved,"Ready to Commit",Verified, Duplicate)',
     'Hyperledger': '(Closed,Done,Complete, Resolved,Complete)',
     'IntelDAOS': '(Approved,"Awaiting approval","Awaiting Verification"'
                  ',Closed,Completed,Closed, Implemented, Resolved,Completed)',
@@ -66,7 +69,8 @@ status = {
 
 
 changes = {
-    'Apache': 'labels in (pull-request-available,pull-requests-available,pull_request_available)',
+    'Apache': '(labels in (pull-request-available,pull-requests-available,pull_request_available) '
+              'OR comment ~ "https://github.com")',
     'Hyperledger': 'comment ~ "https://github.com"',
     'IntelDAOS': 'comment ~ "https://github.com"',
     'JFrog': 'comment ~ "https://github.com" ',
@@ -82,5 +86,3 @@ changes = {
     'Sonatype': 'comment ~ "https://github.com"',
     'Spring': 'comment ~ "https://github.com"',
 }
-
-

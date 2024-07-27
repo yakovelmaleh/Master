@@ -1,3 +1,5 @@
+"""
+
 import mysql.connector
 
 
@@ -18,5 +20,6 @@ def connectToSpecificDB(name):
 
     mysql_con.cursor().execute(f'USE {name}')
     return mysql_con
+"""
 
 

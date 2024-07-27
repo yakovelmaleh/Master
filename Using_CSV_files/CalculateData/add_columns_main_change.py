@@ -1,4 +1,5 @@
 import json
+import os.path
 from typing import List
 
 
@@ -14,11 +15,11 @@ def start(path_to_load, path_to_save):
     Create_DB.create_DB(path_to_save)
     logger = Logger.get_logger_with_path_and_name(path_to_save, "add_columns_main_change")
 
-    mainDf = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.MainTableOS]}')
+    mainDf = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.MainTableOS]))
     mainObjectList: List[TableColumns.MainTableOS] =\
         [TableColumns.createMainObjectFromDataFrame(row) for index, row in mainDf.iterrows()]
 
-    allChangesDf = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.AllChangesOS]}')
+    allChangesDf = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.AllChangesOS]))
     allChangeObjectList: List[TableColumns.AllChangesOS] =\
         [TableColumns.createAllChangesOSObjectFromDataFrame(row) for index, row in allChangesDf.iterrows()]
 

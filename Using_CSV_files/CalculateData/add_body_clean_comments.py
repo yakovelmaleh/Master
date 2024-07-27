@@ -1,3 +1,4 @@
+import os.path
 from typing import List
 import pandas as pd
 import re
@@ -12,7 +13,7 @@ def start(path_to_load, path_to_save):
     Create_DB.create_DB(path_to_save)
     logger = Logger.get_logger_with_path_and_name(path_to_save, "add_body_clean_comments")
 
-    comments_data_df = pd.read_csv(f'{path_to_load}\\{FilesActivity.filesNames[TableColumns.CommentsOS]}')
+    comments_data_df = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.CommentsOS]))
     comments_data: List[TableColumns.CommentsOS] =\
         [TableColumns.createCommentsOSObjectFromDataFrame(row) for index, row in comments_data_df.iterrows()]
 
