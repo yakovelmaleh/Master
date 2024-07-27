@@ -12,7 +12,7 @@ import Using_CSV_files.CalculateData.calculate_features_all_num_bad_issue
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.SetUpData as SetUpData
 
 
-def start(path, data_path, jira_object, query):
+def start(path, jira_name, data_path, jira_object, query):
     # Create the folders!!!!!!!!!!!!!
     print(f"********************start SetUpData********************")
 

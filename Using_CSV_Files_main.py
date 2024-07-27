@@ -22,6 +22,7 @@ def Simple_Data(master: str = None):
                  f' AND {JQL.filter_byOptionalPR(jira_name)}')
 
         start_calculation.start(path=path_to_Data_folder,
+                                jira_name=jira_name,
                                 data_path=current_dir,
                                 jira_object=jira_obj,
                                 query=query)
