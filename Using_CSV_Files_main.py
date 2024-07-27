@@ -5,8 +5,11 @@ import Using_CSV_files.CalculateData.start_calculation as start_calculation
 import Data_Analysis.JQL_Queries as JQL
 
 
-def Simple_Data():
-    path_to_Data_folder = os.path.join("Using_CSV_files", "Data")
+def Simple_Data(master: str = None):
+    if master is None:
+        path_to_Data_folder = os.path.join(os.getcwd(), "Using_CSV_files", "Data")
+    else:
+        path_to_Data_folder = os.path.join(os.getcwd(), master, "Using_CSV_files", "Data")
     current_dir = "Simple_Data"
     json_file_name = "jira_data_for_instability_cluster.json"
 
@@ -25,4 +28,5 @@ def Simple_Data():
 
 
 if __name__ == '__main__':
-    Simple_Data()
+    path_prefix = "Master"
+    Simple_Data(path_prefix)
