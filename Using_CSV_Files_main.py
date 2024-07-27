@@ -11,7 +11,7 @@ def Simple_Data(master: str = None):
     else:
         path_to_Data_folder = os.path.join(os.getcwd(), master, "Using_CSV_files", "Data")
     current_dir = "Simple_Data"
-    json_file_name = "jira_data_for_instability_cluster.json"
+    json_file_name = "jira_data_for_instability.json"
 
     with open(os.path.join(path_to_Data_folder, current_dir, json_file_name)) as f:
         jira_data_sources = json.load(f)
