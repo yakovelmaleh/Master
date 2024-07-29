@@ -67,7 +67,7 @@ status = {
                      '"In Development","In Review",Approved,Aligned,"Awaiting Deployment","Awaiting release",'
                      '"Awaiting Resubmission","Awaiting triage",Staged,Done,"Done / Mitigated / Accepted",Closed,'
                      'Completed,Verified,"Needs Verification","Mitigation / Monitoring")',
-    'MariaDB': ' ("Won\'t Fix","Release done","Published on Staging",Approved,"Selected for Development",Done,'
+    'MariaDB': ' ("Won\'t Fix","Release done",Approved,"Selected for Development",Done,'
                'Duplicate, Fixed,CANCELED,Cancelled,Closed,Confirmed,Verified)',
     'Mojang': ' ("QA Review","Waiting for approval",Escalated,Resolved,"Awaiting Response",Done,Closed)',
     'MongoDB': ' ("QA approved","Waiting for Approval","Waiting for Approver","Waiting For Deployment",'
