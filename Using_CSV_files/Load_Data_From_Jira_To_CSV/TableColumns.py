@@ -23,9 +23,9 @@ def not_Null(element):
 
 
 class Changes:
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
+    def __init__(self, issue_key: str, project_key: str, different_time_from_creat: float, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
-                 different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
+                 is_first_setup: int = None, chronological_number: int = None):
         self.issue_key = not_Null(issue_key)
         self.project_key = not_Null(project_key)
         self.author = author
@@ -39,9 +39,10 @@ class Changes:
 
 
 class ChangesWithWords(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
+    def __init__(self, issue_key: str, project_key: str, different_time_from_creat: float,
+                 author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
-                 different_time_from_creat: float = None, is_first_setup: int = None, is_diff_more_than_ten: int = None,
+                 is_first_setup: int = None, is_diff_more_than_ten: int = None,
                  chronological_number: int = None, ratio_different_char_next: float = None,
                  ratio_different_word_next: float = None,
                  num_different_char_minus_next: int = None, num_different_char_plus_next: int = None,
@@ -234,9 +235,10 @@ create table which is saving all the changes in sprint
 
 
 class ChangesSprintOS(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
+    def __init__(self, issue_key: str, project_key: str, different_time_from_creat: float,
+                 author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
-                 different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
+                 is_first_setup: int = None, chronological_number: int = None):
         super().__init__(
             issue_key=not_Null(issue_key),
             project_key=not_Null(project_key),
@@ -274,9 +276,9 @@ create table which is saving all the changes in story point field
 
 
 class ChangesStoryPointsOS(Changes):
-    def __init__(self, issue_key: str, project_key: str, author: str = None, created: pd.Timestamp = None,
+    def __init__(self, issue_key: str, project_key: str, different_time_from_creat: float, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
-                 different_time_from_creat: float = None, is_first_setup: int = None, chronological_number: int = None):
+                 is_first_setup: int = None, chronological_number: int = None):
         super().__init__(
             issue_key=not_Null(issue_key),
             project_key=not_Null(project_key),

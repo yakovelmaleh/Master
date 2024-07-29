@@ -826,7 +826,6 @@ def get_sprint_info(auth_jira, issue, name_map):
     """
     project_key = issue.fields.project.key
     issue_key = issue.key
-    logger.debug(f"Start to look for sprints for issue: {issue.key}")
 
     sprint = getattr(issue.fields, name_map['Sprint'])
     sprints: List[TableColumns.SprintsOS] = []
@@ -989,8 +988,6 @@ def startSetUp(jira_obj, query_base):
 
             flag = False
             """
-            issues = auth_jira.search_issues(query)
-            ""
             for issue in issues:
                 try:
                     time.sleep(1)
@@ -1098,7 +1095,6 @@ def startSetUp(jira_obj, query_base):
                         num_labels=num_labels,
                         num_components=num_components)
 
-                    FilesActivity.insert_element(path, TableColumns.MainTableOS, mainTableObject, logger)
                     try:
                         FilesActivity.insert_element(path, TableColumns.MainTableOS, mainTableObject, logger)
                     except Exception as e:
@@ -1161,7 +1157,7 @@ if __name__ == '__main__':
         jira_data_sources = json.load(f)
 
     jiraName = "Apache"
-    ## start(path_to_save, jiraName, jira_data_sources[jiraName])
+    startSetUp(jira_data_sources[jiraName], "")
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--jiraName', help='Jira repo Name')
