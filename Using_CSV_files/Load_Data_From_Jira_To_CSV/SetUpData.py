@@ -971,8 +971,11 @@ def startSetUp(jira_obj, query_base):
                         issues = auth_jira.search_issues(query, start, size, expand='changelog')
                         changelogFlag = True
                     except:
-                        issues = auth_jira.search_issues(query, start, size)
-                        changelogFlag = False
+                        try:
+                            issues = auth_jira.search_issues(query, start, size)
+                            changelogFlag = False
+                        except:
+                            issues = []
             print(f"query: {query} \n From {start} \n include changelog: {changelogFlag}")
 
             if len(issues) == 0:
