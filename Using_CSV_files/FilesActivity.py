@@ -49,28 +49,19 @@ primaryKeys = {
 }
 
 
-def get_File(path, className):
-    return pd.read_csv(os.path.join(path, filesNames[className]), index_col=primaryKeys[className])
-
-
-# def get element
-# def get elements
-
 def insert_element(path, className, element, logger) -> bool:
-    logger.debug(f"Insert to {filesNames[className]} new element {element}")
+    # logger.debug(f"Insert to {filesNames[className]} new element {element}")
     if not isinstance(element, className):
-        logger.error(f"Insert Error: can not insert an element {element} not from type {className}")
+        # logger.error(f"Insert Error: can not insert an element {element} not from type {className}")
         return False
     else:
-        new_row = pd.DataFrame([element.__dict__])
-        new_row.set_index(primaryKeys[className], inplace=True)
-        new_row.to_csv(os.path.join(path, filesNames[className]), mode='a', index=True, header=False)
-        logger.info(f"Element {element} in {filesNames[className]}")
+        new_row = pd.DataFrame([element.__dict__], columns=TableColumns.get_properties(className))
+        new_row.to_csv(os.path.join(path, filesNames[className]), mode='a', index=False, header=False)
         return True
 
 
 def insert_elements(path, className, elements: list, logger) -> int:
-    logger.debug(f"Insert to {filesNames[className]} new {len(elements)} elements")
+    # logger.debug(f"Insert to {filesNames[className]} new {len(elements)} elements")
     secures_insertions = 0
     for element in elements:
         if insert_element(path, className, element, logger):

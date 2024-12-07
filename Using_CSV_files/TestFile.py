@@ -7,7 +7,7 @@ import inspect
 import json
 import fastavro
 
-
+"""
 def convert_value_by_table(classType, property, value):
     date_format = "%Y-%m-%d %H:%M:%S"
     propertyType = classType.__init__.__annotations__.get(property, None)
@@ -48,6 +48,7 @@ if __name__ == '__main__':
         # Iterate over records and print each one in a readable format
         for record in reader:
             print(json.dumps(record, indent=1))
+"""
 
     """
     path = 'C:\\Users\\t-yelmaleh\\OneDrive - Microsoft\\Desktop\\Yakov\\Master\\Master\\Using_CSV_files'
