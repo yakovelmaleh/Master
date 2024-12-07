@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 from typing import Optional
 from datetime import datetime
 from typing import get_origin, get_args, Union
@@ -1232,13 +1233,47 @@ def convert_value_by_table(classType, propertyName, value):
         return None
 
     if get_origin(propertyType) is Union:
-        if get_args(propertyType)[0] is datetime:
-            return pd.Timestamp(datetime.strptime(value, date_format))
-
-        return get_args(propertyType)[0](value)
+        return get_value(get_args(propertyType)[0], value)
 
     elif value is None or pd.isna(value):
-        raise Exception(f" {classType} class has {propertyName} which should be from  {defaultType} type!!!")
+        raise Exception(f" {classType} class has {propertyName} which should be from {propertyType} "
+                        f"or default type: {defaultType}! and the type of the value is None")
 
     else:
+        return get_value(propertyType, value)
+
+
+def get_value(propertyType, value):
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    if propertyType is int:
+        return int(value)
+    elif propertyType is bool:
+        return bool(value)
+    elif propertyType is datetime or propertyType is pd.Timestamp:
+        return parse_date(value, date_format)
+    else:
         return propertyType(value)
+
+
+def parse_date(value, date_format):
+    """
+    Parses a value into a datetime, supporting both standard formats and custom 'YYYY-M' formats.
+    """
+    if isinstance(value, pd.Timestamp):
+        return value
+
+    if isinstance(value, datetime):
+        return pd.Timestamp(value)  # Already a datetime object
+
+    # Handle standard date formats
+    try:
+        return pd.Timestamp(datetime.strptime(value, date_format))
+
+    except:
+        try:
+            year, month = map(int, value.split()[-1].split("-"))
+            return pd.Timestamp(datetime(year, month, 1))
+
+        except (ValueError, TypeError):
+            raise ValueError(f"Unable to parse date: {value}")

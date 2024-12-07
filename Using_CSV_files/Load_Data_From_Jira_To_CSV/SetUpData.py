@@ -311,13 +311,13 @@ def get_changes_issue(issue_change, issue_key, project_key,
                         is_first_setup=is_first_setup,
                         chronological_number=count_changes_sprint))
 
+    FilesActivity.insert_elements(path, TableColumns.ChangesSprintOS, lst_changes_sprints, logger)
+
     FilesActivity.insert_elements(path, TableColumns.AllChangesOS, lst_all_changes, logger)
     FilesActivity.insert_elements(path, TableColumns.ChangesSummaryOS, lst_changes_summary, logger)
     FilesActivity.insert_elements(path, TableColumns.ChangesDescriptionOS, lst_changes_description, logger)
     FilesActivity.insert_elements(path, TableColumns.ChangesCriteriaOS, lst_changes_acceptance_criteria, logger)
     FilesActivity.insert_elements(path, TableColumns.ChangesStoryPointsOS, lst_changes_story_points, logger)
-    FilesActivity.insert_elements(path, TableColumns.ChangesSprintOS, lst_changes_sprints, logger)
-
     return num_changes, num_changes_summary, num_changes_description, num_changes_acceptance_criteria, \
         num_changes_story_point, num_changes_sprint
 
@@ -440,7 +440,8 @@ def get_image(issue):
             for file in image_options:
                 if file.mimeType.find('image') != -1:
                     images += 1
-            is_image = images > 0
+            is_image = int(images > 0)
+
         except:
             images = None
             is_image = 0
@@ -463,7 +464,7 @@ def get_attachment(issue):
                     project_key=issue.fields.project.key,
                     attachment_id=int(attachment.id),
                     file_type=attachment.mimeType,
-                    creator=attachment.author.displayName,
+                    creator=get_default_string_not_none(attachment.author.displayName),
                     created=create_date_from_string(attachment.created)))
 
             FilesActivity.insert_elements(path, TableColumns.AttachmentOS, upload_queries, logger)
@@ -1009,10 +1010,10 @@ def startSetUp(jira_obj, query_base):
                     created = create_date_from_string(issue.fields.created)
                     summary = issue.fields.summary
                     description = issue.fields.description
-                    assignee = str(issue.fields.assignee)
-                    reporter = str(issue.fields.reporter)
+                    assignee = get_default_string_not_none(issue.fields.assignee)
+                    reporter = get_default_string_not_none(issue.fields.reporter)
 
-                    creator = str(issue.fields.creator)
+                    creator = get_default_string_not_none(issue.fields.creator)
 
                     num_sprints = get_sprint_info(auth_jira, issue, name_map)
 
@@ -1107,6 +1108,12 @@ def startSetUp(jira_obj, query_base):
                     print(e)
 
 
+def get_default_string_not_none(name):
+    if name is None:
+        return ""
+    return str(name)
+
+
 def getNumberOfWorkLog(issue, auth_jira):
     try:
         return len(auth_jira.worklogs(issue))
@@ -1152,7 +1159,57 @@ def start(path_to_save, jira_object, query):
     startSetUp(jira_object, query)
 
 
+def test_function():
+    auth_jira = JIRA("https://daosio.atlassian.net")
+    all_fields = auth_jira.fields()
+    name_map = {field['name']: field['id'] for field in all_fields}
+
+    issues = auth_jira.search_issues('key = "CART-861"', expand='changelog')
+    issue = issues[0]
+
+    global path
+    path = r'C:\Users\t-yelmaleh\OneDrive - Microsoft\Desktop\Yakov\Master\Master\Using_CSV_files\test'
+    createDB(path)
+
+    issue_key = issue.key
+    project_key = issue.fields.project.key
+    created = create_date_from_string(issue.fields.created)
+    summary = issue.fields.summary
+    description = issue.fields.description
+    acceptance_criteria = get_issue_acceptance_cri(issue, name_map)
+
+    results = get_changes_issue(
+        issue_change=issue,
+        issue_key=issue_key,
+        project_key=project_key,
+        time_created_issue=created,
+        summary_last=summary,
+        description_last=description,
+        acceptance_last=acceptance_criteria,
+        auth_jira=auth_jira
+    )
+    """
+    changes_sprint = pd.read_csv(os.path.join(path, 'changes_sprint_os.csv'))
+    changes_sprint_object_list: List[TableColumns.ChangesSprintOS] = \
+        [TableColumns.createChangesSprintOSObjectFromDataFrame(row) for index, row in changes_sprint.iterrows()]
+    a = 5
+    """
+
+
+def test_function2():
+    global path
+    path = r'C:\Users\t-yelmaleh\OneDrive - Microsoft\Desktop\Yakov\Master\Master\Using_CSV_files\test'
+
+    changes_sprint = pd.read_csv(os.path.join(path, 'changes_sprint_os.csv'))
+    changes_sprint_object_list: List[TableColumns.ChangesSprintOS] = \
+        [TableColumns.createChangesSprintOSObjectFromDataFrame(row) for index, row in changes_sprint.iterrows()]
+
+    a = 5
+
+
 if __name__ == '__main__':
+    test_function()
+
     path_to_save = os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data", "Apache")
 
     with open(os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data",
