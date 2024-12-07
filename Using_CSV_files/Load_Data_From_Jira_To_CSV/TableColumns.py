@@ -1225,7 +1225,6 @@ def createVersionsOSObjectFromDataFrame(df: pd.Series) -> VersionsOS:
 
 
 def convert_value_by_table(classType, propertyName, value):
-    date_format = "%Y-%m-%d %H:%M:%S"
     propertyType = classType.__init__.__annotations__.get(propertyName, None)
     defaultType = inspect.signature(classType.__init__).parameters[propertyName].default
 
@@ -1244,22 +1243,22 @@ def convert_value_by_table(classType, propertyName, value):
 
 
 def get_value(propertyType, value):
-    date_format = "%Y-%m-%d %H:%M:%S"
-
     if propertyType is int:
         return int(value)
     elif propertyType is bool:
         return bool(value)
     elif propertyType is datetime or propertyType is pd.Timestamp:
-        return parse_date(value, date_format)
+        return parse_date(value)
     else:
         return propertyType(value)
 
 
-def parse_date(value, date_format):
+def parse_date(value):
     """
     Parses a value into a datetime, supporting both standard formats and custom 'YYYY-M' formats.
     """
+    date_formats = ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m", "%Y-%m-%d"]
+
     if isinstance(value, pd.Timestamp):
         return value
 
@@ -1267,13 +1266,15 @@ def parse_date(value, date_format):
         return pd.Timestamp(value)  # Already a datetime object
 
     # Handle standard date formats
-    try:
-        return pd.Timestamp(datetime.strptime(value, date_format))
-
-    except:
+    for fmt in date_formats:
         try:
-            year, month = map(int, value.split()[-1].split("-"))
-            return pd.Timestamp(datetime(year, month, 1))
+            return pd.Timestamp(datetime.strptime(value, fmt))
+        except ValueError:
+            continue
 
-        except (ValueError, TypeError):
-            raise ValueError(f"Unable to parse date: {value}")
+    try:
+        year, month = map(int, value.split()[-1].split("-"))
+        return pd.Timestamp(datetime(year, month, 1))
+
+    except (ValueError, TypeError):
+        raise ValueError(f"Unable to parse date: {value}")

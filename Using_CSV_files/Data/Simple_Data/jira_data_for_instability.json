@@ -23,12 +23,6 @@
     "name": "JiraEcosystem",
     "rough_issue_count": "42,000"
   },
-  "MariaDB": {
-    "company_url": "https://mariadb.org/",
-    "jira_url": "https://jira.mariadb.org",
-    "name": "MariaDB",
-    "rough_issue_count": "30,000"
-  },
   "MongoDB": {
     "company_url": "https://mongodb.com",
     "jira_url": "https://jira.mongodb.org",
