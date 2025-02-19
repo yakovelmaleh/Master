@@ -1013,7 +1013,7 @@ def startSetUp(jira_obj, query_base):
                     assignee = get_default_string_not_none(issue.fields.assignee)
                     reporter = get_default_string_not_none(issue.fields.reporter)
 
-                    creator = get_default_string_not_none(issue.fields.creator)
+                    creator = get_default_string_not_none_with_defualt_value(issue.fields.creator, "default_creator")
 
                     num_sprints = get_sprint_info(auth_jira, issue, name_map)
 
@@ -1108,6 +1108,12 @@ def startSetUp(jira_obj, query_base):
                     print(e)
 
 
+def get_default_string_not_none_with_defualt_value(name, default_value):
+    if name is None:
+        return default_value
+    return str(name)
+
+
 def get_default_string_not_none(name):
     if name is None:
         return ""
@@ -1160,11 +1166,11 @@ def start(path_to_save, jira_object, query):
 
 
 def test_function():
-    auth_jira = JIRA("https://daosio.atlassian.net")
+    auth_jira = JIRA("https://jira.mongodb.org")
     all_fields = auth_jira.fields()
     name_map = {field['name']: field['id'] for field in all_fields}
 
-    issues = auth_jira.search_issues('key = "CART-861"', expand='changelog')
+    issues = auth_jira.search_issues('key = "SERVER-54296"', expand='changelog')
     issue = issues[0]
 
     global path
@@ -1208,30 +1214,10 @@ def test_function2():
 
 
 if __name__ == '__main__':
-    test_function()
+    auth_jira = JIRA("https://jira.mongodb.org")
+    all_fields = auth_jira.fields()
+    name_map = {field['name']: field['id'] for field in all_fields}
 
-    path_to_save = os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data", "Apache")
+    issues = auth_jira.search_issues('key = "SERVER-54296"', expand='changelog')
 
-    with open(os.path.join(os.getcwd(), "Using_CSV_files", "Data", "Simple_Data",
-                           "jira_data_for_instability.json")) as f:
-        jira_data_sources = json.load(f)
-
-    jiraName = "Apache"
-    startSetUp(jira_data_sources[jiraName], "")
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--jiraName', help='Jira repo Name')
-    parser.add_argument('--path', type=str, help='path')
-    args = parser.parse_args()
-
-    jiraName = args.jiraName
-    path = f"{args.path}\\{jiraName}\\Downloaded_Data"
-
-    logger = Logger.get_logger_with_path_and_name(jiraName, path)
-    createDB(path)
-
-    with open(f"{args.path}\\{jiraName}\\jira_data_for_instability.json") as f:
-        jira_data_sources = json.load(f)
-
-    startSetUp(jiraName, jira_data_sources[jiraName])
-    """
+    issues[0]

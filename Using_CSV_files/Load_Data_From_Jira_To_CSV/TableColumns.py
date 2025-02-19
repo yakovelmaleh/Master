@@ -1178,8 +1178,8 @@ create table which is saving the sprints info
 
 
 class SprintsOS:
-    def __init__(self, issue_key: str, project_key: str, sprint_name: str, start_date: pd.Timestamp = None,
-                 end_date: pd.Timestamp = None, is_over: Optional[int] = None,
+    def __init__(self, issue_key: str, project_key: str, sprint_name: Optional[str] = None,
+                 start_date: pd.Timestamp = None, end_date: pd.Timestamp = None, is_over: Optional[int] = None,
                  chronological_number: Optional[int] = None):
         self.issue_key = not_Null(issue_key)
         self.project_key = not_Null(project_key)
@@ -1270,11 +1270,23 @@ def parse_date(value):
         try:
             return pd.Timestamp(datetime.strptime(value, fmt))
         except ValueError:
-            continue
+            try:
+                parsed_date = pd.to_datetime(value, format=fmt, errors="coerce")
+                if not pd.isna(parsed_date):
+                    return parsed_date
+            except ValueError:
+                continue
 
     try:
         year, month = map(int, value.split()[-1].split("-"))
         return pd.Timestamp(datetime(year, month, 1))
 
     except (ValueError, TypeError):
-        raise ValueError(f"Unable to parse date: {value}")
+        pass
+
+    raise ValueError(f"Unable to parse date: {value}")
+
+
+if __name__ == '__main__':
+    value = parse_date('2021-11-09 17:48:54.002')
+
