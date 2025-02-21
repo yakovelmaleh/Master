@@ -3,7 +3,6 @@ import pandas as pd
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.TableColumns as TableColumns
 import argparse
 import Using_CSV_files.FilesActivity as FilesActivity
-from datetime import datetime
 
 
 def create_DB(path, production=True):
