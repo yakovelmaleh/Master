@@ -27,7 +27,7 @@ def start(path_to_load, path_to_save):
 
         comment.body = clean_body
 
-        FilesActivity.insert_element(path_to_save, comment, TableColumns.CommentsOS, logger)
+        FilesActivity.insert_element(path_to_save, TableColumns.CommentsOS, comment, logger)
         logger.debug(f"Insert {comment} with clean body")
 
         if index % 100 == 0:

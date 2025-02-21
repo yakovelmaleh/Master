@@ -3,6 +3,7 @@ import pandas as pd
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.TableColumns as TableColumns
 import argparse
 import Using_CSV_files.FilesActivity as FilesActivity
+from datetime import datetime
 
 
 def create_DB(path, production=True):
@@ -12,7 +13,8 @@ def create_DB(path, production=True):
         raise Exception(f"path contains Using_CSV_files folder: {path}")
 
     if production and os.path.exists(path):
-        raise Exception("DB name already exist!")
+        print(f"DB creator: Path {path} already exist")
+
     if not os.path.exists(path):
         os.makedirs(path)
 
