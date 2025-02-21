@@ -12,7 +12,8 @@ def create_DB(path, production=True):
         raise Exception(f"path contains Using_CSV_files folder: {path}")
 
     if production and os.path.exists(path):
-        raise Exception("DB name already exist!")
+        print(f"DB creator: Path {path} already exist")
+
     if not os.path.exists(path):
         os.makedirs(path)
 
