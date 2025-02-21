@@ -23,6 +23,12 @@ def not_Null(element):
     return element
 
 
+def default_string(element):
+    if element is None or pd.isna(element) or element == "":
+        return "default string"
+    return element
+
+
 class Changes:
     def __init__(self, issue_key: str, project_key: str, different_time_from_creat: float, author: str = None, created: pd.Timestamp = None,
                  from_string: str = None, to_string: str = None, if_change_first_hour: int = None,
@@ -1183,7 +1189,7 @@ class SprintsOS:
                  chronological_number: Optional[int] = None):
         self.issue_key = not_Null(issue_key)
         self.project_key = not_Null(project_key)
-        self.sprint_name = not_Null(sprint_name)
+        self.sprint_name = default_string(sprint_name)
         self.start_date = start_date
         self.end_date = end_date
         self.is_over = is_over
