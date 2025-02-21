@@ -61,8 +61,8 @@ def get_information_from_main(df: pd.DataFrame) -> pd.DataFrame:
     df['is_change_text_num_words_20'] = get_int_instability_by_threshold(df, 20)
 
     df['is_change_text_sp_sprint'] = (
-            df['is_change_text_num_words_5'] > 0 &
-            (df['num_changes_story_points_new_sprint'] > 0 | df['num_sprints'] > 1)
+            (df['is_change_text_num_words_5'] > 0) &
+            ((df['num_changes_story_points_new_sprint'] > 0) | (df['num_sprints'] > 1))
     ).astype(int)
 
     df['time_until_add_to_sprint'] = (df['time_add_to_sprint'] - df['created']).total_seconds() / 60
