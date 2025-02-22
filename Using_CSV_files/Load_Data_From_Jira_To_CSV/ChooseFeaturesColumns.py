@@ -65,6 +65,9 @@ def get_information_from_main(df: pd.DataFrame) -> pd.DataFrame:
             ((df['num_changes_story_points_new_sprint'] > 0) | (df['num_sprints'] > 1))
     ).astype(int)
 
+    df['time_add_to_sprint'] = pd.to_datetime(df['time_add_to_sprint'])
+    df['created'] = pd.to_datetime(df['created'])
+
     df['time_until_add_to_sprint'] = (df['time_add_to_sprint'] - df['created']).dt.total_seconds() / 60
 
     main_list = ['issue_key', 'issue_id', 'project_key', 'created', 'creator', 'reporter', 'assignee', 'priority',
