@@ -35,4 +35,3 @@ def count_code_smells() -> dict:
 
     return {name: code_smell_counts.get(name.lower(), 0) for name in code_smells_names}
 
-
