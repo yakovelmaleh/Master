@@ -1006,7 +1006,7 @@ def startSetUp(jira_obj, query_base):
                     project_key = issue.fields.project.key
                     updated = create_date_from_string(issue.fields.updated)
                     resolution_date = create_date_from_string(issue.fields.resolutiondate) \
-                        if issue.fields.resolutiondate is not None else None
+                        if issue.fields.resolutiondate is not None else updated
                     created = create_date_from_string(issue.fields.created)
                     summary = issue.fields.summary
                     description = issue.fields.description

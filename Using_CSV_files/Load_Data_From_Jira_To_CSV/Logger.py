@@ -23,6 +23,8 @@ def get_logger_with_path_and_name(path, name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
+    logger.handlers = []
+
     if not logger.handlers:  # Avoid duplicate handlers on repeated calls
 
         file_handler = logging.FileHandler(f"{path}/{name}.log", mode='a')
