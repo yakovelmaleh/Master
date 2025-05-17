@@ -14,7 +14,7 @@ def getChangesFromComments(comments_ObjectList: List[TableColumns.CommentsOS], i
                            time_add_to_sprint_from_filtered_main):
     filtered_list_by_IK = list(filter(lambda comment: comment.issue_key == issue_name, comments_ObjectList))
 
-    filtered_list_by_IK_and_created =\
+    filtered_list_by_IK_and_created = \
         list(filter(lambda comment: comment.created > time_add_to_sprint_from_filtered_main,
                     filtered_list_by_IK))
 
@@ -84,7 +84,7 @@ def getChangesWithWords(change_ObjectList: List[TableColumns.ChangesWithWords], 
     # get the first summary change delta after enter to the first sprint
     min_val_of_different_time_from_creat_change_summary = \
         min(filter_change_summary_based_IK_and_created,
-            key=lambda x: x.different_time_from_creat).different_time_from_creat
+            key=lambda x: x.different_time_from_creat).different_time_from_creat if filter_change_summary_based_IK_and_created else 0
 
     # get the first summary change after enter to the first sprint (should be list in length of 1)
     change_sum_issue_sprint: List[TableColumns.ChangesWithWords] = list(filter(
@@ -130,7 +130,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             # summary
             # get the information of summary changes after the first sprint
             (original_summary_sprint, num_changes_summary_new_sprint, num_different_word_minus_last_summary_new_sprint,
-             num_different_word_plus_last_summary_new_sprint) =\
+             num_different_word_plus_last_summary_new_sprint) = \
                 getChangesWithWords(
                     change_ObjectList=change_summaryObjectList,
                     defaultValue=main_tableObject.summary,
@@ -139,7 +139,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
 
             # get the information of summary changes
             (original_summary, num_changes_summary_new, num_different_word_minus_last_summary_new,
-             num_different_word_plus_last_summary_new) =\
+             num_different_word_plus_last_summary_new) = \
                 getChangesWithWords(
                     change_ObjectList=change_summaryObjectList,
                     defaultValue=main_tableObject.summary,
@@ -149,7 +149,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             # get the information of description changes after the first sprint
             (original_description_sprint, num_changes_description_new_sprint,
              num_different_word_minus_last_description_new_sprint,
-             num_different_word_plus_last_description_new_sprint) =\
+             num_different_word_plus_last_description_new_sprint) = \
                 getChangesWithWords(
                     change_ObjectList=change_descriptionObjectList,
                     defaultValue=main_tableObject.description,
@@ -158,7 +158,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
 
             # get the information of description changes
             (original_description, num_changes_description_new, num_different_word_minus_last_description_new,
-             num_different_word_plus_last_description_new) =\
+             num_different_word_plus_last_description_new) = \
                 getChangesWithWords(change_ObjectList=change_descriptionObjectList,
                                     defaultValue=main_tableObject.description,
                                     issue_name=issue_name)
@@ -167,7 +167,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             # get the information of acceptance changes after the first sprint
             (original_acceptance_sprint, num_changes_acceptance_new_sprint,
              num_different_word_minus_last_acceptance_criteria_new_sprint,
-             num_different_word_plus_last_acceptance_criteria_new_sprint) =\
+             num_different_word_plus_last_acceptance_criteria_new_sprint) = \
                 getChangesWithWords(
                     change_ObjectList=changes_acceptanceObjectList,
                     defaultValue=main_tableObject.acceptance_criteria,
@@ -183,7 +183,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
 
             # story point
             # get the information of story points changes after the first sprint
-            (original_story_points_sprint, num_changes_story_points_new_sprint) =\
+            (original_story_points_sprint, num_changes_story_points_new_sprint) = \
                 getChangesWithoutWords(
                     change_ObjectList=change_storyPointsObjectList,
                     defaultValue=main_tableObject.story_point,
@@ -191,7 +191,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
                     time_add_to_sprint_from_filtered_main=time_add_to_sprint_from_filtered_main)
 
             # get the information of acceptance changes
-            (original_story_points, num_changes_story_points_new) =\
+            (original_story_points, num_changes_story_points_new) = \
                 getChangesWithoutWords(
                     change_ObjectList=change_storyPointsObjectList,
                     defaultValue=main_tableObject.story_point,
@@ -213,7 +213,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
                 original_story_points = None
 
             # comments
-            num_comments_after_new_sprint, num_comments_before_new_sprint =\
+            num_comments_after_new_sprint, num_comments_before_new_sprint = \
                 getChangesFromComments(
                     comments_ObjectList=comment_objectList,
                     issue_name=issue_name,
@@ -229,7 +229,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
                  num_different_word_minus_last_acceptance_criteria_new +
                  num_different_word_plus_last_acceptance_criteria_new)
 
-            num_changes_summary_description_acceptance_sprint =\
+            num_changes_summary_description_acceptance_sprint = \
                 (num_changes_summary_new_sprint + num_changes_description_new_sprint +
                  num_changes_acceptance_new_sprint)
 
@@ -265,9 +265,9 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             main_tableObject.num_changes_story_points_new_sprint = num_changes_story_points_new_sprint
             main_tableObject.original_acceptance_criteria_sprint = original_acceptance_sprint
             main_tableObject.num_changes_acceptance_criteria_new_sprint = num_changes_acceptance_new_sprint
-            main_tableObject.num_changes_summary_description_acceptance_sprint =\
+            main_tableObject.num_changes_summary_description_acceptance_sprint = \
                 num_changes_summary_description_acceptance_sprint
-            main_tableObject.has_changes_summary_description_acceptance_sprint =\
+            main_tableObject.has_changes_summary_description_acceptance_sprint = \
                 int(num_changes_summary_description_acceptance_sprint > 0)
 
             main_tableObject.has_change_summary_sprint = is_changes_summary_sprint
@@ -276,13 +276,13 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             main_tableObject.has_change_acceptance_criteria_sprint = is_changes_acceptance_sprint
             main_tableObject.different_words_minus_summary_sprint = num_different_word_minus_last_summary_new_sprint
             main_tableObject.different_words_plus_summary_sprint = num_different_word_plus_last_summary_new_sprint
-            main_tableObject.different_words_minus_description_sprint =\
+            main_tableObject.different_words_minus_description_sprint = \
                 num_different_word_minus_last_description_new_sprint
-            main_tableObject.different_words_plus_description_sprint =\
+            main_tableObject.different_words_plus_description_sprint = \
                 num_different_word_plus_last_description_new_sprint
-            main_tableObject.different_words_minus_acceptance_criteria_sprint =\
+            main_tableObject.different_words_minus_acceptance_criteria_sprint = \
                 num_different_word_minus_last_acceptance_criteria_new_sprint
-            main_tableObject.different_words_plus_acceptance_criteria_sprint =\
+            main_tableObject.different_words_plus_acceptance_criteria_sprint = \
                 num_different_word_plus_last_acceptance_criteria_new_sprint
             main_tableObject.num_different_words_all_text_sprint = num_different_words_all_text_sprint
 
@@ -295,7 +295,7 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             main_tableObject.original_acceptance_criteria = original_acceptance
             main_tableObject.num_changes_acceptance_criteria_new = num_changes_acceptance_new
             main_tableObject.num_changes_summary_description_acceptance = num_changes_summary_description_acceptance
-            main_tableObject.has_changes_summary_description_acceptance =\
+            main_tableObject.has_changes_summary_description_acceptance = \
                 int(num_changes_summary_description_acceptance > 0)
             main_tableObject.has_change_summary = is_changes_summary
             main_tableObject.has_change_description = is_changes_description
@@ -305,9 +305,9 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
             main_tableObject.different_words_plus_summary = num_different_word_plus_last_summary_new
             main_tableObject.different_words_minus_description = num_different_word_minus_last_description_new
             main_tableObject.different_words_plus_description = num_different_word_plus_last_description_new
-            main_tableObject.different_words_minus_acceptance_criteria =\
+            main_tableObject.different_words_minus_acceptance_criteria = \
                 num_different_word_minus_last_acceptance_criteria_new
-            main_tableObject.different_words_plus_acceptance_criteria =\
+            main_tableObject.different_words_plus_acceptance_criteria = \
                 num_different_word_plus_last_acceptance_criteria_new
             main_tableObject.num_different_words_all_text = num_different_words_all_text
             main_tableObject.num_comments_before_sprint = num_comments_before_new_sprint
@@ -347,17 +347,18 @@ def start(path_to_load, path_to_save):
     change_summaryObjectList: List[TableColumns.ChangesSummaryOS] = \
         [TableColumns.createChangesSummaryOSObjectFromDataFrame(row) for index, row in changes_summary.iterrows()]
 
-    change_descriptionObjectList: List[TableColumns.ChangesDescriptionOS] =\
-        [TableColumns.createChangesDescriptionOSObjectFromDataFrame(row) for index, row in changes_description.iterrows()]
+    change_descriptionObjectList: List[TableColumns.ChangesDescriptionOS] = \
+        [TableColumns.createChangesDescriptionOSObjectFromDataFrame(row) for index, row in
+         changes_description.iterrows()]
 
-    changes_acceptanceObjectList: List[TableColumns.ChangesCriteriaOS] =\
+    changes_acceptanceObjectList: List[TableColumns.ChangesCriteriaOS] = \
         [TableColumns.createCChangesCriteriaOSObjectFromDataFrame(row) for index, row in changes_acceptance.iterrows()]
 
-    change_storyPointsObjectList: List[TableColumns.ChangesStoryPointsOS] =\
+    change_storyPointsObjectList: List[TableColumns.ChangesStoryPointsOS] = \
         [TableColumns.createChangesStoryPointsOSObjectFromDataFrame(row) for
          index, row in changes_story_points.iterrows()]
 
-    comment_objectList: List[TableColumns.CommentsOS] =\
+    comment_objectList: List[TableColumns.CommentsOS] = \
         [TableColumns.createCommentsOSObjectFromDataFrame(row) for index, row in comments.iterrows()]
 
     add_cal_columns_(
@@ -376,10 +377,5 @@ def start(path_to_load, path_to_save):
 
 
 if __name__ == '__main__':
-    with open('../Source/jira_data_for_instability.json') as f:
-        jira_data_sources = json.load(f)
-
-    for jira_name, jira_obj in jira_data_sources.items():
-        print("start prepare_data_sql, DB: ", jira_name)
-        start(jira_name)
-    print("finish prepare_data_sql")
+    start(path_to_load="C:\\Users\\t-yelmaleh\\Downloads\\results_\\Simple_Data\\IntelDAOS\\calculate_time_add_sprint",
+          path_to_save="C:\\Users\\t-yelmaleh\\Downloads\\results_\\Simple_Data\\IntelDAOS\\prepare_data_sql")
