@@ -45,7 +45,7 @@ def getChangesWithoutWords(change_ObjectList: List[TableColumns.Changes], defaul
     # get the first summary change delta after enter to the first sprint
     min_val_of_different_time_from_creat_change_summary = \
         min(filter_change_summary_based_IK_and_created,
-            key=lambda x: x.different_time_from_creat).different_time_from_creat
+            key=lambda x: x.different_time_from_creat).different_time_from_creat if filter_change_summary_based_IK_and_created else 0
 
     # get the first summary change after enter to the first sprint (should be list in length of 1)
     change_sum_issue_sprint: List[TableColumns.Changes] = list(filter(
@@ -326,10 +326,12 @@ def add_cal_columns_(path_to_save, mainDataObjectList: List[TableColumns.MainTab
 
         except Exception as e:
             logger.error(f'ERROR: index:{i}, issue_key:{issue_name}\n message:{e}')
+            print(f'ERROR: index:{i}, issue_key:{issue_name}\n message:{e}')
+            raise e
 
 
 def start(path_to_load, path_to_save):
-    Create_DB.create_DB(path_to_save)
+    Create_DB.create_DB(path_to_save, False)
 
     main_data = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.MainTableOS]))
     changes_summary = pd.read_csv(os.path.join(path_to_load, FilesActivity.filesNames[TableColumns.ChangesSummaryOS]))
@@ -377,5 +379,5 @@ def start(path_to_load, path_to_save):
 
 
 if __name__ == '__main__':
-    start(path_to_load="C:\\Users\\t-yelmaleh\\Downloads\\results_\\Simple_Data\\IntelDAOS\\calculate_time_add_sprint",
-          path_to_save="C:\\Users\\t-yelmaleh\\Downloads\\results_\\Simple_Data\\IntelDAOS\\prepare_data_sql")
+    start(path_to_load="C:\\Users\\t-yelmaleh\\Downloads\\results_\\Simple_Data\\Sakai\\calculate_time_add_sprint",
+          path_to_save="C:\\Users\\t-yelmaleh\\Downloads\\results_\\testing")

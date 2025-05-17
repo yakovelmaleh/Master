@@ -8,7 +8,7 @@ import Using_CSV_files.FilesActivity as FilesActivity
 def create_DB(path, production=True):
     # Validate Path is valid
 
-    if os.path.join("Using_CSV_files", "Data") not in path:
+    if os.path.join("Using_CSV_files", "Data") not in path and production:
         raise Exception(f"path contains Using_CSV_files folder: {path}")
 
     if production and os.path.exists(path):
