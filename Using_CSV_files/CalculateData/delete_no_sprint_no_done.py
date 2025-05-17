@@ -37,7 +37,7 @@ def start(path_to_load, path_to_save):
         mainObject.num_comments_before_sprint = len(comment_before_adding_to_sprint)
 
     # main_table_os is not relevant anymore
-    relevantMainObjectList = list(filter(lambda mainObject: mainObject.num_comments_before_sprint > 0, mainObjectList))
+    relevantMainObjectList = list(filter(lambda mainObject_: mainObject_.num_comments_before_sprint > 0, mainObjectList))
 
     for mainObject in relevantMainObjectList:
         issue_key = mainObject.issue_key

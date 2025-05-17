@@ -16,7 +16,7 @@ def get_int_values_by_delta(df: pd.DataFrame, first_column_name: str, second_col
     if df.empty:
         return pd.Series(dtype=int)
 
-    return (df[first_column_name] - df[second_column_name] > 0).astype(int)
+    return ((df[first_column_name] - df[second_column_name]) > 0).astype(int)
 
 
 def get_int_instability_by_threshold(df: pd.DataFrame, threshold: int):
@@ -24,8 +24,8 @@ def get_int_instability_by_threshold(df: pd.DataFrame, threshold: int):
         return pd.Series(dtype=int)
 
     return (
-            df['num_different_words_all_text_sprint'] >= threshold &
-            df['num_changes_summary_description_acceptance_sprint'] > 0).astype(int)
+            (df['num_different_words_all_text_sprint'] >= threshold) &
+            (df['num_changes_summary_description_acceptance_sprint'] > 0)).astype(int)
 
 
 def get_information_from_main(df: pd.DataFrame) -> pd.DataFrame:
