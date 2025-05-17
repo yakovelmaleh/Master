@@ -1,4 +1,5 @@
 import Code_Smells_Detection.Detector.DesigniteJavaCommunity.Utils as Utils
+import Code_Smells_Detection.Detector.Utils.Code_Smells_Type as Code_Smells_Type
 import pandas as pd
 import os
 
@@ -32,6 +33,6 @@ def count_code_smells() -> dict:
 
     code_smell_counts = dict((k.lower(), v) for k, v in code_smell_counts.items())
 
-    return {name: code_smell_counts.get(name.lower(), 0) for name in code_smells_names}
+    return {name: code_smell_counts.get(name.lower(), 0) for name in Code_Smells_Type.code_smells_names}
 
 

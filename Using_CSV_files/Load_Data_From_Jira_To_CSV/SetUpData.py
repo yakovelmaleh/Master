@@ -1011,8 +1011,8 @@ def startSetUp(jira_obj, query_base):
                     summary = issue.fields.summary
                     description = issue.fields.description
                     assignee = get_default_string_not_none(issue.fields.assignee)
-                    reporter = get_default_string_not_none(issue.fields.reporter)
 
+                    reporter = get_default_string_not_none_with_defualt_value(issue.fields.reporter, "default_reporter")
                     creator = get_default_string_not_none_with_defualt_value(issue.fields.creator, "default_creator")
 
                     num_sprints = get_sprint_info(auth_jira, issue, name_map)

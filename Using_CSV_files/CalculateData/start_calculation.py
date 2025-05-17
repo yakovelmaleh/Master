@@ -10,6 +10,7 @@ import Using_CSV_files.CalculateData.calculate_ratio_nltk as calculate_ratio_nlt
 import Using_CSV_files.CalculateData.create_feature_lable_table as create_feature_lable_table
 import Using_CSV_files.CalculateData.calculate_features_all_num_bad_issue as calculate_features_all_num_bad_issue
 import Using_CSV_files.Load_Data_From_Jira_To_CSV.SetUpData as SetUpData
+import Code_Smells_Detection.Dataset_Creator.Dataset_Creator as Detector_Dataset_Creator
 
 
 def start(path, jira_name, data_path, jira_object, query):
@@ -67,3 +68,8 @@ def start(path, jira_name, data_path, jira_object, query):
     path_to_load = path_to_save
     path_to_save = os.path.join(path_to_save_prefix, "calculate_features_all_num_bad_issue")
     calculate_features_all_num_bad_issue.start(path_to_load, path_to_save)
+
+    print("********************start detect_code_smells********************")
+    path_to_load = path_to_save
+    path_to_save = os.path.join(path_to_save_prefix, "detect_code_smells")
+    Detector_Dataset_Creator.run(path_to_load, path_to_save)

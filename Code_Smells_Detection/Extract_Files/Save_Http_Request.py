@@ -1,10 +1,9 @@
+import Code_Smells_Detection.Extract_Files.PATH as PATH
 import requests
 import datetime
 import time
 
-
-GITHUB_TOKEN = "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"
-headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+headers = {"Authorization": f"token {PATH.GITHUB_TOKEN}"}
 
 
 def _validate_http_request(response, url, get_data=None):

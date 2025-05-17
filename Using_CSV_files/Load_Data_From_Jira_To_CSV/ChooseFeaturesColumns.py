@@ -5,8 +5,14 @@ def get_int_values_by_less_then(df: pd.DataFrame, first_column_name: str, second
     if df.empty:
         return pd.Series(dtype=int)
 
-    return (df[first_column_name].notna() & (df[first_column_name] < df[second_column_name])
-            ).astype(int)
+    if df[first_column_name].notna():
+        first_column = pd.to_datetime(df[first_column_name], errors='coerce')
+        second_column = pd.to_datetime(df[second_column_name], errors='coerce')
+
+        # Now safe to compare
+        return (first_column < second_column).astype(int)
+
+    return 0
 
 
 def get_int_values_by_delta(df: pd.DataFrame, first_column_name: str, second_column_name: str):

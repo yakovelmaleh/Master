@@ -32,3 +32,37 @@ def summarize_by_issue_key(table_path: str):
      .groupby("issue_key", as_index=False))
      .sum(numeric_only=True))
      .to_csv(table_path, index=False, header=True))
+
+
+def summarize_rows_by_issue_key(save_output_path: str):
+    for program_language in ProgramLanguage:
+
+        for state in StateImplementation:
+
+            path = os.path.join(save_output_path, f'{program_language.value}_{state.value}.csv')
+
+            if os.path.isfile(path):
+                summarize_by_issue_key(path)
+
+
+def summarize_code_smells_across_program_languages(input_files_path: str, output_files_path):
+
+    for state in StateImplementation:
+        dfs_per_state = []
+
+        for program_language in ProgramLanguage:
+            path = os.path.join(input_files_path, f'{program_language.value}_{state.value}.csv')
+
+            if os.path.exists(path):
+                df = pd.read_csv(path)
+                dfs_per_state.append(df)
+
+        if dfs_per_state:
+            combined_df = pd.concat(dfs_per_state, ignore_index=True)
+            summary_df = combined_df.groupby("issue_key").sum(numeric_only=True).reset_index()
+
+            output_path = os.path.join(output_files_path, f"{state.value}_code_smells.csv")
+
+            summary_df.to_csv(output_path, index=False, header=True)
+
+

@@ -31,19 +31,20 @@ def add_row_to_dataset_by_files(
     temp_folder_path = get_temp_folder_path()
     os.makedirs(temp_folder_path, exist_ok=True)
 
-    for getHubModel in gitHubModels:
-        getHubModel.save_as_file(temp_folder_path)
+    try:
+        for getHubModel in gitHubModels:
+            getHubModel.save_as_file(temp_folder_path)
 
-    Detectors.run_detectors(
-        input_path=temp_folder_path,
-        table_path_to_save=table_path_to_save,
-        state=state,
-        issue_key=issue_key)
+        Detectors.run_detectors(
+            input_path=temp_folder_path,
+            table_path_to_save=table_path_to_save,
+            state=state,
+            issue_key=issue_key)
+    finally:
+        shutil.rmtree(temp_folder_path)
 
-    shutil.rmtree(temp_folder_path)
 
-
-def get_github_object_list(PRs_file_folder: str) -> List[TableColumns.GitHubOS] :
+def get_github_object_list(PRs_file_folder: str) -> List[TableColumns.GitHubOS]:
     PRs_file_name = FilesActivity.filesNames[TableColumns.GitHubOS]
     PRs_file_path = os.path.join(PRs_file_folder, PRs_file_name)
 
@@ -72,17 +73,6 @@ def add_rows_to_dataset_by_PR_gitHubObject(pr_gitHubObject: TableColumns.GitHubO
         issue_key=pr_gitHubObject.issue_key)
 
 
-def summarize_rows_by_issue_key(save_output_path: str):
-    for program_language in Saver.ProgramLanguage:
-
-        for state in Saver.StateImplementation:
-
-            path = os.path.join(save_output_path, f'{program_language.value}_{state.value}.csv')
-
-            if os.path.isfile(path):
-                Saver.summarize_by_issue_key(path)
-
-
 def run(PRs_file_folder: str, save_output_path: str):
 
     gitHubObjectList: List[TableColumns.GitHubOS] = get_github_object_list(PRs_file_folder)
@@ -93,12 +83,6 @@ def run(PRs_file_folder: str, save_output_path: str):
 
             add_rows_to_dataset_by_PR_gitHubObject(gitHubObject, save_output_path)
 
-    summarize_rows_by_issue_key(save_output_path)
+    Saver.summarize_rows_by_issue_key(save_output_path)
 
-    # summarize all the program languages
-
-
-if __name__ == '__main__':
-    run(
-        "C:\\Users\\t-yelmaleh\\OneDrive - Microsoft\\Desktop\\Yakov\\Master\\Master\\Using_CSV_files\\test",
-        "C:\\Users\\t-yelmaleh\\Downloads\\temp1")
+    Saver.summarize_code_smells_across_program_languages(save_output_path, save_output_path)
