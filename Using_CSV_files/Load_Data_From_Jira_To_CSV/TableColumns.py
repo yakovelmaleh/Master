@@ -1226,11 +1226,11 @@ def createVersionsOSObjectFromDataFrame(df: pd.Series) -> VersionsOS:
         issue_key=convert_value_by_table(VersionsOS, 'issue_key', df['issue_key']),
         project_key=convert_value_by_table(VersionsOS, 'project_key', df['project_key']),
         chronological_number=convert_value_by_table(VersionsOS, 'chronological_number', df['chronological_number']),
-        version=convert_value_by_table(VersionsOS, 'version', df['version'])
+        version=convert_value_by_table(VersionsOS, 'version', df['version'], defaultValue="default")
     )
 
 
-def convert_value_by_table(classType, propertyName, value):
+def convert_value_by_table(classType, propertyName, value, defaultValue=None):
     propertyType = classType.__init__.__annotations__.get(propertyName, None)
     defaultType = inspect.signature(classType.__init__).parameters[propertyName].default
 
@@ -1241,6 +1241,10 @@ def convert_value_by_table(classType, propertyName, value):
         return get_value(get_args(propertyType)[0], value)
 
     elif value is None or pd.isna(value):
+
+        if defaultValue:
+            return defaultValue
+
         raise Exception(f" {classType} class has {propertyName} which should be from {propertyType} "
                         f"or default type: {defaultType}! and the type of the value is None")
 
