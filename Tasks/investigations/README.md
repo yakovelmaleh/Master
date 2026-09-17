@@ -14,4 +14,5 @@ evidence, decision, fix, validation, cleanup, and follow-up.
 
 | Date | Issue | Task | Dataset | Status |
 |---|---|---|---|---|
+| 2026-09-17 | [Hyperledger Jira source no longer resolves](Hyperledger%20Jira%20source%20no%20longer%20resolves%202026-09-17/) | jira-url-to-instability-model | Hyperledger | Mitigated - source disabled |
 | 2026-09-17 | [MariaDB missing optional model features](MariaDB%20missing%20optional%20model%20features%202026-09-17/) | jira-url-to-instability-model | MariaDB | Closed - no failure |
