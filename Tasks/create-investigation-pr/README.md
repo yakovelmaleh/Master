@@ -47,8 +47,10 @@ When `gh` is unavailable, the script still creates and pushes the complete
 investigation branch. It then prints a GitHub comparison URL that opens the
 pre-populated PR creation page.
 
-The primary `Master` checkout must not contain uncommitted tracked changes.
-Generated ignored cluster results do not block the script.
+Tracked changes are allowed when the primary `Master` checkout is already on
+`main`; they remain untouched because the investigation branch uses a separate
+temporary worktree. A dirty checkout on another branch is blocked because
+switching it to `main` could overwrite work.
 
 ## Create a PR for the latest run
 
@@ -94,9 +96,9 @@ PR.
 
 Before creating the PR, the script:
 
-1. Requires a clean tracked working tree.
-2. Switches the primary checkout to `main` when necessary.
-3. Updates `main` using `git pull --ff-only origin main`.
+1. Preserves tracked changes when the primary checkout is already on `main`.
+2. Switches a clean primary checkout to `main` when necessary.
+3. Fetches the latest `origin/main` for the temporary PR worktree.
 4. Creates the investigation branch in a temporary Git worktree.
 5. Copies, checks, commits, and pushes the investigation bundle.
 6. Creates a GitHub PR targeting `main` when authenticated `gh` is available.
