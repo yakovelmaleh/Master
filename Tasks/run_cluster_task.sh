@@ -60,6 +60,11 @@ fi
 
 task_name=$1
 shift
+
+if [[ "$pull_first" == true ]]; then
+  git -C "$REPO_ROOT" pull --ff-only
+fi
+
 submit_script="$SCRIPT_DIR/$task_name/cluster/submit_jobs.sh"
 
 if [[ ! -f "$submit_script" ]]; then
@@ -68,10 +73,6 @@ if [[ ! -f "$submit_script" ]]; then
   echo "Available tasks:" >&2
   "$0" --list >&2
   exit 2
-fi
-
-if [[ "$pull_first" == true ]]; then
-  git -C "$REPO_ROOT" pull --ff-only
 fi
 
 exec bash "$submit_script" "$@"
