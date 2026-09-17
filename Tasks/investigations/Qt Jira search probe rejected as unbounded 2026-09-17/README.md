@@ -2,7 +2,7 @@
 
 ## Status
 
-Open - pipeline fix recommended.
+Fixed in PR `#341`; Qt rerun pending.
 
 ## Scope
 
@@ -67,17 +67,20 @@ bug, not a Qt authentication or permission problem.
 
 ## Decision and actions
 
-Recommended action:
+The user selected **fix in the same investigation PR**.
 
-1. Make search endpoint discovery validate the endpoint with the actual
-   bounded JQL, or use a bounded compatibility probe.
-2. Preserve response status and error details so HTTP `400`, `401`, `403`,
-   `404`, and `410` produce distinct diagnostics.
-3. Add tests for Jira Cloud rejecting unbounded JQL while accepting the
-   actual query.
-4. Rerun only Qt after the fix.
+- Endpoint discovery now probes with the actual bounded run JQL.
+- The probe requests only the issue key and one result.
+- Failure messages now retain the v2 and v3 HTTP status and response details.
+- Regression tests cover Jira Cloud's removed v2 endpoint, successful v3
+  fallback, use of the bounded query, and endpoint-specific errors.
 
-No pipeline fix or rerun has been performed yet.
+## Fix and validation
+
+- Pull request: `#341`
+- Unit tests: passed.
+- Live Qt bounded search smoke test: returned issue key `QTBUG-16556`.
+- Qt cluster rerun: pending after merge.
 
 ## Cleanup
 
@@ -91,9 +94,11 @@ No pipeline fix or rerun has been performed yet.
 
 ## Follow-up
 
-After fixing endpoint discovery, rerun:
+After merging, pull the changes and rerun only Qt:
 
 ```bash
+./Master/Tasks/run_cluster_task.sh --pull-only
+
 ./Master/Tasks/run_cluster_task.sh \
   jira-url-to-instability-model \
   --only Qt \
