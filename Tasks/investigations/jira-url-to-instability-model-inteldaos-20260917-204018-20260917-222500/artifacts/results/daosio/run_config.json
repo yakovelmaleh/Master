@@ -1,0 +1,10 @@
+{
+  "api_version": 3,
+  "jira_url": "https://daosio.atlassian.net",
+  "jql": "(type != Bug) AND (Sprint is not EMPTY) AND (statusCategory = Done) AND (comment ~ \"https://github.com\") ORDER BY created ASC",
+  "label_threshold": 5,
+  "max_issues": null,
+  "project": null,
+  "require_pr_evidence": true,
+  "terminal_only": true
+}

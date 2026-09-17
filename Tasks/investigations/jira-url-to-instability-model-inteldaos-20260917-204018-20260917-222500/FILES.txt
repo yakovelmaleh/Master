@@ -1,0 +1,6 @@
+artifacts/logs/job-21438424.out
+artifacts/results/cluster_run_summary.json
+artifacts/results/daosio/raw/field_map.json
+artifacts/results/daosio/run_config.json
+artifacts/submit.sbatch
+artifacts/submitted_jobs.tsv
