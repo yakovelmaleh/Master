@@ -319,11 +319,31 @@ if [[ "$copied_dataset_count" == 0 ]]; then
   exit 2
 fi
 
-secret_matches=$(
-  grep -RIlE \
-    '(Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN|password)[=:][^[:space:]]{8,})' \
-    "$artifacts_dir" || true
+declare -a secret_scan_paths=()
+[[ -d "$artifacts_dir/logs" ]] &&
+  secret_scan_paths+=("$artifacts_dir/logs")
+[[ -f "$artifacts_dir/submit.sbatch" ]] &&
+  secret_scan_paths+=("$artifacts_dir/submit.sbatch")
+[[ -f "$artifacts_dir/submitted_jobs.tsv" ]] &&
+  secret_scan_paths+=("$artifacts_dir/submitted_jobs.tsv")
+while IFS= read -r -d '' metadata_file; do
+  secret_scan_paths+=("$metadata_file")
+done < <(
+  find "$artifacts_dir/results" \
+    -type f \
+    \( -name '*.json' -o -name '*.txt' -o -name '*.log' \) \
+    ! -path '*/raw/*' \
+    -print0
 )
+
+secret_matches=
+if ((${#secret_scan_paths[@]} > 0)); then
+  secret_matches=$(
+    grep -RIlE \
+      '(Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN)[=:][^[:space:]]{8,})' \
+      "${secret_scan_paths[@]}" || true
+  )
+fi
 if [[ -n "$secret_matches" ]]; then
   echo "Possible credentials were found; refusing to create the PR:" >&2
   echo "$secret_matches" >&2

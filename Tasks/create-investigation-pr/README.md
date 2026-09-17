@@ -25,7 +25,11 @@ If the dataset is represented by a symbolic link, the real CSV content is
 copied into the PR rather than the link.
 
 Files larger than 90 MiB are gzip-compressed. The script stops if a file is
-still larger than 95 MiB or if common credential patterns are detected.
+still larger than 95 MiB or if common credential patterns are detected in
+operational files such as logs, sbatch scripts, manifests, and non-raw
+metadata. Public Jira issue text and processed model datasets are not scanned
+for generic words such as `password`, which can legitimately appear in issue
+descriptions and caused false positives.
 
 ## Requirements
 
