@@ -115,6 +115,7 @@ Use `ask_user` to offer only actions supported by the evidence:
 - Rerun only the failed dataset.
 - Create or update an investigation PR.
 - Archive the diagnosis without a fix.
+- Create a cleanup PR after the investigation is complete.
 - Stop without changing anything.
 
 If a rerun is selected, show the exact task command and dataset filter before
@@ -151,7 +152,33 @@ Include:
 Update `Master/Tasks/investigations/README.md` with one row linking to the new
 issue folder. Never overwrite or merge unrelated issue records.
 
-### 6. Cleanup only after explicit confirmation
+### 6. Create the investigation cleanup PR
+
+After the diagnosis and selected actions are complete, offer to create a
+cleanup PR. When selected:
+
+1. Start from the latest `origin/main`.
+2. Create a dedicated branch using:
+
+   ```text
+   user/yakovelmaleh/cleanup-<issue-subject>
+   ```
+
+3. Remove copied investigation artifacts from the repository, including:
+   - `artifacts/`
+   - generated `FILES.txt`
+   - copied datasets, raw Jira records, model files, logs, and sbatch files
+4. Keep the permanent dated issue folder and its concise `README.md`.
+5. Ensure the issue README contains the final diagnosis, decision, PR links,
+   and cleanup status.
+6. Update `Tasks/investigations/README.md`.
+7. Create a PR targeting `main`.
+8. Leave the primary repository checkout on `main`.
+
+The cleanup PR removes only copied investigation artifacts already committed
+to Git. It must not delete source datasets or original cluster result folders.
+
+### 7. Delete original cluster files only after explicit confirmation
 
 The user's configured cleanup policy is to delete:
 
@@ -186,11 +213,12 @@ to this issue.
 Inspect the resolved paths before executing cleanup. Never use wildcard or
 broad recursive deletion commands.
 
-### 7. Finish
+### 8. Finish
 
 Verify:
 
 - The issue README and index entry exist.
+- The cleanup PR was created or explicitly declined.
 - Any selected fix or rerun completed or is clearly marked pending.
 - Confirmed cleanup removed only the listed paths.
 - The repository is on `main` unless the user explicitly requested otherwise.
