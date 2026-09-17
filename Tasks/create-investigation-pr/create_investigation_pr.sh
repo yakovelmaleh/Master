@@ -219,10 +219,12 @@ if [[ "$dataset_count" == 0 && -f "$task_dir/datasets.json" ]]; then
   fi
 fi
 
+dataset_status=complete
 if [[ "$dataset_count" == 0 ]]; then
+  dataset_status=not_created
   echo "No complete features_labels_table_os.csv dataset was found." >&2
-  echo "The job may have failed before dataset creation." >&2
-  exit 2
+  echo "Continuing with logs and partial results because the job may have" >&2
+  echo "failed before dataset creation." >&2
 fi
 
 echo "Task: $task_name"
@@ -231,6 +233,7 @@ echo "Dataset: $dataset_name"
 echo "Results: $results_dir"
 echo "Logs: $logs_dir"
 echo "Dataset CSV files found: $dataset_count"
+echo "Dataset status: $dataset_status"
 
 if [[ "$dry_run" == true ]]; then
   echo
@@ -315,8 +318,7 @@ copied_dataset_count=$(
     tr -d ' '
 )
 if [[ "$copied_dataset_count" == 0 ]]; then
-  echo "The investigation bundle does not contain the required dataset." >&2
-  exit 2
+  dataset_status=not_created
 fi
 
 declare -a secret_scan_paths=()
@@ -374,6 +376,7 @@ dataset run.
 - Cluster run: \`$run_id\`
 - Original run directory: \`$run_root\`
 - Original dataset directory: \`$dataset_root\`
+- Dataset status: \`$dataset_status\`
 - Bundle created: \`$(date -u +"%Y-%m-%dT%H:%M:%SZ")\`
 
 ## Included artifacts
@@ -382,7 +385,23 @@ dataset run.
 - All available SLURM \`.out\` logs.
 - The generated \`submit.sbatch\` file, when present.
 - The run-level \`submitted_jobs.tsv\` manifest, when present.
-- At least one complete \`features_labels_table_os.csv\` dataset.
+- Complete or partial result files produced before the failure.
+
+EOF
+
+if [[ "$dataset_status" == "complete" ]]; then
+  cat >> "$destination/README.md" <<'EOF'
+- The complete `features_labels_table_os.csv` dataset.
+EOF
+else
+  cat >> "$destination/README.md" <<'EOF'
+- No final `features_labels_table_os.csv` exists because dataset creation did
+  not complete. The logs and partial results are included to investigate that
+  failure.
+EOF
+fi
+
+cat >> "$destination/README.md" <<'EOF'
 
 Files larger than 90 MiB are gzip-compressed before committing. This PR is
 for investigation only; it does not change model or pipeline behavior.
