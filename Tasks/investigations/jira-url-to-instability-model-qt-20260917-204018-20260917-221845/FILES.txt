@@ -1,0 +1,6 @@
+artifacts/logs/job-21438427.out
+artifacts/results/cluster_run_summary.json
+artifacts/results/qt/raw/field_map.json
+artifacts/results/qt/run_config.json
+artifacts/submit.sbatch
+artifacts/submitted_jobs.tsv

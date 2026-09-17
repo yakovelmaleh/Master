@@ -1,0 +1,20 @@
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+SLURM_JOBID:		21438427
+SLURM_JOB_NODELIST:	ise-cpu128-10
+SLURM_SCRATCH_DIR:	
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+
+SLURM_JOBID:		21438427
+SLURM_JOB_NODELIST:	ise-cpu128-10
+
+Source: Qt
+Results: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/qt/results
+Log: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/qt/logs/job-21438427.out
+[1/1] Starting Qt: https://bugreports.qt.io
+Failed Qt: Neither Jira search endpoint is anonymously accessible.
+Cluster summary: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/qt/results/cluster_run_summary.json
