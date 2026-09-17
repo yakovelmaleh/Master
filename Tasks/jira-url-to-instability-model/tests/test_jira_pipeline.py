@@ -165,6 +165,7 @@ class JiraPipelineTests(unittest.TestCase):
                 "jira_url": "https://issues.apache.org/jira",
                 "project": "ARIA",
                 "run_name": "apache-aria",
+                "require_pr_evidence": False,
             },
             "Disabled": {
                 "jira_url": "https://example.atlassian.net",
@@ -179,6 +180,8 @@ class JiraPipelineTests(unittest.TestCase):
         self.assertIsNone(sources[0]["project"])
         self.assertEqual(sources[1]["project"], "ARIA")
         self.assertEqual(sources[1]["run_name"], "apache-aria")
+        self.assertIsNone(sources[0]["require_pr_evidence"])
+        self.assertFalse(sources[1]["require_pr_evidence"])
 
 
 if __name__ == "__main__":

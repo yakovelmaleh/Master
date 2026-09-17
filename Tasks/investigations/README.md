@@ -14,4 +14,5 @@ evidence, decision, fix, validation, cleanup, and follow-up.
 
 | Date | Issue | Task | Dataset | Status |
 |---|---|---|---|---|
+| 2026-09-17 | [Jira GitHub evidence filter leaves insufficient rows](Jira%20GitHub%20evidence%20filter%20leaves%20insufficient%20rows%202026-09-17/) | jira-url-to-instability-model | Jira | Fixed - rerun pending |
 | 2026-09-17 | [MariaDB missing optional model features](MariaDB%20missing%20optional%20model%20features%202026-09-17/) | jira-url-to-instability-model | MariaDB | Closed - no failure |
