@@ -6,11 +6,13 @@ usage() {
   cat <<'EOF'
 Usage:
   ./Tasks/run_cluster_task.sh [--pull] <task-name> [task arguments...]
+  ./Tasks/run_cluster_task.sh --pull-only
   ./Tasks/run_cluster_task.sh --list
 
 Options:
-  --pull  Run "git pull --ff-only" before submitting the task.
-  --list  List tasks that provide a cluster submission script.
+  --pull       Run "git pull --ff-only" before submitting the task.
+  --pull-only  Switch to main, pull changes, and exit without running a task.
+  --list       List tasks that provide a cluster submission script.
 
 Example:
   ./Tasks/run_cluster_task.sh --pull jira-url-to-instability-model --refresh
@@ -20,11 +22,16 @@ EOF
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 pull_first=false
+pull_only=false
 
 while (($#)); do
   case "$1" in
     --pull)
       pull_first=true
+      shift
+      ;;
+    --pull-only)
+      pull_only=true
       shift
       ;;
     --list)
@@ -52,6 +59,18 @@ while (($#)); do
       ;;
   esac
 done
+
+if [[ "$pull_only" == true ]]; then
+  if (($# != 0)); then
+    echo "--pull-only does not accept a task name or task arguments." >&2
+    usage >&2
+    exit 2
+  fi
+  git -C "$REPO_ROOT" switch main
+  git -C "$REPO_ROOT" pull --ff-only origin main
+  echo "Repository updated. No task was run."
+  exit 0
+fi
 
 if (($# == 0)); then
   usage >&2
