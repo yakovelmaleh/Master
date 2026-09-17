@@ -249,18 +249,17 @@ for required_command in git gzip; do
   fi
 done
 
-if ! git -C "$REPO_ROOT" diff --quiet ||
-  ! git -C "$REPO_ROOT" diff --cached --quiet; then
-  echo "The Master checkout has tracked changes." >&2
-  echo "Commit or stash them before creating an investigation PR." >&2
-  exit 2
-fi
-
 current_branch=$(git -C "$REPO_ROOT" branch --show-current)
 if [[ "$current_branch" != "main" ]]; then
+  if ! git -C "$REPO_ROOT" diff --quiet ||
+    ! git -C "$REPO_ROOT" diff --cached --quiet; then
+    echo "The Master checkout has tracked changes on '$current_branch'." >&2
+    echo "Switch to main without losing those changes, then rerun." >&2
+    exit 2
+  fi
   git -C "$REPO_ROOT" switch main
 fi
-git -C "$REPO_ROOT" pull --ff-only origin main
+git -C "$REPO_ROOT" fetch origin main
 
 create_pr_automatically=false
 if command -v gh >/dev/null 2>&1 &&
