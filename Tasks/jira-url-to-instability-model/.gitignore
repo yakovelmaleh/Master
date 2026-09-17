@@ -6,3 +6,5 @@ runs/*
 !runs/apache-e2e-sample/
 runs/apache-e2e-sample/*
 !runs/apache-e2e-sample/README.md
+
+cluster_runs/
