@@ -86,11 +86,21 @@ class JiraClient:
         )
         return {field["name"]: field["id"] for field in fields}
 
-    def _search_endpoint(self):
+    @staticmethod
+    def _response_summary(response):
+        snippet = response.text[:300].replace("\n", " ").strip()
+        return f"HTTP {response.status_code}: {snippet or 'empty response'}"
+
+    def _search_endpoint(self, jql):
+        probe_params = {
+            "jql": jql,
+            "fields": "key",
+            "maxResults": 1,
+        }
         v2 = self.request(
             "GET",
             "/rest/api/2/search",
-            params={"jql": "order by created asc", "maxResults": 1},
+            params=probe_params,
         )
         if (
             v2.status_code == 200
@@ -100,7 +110,7 @@ class JiraClient:
         v3 = self.request(
             "GET",
             "/rest/api/3/search/jql",
-            params={"jql": "order by created asc", "maxResults": 1},
+            params=probe_params,
         )
         if (
             v3.status_code == 200
@@ -108,11 +118,13 @@ class JiraClient:
         ):
             return "v3", "/rest/api/3/search/jql"
         raise RuntimeError(
-            "Neither Jira search endpoint is anonymously accessible."
+            "No compatible Jira search endpoint accepted the query. "
+            f"v2 {self._response_summary(v2)}; "
+            f"v3 {self._response_summary(v3)}"
         )
 
     def search_issue_keys(self, jql, max_issues=None):
-        mode, endpoint = self._search_endpoint()
+        mode, endpoint = self._search_endpoint(jql)
         start_at = 0
         next_token = None
         keys = []
