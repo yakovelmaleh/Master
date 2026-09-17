@@ -1,0 +1,4 @@
+artifacts/logs/job-21438423.out
+artifacts/results/cluster_run_summary.json
+artifacts/submit.sbatch
+artifacts/submitted_jobs.tsv
