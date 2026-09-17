@@ -242,7 +242,7 @@ if [[ "$dry_run" == true ]]; then
   exit 0
 fi
 
-for required_command in git gh gzip; do
+for required_command in git gzip; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "Required command not found: $required_command" >&2
     exit 2
@@ -261,7 +261,15 @@ if [[ "$current_branch" != "main" ]]; then
   git -C "$REPO_ROOT" switch main
 fi
 git -C "$REPO_ROOT" pull --ff-only origin main
-gh auth status >/dev/null
+
+create_pr_automatically=false
+if command -v gh >/dev/null 2>&1 &&
+  gh auth status >/dev/null 2>&1; then
+  create_pr_automatically=true
+else
+  echo "GitHub CLI is unavailable or not authenticated."
+  echo "The investigation branch will be pushed and a PR link will be printed."
+fi
 
 timestamp=$(date +"%Y%m%d-%H%M%S")
 investigation_id="${safe_task:0:35}-${safe_dataset:0:35}-${run_id:0:30}-$timestamp"
@@ -377,14 +385,21 @@ if [[ -z "$pr_title" ]]; then
   pr_title="Investigate $dataset_name failure in $task_name"
 fi
 
-pr_url=$(
-  gh pr create \
-    --repo yakovelmaleh/Master \
-    --base main \
-    --head "$branch_name" \
-    --title "$pr_title" \
-    --body-file "$destination/README.md"
-)
+if [[ "$create_pr_automatically" == true ]]; then
+  pr_url=$(
+    gh pr create \
+      --repo yakovelmaleh/Master \
+      --base main \
+      --head "$branch_name" \
+      --title "$pr_title" \
+      --body-file "$destination/README.md"
+  )
+  echo "Investigation PR: $pr_url"
+else
+  encoded_branch=${branch_name//\//%2F}
+  pr_url="https://github.com/yakovelmaleh/Master/compare/main...$encoded_branch?expand=1"
+  echo "Investigation branch pushed: $branch_name"
+  echo "Create the PR here: $pr_url"
+fi
 
-echo "Investigation PR: $pr_url"
 echo "Primary checkout branch: $(git -C "$REPO_ROOT" branch --show-current)"

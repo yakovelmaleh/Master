@@ -33,15 +33,19 @@ The cluster environment must provide:
 
 ```text
 git
-gh
 gzip
 ```
 
-GitHub CLI must already be authenticated:
+GitHub CLI is optional. When it is installed and authenticated, the script
+creates the PR automatically:
 
 ```bash
 gh auth status
 ```
+
+When `gh` is unavailable, the script still creates and pushes the complete
+investigation branch. It then prints a GitHub comparison URL that opens the
+pre-populated PR creation page.
 
 The primary `Master` checkout must not contain uncommitted tracked changes.
 Generated ignored cluster results do not block the script.
@@ -95,7 +99,8 @@ Before creating the PR, the script:
 3. Updates `main` using `git pull --ff-only origin main`.
 4. Creates the investigation branch in a temporary Git worktree.
 5. Copies, checks, commits, and pushes the investigation bundle.
-6. Creates a GitHub PR targeting `main`.
+6. Creates a GitHub PR targeting `main` when authenticated `gh` is available.
+   Otherwise, prints the exact URL for creating the PR from the pushed branch.
 7. Removes the temporary worktree and leaves the primary checkout on `main`.
 
 Investigation branches use:
