@@ -1,0 +1,11 @@
+artifacts/logs/job-21438425.out
+artifacts/results/atlassian/processed/atlassian/features_labels_table_os.csv
+artifacts/results/atlassian/processed/filter_summary.json
+artifacts/results/atlassian/raw/download_errors.csv
+artifacts/results/atlassian/raw/field_map.json
+artifacts/results/atlassian/raw/issue_keys.json
+artifacts/results/atlassian/raw/issues.jsonl
+artifacts/results/atlassian/run_config.json
+artifacts/results/cluster_run_summary.json
+artifacts/submit.sbatch
+artifacts/submitted_jobs.tsv

@@ -1,0 +1,9 @@
+{
+  "accepted_records": 1,
+  "downloaded_records": 3,
+  "reasons": {
+    "accepted": 1,
+    "no_comment_before_sprint": 2
+  },
+  "rejected_records": 2
+}

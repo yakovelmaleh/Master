@@ -1,0 +1,21 @@
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+SLURM_JOBID:		21438425
+SLURM_JOB_NODELIST:	cs-cpu-11
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21438425
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+
+SLURM_JOBID:		21438425
+SLURM_JOB_NODELIST:	cs-cpu-11
+
+Source: Jira
+Results: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/jira/results
+Log: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/jira/logs/job-21438425.out
+[1/1] Starting Jira: https://jira.atlassian.com
+Downloaded 3/3 issues (0 errors)
+Failed Jira: At least 30 rows are required; received 1.
+Cluster summary: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/jira/results/cluster_run_summary.json
