@@ -18,7 +18,8 @@ The generated investigation folder includes:
 - Every available SLURM `.out` log for that dataset.
 - The generated `submit.sbatch` file.
 - The run-level `submitted_jobs.tsv` manifest.
-- At least one complete `features_labels_table_os.csv` dataset.
+- The complete `features_labels_table_os.csv` dataset when creation completed.
+- Logs and partial results when the job failed before creating the final CSV.
 - A generated README and exact file inventory.
 
 If the dataset is represented by a symbolic link, the real CSV content is
@@ -123,8 +124,9 @@ Tasks/investigations/<task>-<dataset>-<run-id>-<timestamp>/
 
 ## When dataset creation failed
 
-The script requires a complete `features_labels_table_os.csv`. If the URL
-pipeline failed before creating that dataset, the script stops and reports
-that no complete dataset exists. The failure can still be investigated
-manually from the `.out` log, but the automatic PR will not claim to include
-a dataset that was never generated.
+If the URL pipeline failed before creating
+`features_labels_table_os.csv`, the script still creates the investigation
+bundle. It includes the `.out` logs, sbatch file, run manifest, and every
+partial result produced before the failure. The generated investigation README
+explicitly records the dataset status as `not_created` and does not claim that
+a complete dataset is present.

@@ -71,8 +71,12 @@ Read:
 - `<dataset>/results/**/verification_manifest.json`
 - `<dataset>/results/**/filter_summary.json`
 - Relevant model `metrics.json` and `run_metadata.json`
-- The generated `features_labels_table_os.csv`
+- The generated `features_labels_table_os.csv`, when creation completed
 - Raw errors such as `download_errors.csv`
+
+If no final dataset exists, continue the investigation using logs, raw or
+partial results, manifests, and task code. Treat the missing dataset as
+evidence of the failing stage, not as a reason to stop the investigation.
 
 Use bounded reads for large logs and datasets. Start with file sizes, row
 counts, schemas, tails of logs, and explicit error lines. Read raw records only
