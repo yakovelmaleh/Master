@@ -1,0 +1,10 @@
+{
+  "default_project": "all",
+  "default_label_threshold": 5,
+  "train_fraction": 0.6,
+  "validation_fraction": 0.2,
+  "maximum_iterations": 2000,
+  "learning_rate": 0.05,
+  "l2_regularization": 0.001,
+  "early_stopping_patience": 50
+}
