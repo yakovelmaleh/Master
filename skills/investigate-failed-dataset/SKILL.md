@@ -119,7 +119,7 @@ Use `ask_user` to offer only actions supported by the evidence:
 - Rerun only the failed dataset.
 - Create or update an investigation PR.
 - Archive the diagnosis without a fix.
-- Create a cleanup PR after the investigation is complete.
+- Finalize the existing investigation PR by removing copied artifacts.
 - Stop without changing anything.
 
 If a rerun is selected, show the exact task command and dataset filter before
@@ -156,31 +156,32 @@ Include:
 Update `Master/Tasks/investigations/README.md` with one row linking to the new
 issue folder. Never overwrite or merge unrelated issue records.
 
-### 6. Create the investigation cleanup PR
+### 6. Finalize the same investigation PR
 
-After the diagnosis and selected actions are complete, offer to create a
-cleanup PR. When selected:
+The investigation artifact PR must remain open while it is analyzed. Do not
+merge it and then create a second cleanup PR.
 
-1. Start from the latest `origin/main`.
-2. Create a dedicated branch using:
+After the diagnosis and selected actions are complete:
 
-   ```text
-   user/yakovelmaleh/cleanup-<issue-subject>
-   ```
-
-3. Remove copied investigation artifacts from the repository, including:
+1. Check out the existing investigation PR's head branch.
+2. Add the permanent dated issue folder and update the issue index.
+3. Apply any selected root-cause fix and tests on that same branch.
+4. Remove copied investigation artifacts from the PR, including:
    - `artifacts/`
    - generated `FILES.txt`
    - copied datasets, raw Jira records, model files, logs, and sbatch files
-4. Keep the permanent dated issue folder and its concise `README.md`.
-5. Ensure the issue README contains the final diagnosis, decision, PR links,
+5. Keep the permanent dated issue folder and its concise `README.md`.
+6. Ensure the issue README contains the final diagnosis, decision, PR links,
    and cleanup status.
-6. Update `Tasks/investigations/README.md`.
-7. Create a PR targeting `main`.
-8. Leave the primary repository checkout on `main`.
+7. Commit and push the final changes to the existing PR branch.
+8. Verify the PR targets `main` and its final diff contains no copied
+   investigation artifacts.
 
-The cleanup PR removes only copied investigation artifacts already committed
-to Git. It must not delete source datasets or original cluster result folders.
+This finalization removes only copied investigation artifacts from the open
+PR. It must not delete source datasets or original cluster result folders.
+
+If the artifact PR was already merged, a separate cleanup PR is the fallback.
+Record why the preferred single-PR workflow was not possible.
 
 ### 7. Delete original cluster files only after explicit confirmation
 
@@ -222,7 +223,9 @@ broad recursive deletion commands.
 Verify:
 
 - The issue README and index entry exist.
-- The cleanup PR was created or explicitly declined.
+- The existing investigation PR contains the final diagnosis and no copied
+  investigation artifacts.
+- No second cleanup PR was created unless the artifact PR had already merged.
 - Any selected fix or rerun completed or is clearly marked pending.
 - Confirmed cleanup removed only the listed paths.
 - The repository is on `main` unless the user explicitly requested otherwise.
