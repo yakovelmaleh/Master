@@ -1,0 +1,37 @@
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+SLURM_JOBID:		21438426
+SLURM_JOB_NODELIST:	ise-cpu128-05
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21438426
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:40:26 IDT
+
+SLURM_JOBID:		21438426
+SLURM_JOB_NODELIST:	ise-cpu128-05
+
+Source: MariaDB
+Results: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/mariadb/results
+Log: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/mariadb/logs/job-21438426.out
+[1/1] Starting MariaDB: https://jira.mariadb.org
+Downloaded 25/360 issues (0 errors)
+Downloaded 50/360 issues (0 errors)
+Downloaded 75/360 issues (0 errors)
+Downloaded 100/360 issues (0 errors)
+Downloaded 125/360 issues (0 errors)
+Downloaded 150/360 issues (0 errors)
+Downloaded 175/360 issues (0 errors)
+Downloaded 200/360 issues (0 errors)
+Downloaded 225/360 issues (0 errors)
+Downloaded 250/360 issues (0 errors)
+Downloaded 275/360 issues (0 errors)
+Downloaded 300/360 issues (0 errors)
+Downloaded 325/360 issues (0 errors)
+Downloaded 350/360 issues (0 errors)
+Downloaded 360/360 issues (0 errors)
+Finished MariaDB
+/home/yakovelm/.conda/envs/master/lib/python3.8/site-packages/numpy/lib/nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+Cluster summary: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-204018/mariadb/results/cluster_run_summary.json
