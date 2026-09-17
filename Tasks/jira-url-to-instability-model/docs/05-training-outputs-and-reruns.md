@@ -100,17 +100,24 @@ Install the small dependency set:
 python3 -m pip install -r requirements.txt
 ```
 
-Then run the same command on the cluster. All paths are resolved relative to
-the task folder unless `--output-root` is supplied.
-
-To run every repository from the existing cluster source JSON:
+Then use the task's SLURM launcher. From the repository root:
 
 ```bash
-python3 cluster/run_cluster.py --refresh
+./Tasks/run_cluster_task.sh --pull jira-url-to-instability-model --refresh
 ```
 
-See `cluster/README.md` for batch selection, bounded test runs, and output
-details.
+This optionally updates the checkout, then submits one independent job per
+repository from the existing cluster source JSON. Each submission and Jira
+source has separate results, generated sbatch files, and `.out` logs.
+
+To use the current checkout without pulling:
+
+```bash
+./Tasks/run_cluster_task.sh jira-url-to-instability-model --refresh
+```
+
+See `cluster/README.md` for the timestamped output layout, job manifest,
+bounded test runs, source overrides, and sequential local execution.
 
 ## Offline validation
 

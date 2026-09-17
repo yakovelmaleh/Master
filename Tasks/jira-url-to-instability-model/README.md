@@ -22,6 +22,8 @@ The complete process is explained in these five ordered files:
 ## What is inside
 
 - `run_pipeline.py` - the single end-to-end command.
+- `cluster/submit_jobs.sh` - production SLURM launcher that submits one
+  independent job per Jira repository with isolated results and `.out` logs.
 - `cluster/run_cluster.py` - batch cluster entry point that reads the existing
   Jira source JSON and executes the new pipeline for every repository.
 - `cluster/README.md` - cluster setup, commands, configuration, and outputs.
@@ -114,15 +116,14 @@ python3 run_pipeline.py \
 ## Run all configured repositories on the cluster
 
 ```bash
-python3 cluster/run_cluster.py --refresh
+./Tasks/run_cluster_task.sh --pull jira-url-to-instability-model --refresh
 ```
 
-The runner defaults to
-`../../Source/jira_data_for_instability_cluster.json`, processes repositories
-sequentially, preserves successful outputs when another source fails, and
-writes `runs/cluster_run_summary.json`. See
-[`cluster/README.md`](cluster/README.md) for bounded tests, source overrides,
-failure behavior, and persistent output configuration.
+Run this command from the repository root. It optionally updates the checkout,
+then submits one SLURM job per repository. Results and `.out` logs are grouped
+under a timestamped `cluster_runs/<run-id>/<repository>/` directory, with a
+`submitted_jobs.tsv` index. See [`cluster/README.md`](cluster/README.md) for
+the exact layout, bounded tests, source overrides, and sequential local runs.
 
 ## Safe bounded test
 
