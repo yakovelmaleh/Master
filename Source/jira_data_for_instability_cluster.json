@@ -23,6 +23,7 @@
     "company_url": "https://www.atlassian.com/company",
     "jira_url": "https://jira.atlassian.com",
     "name": "Jira",
+    "require_pr_evidence": false,
     "rough_issue_count": "275,000"
   },
   "MariaDB": {

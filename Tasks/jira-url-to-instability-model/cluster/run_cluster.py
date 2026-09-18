@@ -46,6 +46,9 @@ def load_sources(path, selected_names=None):
                 "project": entry.get("project"),
                 "run_name": entry.get("run_name"),
                 "jql": entry.get("jql"),
+                "require_pr_evidence": entry.get(
+                    "require_pr_evidence"
+                ),
             }
         )
 
@@ -149,7 +152,11 @@ def run_cluster(args):
             max_issues=args.max_issues,
             label_threshold=args.label_threshold,
             terminal_only=args.terminal_only,
-            require_pr_evidence=args.require_pr_evidence,
+            require_pr_evidence=(
+                args.require_pr_evidence
+                if source["require_pr_evidence"] is None
+                else source["require_pr_evidence"]
+            ),
             refresh=args.refresh,
         )
         try:
