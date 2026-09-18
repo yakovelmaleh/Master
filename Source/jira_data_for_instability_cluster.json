@@ -7,6 +7,8 @@
   },
   "Hyperledger": {
     "company_url": "https://hyperledger.org/about",
+    "disabled_reason": "jira.hyperledger.org no longer resolves",
+    "enabled": false,
     "jira_url": "https://jira.hyperledger.org",
     "name": "Hyperledger",
     "rough_issue_count": "28,000"
@@ -21,6 +23,7 @@
     "company_url": "https://www.atlassian.com/company",
     "jira_url": "https://jira.atlassian.com",
     "name": "Jira",
+    "require_pr_evidence": false,
     "rough_issue_count": "275,000"
   },
   "MariaDB": {
