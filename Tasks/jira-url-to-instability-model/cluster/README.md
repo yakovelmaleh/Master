@@ -32,6 +32,28 @@ From this task folder, the equivalent direct command is:
 ./cluster/submit_jobs.sh --refresh
 ```
 
+Submit only selected sources:
+
+```bash
+./Tasks/run_cluster_task.sh \
+  jira-url-to-instability-model \
+  --only Qt \
+  --refresh
+```
+
+This creates exactly one Qt SLURM job. Multiple names create one job per
+selected source:
+
+```bash
+./Tasks/run_cluster_task.sh \
+  jira-url-to-instability-model \
+  --only MariaDB Qt \
+  --refresh
+```
+
+Source names are validated before any job is submitted. Unknown or disabled
+sources stop the command without creating partial submissions.
+
 The launcher uses the existing cluster settings:
 
 - Partition: `main`
