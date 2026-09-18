@@ -11,6 +11,7 @@ Usage:
 
 Launcher options:
   --sources-file PATH  Jira source JSON file.
+  --only NAME...       Submit jobs only for the named Jira sources.
   --run-id ID          Output batch name; defaults to YYYYmmdd-HHMMSS.
   --conda-env NAME     Conda environment; defaults to master.
   --partition NAME     SLURM partition; defaults to main.
@@ -38,12 +39,25 @@ partition=main
 time_limit=4-03:30:00
 dry_run=false
 declare -a pipeline_args=()
+declare -a selected_sources=()
 
 while (($#)); do
   case "$1" in
     --sources-file)
       sources_file=$2
       shift 2
+      ;;
+    --only)
+      shift
+      selection_start=${#selected_sources[@]}
+      while (($#)) && [[ "$1" != --* ]]; do
+        selected_sources+=("$1")
+        shift
+      done
+      if ((${#selected_sources[@]} == selection_start)); then
+        echo "--only requires at least one source name." >&2
+        exit 2
+      fi
       ;;
     --run-id)
       run_id=$2
@@ -121,13 +135,65 @@ if ! jq -e 'type == "object" and length > 0' "$sources_file" >/dev/null; then
   exit 2
 fi
 
+declare -a available_sources=()
+while IFS= read -r source_name; do
+  available_sources+=("$source_name")
+done < <(
+  jq -r '
+    to_entries[]
+    | select(
+        if (.value | type) == "object"
+        then (
+          if (.value | has("enabled"))
+          then .value.enabled != false
+          else true
+          end
+        )
+        else true
+        end
+      )
+    | .key
+  ' "$sources_file"
+)
+
+declare -a source_names=()
+if ((${#selected_sources[@]} == 0)); then
+  source_names=("${available_sources[@]}")
+else
+  for requested_source in "${selected_sources[@]}"; do
+    source_found=false
+    normalized_requested=$(
+      printf '%s' "$requested_source" | tr '[:upper:]' '[:lower:]'
+    )
+    for available_source in "${available_sources[@]}"; do
+      normalized_available=$(
+        printf '%s' "$available_source" | tr '[:upper:]' '[:lower:]'
+      )
+      if [[ "$normalized_requested" == "$normalized_available" ]]; then
+        source_found=true
+        source_names+=("$available_source")
+        break
+      fi
+    done
+    if [[ "$source_found" == false ]]; then
+      echo "Requested source was not found or is disabled: $requested_source" >&2
+      exit 2
+    fi
+  done
+fi
+
+if ((${#source_names[@]} == 0)); then
+  echo "No enabled Jira sources were found in $sources_file" >&2
+  exit 2
+fi
+
 run_root="$TASK_DIR/cluster_runs/$run_id"
 manifest="$run_root/submitted_jobs.tsv"
 mkdir -p "$run_root"
 printf 'source\tjob_id\tresults\tlog\tsbatch\n' > "$manifest"
 
 source_count=0
-while IFS= read -r source_name; do
+for source_name in "${source_names[@]}"; do
   source_count=$((source_count + 1))
   safe_name=$(
     printf '%s' "$source_name" |
@@ -197,28 +263,7 @@ EOF
     "$results_dir" \
     "$logs_dir/job-%J.out" \
     "$sbatch_file" >> "$manifest"
-done < <(
-  jq -r '
-    to_entries[]
-    | select(
-        if (.value | type) == "object"
-        then (
-          if (.value | has("enabled"))
-          then .value.enabled != false
-          else true
-          end
-        )
-        else true
-        end
-      )
-    | .key
-  ' "$sources_file"
-)
-
-if ((source_count == 0)); then
-  echo "No Jira sources were found in $sources_file" >&2
-  exit 2
-fi
+done
 
 printf '%s\n' "$run_root" > "$TASK_DIR/cluster_runs/latest_run.txt"
 echo "Submitted $source_count Jira source job(s)."
