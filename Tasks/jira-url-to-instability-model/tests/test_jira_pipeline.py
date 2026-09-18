@@ -2,10 +2,13 @@ import unittest
 import json
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pandas as pd
 
 from cluster.run_cluster import load_sources
+from jira_pipeline.client import JiraClient
 from jira_pipeline.orchestrator import (
     build_jql,
     default_run_name,
@@ -182,6 +185,62 @@ class JiraPipelineTests(unittest.TestCase):
         self.assertEqual(sources[1]["run_name"], "apache-aria")
         self.assertIsNone(sources[0]["require_pr_evidence"])
         self.assertFalse(sources[1]["require_pr_evidence"])
+
+    def test_search_endpoint_uses_bounded_run_jql_for_jira_cloud(self):
+        client = JiraClient.__new__(JiraClient)
+        jql = (
+            "(type != Bug) AND (Sprint is not EMPTY) "
+            "AND (statusCategory = Done) ORDER BY created ASC"
+        )
+
+        def request(_method, path, params):
+            if path == "/rest/api/2/search":
+                return SimpleNamespace(
+                    status_code=410,
+                    headers={"content-type": "application/json"},
+                    text="The requested API has been removed.",
+                )
+            self.assertEqual(path, "/rest/api/3/search/jql")
+            self.assertEqual(params["jql"], jql)
+            return SimpleNamespace(
+                status_code=200,
+                headers={"content-type": "application/json"},
+                text='{"issues": []}',
+            )
+
+        client.request = Mock(side_effect=request)
+
+        self.assertEqual(
+            client._search_endpoint(jql),
+            ("v3", "/rest/api/3/search/jql"),
+        )
+        for call in client.request.call_args_list:
+            self.assertEqual(call.kwargs["params"]["jql"], jql)
+            self.assertEqual(call.kwargs["params"]["fields"], "key")
+            self.assertEqual(call.kwargs["params"]["maxResults"], 1)
+
+    def test_search_endpoint_error_includes_both_responses(self):
+        client = JiraClient.__new__(JiraClient)
+        client.request = Mock(
+            side_effect=[
+                SimpleNamespace(
+                    status_code=410,
+                    headers={"content-type": "application/json"},
+                    text="API removed",
+                ),
+                SimpleNamespace(
+                    status_code=401,
+                    headers={"content-type": "application/json"},
+                    text="Authentication required",
+                ),
+            ]
+        )
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "v2 HTTP 410: API removed; v3 HTTP 401: Authentication required",
+        ):
+            client._search_endpoint("project = DEMO ORDER BY created ASC")
 
 
 if __name__ == "__main__":
