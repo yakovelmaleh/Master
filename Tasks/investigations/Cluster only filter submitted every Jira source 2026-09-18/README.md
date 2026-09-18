@@ -1,4 +1,4 @@
-# Cluster only filter submitted every Jira source 2026-09-17
+# Cluster only filter submitted every Jira source 2026-09-18
 
 ## Status
 
@@ -9,7 +9,7 @@ Fixed in PR `#341`.
 - Task: `jira-url-to-instability-model`
 - Command filter: `--only`
 - Pull request: `#341`
-- Investigation date: `2026-09-17`
+- Investigation date: `2026-09-18`
 
 ## Symptom
 
