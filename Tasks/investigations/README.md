@@ -14,6 +14,7 @@ evidence, decision, fix, validation, cleanup, and follow-up.
 
 | Date | Issue | Task | Dataset | Status |
 |---|---|---|---|---|
+| 2026-09-17 | [Hyperledger Jira source no longer resolves](Hyperledger%20Jira%20source%20no%20longer%20resolves%202026-09-17/) | jira-url-to-instability-model | Hyperledger | Mitigated - source disabled |
 | 2026-09-17 | [Jira GitHub evidence filter leaves insufficient rows](Jira%20GitHub%20evidence%20filter%20leaves%20insufficient%20rows%202026-09-17/) | jira-url-to-instability-model | Jira | Fixed - rerun pending |
 | 2026-09-17 | [IntelDAOS Jira search probe rejected as unbounded](IntelDAOS%20Jira%20search%20probe%20rejected%20as%20unbounded%202026-09-17/) | jira-url-to-instability-model | IntelDAOS | Fixed by #341 - rerun pending |
 | 2026-09-17 | [Qt Jira search probe rejected as unbounded](Qt%20Jira%20search%20probe%20rejected%20as%20unbounded%202026-09-17/) | jira-url-to-instability-model | Qt | Fixed - rerun pending |
