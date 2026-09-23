@@ -1,0 +1,2 @@
+project	job_id	results	log	sbatch
+all	21438278	/home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/results	/home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/logs/job-%J.out	/home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/submit.sbatch

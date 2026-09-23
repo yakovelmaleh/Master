@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.6588614183993736,
+  "created_at_utc": "2026-09-17T17:34:59.865049+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/results/input_layout",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_5",
+  "model": "dependency_light_logistic_regression",
+  "project": "all",
+  "selected_threshold": 0.43999999999999995,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 2000
+}
