@@ -15,7 +15,6 @@ sys.path.insert(0, str(MODEL_TASK_DIR))
 
 from unstable_model.config import load_config
 from unstable_model.data import PROJECTS
-from unstable_model.training import train_model
 
 
 DEFAULT_DATASETS_FILE = TASK_DIR / "datasets.json"
@@ -94,8 +93,8 @@ def write_manifest(path, manifest):
 def build_parser():
     parser = argparse.ArgumentParser(
         description=(
-            "Run the refactored weighted instability model on the existing "
-            "CSV datasets without downloading or comparing data."
+            "Compare matching RF, legacy XGboost and NN families at all levels; "
+            "or explicitly run the separate logistic experiment."
         )
     )
     parser.add_argument(
@@ -112,8 +111,13 @@ def build_parser():
         "--label-threshold",
         type=int,
         choices=[5, 10, 15, 20],
-        default=5,
+        action="append",
+        help="Repeat to select levels; defaults to 5,10,15,20.",
     )
+    parser.add_argument("--protocol", choices=["pooled", "within-project", "leave-one-project-out"], default="pooled")
+    parser.add_argument("--experiment", choices=["comparison", "logistic"], default="comparison")
+    parser.add_argument("--models", nargs="+", choices=["RF", "XGboost", "NN"], default=["RF", "XGboost", "NN"])
+    parser.add_argument("--comparison-config", type=Path, default=TASK_DIR / "comparison_config.json")
     parser.add_argument(
         "--output-root",
         type=Path,
@@ -128,13 +132,23 @@ def build_parser():
 
 
 def run(args):
+    from model_comparison import LEVELS, load_frames, run_comparison
+
+    levels = sorted(set(args.label_threshold or LEVELS))
+    args.models = list(dict.fromkeys(args.models))
+    if args.protocol != "pooled" and args.project == "all":
+        raise ValueError("Within-project and held-out runs require an explicit project.")
+    if args.experiment == "logistic" and args.protocol == "leave-one-project-out":
+        raise ValueError("Logistic task supports pooled or within-project evaluation only.")
     output_root = args.output_root.resolve()
+    if (output_root / "verification_manifest.json").exists():
+        raise FileExistsError(f"Results already exist at {output_root}; choose a fresh output directory.")
     output_root.mkdir(parents=True, exist_ok=True)
     manifest_path = output_root / "verification_manifest.json"
     datasets_path, configured_datasets = load_datasets(args.datasets_file)
     selected_datasets = select_datasets(
         configured_datasets,
-        args.project,
+        "all" if args.protocol == "leave-one-project-out" else args.project,
     )
     input_details = {
         project: {
@@ -149,39 +163,54 @@ def run(args):
         "status": "inputs_validated",
         "datasets_file": str(datasets_path),
         "project": args.project,
-        "label_threshold": args.label_threshold,
+        "label_thresholds": levels,
+        "models": args.models if args.experiment == "comparison" else ["Logistic"],
+        "variants": ["baseline", "refactored"] if args.experiment == "comparison" else ["logistic"],
+        "protocol": args.protocol,
+        "experiment": args.experiment,
         "comparison_performed": False,
         "inputs": input_details,
     }
     write_manifest(manifest_path, manifest)
 
-    if args.validate_only:
-        return manifest_path
-
     staged_data_root = output_root / "input_layout"
     stage_datasets(selected_datasets, staged_data_root)
-    model_config = load_config(MODEL_TASK_DIR / "model_config.json")
     try:
-        run_dir, metrics = train_model(
-            data_root=staged_data_root,
-            output_root=output_root / "model",
-            project=args.project,
-            threshold=args.label_threshold,
-            config=model_config,
-        )
+        data = load_frames(staged_data_root, selected_datasets, levels)
+        if args.validate_only:
+            manifest["eligible_rows"] = len(data)
+            write_manifest(manifest_path, manifest)
+            return manifest_path
+        if args.experiment == "comparison":
+            configuration = json.loads(args.comparison_config.read_text())
+            manifest["comparison_config"] = configuration
+            write_manifest(manifest_path, manifest)
+            rows = run_comparison(
+                data, output_root / "model", args.protocol, args.project,
+                levels, args.models, configuration, MASTER_DIR,
+            )
+            manifest["comparison_performed"] = True
+            manifest["result_count"] = len(rows)
+            manifest["historical_pipeline_replayed"] = False
+        else:
+            from unstable_model.training import train_model
+
+            model_config = load_config(MODEL_TASK_DIR / "model_config.json")
+            for level in levels:
+                train_model(
+                    data_root=staged_data_root,
+                    output_root=output_root / "model" / f"words_{level}" / "Logistic" / "logistic",
+                    project=args.project,
+                    threshold=level,
+                    config=model_config,
+                )
     except Exception as error:
         manifest["status"] = "failed"
         manifest["error"] = str(error)
         write_manifest(manifest_path, manifest)
         raise
 
-    manifest.update(
-        {
-            "status": "succeeded",
-            "model_run_directory": str(run_dir.resolve()),
-            "metrics": metrics,
-        }
-    )
+    manifest.update({"status": "succeeded", "model_run_directory": str(output_root / "model")})
     write_manifest(manifest_path, manifest)
     return manifest_path
 

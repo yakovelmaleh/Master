@@ -9,7 +9,7 @@ Create a GitHub PR containing a complete summary bundle for one task.
 Usage:
   ./create_task_summary_pr.sh \
     --task TASK_NAME \
-    [--run-id RUN_ID | --no-run] \
+    [--run-id RUN_ID]... [--no-run] \
     [--include PATH]... \
     [--summary TEXT] \
     [--title PR_TITLE] \
@@ -19,7 +19,7 @@ Required:
   --task NAME       Task folder under Master/Tasks.
 
 Optional:
-  --run-id ID       Include this task cluster run.
+  --run-id ID       Include a task cluster run; repeat to collect older level runs.
   --no-run          Do not include a cluster run.
   --include PATH    Include another repository file or directory. Repeatable.
   --summary TEXT    Add a short human-written summary to the generated README.
@@ -84,18 +84,21 @@ copy_tree() {
   while IFS= read -r -d '' source_file; do
     relative_path=${source_file#"$source_root"/}
     copy_file "$source_file" "$destination_root/$relative_path"
-  done < <(find -L "$source_root" -type f -print0)
+  done < <(find -L "$source_root" -type f \
+    ! -name '*.pyc' ! -name '.DS_Store' ! -path '*/__pycache__/*' -print0)
 }
 
 copy_task_definition() {
-  destination_root=$1
+  local destination_root=$1
+  local task_dir=${2:-$task_dir}
+  local task_name=${3:-$task_name}
 
   while IFS= read -r -d '' source_file; do
     relative_path=${source_file#"$task_dir"/}
     copy_file "$source_file" "$destination_root/$relative_path"
   done < <(
     find -L "$task_dir" \
-      \( -path "$task_dir/cluster_runs" -o -path "$task_dir/runs" \) \
+      \( -path "$task_dir/cluster_runs" -o -path "$task_dir/runs" -o -path "$task_dir/results" \) \
       -prune -o \
       -type f \
       ! -name '.DS_Store' \
@@ -131,6 +134,7 @@ pr_title=
 summary_text=
 dry_run=false
 declare -a include_paths=()
+declare -a run_ids=()
 
 while (($#)); do
   case "$1" in
@@ -146,6 +150,7 @@ while (($#)); do
         exit 2
       fi
       run_id=$2
+      run_ids+=("$2")
       include_run=selected
       run_option=run-id
       shift 2
@@ -220,17 +225,16 @@ fi
 task_dir=$(canonical_directory "$task_dir")
 
 selected_run=
+declare -a selected_runs=()
 cluster_root="$task_dir/cluster_runs"
 if [[ "$include_run" == "selected" ]]; then
-  if [[ ! "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
-    echo "Invalid run ID: $run_id" >&2
-    exit 2
-  fi
-  selected_run="$cluster_root/$run_id"
-  if [[ ! -d "$selected_run" ]]; then
-    echo "Cluster run not found: $selected_run" >&2
-    exit 2
-  fi
+  for run_id in "${run_ids[@]}"; do
+    if [[ ! "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+      echo "Invalid run ID: $run_id" >&2
+      exit 2
+    fi
+    selected_runs+=("$cluster_root/$run_id")
+  done
 elif [[ "$include_run" == "auto" && -f "$cluster_root/latest_run.txt" ]]; then
   selected_run=$(head -n 1 "$cluster_root/latest_run.txt")
   if [[ "$selected_run" != /* ]]; then
@@ -241,18 +245,29 @@ elif [[ "$include_run" == "auto" && -f "$cluster_root/latest_run.txt" ]]; then
     echo "Use --no-run or provide --run-id explicitly." >&2
     exit 2
   fi
+  selected_runs+=("$selected_run")
 fi
 
-if [[ -n "$selected_run" ]]; then
+if ((${#selected_runs[@]} > 0)); then
   cluster_root=$(canonical_directory "$cluster_root")
-  selected_run=$(canonical_directory "$selected_run")
-  case "$selected_run/" in
+  declare -a canonical_runs=()
+  for selected_run in "${selected_runs[@]}"; do
+    if [[ ! -d "$selected_run" ]]; then
+      echo "Cluster run not found: $selected_run" >&2
+      exit 2
+    fi
+    selected_run=$(canonical_directory "$selected_run")
+    case "$selected_run/" in
     "$cluster_root/"*) ;;
     *)
       echo "Selected run is outside the task's cluster_runs directory." >&2
       exit 2
       ;;
-  esac
+    esac
+    canonical_runs+=("$selected_run")
+  done
+  selected_runs=("${canonical_runs[@]}")
+  selected_run=${selected_runs[0]}
   run_id=$(basename "$selected_run")
 fi
 
@@ -282,7 +297,7 @@ if ((${#include_paths[@]} > 0)); then
   done
 fi
 
-for required_command in git gzip; do
+for required_command in git gzip python3; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "Required command not found: $required_command" >&2
     exit 2
@@ -324,8 +339,26 @@ artifacts_dir="$stage_destination/artifacts"
 mkdir -p "$artifacts_dir/task"
 copy_task_definition "$artifacts_dir/task"
 
-if [[ -n "$selected_run" ]]; then
-  copy_tree "$selected_run" "$artifacts_dir/cluster-run"
+case "$task_name" in
+  verify-refactored-instability-model|validate-refactored-model-per-dataset|compare-models-leave-one-project-out|evaluate-logistic-instability-model)
+    for dependency in verify-refactored-instability-model jira-url-to-instability-model; do
+      [[ "$dependency" == "$task_name" ]] && continue
+      if [[ "$dependency" == "jira-url-to-instability-model" ]]; then
+        copy_tree "$REPO_ROOT/Tasks/$dependency/unstable_model" "$artifacts_dir/dependencies/$dependency/unstable_model"
+        copy_file "$REPO_ROOT/Tasks/$dependency/model_config.json" "$artifacts_dir/dependencies/$dependency/model_config.json"
+      else
+        copy_task_definition "$artifacts_dir/dependencies/$dependency" "$REPO_ROOT/Tasks/$dependency" "$dependency"
+      fi
+    done
+    ;;
+esac
+
+if ((${#selected_runs[@]} == 1)); then
+  copy_tree "${selected_runs[0]}" "$artifacts_dir/cluster-run"
+elif ((${#selected_runs[@]} > 1)); then
+  for selected_run in "${selected_runs[@]}"; do
+    copy_tree "$selected_run" "$artifacts_dir/cluster-runs/$(basename "$selected_run")"
+  done
 fi
 
 if ((${#resolved_includes[@]} > 0)); then
@@ -338,6 +371,8 @@ if ((${#resolved_includes[@]} > 0)); then
     fi
   done
 fi
+
+python3 "$SCRIPT_DIR/summarize_levels.py" "$stage_destination"
 
 sensitive_names=$(
   find "$artifacts_dir" -type f \
@@ -361,7 +396,7 @@ fi
 secret_matches=$(
   grep -RIlE \
     '(-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN|AWS_SECRET_ACCESS_KEY)[=:][^[:space:]]{8,}|gh[pousr]_[A-Za-z0-9]{20,})' \
-    "$artifacts_dir" || true
+    "$stage_destination" || true
 )
 if [[ -n "$secret_matches" ]]; then
   echo "Possible credentials were found; refusing to create the PR:" >&2
@@ -382,7 +417,7 @@ fi
 
 (
   cd "$stage_destination"
-  find artifacts -type f -print | sort > FILES.txt
+  find . -type f ! -name FILES.txt -print | sed 's#^\./##' | sort > FILES.txt
 )
 file_count=$(wc -l < "$stage_destination/FILES.txt" | tr -d ' ')
 bundle_kib=$(du -sk "$artifacts_dir" | awk '{print $1}')
@@ -407,11 +442,13 @@ overwrite the original task implementation or runtime directories.
 - Bundle size: \`${bundle_kib} KiB\`
 EOF
 
-if [[ -n "$selected_run" ]]; then
+if ((${#selected_runs[@]} > 0)); then
+  for selected_run in "${selected_runs[@]}"; do
   cat >> "$stage_destination/README.md" <<EOF
-- Cluster run: \`$run_id\`
+- Cluster run: \`$(basename "$selected_run")\`
 - Original cluster run directory: \`$selected_run\`
 EOF
+  done
 else
   cat >> "$stage_destination/README.md" <<'EOF'
 - Cluster run: not included
@@ -424,12 +461,19 @@ cat >> "$stage_destination/README.md" <<'EOF'
 
 - `artifacts/task/` contains the task definition and tracked task files.
 - `artifacts/cluster-run/` contains the selected cluster run, when present.
+- `artifacts/cluster-runs/<id>/` is used when multiple run IDs were selected.
+- `artifacts/dependencies/` contains shared comparison/model code.
 - `artifacts/included/` contains paths supplied with `--include`, when present.
+- `LEVELS.csv` lists planned project/level/model/variant outputs and missing files.
+- `RESULTS.csv` contains available unweighted test metrics with separate AP and AUC-PRC.
+- `LEVEL_SUMMARY.md` describes coverage, including incomplete/failed jobs.
 - `FILES.txt` is the exact committed file inventory.
 
 Runtime caches, Python bytecode, and unrelated historical cluster runs are not
 included automatically. Files larger than 90 MiB are gzip-compressed.
 EOF
+
+cat "$stage_destination/LEVEL_SUMMARY.md" >> "$stage_destination/README.md"
 
 if [[ -n "$summary_text" ]]; then
   cat >> "$stage_destination/README.md" <<EOF

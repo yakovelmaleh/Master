@@ -79,6 +79,7 @@ def write_html_report(path, run_metadata, metrics):
   <h2>Test metrics</h2>
   <table>
     <tr><th>Metric</th><th>Value</th></tr>
+    <tr><td>AUC-PRC (trapezoidal)</td><td>{display_metric(test.get("auc_prc"))}</td></tr>
     <tr><td>Average precision</td><td>{display_metric(test["average_precision"])}</td></tr>
     <tr><td>ROC AUC</td><td>{display_metric(test["roc_auc"])}</td></tr>
     <tr><td>F1</td><td>{test["f1"]:.4f}</td></tr>

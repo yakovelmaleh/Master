@@ -21,16 +21,18 @@ def probability_metrics(labels, probabilities):
     positive_count = int(labels.sum())
     negative_count = len(labels) - positive_count
     if positive_count == 0 or negative_count == 0:
-        return {"average_precision": None, "roc_auc": None}
+        return {"average_precision": None, "auc_prc": None, "roc_auc": None}
 
     order = np.argsort(-probabilities, kind="mergesort")
     sorted_labels = labels[order]
     cumulative_positives = np.cumsum(sorted_labels)
-    ranks = np.arange(1, len(labels) + 1)
-    precision_at_rank = cumulative_positives / ranks
-    average_precision = float(
-        np.sum(precision_at_rank * sorted_labels) / positive_count
-    )
+    # A tied score is one threshold, not an arbitrary ordering of its labels.
+    ends = np.r_[np.flatnonzero(np.diff(probabilities[order])), len(labels) - 1]
+    precision = cumulative_positives[ends] / (ends + 1)
+    recall = cumulative_positives[ends] / positive_count
+    recall_steps = np.diff(np.r_[0.0, recall])
+    average_precision = float(np.sum(recall_steps * precision))
+    auc_prc = float(np.sum(recall_steps * (precision + np.r_[1.0, precision[:-1]]) / 2))
 
     probability_ranks = np.asarray(
         pd.Series(probabilities).rank(method="average")
@@ -41,6 +43,7 @@ def probability_metrics(labels, probabilities):
     ) / (positive_count * negative_count)
     return {
         "average_precision": average_precision,
+        "auc_prc": auc_prc,
         "roc_auc": float(roc_auc),
     }
 
@@ -93,6 +96,14 @@ def clean_metric(value):
 
 
 def calculate_metrics(labels, probabilities, threshold):
+    labels = np.asarray(labels)
+    probabilities = np.asarray(probabilities, dtype=float)
+    if labels.ndim != 1 or probabilities.shape != labels.shape or not len(labels):
+        raise ValueError("Metrics require non-empty, aligned one-dimensional labels and probabilities.")
+    if not np.isin(labels, [0, 1]).all():
+        raise ValueError("Metrics require binary labels.")
+    if not np.isfinite(probabilities).all() or ((probabilities < 0) | (probabilities > 1)).any():
+        raise ValueError("Probabilities must be finite and between zero and one.")
     predictions = (probabilities >= threshold).astype(int)
     binary = binary_metrics(labels, predictions)
     probability = probability_metrics(labels, probabilities)
@@ -106,4 +117,5 @@ def calculate_metrics(labels, probabilities, threshold):
             probability["average_precision"]
         ),
         "roc_auc": clean_metric(probability["roc_auc"]),
+        "auc_prc": clean_metric(probability["auc_prc"]),
     }
