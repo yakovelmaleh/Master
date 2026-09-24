@@ -1,0 +1,18 @@
+------------------------------------
+Thu 17 Sep 2026 20:34:15 IDT
+SLURM_JOBID:		21438278
+SLURM_JOB_NODELIST:	ise-cpu-intl-06
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21438278
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:34:15 IDT
+
+SLURM_JOBID:		21438278
+SLURM_JOB_NODELIST:	ise-cpu-intl-06
+
+Project selection: all
+Results: /home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/results
+Log: /home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/logs/job-21438278.out
+Verification manifest: /home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260917-203407/all/results/verification_manifest.json

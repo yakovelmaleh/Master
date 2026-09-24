@@ -1,0 +1,202 @@
+project_key,usability_label,Model,feature_importance,accuracy,confusion_matrix,classification_report,area_under_pre_recall_curve,avg_precision,area_under_roc_curve,y_pred,precision,recall,thresholds
+Apache,is_change_text_num_words_15,RF,"len_description                           0.090778
+num_words                                 0.090654
+ratio_unusable_issues_text_by_previous    0.087697
+num_issues_cretor_prev                    0.076930
+len_sum_desc                              0.075287
+num_stopwords                             0.049777
+num_sentences                             0.048278
+8                                         0.037955
+9                                         0.035878
+avg_num_word_in_sentence                  0.032473
+10                                        0.029477
+avg_word_len                              0.029065
+2                                         0.024708
+12                                        0.023098
+14                                        0.022369
+time_until_add_sprint                     0.022350
+0                                         0.021988
+3                                         0.021958
+1                                         0.021822
+5                                         0.020931
+6                                         0.019555
+11                                        0.018884
+13                                        0.018481
+7                                         0.017421
+4                                         0.016635
+dominant_topic_1                          0.014436
+priority                                  0.010980
+dominant_topic_2                          0.010135
+original_story_points_sprint              0.007312
+num_question_marks                        0.001278
+has_url                                   0.000858
+num_changes_text_before_sprint            0.000550
+relates                                   0.000001
+duplicate_by                              0.000000
+num_headlines                             0.000000
+duplicate                                 0.000000
+block_by                                  0.000000
+has_template                              0.000000
+has_acceptance_criteria                   0.000000
+if_acceptance_empty_tbd                   0.000000
+len_acceptance                            0.000000
+has_tbd                                   0.000000
+has_please                                0.000000
+if_description_empty_tbd                  0.000000
+num_comments_before_sprint                0.000000
+num_changes_story_point_before_sprint     0.000000
+noun_count                                0.000000
+has_code                                  0.000000
+adj_count                                 0.000000
+adv_count                                 0.000000
+pron_count                                0.000000
+block                                     0.000000
+verb_count                                0.000000
+dtype: float64",0.863843648208469,"[[691.48899587  76.01100413]
+ [615.89506173 151.60493827]]","              precision    recall  f1-score   support
+
+           0       0.53      0.90      0.67 767.4999999999961
+           1       0.67      0.20      0.30 767.4999999999991
+
+    accuracy                           0.55 1534.9999999999952
+   macro avg       0.60      0.55      0.49 1534.9999999999952
+weighted avg       0.60      0.55      0.49 1534.9999999999952
+",0.6409648494789812,0.6508739022879407,0.6964864910761288,[0 0 0 ... 1 0 0],[0.5        0.500172   0.50034412 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],[0.04417356 0.04461877 0.04503782 ... 0.62102807 0.62457184 0.64074354]
+Apache,is_change_text_num_words_15,XGboost,"ratio_unusable_issues_text_by_previous    6.450788e-02
+len_description                           5.935180e-02
+num_words                                 5.602741e-02
+len_sum_desc                              4.996242e-02
+num_issues_cretor_prev                    4.687779e-02
+8                                         4.439705e-02
+avg_word_len                              4.205925e-02
+5                                         3.947994e-02
+12                                        3.864908e-02
+10                                        3.838346e-02
+1                                         3.789984e-02
+0                                         3.780158e-02
+9                                         3.716466e-02
+7                                         3.524655e-02
+3                                         3.443586e-02
+11                                        3.422310e-02
+2                                         3.408489e-02
+14                                        3.311785e-02
+13                                        3.247557e-02
+num_stopwords                             3.159947e-02
+4                                         3.141613e-02
+6                                         3.125042e-02
+avg_num_word_in_sentence                  2.601337e-02
+time_until_add_sprint                     2.479441e-02
+num_sentences                             2.154374e-02
+priority                                  8.645438e-03
+dominant_topic_1                          7.870019e-03
+original_story_points_sprint              7.830083e-03
+dominant_topic_2                          3.730662e-03
+num_question_marks                        3.487601e-03
+has_url                                   2.180738e-03
+num_changes_text_before_sprint            1.243600e-03
+has_please                                8.398766e-04
+block                                     5.617854e-04
+relates                                   4.630037e-04
+has_template                              2.433090e-04
+has_acceptance_criteria                   6.580280e-05
+num_changes_story_point_before_sprint     2.772010e-05
+num_headlines                             1.780585e-05
+duplicate_by                              1.673794e-05
+block_by                                  1.222841e-05
+duplicate                                 5.979456e-08
+pron_count                                0.000000e+00
+adv_count                                 0.000000e+00
+adj_count                                 0.000000e+00
+has_code                                  0.000000e+00
+noun_count                                0.000000e+00
+num_comments_before_sprint                0.000000e+00
+if_description_empty_tbd                  0.000000e+00
+has_tbd                                   0.000000e+00
+len_acceptance                            0.000000e+00
+if_acceptance_empty_tbd                   0.000000e+00
+verb_count                                0.000000e+00
+dtype: float64",0.9472312703583062,"[[767.5   0. ]
+ [767.5   0. ]]","              precision    recall  f1-score   support
+
+           0       0.50      1.00      0.67 767.4999999999961
+           1       0.00      0.00      0.00 767.4999999999991
+
+    accuracy                           0.50 1534.9999999999952
+   macro avg       0.25      0.50      0.33 1534.9999999999952
+weighted avg       0.25      0.50      0.33 1534.9999999999952
+",0.6353442102873348,0.6453763158965193,0.7009017270365275,[0 0 0 ... 0 0 0],[0.5        0.500172   0.50034412 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[9.43742658e-09 1.06717366e-08 1.27133734e-08 ... 2.89381395e-02
+ 3.17470489e-02 9.08084873e-02]"
+Apache,is_change_text_num_words_15,NN,[],0.9159609120521173,"[[1400   54]
+ [  75    6]]","              precision    recall  f1-score   support
+
+           0       0.95      0.96      0.96      1454
+           1       0.10      0.07      0.09        81
+
+    accuracy                           0.92      1535
+   macro avg       0.52      0.52      0.52      1535
+weighted avg       0.90      0.92      0.91      1535
+",0.07477139726763185,0.07737783239595528,0.6047429823220745,[0 0 0 ... 0 0 0],[0.05276873 0.05280313 0.05283757 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[9.26050510e-11 2.94504171e-09 1.46177398e-08 ... 9.61507779e-01
+ 9.65030197e-01 9.96159421e-01]"
+Apache,is_change_text_num_words_15,Empty,[],0.9472312703583062,"[[1454    0]
+ [  81    0]]","              precision    recall  f1-score   support
+
+           0       0.95      1.00      0.97      1454
+           1       0.00      0.00      0.00        81
+
+    accuracy                           0.95      1535
+   macro avg       0.47      0.50      0.49      1535
+weighted avg       0.90      0.95      0.92      1535
+",0.5263843648208469,0.05276872964169381,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: label_is_empty, Length: 1535, dtype: int64",[0.05276873 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_15,Zero,[],0.9472312703583062,"[[1454    0]
+ [  81    0]]","              precision    recall  f1-score   support
+
+           0       0.95      1.00      0.97      1454
+           1       0.00      0.00      0.00        81
+
+    accuracy                           0.95      1535
+   macro avg       0.47      0.50      0.49      1535
+weighted avg       0.90      0.95      0.92      1535
+",0.5263843648208469,0.05276872964169381,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: all, Length: 1535, dtype: int64",[0.05276873 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_15,Random,[],0.5061889250814332,"[[731 723]
+ [ 35  46]]","              precision    recall  f1-score   support
+
+           0       0.95      0.50      0.66      1454
+           1       0.06      0.57      0.11        81
+
+    accuracy                           0.51      1535
+   macro avg       0.51      0.54      0.38      1535
+weighted avg       0.91      0.51      0.63      1535
+",0.08155730958807647,0.0844647417620762,0.5408069692801467,"0       0
+1       0
+2       0
+3       0
+4       1
+       ..
+1530    1
+1531    1
+1532    0
+1533    1
+1534    1
+Name: pred, Length: 1535, dtype: int64",[0.05276873 0.05280313 0.05218526 ... 0.5        1.         1.        ],[1.         1.         0.98765432 ... 0.01234568 0.01234568 0.        ],[0.0022982  0.00372085 0.00394493 ... 0.9940971  0.99696332 0.99844169]

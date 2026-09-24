@@ -1,0 +1,11 @@
+project_key,usability_label,accuracy_xgboost,confusion_matrix_xgboost,classification_report_xgboost,area_under_pre_recall_curve_xgboost,avg_precision_xgboost,area_under_roc_curve_xgboost,y_pred_xgboost,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,random_state,learning_rate,subsample
+Qt,is_change_text_num_words_5,0.5110579526990431,"[[6.15962042e+02 5.37958115e-01]
+ [6.02327586e+02 1.41724138e+01]]","              precision    recall  f1-score   support
+
+           0       0.51      1.00      0.67 616.5000000000089
+           1       0.96      0.02      0.04 616.5000000000008
+
+    accuracy                           0.51 1233.0000000000095
+   macro avg       0.73      0.51      0.36 1233.0000000000095
+weighted avg       0.73      0.51      0.36 1233.0000000000095
+",0.7197828830697584,0.7235638777586697,0.7349100318950512,[0 0 0 ... 0 0 0],400,sqrt,50,20,10,15,0.05,0.9

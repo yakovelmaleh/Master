@@ -1,0 +1,19 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap,random_state,class_weight
+IntelDAOS,is_change_text_num_words_15,"['num_headlines', 'has_code', 'has_url', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'if_acceptance_empty_tbd', 'len_acceptance', 'avg_word_len', 'avg_num_word_in_sentence', 'has_tbd', 'has_please', 'len_description', 'if_description_empty_tbd', 'num_stopwords', 'num_issues_cretor_prev', 'priority', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'ratio_unusable_issues_text_by_previous', 'dominant_topic_1', 'dominant_topic_2', 'dominant_topic_3']",0,0.5392506690454953,"[[126.99152542  39.50847458]
+ [113.92105263  52.57894737]]","              precision    recall  f1-score   support
+
+           0       0.53      0.76      0.62 166.50000000000043
+           1       0.57      0.32      0.41     166.5
+
+    accuracy                           0.54 333.00000000000045
+   macro avg       0.55      0.54      0.52 333.00000000000045
+weighted avg       0.55      0.54      0.52 333.00000000000045
+",0.5151896055500225,0.53329497239637,0.5153434433541494,"[1 0 0 0 0 0 0 0 1 1 1 0 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 0 0 0 0
+ 0 1 1 1 1 1 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 0 0 1
+ 0 0 0 0 0 1 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 1 0 0 0 0 1 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 1 0 0 0 1 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 1 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1
+ 0 1 0 0 1 1 1 0 0 0 0 0 0 1 0 1 1 0 0 0 0 1 0 1 0 1 1 0 0 1 0 0 1 1 0 0 1
+ 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 1 1 0 0 0 1 0 0 0 0 0 1]",2000,auto,10,30,10,False,15,balanced

@@ -1,0 +1,11 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap,random_state,class_weight
+Qt,is_change_text_num_words_5,"['num_headlines', 'has_code', 'has_url', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'if_acceptance_empty_tbd', 'len_acceptance', 'avg_word_len', 'avg_num_word_in_sentence', 'has_tbd', 'has_please', 'len_description', 'if_description_empty_tbd', 'num_stopwords', 'num_issues_cretor_prev', 'priority', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'ratio_unusable_issues_text_by_previous', 'BERT_5_instability', 'BERT_10_instability', 'BERT_15_instability', 'BERT_20_instability', 'dominant_topic_1']",0,0.5876211109105133,"[[526.12303665  90.37696335]
+ [418.0862069  198.4137931 ]]","              precision    recall  f1-score   support
+
+           0       0.56      0.85      0.67 616.5000000000089
+           1       0.69      0.32      0.44 616.5000000000008
+
+    accuracy                           0.59 1233.0000000000095
+   macro avg       0.62      0.59      0.56 1233.0000000000095
+weighted avg       0.62      0.59      0.56 1233.0000000000095
+",0.6594894476085696,0.6683475200665286,0.6980100700086305,[0 0 0 ... 0 0 0],400,log2,110,50,100,True,2,

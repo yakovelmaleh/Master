@@ -1,0 +1,11 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap,random_state,class_weight
+Apache,is_change_text_num_words_20,"['num_headlines', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'avg_word_len', 'avg_num_word_in_sentence', 'len_description', 'num_stopwords', 'num_issues_cretor_prev', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', 'ratio_unusable_issues_text_by_previous', 'BERT_5_instability', 'BERT_10_instability', 'BERT_15_instability', 'BERT_20_instability', 'dominant_topic_1', 'dominant_topic_2']",0,0.6119386311164072,"[[674.23110151  92.76889849]
+ [502.51724138 264.48275862]]","              precision    recall  f1-score   support
+
+           0       0.57      0.88      0.69 766.9999999999852
+           1       0.74      0.34      0.47 766.9999999999983
+
+    accuracy                           0.61 1533.9999999999836
+   macro avg       0.66      0.61      0.58 1533.9999999999836
+weighted avg       0.66      0.61      0.58 1533.9999999999836
+",0.6815951594653702,0.687331759453379,0.7037163923437821,[0 0 0 ... 0 0 0],2000,auto,10,30,10,False,15,balanced

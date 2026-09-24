@@ -1,0 +1,203 @@
+project_key,usability_label,Model,feature_importance,accuracy,confusion_matrix,classification_report,area_under_pre_recall_curve,avg_precision,area_under_roc_curve,y_pred,precision,recall,thresholds
+Apache,is_change_text_num_words_20,RF,"len_description                           0.134888
+len_sum_desc                              0.070056
+avg_word_len                              0.064244
+num_words                                 0.044655
+num_issues_cretor_prev                    0.042494
+num_sentences                             0.042378
+9                                         0.038371
+num_stopwords                             0.033236
+10                                        0.032681
+5                                         0.032630
+12                                        0.032232
+14                                        0.032194
+1                                         0.030662
+2                                         0.030578
+8                                         0.029995
+11                                        0.029555
+6                                         0.029045
+7                                         0.028930
+13                                        0.028834
+4                                         0.028695
+avg_num_word_in_sentence                  0.027065
+3                                         0.026358
+0                                         0.026166
+ratio_unusable_issues_text_by_previous    0.025053
+time_until_add_sprint                     0.023366
+priority                                  0.013709
+original_story_points_sprint              0.004318
+dominant_topic_1                          0.002954
+relates                                   0.002719
+dominant_topic_2                          0.002713
+has_url                                   0.002400
+duplicate_by                              0.001596
+has_please                                0.001314
+num_changes_story_point_before_sprint     0.001207
+num_changes_text_before_sprint            0.001136
+block                                     0.000486
+num_question_marks                        0.000412
+has_template                              0.000254
+block_by                                  0.000208
+has_tbd                                   0.000135
+num_headlines                             0.000044
+has_acceptance_criteria                   0.000031
+duplicate                                 0.000004
+pron_count                                0.000000
+adv_count                                 0.000000
+adj_count                                 0.000000
+has_code                                  0.000000
+noun_count                                0.000000
+num_comments_before_sprint                0.000000
+if_description_empty_tbd                  0.000000
+len_acceptance                            0.000000
+if_acceptance_empty_tbd                   0.000000
+verb_count                                0.000000
+dtype: float64",0.6885993485342019,"[[532.46612466 235.03387534]
+ [338.22033898 429.27966102]]","              precision    recall  f1-score   support
+
+           0       0.61      0.69      0.65 767.5000000000177
+           1       0.65      0.56      0.60 767.4999999999994
+
+    accuracy                           0.63 1535.0000000000173
+   macro avg       0.63      0.63      0.62 1535.0000000000173
+weighted avg       0.63      0.63      0.62 1535.0000000000173
+",0.63261608521039,0.6436247925291354,0.7171007303293372,[0 1 1 ... 1 0 1],[0.5        0.50016943 0.50033898 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],[0.00275197 0.00298481 0.00377743 ... 0.83025556 0.83500522 0.85461047]
+Apache,is_change_text_num_words_20,XGboost,"len_description                           6.440385e-02
+ratio_unusable_issues_text_by_previous    5.952323e-02
+num_words                                 5.107816e-02
+len_sum_desc                              5.087696e-02
+num_issues_cretor_prev                    4.801524e-02
+10                                        4.309652e-02
+avg_word_len                              4.130914e-02
+9                                         3.943412e-02
+0                                         3.764892e-02
+11                                        3.731905e-02
+13                                        3.664464e-02
+1                                         3.596969e-02
+8                                         3.558466e-02
+5                                         3.552787e-02
+12                                        3.459513e-02
+14                                        3.436018e-02
+2                                         3.359046e-02
+6                                         3.329342e-02
+3                                         3.305694e-02
+7                                         3.035503e-02
+4                                         3.022030e-02
+num_sentences                             2.803423e-02
+num_stopwords                             2.726100e-02
+time_until_add_sprint                     2.647804e-02
+avg_num_word_in_sentence                  2.538660e-02
+dominant_topic_2                          1.080865e-02
+priority                                  8.568314e-03
+original_story_points_sprint              6.867966e-03
+num_question_marks                        6.777328e-03
+dominant_topic_1                          6.463834e-03
+has_url                                   2.123349e-03
+num_changes_text_before_sprint            2.042150e-03
+has_please                                1.303724e-03
+relates                                   1.039970e-03
+num_headlines                             3.193269e-04
+num_changes_story_point_before_sprint     2.790180e-04
+block                                     1.410773e-04
+has_template                              1.057683e-04
+duplicate_by                              4.981865e-05
+has_acceptance_criteria                   3.019980e-05
+duplicate                                 1.598803e-05
+block_by                                  8.161701e-08
+has_tbd                                   3.965131e-08
+pron_count                                0.000000e+00
+adv_count                                 0.000000e+00
+adj_count                                 0.000000e+00
+has_code                                  0.000000e+00
+noun_count                                0.000000e+00
+num_comments_before_sprint                0.000000e+00
+if_description_empty_tbd                  0.000000e+00
+len_acceptance                            0.000000e+00
+if_acceptance_empty_tbd                   0.000000e+00
+verb_count                                0.000000e+00
+dtype: float64",0.9615635179153095,"[[767.5   0. ]
+ [767.5   0. ]]","              precision    recall  f1-score   support
+
+           0       0.50      1.00      0.67 767.5000000000177
+           1       0.00      0.00      0.00 767.4999999999994
+
+    accuracy                           0.50 1535.0000000000173
+   macro avg       0.25      0.50      0.33 1535.0000000000173
+weighted avg       0.25      0.50      0.33 1535.0000000000173
+",0.5984514839988797,0.6099100108323718,0.7005534885857333,[0 0 0 ... 0 0 0],[0.5        0.50016943 0.50033898 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[2.85767943e-09 2.89939212e-09 3.06221775e-09 ... 1.39668074e-02
+ 1.67333761e-02 8.46771831e-02]"
+Apache,is_change_text_num_words_20,NN,[],0.9172638436482085,"[[1400   76]
+ [  51    8]]","              precision    recall  f1-score   support
+
+           0       0.96      0.95      0.96      1476
+           1       0.10      0.14      0.11        59
+
+    accuracy                           0.92      1535
+   macro avg       0.53      0.54      0.53      1535
+weighted avg       0.93      0.92      0.92      1535
+",0.06725933706218415,0.07213852180326809,0.6692503789444674,[0 0 0 ... 0 0 0],[0.03843648 0.03846154 0.03848663 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[8.33829066e-11 1.56018275e-09 1.30420214e-08 ... 9.90767599e-01
+ 9.98720680e-01 9.99935914e-01]"
+Apache,is_change_text_num_words_20,Empty,[],0.9615635179153095,"[[1476    0]
+ [  59    0]]","              precision    recall  f1-score   support
+
+           0       0.96      1.00      0.98      1476
+           1       0.00      0.00      0.00        59
+
+    accuracy                           0.96      1535
+   macro avg       0.48      0.50      0.49      1535
+weighted avg       0.92      0.96      0.94      1535
+",0.5192182410423453,0.038436482084690554,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: label_is_empty, Length: 1535, dtype: int64",[0.03843648 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_20,Zero,[],0.9615635179153095,"[[1476    0]
+ [  59    0]]","              precision    recall  f1-score   support
+
+           0       0.96      1.00      0.98      1476
+           1       0.00      0.00      0.00        59
+
+    accuracy                           0.96      1535
+   macro avg       0.48      0.50      0.49      1535
+weighted avg       0.92      0.96      0.94      1535
+",0.5192182410423453,0.038436482084690554,0.5,"0       0
+1       0
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    0
+1532    0
+1533    0
+1534    0
+Name: all, Length: 1535, dtype: int64",[0.03843648 1.        ],[1. 0.],[0.]
+Apache,is_change_text_num_words_20,Random,[],0.48338762214983716,"[[706 770]
+ [ 23  36]]","              precision    recall  f1-score   support
+
+           0       0.97      0.48      0.64      1476
+           1       0.04      0.61      0.08        59
+
+    accuracy                           0.48      1535
+   macro avg       0.51      0.54      0.36      1535
+weighted avg       0.93      0.48      0.62      1535
+",0.04229676121940725,0.044078868187392456,0.5358504432501952,"0       0
+1       1
+2       0
+3       0
+4       0
+       ..
+1530    0
+1531    1
+1532    1
+1533    1
+1534    0
+Name: pred, Length: 1535, dtype: int64",[0.03843648 0.03846154 0.03848663 ... 0.         0.         1.        ],[1. 1. 1. ... 0. 0. 0.],"[3.25431699e-04 3.11312119e-03 3.50465867e-03 ... 9.98787145e-01
+ 9.98877059e-01 9.99565396e-01]"
