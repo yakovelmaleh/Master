@@ -1,8 +1,0 @@
-{
-  "Apache": "Data/Apache/features_labels_table_os.csv",
-  "Hyperledger": "Data/Hyperledger/features_labels_table_os.csv",
-  "IntelDAOS": "Data/IntelDAOS/features_labels_table_os.csv",
-  "Jira": "Data/Jira/features_labels_table_os.csv",
-  "MariaDB": "Data/MariaDB/features_labels_table_os.csv",
-  "Qt": "Data/Qt/features_labels_table_os.csv"
-}
