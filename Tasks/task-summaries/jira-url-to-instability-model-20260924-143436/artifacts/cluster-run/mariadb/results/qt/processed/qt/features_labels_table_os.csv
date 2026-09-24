@@ -1,0 +1,217 @@
+issue_key,issue_type,project_key,created,time_add_to_sprint,creator,priority,original_summary_sprint,original_description_sprint,original_acceptance_criteria_sprint,original_story_points_sprint,num_comments_before_sprint,num_changes_text_before_sprint,num_changes_story_point_before_sprint,time_until_add_to_sprint,num_changes_summary_description_acceptance_sprint,num_different_words_all_text_sprint,is_change_text_num_words_5,is_change_text_num_words_10,is_change_text_num_words_15,is_change_text_num_words_20,num_issues_cretor_prev
+QTBUG-33735,User Story,QTBUG,2013-09-30 05:25:27,2020-02-20 10:49:10.000,Kimi Arthur,P2: Important,QtConcurrent::mapped doesn't work with C++11 lambdas,"QtConcurrent::mapped currently supports function pointers, pointer to member-functions, and functors which define a nested typedef result_type as map and reduce functions. Lambda expressions don't have that typedef, so compilation fails. Workaround: stateless lambdas decay into function pointers, so you use the dereference operator to make them into function references, which again decay to function pointers, to force a function pointer deduction:  <code>  auto result = QtConcurrent::blockingMapped(someList, *[=](ListItem item){ return QString(""""); });  </code> QtConcurrent should not require result_type nested typedefs.",,13.0,16,2,0,3361283.716666667,0,0,0,0,0,0,0
+QTBUG-40040,Task,QTBUG,2014-07-03 13:40:02,2020-02-26 14:10:41.000,Joni Poikelin,P3: Somewhat important,Move Undo Framework out of widgets,Currently undo framework is under widgets but it would be useful in other areas too. Such as console and QML/QtQuick based applications. Related discussions: https://lists.qt-project.org/pipermail/development/2011-December/000932.html https://lists.qt-project.org/pipermail/development/2012-February/thread.html#1818 (later continuation of the above) https://lists.qt-project.org/pipermail/development/2017-April/029382.html Related patches: https://codereview.qt-project.org/c/qt/qtbase/+/15857 https://codereview.qt-project.org/c/qt/qtbase/+/190704,,,4,3,0,2972190.65,0,0,0,0,0,0,0
+QTBUG-68814,User Story,QTBUG,2018-06-12 15:32:40,2020-02-26 14:12:45.597,Gabriel de Dietrich,P2: Important,Native style support for Qt Quick Controls 2,"We want to support native styling in Qt Quick Controls so that application UIs developed with controls look native on standard desktop environments. UIs that want custom look wouldn't use this, but instead utilize the existing styling support in Qt Quick.
+
+The imperative rendering API that QStyle relies on does not work optimally in a scene-graph based rendering world, like Qt Quick. Instead, we want a styling technology that generates scene graph nodes (or something that easily can be made into scene graph nodes, like visual assets).
+
+As a first step, we duplicate the existing QStyle implementations from QtWidgets as a private API into QtQuickControls, and refactor it to not have any QWidget dependencies. Good if in the long run we don't have this duplication, but might not be realistic to have a unified architecture for both worlds.
+
+Atlas-based style. Needs information about sizes, alignment, etc.
+
+Investigate cascading.
+
+QPainter-based and scenegraph-based. This also means text rendering.
+
+Floating point based API.",,,1,3,0,898480.0932833333,13,607,1,1,1,1,0
+QTBUG-79923,User Story,QTBUG,2019-11-11 11:18:43,2020-07-22 12:37:45.000,Edward Welbourne,P2: Important,"Equip QDateTime to distinguish the two passes through an ""overlap"" hour during a time-zone fall-back, such as the end of DST","While QDateTime can map a UTC time to a local time, or time in some specified zone, in the overlap period of a zone transition, and will know which repeat of the time it represents (to the degree that it has the right offset from UTC, and will give the right time-zone if toString() is called with a suitable format) , we provide no way to indicate which repeat to use when constructing a time in this interval.  The existing implementation will pick one of them; the user can check its isDaylightTime() and addSecs(60 * 60) (or minus that) to fix it up, but there should be a way to tell the constructor which repeat to use, when the specified time happens twice. Python's datetime objects handle this using a ""fold"" parameter, set to 0 to get the first pass and 1 to get the second; this also affects handling of times in the gap when a time-zone transition skips an hour (as at the start of DST); PEP495 specifies the full semantics.  In general, fold=0 selects the UTC offset in effect before the transition while fold=1 selects the offset in effect after the transition.  I propose to add a parameter with the same semantics.",,21.0,1,2,0,365839.0333333333,0,0,0,0,0,0,0
+QTCREATORBUG-24216,Technical task,QTCREATORBUG,2020-06-18 07:27:08,2020-08-04 11:20:25.104,Riitta-Leena Miettinen,P2: Important,Document setting up and using Meson build system,Describe configuring Meson ( https://mesonbuild.com/ ) to be used for building apps from Qt Creator. Add a separate topic and link to it from here: https://doc-snapshots.qt.io/qtcreator-master/creator-project-other.html Here are some instructions for writing Qt Creator documentation: https://doc.qt.io/qtcreator-extending/qtcreator-documentation.html,,,4,1,0,67913.28506666666,0,0,0,0,0,0,0
+QTBUG-88792,Task,QTBUG,2020-11-24 09:32:46,2020-12-10 08:14:20.956,Mikko Gronoff,P3: Somewhat important,Push Qt 5.15.2 content to upstream meta-qt5 ,Post-release task. Push 5.15.2 content to open source community,,,1,0,0,22961.5826,0,0,0,0,0,0,1
+QTBUG-86663,Task,QTBUG,2020-09-15 09:57:29,2020-12-21 11:23:58.000,Mikko Gronoff,P3: Somewhat important,Push Qt 5.12.10 content to upstream meta-qt5 ,"Post-release task.
+
+Pushing 5.12 content to open source community",,,1,0,0,139766.48333333334,2,8,1,0,0,0,0
+QDS-3510,Task,QDS,2021-01-08 10:27:59,2021-01-11 10:33:52.000,Henning Gründl,P3: Somewhat important,Resarch QML Flexbox,Have a look at qml-flexbox and see if it is sufficient for PropertyEditor layouts.  This project is using Yoga .,,,1,0,0,4325.883333333333,0,0,0,0,0,0,0
+QTBUG-84776,User Story,QTBUG,2020-06-08 07:58:22,2021-02-23 15:44:00.000,Assam Boudjelthia,P1: Critical,Deprecate and move QtPurchasing as an example,"Do the necessary changes to move the code in qt5/qtpurchasing module to qtdoc/examples/demos probably under the example qthangman (or another more descriptive name) example.
+
+The example should be organized in a way such that it's easy for users to copy-paste or use easily in their code.
+
+Dependencies:
+
+Android Extras",,,7,1,0,374865.63333333336,2,39,1,1,1,1,0
+QTBUG-96795,Task,QTBUG,2021-09-22 17:12:25,2021-10-07 08:14:22.000,Lauri Laanmets,P2: Important,QtLocation maps to Qt 6.2,"I have started to port QtLocation maps to Qt 6.2 and this issue is to track and collect all the relevant information.
+
+Current status:
+ * All classes are included into CMake build and modified for Qt 6. It builds!
+ * OpenGL backend code of MapPolyline, MapPolygn, MapcCircle and MapRectangle is deleted. Software rendering (which is default) is available.
+ * Labs project has no QSG implementations included (only interface classes) because they depended on the main MapPolyline, etc.
+ * One geoservice (mapbox-gl) has CMake build file but is still not included into build because it has compile errors.
+
+WIP:
+ * GL backends: I'm trying to include MapPolyline.OpenGLLineStrip back into the code. Seems quite feasible. Geometry is in place, material look correct. But.... line is not visible on the map because vertices seemt to have wrong coordinates. They are in range 0.0-1.0 relative to the world map.
+
+Bigger modifications:
+ * Mouse and touch input part is re-written to support new 'exclusiveGrabber' and to be able to share different touch point between different child items. For example, one finger can pan the map and another finger can scroll child ListView.
+
+Known issues:
+ * -Map tiles are not visible during flick animation. But they are when performing 'center' property CoordinateAnimation on the QML side. No idea, what's the cause. Flick movement is basically the same, only on the C++ side.- Fixed with [https://codereview.qt-project.org/c/qt/qtlocation/+/373996]
+
+ ",,,18,6,0,21061.95,10,366,1,1,1,1,0
+QTIFW-2438,User Story,QTIFW,2021-12-14 10:25:38,2022-01-10 12:45:49.000,Tino Pyssysalo,P1: Critical,Prepare installer framework and installer to work without Rosetta,"Currently, the installer is build for x86 only. Thanks to Rosetta translation layer, x86 binaries can be run on M1 Macs as well. However, when Apple stops supporting Rosetta, we need to have ARM builds for Installer and IFW as well. As a consequence, Qt 5.15.x versions, on which installer/IFW are based, must be built for Mac/ARM as well.",,,1,0,0,39020.183333333334,0,0,0,0,0,0,0
+QTBUG-86725,Suggestion,QTBUG,2020-09-17 14:49:52,2022-03-31 10:52:10.000,Philip Schuchardt,P3: Somewhat important,Add support for automatic unwrapping QFuture inside of .then(),"When creating a Async pipeline sometimes QFuture.then() may return QFuture. It's useful to unwrap the returned QFuture such there's not QFuture<QFuture<T>>. For example: auto download = [](QUrl url) {
+   ...
+   return QList<Tile>({tile1, ..., tileX});
+}
+
+auto processTiles = [](QList<Tile> tiles) {
+   QFuture<QImage> future = QtConcurrent::mappedReduced(tiles, 
+                                             processTile, //Map function
+                                             reduceTiles) //Reduce function
+   return future;
+} 
+
+auto saveImage = [](QImage image) {
+   image.save(...);
+}
+
+auto future = QtConcurrent::run(download, url)
+            .then(processTiles)
+            .then(saveImage) Things to consider when implementing unwrapped QFutures this: Handling / propagating progress Handling errors Handling canceling and pausing",,8.0,2,0,0,806162.3,0,0,0,0,0,0,0
+QTBUG-99122,Task,QTBUG,2021-12-10 13:37:31,2022-04-28 14:03:44.438,Marc Mutz,P3: Somewhat important,"std::aligned_{storage,union} are deprecated in C++23","See [https://github.com/cplusplus/papers/issues/197] and wg21.link/p1413
+
+We use it at least in QVarLengthArray, QHash (both in the header) and QRandom (implementation file only). Suggested replacement: {{alignas(~~~) char[~accountid:999854:fc9f3cfe-ddb4-4583-9a65-8e568d711140]}} or {{union \{ char dummy; T t; }}}",,2.0,1,2,0,200186.22396666664,1,44,1,1,1,1,0
+QTBUG-98974,User Story,QTBUG,2021-12-07 11:03:05,2022-06-09 06:11:32.000,Samuel Raposo Vieira Mira,P2: Important,Android 11 - Scoped Storage,"h2. Overview:
+
+Android 11 (API level 30) further enhances the platform, giving better protection to app and user data on external storage.
+
+This release introduces several enhancements, such as raw file path access, batch edit operations for media, and an updated UI for the Storage Access Framework.
+h2. Changes:
+
+On Android 11, apps with the read external storage permission are able to access files with file paths in the scoped storage environment. On Android 10 devices, this is not available to apps in the scoped storage environment unless they have opted out by setting the android:requestLegacyExternalStorage manifest attribute.
+
+Android 11 allows you to use APIs other than the [MediaStore|https://developer.android.com/reference/android/provider/MediaStore] API to access media files from shared storage using [direct file paths|https://developer.android.com/training/data-storage/shared/media#direct-file-paths]. These APIs include the following:
+ * The [File|https://developer.android.com/reference/java/io/File] API.
+ * Native libraries, such as fopen().
+
+h2. Proposed Actions:
+ * Check if Qt Android accesses files with filepaths outside
+ * Check our usage of MediaStore API. Do we save or load resources using MediaStore? Should we?
+ * How we proccess file system URI´s (content uris, direct file, etc)
+ * Follow this: [https://developer.android.com/training/data-storage/use-cases#access-file-paths]
+ * Check android manifest flags and API target.
+
+ ",,,3,0,0,264668.45,1,23,1,1,1,1,0
+QTBUG-104972,Task,QTBUG,2022-07-14 10:11:15,2022-07-20 11:33:35.000,Marc Mutz,P2: Important,qUncompress(qCompress()) round-trip fails for data > 4GiB,"The code fails on 64-bit platforms: const QByteArray ba = ~~~ more than 4GiB of data ~~~;
+const QByteArray compressed = qCompress(ba);
+const QByteArray uncompressed = qUncompress(compressed);
+Q_COMPARE(ba, uncompressed); It seems to be caused by qCompress() using only four digits to encode the length. There doesn't appear to be something you can do, unless you change the format to include a longer length indicator.",,3.0,3,1,0,8722.333333333334,1,4,0,0,0,0,1
+QTBUG-101318,User Story,QTBUG,2022-02-28 09:05:54,2022-08-08 08:10:15.000,Ramon Sadornil,P2: Important,Update to next NDK r25 LTS release,Who As Android developer What I want to use the latest LTS NDK currently available from Google for Android development in Qt. NDK 25 LTS changelog Also relevant the changelog for NDK 24 Why To have more extended support than with NDK23. When Qt dev,,,2,1,0,231784.35,0,0,0,0,0,0,0
+QTQAINFRA-5596,User Story,QTQAINFRA,2023-05-23 10:11:14,2023-06-12 07:43:37.000,Assam Boudjelthia,P2: Important,Improve the Android emulator CI workflow,The current Android emulator keeps having issues from time to time. The common issue is the failure to launch the emulator properly each time on test VMs. We could try to fix this. We have two options that we could try out: Make a snapshot of the avd during the provisioning and then when starting the test vms we could simply load back the snapshot and not do a full cold boot all over again Add these flags to the avd launch comman -no-window -no-boot-anim,,,2,0,0,28652.383333333335,0,0,0,0,0,0,1
+QTBUG-113382,User Story,QTBUG,2023-05-04 09:21:03,2023-06-12 08:06:44.417,Rami Potinkara,P2: Important,Spike NDK update need for Android 14,https://github.com/android/ndk/wiki#release-schedule When and for what Qt release? And what are the module freeze dates?,,,2,0,0,56085.69028333333,0,0,0,0,0,0,0
+QTBUG-16556,Suggestion,QTBUG,2011-01-10 17:16:15,2023-07-28 12:58:50.000,André Somers,P3: Somewhat important,Qt should have a class to represent a period of time,"Dealing with durations could be a lot easier if Qt had a class to represent that. To make this possible, we created a patch for Qt that realizes this for which we request a merge: http://qt.gitorious.org/qt/qt/merge_requests/1014 This is just a Jira issue to make it easier to track this request and get it to the right people.",,13.0,36,0,0,6597822.583333333,0,0,0,0,0,0,0
+QTBUG-116663,User Story,QTBUG,2023-09-01 06:33:17,2023-09-05 09:32:10.886,Kai Köhne,Not Evaluated,Add CONTRIBUTING file to repositories,"Our github mirror projects are full of merge requests that nobody looks into: 
+
+https://github.com/qt/qtbase
+
+We should warn users that we don't accept contributions there. One way to do this is to add a CONTRIBUTING file:
+
+https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors",,,1,0,0,5938.8981,1,22,1,1,1,1,0
+QTBUG-113383,Task,QTBUG,2023-05-04 09:22:27,2023-10-02 07:57:03.000,Rami Potinkara,P2: Important,Spike Gradle update need for Android 14,https://gradle.org/releases/ What Gradle version could be or must be used for Android 14? Any deprecation's impacting Android Deploy Qt or Qt?,,,2,0,0,217354.6,0,0,0,0,0,0,1
+QDS-10181,Suggestion,QDS,2023-06-27 19:23:07,2023-10-09 11:24:52.000,Tom Valinoti,P2: Important,Lock Active Workspace,"As a user, I wish to lock the active Workspace. By locking the active Workspace, all Views will remain in their current placement within the active Workspace. When the active Workspace is locked, a user will no longer be able to move/place the Views via drag and drop (which brings up the blue placement boxes). When the active Workspace is locked, a user will no longer be able to add or subtract Views via the Menu Bar drop down until the active Workspace is unlocked. Suggest that the menu is grayed out when active Workspace is locked. When the active Workspace is locked, a user can still resize windows by dragging them from the edge of any window.  However each View window itself will remain attached to it's fixed location. Once a user unlocks the active Workspace, the user will be able to alter Workspace normally. The user's selection of locked vs unlocked will remain constant and saved. If a user quits Design Studio, the user's previous selection for Locked vs Unlocked Workspace will remain.",,,4,0,0,149281.75,0,0,0,0,0,0,0
+VSCODEEXT-47,User Story,VSCODEEXT,2023-10-17 13:36:36,2023-10-24 12:58:10.000,Serg Kryvonos,Not Evaluated,Visual Studio kits,"Here is an example item of Visual Studio kit description: {
+
+    ""name"": ""Visual Studio Build Tools 2019 Release - amd64_x86"",
+    ""visualStudio"": ""57c90635"",
+    ""visualStudioArchitecture"": ""x64"",
+    ""isTrusted"": true,
+    ""preferredGenerator"":
+     {          ""name"": ""Visual Studio 16 2019"",          ""platform"": ""win32"",          ""toolset"": ""host=x64""      }
+  } To match it with Qt-6.5.2-msvc2019_64, we need to rely on three tokens: msvc year: 2019,  target architecture: amd64_x86  installation id: ""57c90635""    Target set is: same target architecture compatible by version each installation id",,5.0,1,0,0,10041.566666666668,0,0,0,0,0,0,0
+VSCODEEXT-4,User Story,VSCODEEXT,2023-06-19 19:23:14,2023-10-31 15:47:10.000,Joerg Bornemann,P1: Critical,Registry for Qt installations,"As a developer, I want to register Qt installations on my development  machine. One of the Qt versions is marked as the default one. These registered Qt installations are then used for building Qt projects and running Qt-specific tools.",,3.0,14,0,0,192743.93333333332,0,0,0,0,0,0,0
+VSCODEEXT-9,User Story,VSCODEEXT,2023-06-19 19:31:24,2023-11-14 13:28:03.000,Joerg Bornemann,P2: Important,debugging Qt/C++ code of user projects,"As a developer, I want to debug the project I've built. I want to see the contents of QString variables and containers. On Windows/MSVC we can use the natvis file that's part of Qt VS Tools. On Linux we might we able to use the python debugging helpers from Qt Creator.",,8.0,2,0,0,212756.65,0,0,0,0,0,0,1
+QTBUG-97943,User Story,QTBUG,2021-11-02 15:03:06,2023-12-12 12:24:49.000,Ivan Solovev,P3: Somewhat important,Consider reintroducing Linux support with NearD,"Linux support was dropped when migrating to Qt 6.  Now when a new 0.17 release of NearD [0] is out, we can consider reimplementing support for it. [0]: https://github.com/linux-nfc/neard",,21.0,15,0,0,1108641.7166666666,0,0,0,0,0,0,0
+QTBUG-66320,Suggestion,QTBUG,2018-02-10 09:38:00,2024-01-11 08:41:05.577,Mitch Curtis,P3: Somewhat important,Provide a way to conveniently use test helper functions with qtestlib,"I have a helper class from which my test case derives from. The helper class sets up a bunch of stuff via non-test helper functions. I was using QVERIFY, QCOMPARE, etc. in those helper functions, until I realised that the test function keeps executing. In the docs, each test function has this note: Note: This macro can only be used in a test function that is invoked by the test framework. This all makes sense, but it leaves a huge gap in implementing and using helper functions in tests. My current workaround is to duplicate some of the macros: // https://qt-project.atlassian.net/browse/QTBUG-66320
+// Taken from qtestcase.h and modified to return bool and store a failureMessage
+// so that they can be used in helper functions (non-test functions).
+// We don't have COMPARE, because it would require us to get the failure message
+// into a string, the logic for which is hidden in testlib.
+#define VERIFY(statement) \
+do { \
+    if (!static_cast<bool>(statement)) { \
+        failureMessage = #statement; \
+        return false; \
+    } \
+} while (false)
+
+#define FAIL(message) \
+do { \
+    failureMessage = message; \
+    return false; \
+} while (false)
+
+#define VERIFY2(statement, description) \
+do { \
+    if (!static_cast<bool>(statement)) { \
+        failureMessage = description; \
+        return false; \
+    } \
+} while (false)
+
+#define TRY_LOOP_IMPL(expr, timeoutValue, step) \
+    if (!(expr)) { \
+        QTest::qWait(0); \
+    } \
+    int qt_test_i = 0; \
+    for (; qt_test_i < timeoutValue && !(expr); qt_test_i += step) { \
+        QTest::qWait(step); \
+    }
+
+#define TRY_TIMEOUT_DEBUG_IMPL(expr, timeoutValue, step)\
+    if (!(expr)) { \
+        TRY_LOOP_IMPL((expr), (2 * timeoutValue), step);\
+        if (expr) { \
+            QString msg = QString::fromUtf8(""QTestLib: This test case check (\""%1\"") failed because the requested timeout (%2 ms) was too short, %3 ms would have been sufficient this time.""); \
+            msg = msg.arg(QString::fromUtf8(#expr)).arg(timeoutValue).arg(timeoutValue + qt_test_i); \
+            FAIL(qPrintable(msg)); \
+        } \
+    }
+
+// Ideally we'd use qWaitFor instead of QTRY_LOOP_IMPL, but due
+// to a compiler bug on MSVC < 2017 we can't (see QTBUG-59096)
+#define TRY_IMPL(expr, timeout)\
+    const int qt_test_step = 50; \
+    const int qt_test_timeoutValue = timeout; \
+    TRY_LOOP_IMPL((expr), qt_test_timeoutValue, qt_test_step); \
+    TRY_TIMEOUT_DEBUG_IMPL((expr), qt_test_timeoutValue, qt_test_step)\
+
+// Will try to wait for the expression to become true while allowing event processing
+#define TRY_VERIFY_WITH_TIMEOUT(expr, timeout) \
+do { \
+    TRY_IMPL((expr), timeout);\
+    VERIFY(expr); \
+} while (false)
+
+#define TRY_VERIFY(expr) TRY_VERIFY_WITH_TIMEOUT((expr), 5000)
+
+// Will try to wait for the expression to become true while allowing event processing
+#define TRY_VERIFY2_WITH_TIMEOUT(expr, messageExpression, timeout) \
+do { \
+    TRY_IMPL((expr), timeout);\
+    VERIFY2(expr, messageExpression); \
+} while (false)
+
+#define TRY_VERIFY2(expr, messageExpression) TRY_VERIFY2_WITH_TIMEOUT((expr), (messageExpression), 5000) I store a failureMessage string in the helper class: const char *failureMessage; I ensure that the result of the helper is used (they return bool so that the actual test function can verify that they succeed), and I give them a goofy prefix so that it's obvious that they're a helper: Q_REQUIRED_RESULT bool helpDeleteSavedTestGames(); bool GameTestCase::helpDeleteSavedTestGames()
+{
+    // ...
+    VERIFY(game->view()->hasActiveFocus());
+    // ... For example, the VERIFY macro returns false if it fails, and stores the failure message. The client code in the actual test functions uses the helper like so: QVERIFY2(helpDeleteSavedTestGames(), failureMessage); This has worked fine so far, but it uses private API, so it would be good if there was an official way to do this.",,,25,1,0,3111783.09295,0,0,0,0,0,0,0
+QTBUG-86697,Suggestion,QTBUG,2020-09-16 12:48:42,2024-05-22 13:37:39.000,vindrg,P2: Important,moc: add support for C++20 modules,"C++20 is now approved ,  There's Visual Studio C++ module support ,  Also for Clang ,  And there's GCC modules branch Maybe it's time to talk about supporting that features in Qt tools? If I understand correctly, moc has to detect that ""header"" it scanned is actually a module interface unit (it has export module Foo; ), and so it has to generate respective moc_Foo.cpp that will be one of the module implementation units , that: starts with module; , has all neccessarry-for-black-moc-magic includes in global module fragment, module Foo; to note that it's module implementation unit for that module Foo it found Q_OBJECT in earlier, Then all that moc-generated magic code (except for #include 's as they can be only in global fragment?). This issue does not imply that Qt has to ship it's code in C++20 modules, it's simply that moc support will allow users of Qt to use Qt classes within user-defined modules.",,,17,0,0,1935408.95,0,0,0,0,0,0,0
+QTBUG-126199,Suggestion,QTBUG,2024-06-10 13:23:30,2024-08-19 13:08:01.204,Tuukka Kettunen,P3: Somewhat important,Add a configure flag to enable building Qt for older Android OS versions,"Based on:  https://codereview.qt-project.org/c/qt/qtbase/+/558271 ""unsupported android version"", given that from 6.8 onwards that will be Android 9 and it is not possible to build for older versions like Android 8 after that change. As suggestion:  Add a configure flag to enable building Qt for older Android OS versions (which might still work even if not supported) in order to bypass the hardcoded limitation for those users who want to build Qt for older versions of Android. Or add to the Qt for Android documentation that compiling against versions older than <x> is not supported but might work and revert the:  https://codereview.qt-project.org/c/qt/qtbase/+/558271",,,1,0,0,100784.52006666666,0,0,0,0,0,0,0
+QTBUG-128273,Technical task,QTBUG,2024-08-22 07:47:04,2024-09-16 08:06:20.143,Soheil Armin,P2: Important,Reflect renaming of QtQmlComponent to QtQuickViewContent in other docs,"Why As a result of QTBUG-126976, QtQmlComponent has been renamed to QtQuickViewContent. The QtQuickView.loadComponent() has also been renamed to QtQuickView.loadContent().  Documentation changes inside the class, and also in QtQuickView has already been applied. What It's possible that there are more places in the documentation of the feature, where ""component"" or ""QML component"" is being used that refers to QtQuickViewContent: Docs inside other source code, docs outside of java/c++ source code, and example documentation. How Review all documents related this feature, potentially by using a regex search, to find the places that the word ""QML component"" or ""component"" should be replaced by ""QML content"" or ""content"".",,,3,0,0,36019.26905,0,0,0,0,0,0,0
+QTBUG-111830,Suggestion,QTBUG,2023-03-09 10:26:06,2024-10-17 13:12:30.000,Shawn Rutledge,Not Evaluated,Let's add a QAbstractItemModel to display JSON data,"It's kindof obvious that we should make it easy to display JSON data in a QTreeView or Qt Quick TreeView.  [https://codereview.qt-project.org/c/qt/qtdoc/+/456602] is adding an example like that, but has to do it the hard way because we don't have library code for that.
+
+But then again, most applications need to do something more specific, not just display _all_ the data in its original form.  For XML in Qt Quick, we have XmlListModel, supporting XPath queries.  I wonder if there's a common JSON paradigm like that.  https://stackoverflow.com/questions/8481380/is-there-a-json-equivalent-of-xquery-xpath
+
+There's a QML TableModel but not yet a TreeModel.  We know we should write one.  But maybe it's better to write a nice C++ class first, get it working with QTreeView, and try to make it available to QML in the QtQml.Models module at the same time, testing it with TreeView.  Alternatively, someone might want to process the JSON in QML/javascript first, and programmatically insert something into a TreeModel; so it would be nice if the same model can also be built up one-node-at-a-time, not only by parsing a JSON file to begin with.
+
+We have QJsonDocument, QJsonArray and QJsonObject. A tree view could start with any of those as its root, depending whether you want to show the whole document or a subtree; so that would tend to make it a bit complicated.  If the code gets too complex to support all of those cases, then I think maybe it points to an architectural improvement that we need in the QJson classes (and others): some sort of generic QTreeNode class (name TBD) that all those can inherit from.  Then we could have a QTreeModel (TBD) that can make available any subtree (with one QTreeNode root) as a QAIM, and therefore available to all the views.",,21.0,2,0,0,846886.4,1,12,1,1,0,0,0
+QTBUG-131514,Task,QTBUG,2024-11-25 09:31:43,2024-11-26 06:02:07.000,Frederik Seiffert,P3: Somewhat important,Validate support for 16 KB page sizes on Android,"Historically, Android has only supported 4 KB memory page sizes, which has optimized system memory performance for the average amount of total memory that Android devices have typically had. Beginning with Android 15, AOSP supports devices that are configured to use a page size of 16 KB (16 KB devices). Qt for Android should be validated to work with such devices, i.e. it should be ensured that no hard-coded page sizes are used. https://developer.android.com/guide/practices/page-sizes",,,4,0,0,1230.4,0,0,0,0,0,0,0
+QTBUG-76800,Suggestion,QTBUG,2019-06-30 12:56:19,2025-02-20 13:47:54.652,Andrii Pravorskyi,P2: Important,Option to sort attributes in QDomDocument::toString(),"Saving a QDomDocument to file sometimes results in its elements' attributes being reordered. .e.g. the XML attributes in this QString: <root name=""fred"">
+    <element1 c=""a"" d=""b"" f=""c""/ >
+</root> get reordered to: <root name=""fred"" >
+    <element1 f=""c"" c=""a"" d=""b"" />
+</root> I know that similar bugs were reported before and I have read them. The previous reasons to not consider attribute order was optimization. Instead of changing the default behavior, I propose adding an another option: a method or flag that makes it possible to save XML files with ordered attributes. Application developers would be able to choose whether they need it or not. Rationale Even if the XML standard does not care about the order of attributes, people may care. It is true that there are tools for comparing XML files, but XML is not only machine-readable. People sometimes need to read XML too, which is why we already have options for pretty printing XML and JSON . We even have options to change the size of indentation in XML, e.g. "" QDomDocument::toString(int indent = 1) "". XML can be tracked in SCM (for example, Git), and random rearrangments produce useless large diffs. Qt6? It seems that Qt5 is at the end of its improvement period. Qt6 is on the roadmap, and I think it would be a good idea to introduce this feature before Qt6 is released. I want to help and can prepare patches if this feature request is approved.",,,6,0,0,2969331.5942,0,0,0,0,0,0,0
+QTBUG-136718,Suggestion,QTBUG,2025-05-12 02:31:39,2025-05-12 12:26:43.000,Irfan Omair,P3: Somewhat important,It would be nice if we Enable consistent and enforceable OpenSSL deployment for Android in Qt,"In Qt Android projects, OpenSSL is required for HTTPS functionality ( QSslSocket , QNetworkAccessManager , WebEngine , etc.). However, Qt does not provide a reliable, team-friendly way to enforce or manage OpenSSL deployment: The mechanism in Qt Creator to include ""SSL” generates a .pri file with hard-coded, machine-specific paths — not suitable for version control or CI. Missing SSL causes silent runtime failures (e.g., supportsSsl() returns false) with no build-time warnings or errors. There is no standard QT += openssl Kind of mechanism or CMake equivalent to enforce presence and deployment of OpenSSL libraries. It would be very nice if  we can have some kind of qmake/CMake helper (e.g., QT += openssl or find_package(Qt6 REQUIRED COMPONENTS OpenSSL) ) that: Fails configuration if OpenSSL is not found Automatically adds libssl.so and libcrypto.so to androiddeployqt via ANDROID_EXTRA_LIBS or CMake equivalents",,,1,0,0,595.0666666666667,0,0,0,0,0,0,0
+QTBUG-139763,Task,QTBUG,2025-09-03 10:23:03,2025-09-03 12:37:11.000,Rami Potinkara,P2: Important,OpenSSL library to support 16KB page size,Add support of 16KB page sizes to OpenSSL library. See,,,1,0,0,134.13333333333333,0,0,0,0,0,0,2
+QTBUG-51196,Suggestion,QTBUG,2016-02-16 22:17:10,2025-09-15 08:08:12.743,ekke,P3: Somewhat important,Set Android Status Bar Color - qt.labs.controls.Material,Using Material style from qt.labs.controls I'm able to set primary and accent colors for nthe space between statusbar and navigation bar. for good looking Material-style Android Apps it should be possible also to set the color of Android Status Bar (primary darker)  as documented here:  http://developer.android.com/training/material/theme.html#StatusBar would be cool to make this possible.,,,14,0,0,5037711.045716667,0,0,0,0,0,0,0
+QTBUG-140482,User Story,QTBUG,2025-09-23 11:48:32,2025-10-16 10:54:01.000,Marius Kittler,P2: Important,Allow using translations/localization in Android service process,"It seems that QLocale::system() and therefore also QLocale() don't return the configured system locale under Android when invoked from the service process. This in turn leads to translations not working there. I therefore tried passing QLocale().bcp47Name() from the frontend to the service manually where I then invoked QLocale::setDefault(QLocale(passedBcp47Name)). The last invocation was in my tests effectively QLocale::setDefault(QLocale(QStringLiteral(""de""))). This also didn't work because QLocale() still got me the ""C"" locale and translations were not working. I therefore tried instantiating a QGuiApplication in the service process with the help of a previous change of my which got merged: https://codereview.qt-project.org/c/qt/qtbase/+/653832 Only with this setting it was possible to set the default locale in the service process manually. With this I got translations working but this approach has some serious drawbacks: It shouldn't be required to pass the locale from the frontend to the service manually. It shouldn't be required to instantiate a QGuiApplication in the service process for localization to work. (QAndroidService should be enough.) Instantiating a QGuiApplication didn't even work in all my tests. It worked well with my x86-64 development build of Qt (with qtbase at 5f6bfa3692a91c9f162606c25ec496656c253dfe ) in the emulator and Android 15. It didn't work with my aarch64 release build of Qt (version 6.9.2) on a real Samsung phone with Android 14 because the service got stuck up on the QGuiApplication instantiation leading to Android producing an ANR for the service process. Not sure why that is. When I tested https://codereview.qt-project.org/c/qt/qtbase/+/653832 with Android 6.9.1 (or was it even still 6.9.0?) the icon rendering I used it for worked on the very same phone where it now gets stuck. So if using a QGuiApplication is supposed to be ""the way"" despite 1 and 2 then 3.2 needs to be sorted out. (For the sake of doing image processing/rendering it would also generally make sense to sort this out - but that's a different feature request.) Maybe it only didn't work on the real phone because my aarch64 build is still based on Qt 6.9.2 and the problem is already fixed on the dev branch as of the mentioned commit. Note that my use case for this is updating an Android notification from the service process even if the activity process isn't running.",,,7,0,0,33065.48333333333,0,0,0,0,0,0,0
+PROFILER-14,Technical task,PROFILER,2022-01-04 15:32:16,2026-06-24 06:57:57.000,Cristian Adam,P3: Somewhat important,Profiler support on Windows,"Qt Creator's manual page about profiling mentions callgrind for analyzing / profiling an application. Callgrind is not available on Windows. At Profiling and Memory Checking Tools we have multiple suggestions on how to deal with the matter on Windows. The most promising is Very Sleepy which could handle both MSVC and MinGW. It supports any native Windows app, if it has standard PDB or DWARF debugging information. No recompilation is necessary – it can just attach to any app as it's running. Both 32-bit x86 and 64-bit x64 systems are fully supported, and Very Sleepy will work with both Visual Studio or gcc/mingw compilers. Profiling results are displayed in full call-graph format, and can additionally be saved and exported to CSV format. Later edit: Other candidates are: google/orbit: C/C++ Performance Profiler (github.com) wolfpld/tracy: Frame profiler (github.com)",,,1,3,0,2349565.683333333,1,5,1,0,0,0,0

@@ -1,0 +1,49 @@
+{
+  "created_at_utc": "2026-09-17T19:32:43.655105+00:00",
+  "sources_file": "/home/yakovelm/Master/Source/jira_data_for_instability_cluster.json",
+  "output_root": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/qt/results",
+  "settings": {
+    "max_issues": null,
+    "label_threshold": 5,
+    "terminal_only": true,
+    "require_pr_evidence": true,
+    "refresh": true
+  },
+  "succeeded": 1,
+  "failed": 0,
+  "results": [
+    {
+      "source": "Qt",
+      "status": "succeeded",
+      "run_directory": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/qt/results/qt",
+      "dataset": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/qt/results/qt/processed/qt/features_labels_table_os.csv",
+      "model_directory": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/qt/results/qt/model/qt_words_5",
+      "accepted_rows": 38,
+      "test_metrics": {
+        "row_count": 9,
+        "positive_count": 2,
+        "positive_rate": 0.2222222222222222,
+        "first_sprint_entry": "2024-09-16T08:06:20.143000",
+        "last_sprint_entry": "2026-06-24T06:57:57",
+        "threshold": 0.5,
+        "accuracy": 0.5555555555555556,
+        "balanced_accuracy": 0.7142857142857143,
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "confusion_matrix": [
+          [
+            3,
+            4
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "average_precision": 0.5833333333333333,
+        "roc_auc": 0.8571428571428571
+      }
+    }
+  ]
+}
