@@ -238,6 +238,9 @@ class LauncherTests(unittest.TestCase):
                     self.assertEqual(job["results"], f"{job['project'].lower()}/results")
                     self.assertEqual(job["log"], f"{job['project'].lower()}/logs/job-%J.out")
                     self.assertEqual(script.read_text().count("run_verification.py"), 1)
+                    directives = script.read_text().split("set -euo pipefail", 1)[0]
+                    self.assertIn("#SBATCH --mail-user=yakovelm@post.bgu.ac.il\n", directives)
+                    self.assertIn("#SBATCH --mail-type=ALL\n", directives)
                     for level in job["levels"]:
                         self.assertIn(f"--label-threshold {level}", script.read_text())
                 if protocol != "pooled":

@@ -125,6 +125,8 @@ def submit(args):
             f"#SBATCH --time={args.time}\n"
             f"#SBATCH --job-name={task.name[:35]}-{project.lower()}\n"
             f"#SBATCH --output={logs}/job-%J.out\n"
+            "#SBATCH --mail-user=yakovelm@post.bgu.ac.il\n"
+            "#SBATCH --mail-type=ALL\n"
             "#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=6\n#SBATCH --mem=16G\n"
             "set -euo pipefail\n"
             'echo "SLURM_JOB_ID=${SLURM_JOB_ID:-unknown} NODE=${SLURM_JOB_NODELIST:-unknown}"\n'
