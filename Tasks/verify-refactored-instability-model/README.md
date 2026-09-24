@@ -65,6 +65,11 @@ bash Tasks/run_cluster_task.sh verify-refactored-instability-model \
   --label-threshold 5 --label-threshold 20 --models RF XGboost
 ```
 
+All four model tasks using the shared launcher request SLURM email notifications
+to `yakovelm@post.bgu.ac.il` with `--mail-type=ALL`, matching the Jira launcher. Notifications are
+per grouped job, not per unstable level. This applies to new submissions only;
+pulling updated code does not change already queued or running jobs.
+
 `--project Apache` pools only Apache; use the per-dataset task to run all projects
 independently. `--comparison-config PATH` supplies a different candidate grid.
 `--validate-only` validates inputs/labels and fingerprints without fitting.
