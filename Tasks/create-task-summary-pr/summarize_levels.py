@@ -34,7 +34,12 @@ def summarize(bundle):
     for plan_path in sorted(artifacts.rglob("job_plan.json")):
         plan = json.loads(plan_path.read_text())
         root = plan_path.parent
-        for job in plan["jobs"]:
+        level_jobs = [
+            {**job, "level": level}
+            for job in plan["jobs"]
+            for level in (job["levels"] if "levels" in job else [job["level"]])
+        ]
+        for job in level_jobs:
             result_root = (root / job["results"]).resolve()
             if root.resolve() not in result_root.parents:
                 raise ValueError(f"Job results escape run directory: {job['results']}")

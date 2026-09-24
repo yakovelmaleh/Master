@@ -197,6 +197,7 @@ def run(args):
 
             model_config = load_config(MODEL_TASK_DIR / "model_config.json")
             for level in levels:
+                print(f"Starting {args.project}: logistic unstable level {level}", flush=True)
                 train_model(
                     data_root=staged_data_root,
                     output_root=output_root / "model" / f"words_{level}" / "Logistic" / "logistic",
@@ -204,6 +205,7 @@ def run(args):
                     threshold=level,
                     config=model_config,
                 )
+                print(f"Completed {args.project}: logistic unstable level {level}", flush=True)
     except Exception as error:
         manifest["status"] = "failed"
         manifest["error"] = str(error)

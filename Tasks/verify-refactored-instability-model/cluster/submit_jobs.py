@@ -100,46 +100,48 @@ def submit(args):
     (root / "comparison_config.json").write_text(json.dumps(config, indent=2) + "\n")
     jobs = []
     for project in projects:
+        relative = Path(project.lower())
+        job_root = root / relative
+        results = job_root / "results"
+        logs = job_root / "logs"
+        results.mkdir(parents=True)
+        logs.mkdir()
+        command = [
+            "python", str(SHARED_TASK / "run_verification.py"),
+            "--datasets-file", str(root / "datasets.json"),
+            "--comparison-config", str(root / "comparison_config.json"),
+            "--protocol", protocol, "--experiment", experiment,
+            "--project", project,
+            "--models", *args.models, "--output-root", str(results),
+        ]
         for level in levels:
-            relative = Path(project.lower()) / f"words_{level}"
-            job_root = root / relative
-            results = job_root / "results"
-            logs = job_root / "logs"
-            results.mkdir(parents=True)
-            logs.mkdir()
-            command = [
-                "python", str(SHARED_TASK / "run_verification.py"),
-                "--datasets-file", str(root / "datasets.json"),
-                "--comparison-config", str(root / "comparison_config.json"),
-                "--protocol", protocol, "--experiment", experiment,
-                "--project", project, "--label-threshold", str(level),
-                "--models", *args.models, "--output-root", str(results),
-            ]
-            if args.validate_only:
-                command.append("--validate-only")
-            sbatch = job_root / "submit.sbatch"
-            sbatch.write_text(
-                "#!/bin/bash\n"
-                f"#SBATCH --partition={args.partition}\n"
-                f"#SBATCH --time={args.time}\n"
-                f"#SBATCH --job-name={task.name[:35]}-{project.lower()}-k{level}\n"
-                f"#SBATCH --output={logs}/job-%J.out\n"
-                "#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=6\n#SBATCH --mem=16G\n"
-                "set -euo pipefail\n"
-                'echo "SLURM_JOB_ID=${SLURM_JOB_ID:-unknown} NODE=${SLURM_JOB_NODELIST:-unknown}"\n'
-                "module load anaconda\n"
-                f"source activate {shlex.quote(args.conda_env)}\n"
-                "export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
-                "export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
-                "export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
-                f"cd {shlex.quote(str(REPO))}\n{shlex.join(command)}\n"
-            )
-            sbatch.chmod(0o755)
-            jobs.append({
-                "project": project, "level": level, "models": models, "variants": variants,
-                "results": str(relative / "results"), "log": str(relative / "logs/job-%J.out"),
-                "sbatch": str(relative / "submit.sbatch"), "job_id": "PENDING",
-            })
+            command.extend(["--label-threshold", str(level)])
+        if args.validate_only:
+            command.append("--validate-only")
+        sbatch = job_root / "submit.sbatch"
+        sbatch.write_text(
+            "#!/bin/bash\n"
+            f"#SBATCH --partition={args.partition}\n"
+            f"#SBATCH --time={args.time}\n"
+            f"#SBATCH --job-name={task.name[:35]}-{project.lower()}\n"
+            f"#SBATCH --output={logs}/job-%J.out\n"
+            "#SBATCH --ntasks=1\n#SBATCH --cpus-per-task=6\n#SBATCH --mem=16G\n"
+            "set -euo pipefail\n"
+            'echo "SLURM_JOB_ID=${SLURM_JOB_ID:-unknown} NODE=${SLURM_JOB_NODELIST:-unknown}"\n'
+            f'echo "Project: {project}; levels: {",".join(map(str, levels))}"\n'
+            "module load anaconda\n"
+            f"source activate {shlex.quote(args.conda_env)}\n"
+            "export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
+            "export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
+            "export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK:-6}\n"
+            f"cd {shlex.quote(str(REPO))}\n{shlex.join(command)}\n"
+        )
+        sbatch.chmod(0o755)
+        jobs.append({
+            "project": project, "levels": levels, "models": models, "variants": variants,
+            "results": str(relative / "results"), "log": str(relative / "logs/job-%J.out"),
+            "sbatch": str(relative / "submit.sbatch"), "job_id": "PENDING",
+        })
     plan = {
         "task": task.name, "protocol": protocol, "experiment": experiment,
         "levels": levels, "models": models, "variants": variants,
@@ -150,10 +152,11 @@ def submit(args):
     def persist():
         plan_path.write_text(json.dumps(plan, indent=2) + "\n")
         with (root / "submitted_jobs.tsv").open("w") as manifest:
-            manifest.write("project\tlevel\tjob_id\tresults\tlog\tsbatch\n")
+            manifest.write("project\tlevels\tjob_id\tresults\tlog\tsbatch\n")
             for job in jobs:
-                manifest.write("\t".join(str(job[key]) for key in
-                                         ("project", "level", "job_id", "results", "log", "sbatch")) + "\n")
+                row = {**job, "levels": ",".join(map(str, job["levels"]))}
+                manifest.write("\t".join(str(row[key]) for key in
+                                         ("project", "levels", "job_id", "results", "log", "sbatch")) + "\n")
 
     persist()
     (task / "cluster_runs/latest_run.txt").write_text(str(root) + "\n")
@@ -174,7 +177,7 @@ def submit(args):
                 persist()
                 raise
         persist()
-        print(f"{job['project']} level {job['level']}: {job['job_id']} -> {root / job['results']}")
+        print(f"{job['project']} levels {job['levels']}: {job['job_id']} -> {root / job['results']}")
     print(f"{len(jobs)} job(s). Run: {root}")
 
 

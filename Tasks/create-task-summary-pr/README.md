@@ -36,6 +36,10 @@ Runtime caches, bytecode, untracked `runs/`, and unrelated historical
 ```
 
 Model-comparison batches now contain all four unstable levels by default.
+New batches group the levels into one job per project, with a shared log and
+separate `results/model/words_<level>/` artifacts. Summaries expand the job's
+`levels` list to check every model/level/variant. Older single-level jobs remain
+supported, including mixed collections of old and new runs.
 The entire run tree is copied, including every model, level, `.out` log,
 prediction file, metrics file and manifest. Shared runner/model code is also
 included automatically for the model tasks.

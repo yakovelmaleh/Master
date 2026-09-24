@@ -1,4 +1,6 @@
 import json
+import csv
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -211,10 +213,10 @@ class LauncherTests(unittest.TestCase):
                 p: str(raw) for p in ["Apache", "Qt", "Jira", "MariaDB", "Hyperledger", "IntelDAOS"]
             }))
             for name, protocol, count in [
-                ("verify-refactored-instability-model", "pooled", 4),
-                ("validate-refactored-model-per-dataset", "within-project", 24),
-                ("compare-models-leave-one-project-out", "leave-one-project-out", 24),
-                ("evaluate-logistic-instability-model", "pooled", 4),
+                ("verify-refactored-instability-model", "pooled", 1),
+                ("validate-refactored-model-per-dataset", "within-project", 6),
+                ("compare-models-leave-one-project-out", "leave-one-project-out", 6),
+                ("evaluate-logistic-instability-model", "pooled", 1),
             ]:
                 task = root / name
                 task.mkdir()
@@ -225,18 +227,81 @@ class LauncherTests(unittest.TestCase):
                 plan = json.loads((task / "cluster_runs/test/job_plan.json").read_text())
                 self.assertEqual(len(plan["jobs"]), count)
                 self.assertEqual(plan["levels"], [5, 10, 15, 20])
+                with (task / "cluster_runs/test/submitted_jobs.tsv").open() as stream:
+                    submitted = list(csv.DictReader(stream, delimiter="\t"))
+                self.assertEqual(len(submitted), count)
+                self.assertEqual({row["levels"] for row in submitted}, {"5,10,15,20"})
                 for job in plan["jobs"]:
                     script = task / "cluster_runs/test" / job["sbatch"]
                     subprocess.run(["bash", "-n", str(script)], check=True)
-                    self.assertIn(f"--label-threshold {job['level']}", script.read_text())
+                    self.assertEqual(job["levels"], [5, 10, 15, 20])
+                    self.assertEqual(job["results"], f"{job['project'].lower()}/results")
+                    self.assertEqual(job["log"], f"{job['project'].lower()}/logs/job-%J.out")
+                    self.assertEqual(script.read_text().count("run_verification.py"), 1)
+                    for level in job["levels"]:
+                        self.assertIn(f"--label-threshold {level}", script.read_text())
                 if protocol != "pooled":
                     narrowed = [x if x != "test" else "qt-only" for x in command] + ["--only", "Qt"]
                     subprocess.run(narrowed, check=True, capture_output=True, text=True)
                     plan = json.loads((task / "cluster_runs/qt-only/job_plan.json").read_text())
-                    self.assertEqual(len(plan["jobs"]), 4)
+                    self.assertEqual(len(plan["jobs"]), 1)
                     self.assertEqual({j["project"] for j in plan["jobs"]}, {"Qt"})
+                narrowed = [x if x != "test" else "two-levels" for x in command] + [
+                    "--label-threshold", "10", "--label-threshold", "20",
+                ]
+                subprocess.run(narrowed, check=True, capture_output=True, text=True)
+                narrowed_plan = json.loads((task / "cluster_runs/two-levels/job_plan.json").read_text())
+                self.assertEqual(len(narrowed_plan["jobs"]), count)
+                self.assertEqual(narrowed_plan["levels"], [10, 20])
+                for job in narrowed_plan["jobs"]:
+                    self.assertEqual(job["levels"], [10, 20])
                 duplicate = subprocess.run(command, capture_output=True, text=True)
                 self.assertNotEqual(duplicate.returncode, 0)
+
+    def test_generated_grouped_job_runs_all_levels_and_is_summarized(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            task = root / "validate-refactored-model-per-dataset"
+            task.mkdir()
+            raw = root / "qt.csv"
+            dataset("Qt").to_csv(raw, index=False)
+            configured = task / "datasets.json"
+            configured.write_text(json.dumps({"Qt": str(raw)}))
+            config = root / "config.json"
+            config.write_text(json.dumps(CONFIG))
+            subprocess.run([
+                sys.executable, str(SHARED / "cluster/submit_jobs.py"),
+                "--task-dir", str(task), "--protocol", "within-project",
+                "--run-id", "grouped", "--dry-run", "--models", "RF",
+                "--comparison-config", str(config),
+            ], check=True, capture_output=True, text=True)
+            run_root = task / "cluster_runs/grouped"
+            script = (run_root / "qt/submit.sbatch").read_text()
+            command = shlex.split(next(line for line in script.splitlines() if line.startswith("python ")))
+            command[0] = sys.executable
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            results = run_root / "qt/results"
+            manifest = json.loads((results / "verification_manifest.json").read_text())
+            self.assertEqual(manifest["status"], "succeeded")
+            self.assertEqual(manifest["result_count"], 8)
+            self.assertEqual(manifest["label_thresholds"], [5, 10, 15, 20])
+            self.assertEqual(len(list(results.rglob("metrics.json"))), 8)
+            self.assertEqual(len(list(results.rglob("feature_transformer.json"))), 1)
+            for level in LEVELS:
+                metrics = results / f"model/words_{level}/RF/baseline/metrics.json"
+                self.assertTrue(metrics.is_file())
+            bundle = root / "bundle"
+            (bundle / "artifacts").mkdir(parents=True)
+            run_root.rename(bundle / "artifacts/cluster-run")
+            subprocess.run([
+                sys.executable, str(REPO / "Tasks/create-task-summary-pr/summarize_levels.py"),
+                str(bundle),
+            ], check=True, capture_output=True, text=True)
+            with (bundle / "LEVELS.csv").open() as stream:
+                coverage = list(csv.DictReader(stream))
+            self.assertEqual(len(coverage), 8)
+            self.assertEqual({row["coverage"] for row in coverage}, {"complete"})
+            self.assertEqual({row["level"] for row in coverage}, {"5", "10", "15", "20"})
 
     def test_partial_submission_failure_is_persisted(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -248,7 +313,7 @@ class LauncherTests(unittest.TestCase):
             raw = root / "raw.csv"
             raw.write_text("test\n")
             config = task / "datasets.json"
-            config.write_text(json.dumps({"Qt": str(raw)}))
+            config.write_text(json.dumps({"Qt": str(raw), "Apache": str(raw), "Jira": str(raw)}))
             binary = root / "bin"
             binary.mkdir()
             counter = root / "called"
@@ -267,7 +332,7 @@ class LauncherTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             plan = json.loads((task / "cluster_runs/partial/job_plan.json").read_text())
             self.assertEqual([j["job_id"] for j in plan["jobs"]],
-                             ["12345", "SUBMISSION-FAILED", "PENDING", "PENDING"])
+                             ["12345", "SUBMISSION-FAILED", "PENDING"])
             self.assertIn("submission_error", plan)
 
     def test_invalid_project_fails_before_any_submission(self):

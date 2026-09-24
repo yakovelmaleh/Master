@@ -38,6 +38,40 @@ def make_run(run, level, succeeded=True):
 
 
 class SummaryTests(unittest.TestCase):
+    def test_grouped_job_reports_missing_levels_and_failed_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bundle = Path(directory)
+            root = bundle / "artifacts/cluster-run"
+            results = root / "qt/results"
+            model = results / "model/words_5/RF/baseline"
+            model.mkdir(parents=True)
+            (root / "job_plan.json").write_text(json.dumps({
+                "jobs": [{
+                    "project": "Qt", "levels": [5, 10, 15, 20],
+                    "models": ["RF"], "variants": ["baseline"],
+                    "results": "qt/results",
+                }],
+            }))
+            manifest = results / "verification_manifest.json"
+            manifest.write_text(json.dumps({"status": "succeeded"}))
+            (model / "metrics.json").write_text(json.dumps({"test": {"auc_prc": 0.2}}))
+            for name in ["run_metadata.json", "test_predictions.csv",
+                         "validation_predictions.csv", "model.joblib"]:
+                (model / name).write_text("{}")
+            module.summarize(bundle)
+            with (bundle / "LEVELS.csv").open() as stream:
+                coverage = list(csv.DictReader(stream))
+            self.assertEqual(len(coverage), 4)
+            self.assertEqual(coverage[0]["coverage"], "complete")
+            self.assertTrue(all(row["missing_files"] == "metrics.json" for row in coverage[1:]))
+            manifest.write_text(json.dumps({"status": "failed"}))
+            module.summarize(bundle)
+            with (bundle / "LEVELS.csv").open() as stream:
+                coverage = list(csv.DictReader(stream))
+            self.assertTrue(all(row["coverage"] == "incomplete" for row in coverage))
+            with (bundle / "RESULTS.csv").open() as stream:
+                self.assertEqual(len(list(csv.DictReader(stream))), 1)
+
     def test_all_levels_and_missing_variants_reported(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
