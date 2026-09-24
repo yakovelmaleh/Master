@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.6350069137044491,
+  "created_at_utc": "2026-09-17T17:47:36.770378+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/hyperledger/results/input_layout",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_5",
+  "model": "dependency_light_logistic_regression",
+  "project": "Hyperledger",
+  "selected_threshold": 0.4599999999999999,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 1233
+}

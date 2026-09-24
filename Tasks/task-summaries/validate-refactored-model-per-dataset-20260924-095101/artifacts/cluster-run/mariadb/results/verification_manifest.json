@@ -1,0 +1,93 @@
+{
+  "comparison_performed": false,
+  "created_at_utc": "2026-09-17T17:50:09.967778+00:00",
+  "datasets_file": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/datasets.json",
+  "inputs": {
+    "MariaDB": {
+      "path": "/home/yakovelm/Master/Data/MariaDB/features_labels_table_os.csv",
+      "sha256": "2dbc1341156c625eafa799b58f17a1f9c317e74d27a5952db3eff36f07967c2e",
+      "size_bytes": 3887223
+    }
+  },
+  "label_threshold": 5,
+  "metrics": {
+    "test": {
+      "accuracy": 0.7261306532663316,
+      "average_precision": 0.238725904722098,
+      "balanced_accuracy": 0.549618134941869,
+      "confusion_matrix": [
+        [
+          271,
+          66
+        ],
+        [
+          43,
+          18
+        ]
+      ],
+      "f1": 0.2482758620689655,
+      "first_sprint_entry": "2021-03-05T17:11:17",
+      "last_sprint_entry": "2023-04-04T10:33:05",
+      "positive_count": 61,
+      "positive_rate": 0.15326633165829145,
+      "precision": 0.21428571428571427,
+      "recall": 0.29508196721311475,
+      "roc_auc": 0.6649802986817143,
+      "row_count": 398,
+      "threshold": 0.49999999999999994
+    },
+    "train": {
+      "accuracy": 0.7182506307821699,
+      "average_precision": 0.252406103579288,
+      "balanced_accuracy": 0.7013721804511279,
+      "confusion_matrix": [
+        [
+          769,
+          295
+        ],
+        [
+          40,
+          85
+        ]
+      ],
+      "f1": 0.3366336633663366,
+      "first_sprint_entry": "2014-05-27T14:43:09",
+      "last_sprint_entry": "2019-02-04T16:44:24",
+      "positive_count": 125,
+      "positive_rate": 0.10513036164844407,
+      "precision": 0.2236842105263158,
+      "recall": 0.68,
+      "roc_auc": 0.7592105263157894,
+      "row_count": 1189,
+      "threshold": 0.49999999999999994
+    },
+    "validation": {
+      "accuracy": 0.8005050505050505,
+      "average_precision": 0.126394126807625,
+      "balanced_accuracy": 0.6071725571725571,
+      "confusion_matrix": [
+        [
+          307,
+          63
+        ],
+        [
+          16,
+          10
+        ]
+      ],
+      "f1": 0.202020202020202,
+      "first_sprint_entry": "2019-02-05T07:53:45",
+      "last_sprint_entry": "2021-03-05T12:46:10",
+      "positive_count": 26,
+      "positive_rate": 0.06565656565656566,
+      "precision": 0.136986301369863,
+      "recall": 0.38461538461538464,
+      "roc_auc": 0.6908523908523908,
+      "row_count": 396,
+      "threshold": 0.49999999999999994
+    }
+  },
+  "model_run_directory": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/mariadb/results/model/mariadb_words_5",
+  "project": "MariaDB",
+  "status": "succeeded"
+}
