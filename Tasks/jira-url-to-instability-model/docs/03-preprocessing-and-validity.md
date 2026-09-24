@@ -19,6 +19,8 @@ The first sprint-entry timestamp is calculated from:
 The earliest valid timestamp on or after issue creation is selected.
 
 An issue is rejected when a sprint-entry timestamp cannot be calculated.
+An empty current Sprint field alone does not reject an issue: historical
+Sprint additions can still supply the entry time.
 
 ## Comment-before-sprint filter
 
@@ -65,3 +67,13 @@ Counts are saved in:
 ```text
 processed/filter_summary.json
 ```
+
+The summary also records selected keys, download failures, the effective
+query, and whether an issue limit was requested. Per-issue decisions are
+saved to `processed/filter_decisions.csv`.
+
+`processed/dataset_analysis.json` records positive and negative counts at
+levels 5/10/15/20, together with the chronological train/validation/test
+distributions and single-class warnings. These are label-distribution
+diagnostics, not four trained-model results. They are written even when no
+rows survive or the model cannot be trained.

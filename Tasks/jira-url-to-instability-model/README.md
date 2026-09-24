@@ -43,9 +43,11 @@ The complete process is explained in these five ordered files:
 ## Preprocessing reproduced
 
 1. Select non-bug issues by default.
-2. Require a completed status category by default.
-3. Require GitHub/PR evidence by default.
-4. Require at least one sprint.
+2. For configured cluster sources, use the original source-specific status
+   **or** resolution condition. A standalone URL uses `statusCategory = Done`.
+3. Keep the existing GitHub-comment evidence requirement (Apache also accepts
+   the original PR labels; the existing Jira source exception remains).
+4. Require reconstructable sprint history, not a populated current Sprint field.
 5. Download all issue comments and changelog pages.
 6. Calculate first sprint entry from sprint start metadata and Sprint
    changelog history.
@@ -71,7 +73,9 @@ For Jira Cloud basic authentication:
 
 ```bash
 export JIRA_EMAIL="user@example.com"
-export JIRA_TOKEN="api-token"
+read -r -s -p "Jira token: " JIRA_TOKEN
+echo
+export JIRA_TOKEN
 ```
 
 For a bearer token, set only `JIRA_TOKEN`.
@@ -125,6 +129,16 @@ under a timestamped `cluster_runs/<run-id>/<repository>/` directory, with a
 `submitted_jobs.tsv` index. See [`cluster/README.md`](cluster/README.md) for
 the exact layout, bounded tests, source overrides, and sequential local runs.
 
+Omit `-jira` to submit all enabled repositories, one dedicated job per
+repository. To submit only Qt:
+
+```bash
+./Tasks/run_cluster_task.sh jira-url-to-instability-model -jira Qt --refresh
+```
+
+`--only` remains a compatible alias for `-jira`. Disabled source entries are
+not submitted.
+
 ## Safe bounded test
 
 ```bash
@@ -158,17 +172,25 @@ model-quality conclusions.
 
 ## Filter controls
 
-- Completed issues and GitHub/PR evidence are enabled by default.
-- `--no-terminal-only` includes non-completed issues.
+- Status/resolution filtering and GitHub/PR evidence are enabled by default.
+- `--no-terminal-only` removes the status/resolution condition.
 - `--no-require-pr-evidence` removes the GitHub/PR condition.
 - `--jql 'issuetype in (Story, Task)'` replaces the default `type != Bug`
   issue condition while retaining project and sprint requirements.
 - `--label-threshold 10` trains with the ten-word instability label.
+- `--require-current-sprint` restores the narrower current-Sprint JQL filter
+  for an explicitly separate experiment.
 
-The original repositories used long source-specific accepted-status and
-resolution lists. For a portable new-repository default, this refactor uses
-Jira's standard `statusCategory = Done`. An exact source-specific condition
-can be supplied through `--jql`.
+The cluster source file stores `terminal_jql` conditions copied from
+`Data_Analysis/JQL_Queries.py`; regression tests check their equivalence.
+These historical conditions include some active statuses and must not be
+described as Done-only. Unknown sources and standalone URL runs retain the
+portable `statusCategory = Done` default. Use `--jql` with
+`--no-terminal-only` for a standalone source-specific query.
+
+The pre-sprint-comment filter is unchanged: it was already part of the
+original pipeline. Restoring issue selection does not guarantee the same
+historical row count because the live repository and accessible history change.
 
 ## Run output
 
@@ -180,13 +202,23 @@ Each `runs/<run-name>/` folder contains:
 - `raw/issues.jsonl` - downloaded issue fields, comments, and changelogs.
 - `raw/download_errors.csv` - issue-specific download failures.
 - `processed/filter_summary.json` - accepted and rejected counts.
+- `processed/filter_decisions.csv` - each downloaded issue and its acceptance
+  or rejection reason.
+- `processed/dataset_analysis.json` - label counts and chronological partition
+  distributions for all four levels, including single-class warnings.
 - `processed/<project>/features_labels_table_os.csv` - model dataset.
 - `model/<project>_words_<threshold>/` - model, transformer, predictions,
   metrics, coefficients, metadata, and `report.html`.
 
-Rerunning without `--refresh` uses the cached raw JSONL and repeats
-preprocessing and training. This supports fast iterations on feature and
-model code without redownloading Jira.
+Rerunning without `--refresh` reuses raw JSONL only if the URL, project,
+effective query, and issue limit match the saved configuration. Changed
+selection settings require `--refresh` or a new run folder, preventing an old
+86-issue cache from masquerading as a broader collection. Download failures
+are recorded and fail the run instead of training silently on incomplete data.
+
+Dataset diagnostics are written before training. Training fails explicitly
+when its training or validation partition has only one class; the dataset and
+diagnostics remain available for inspection.
 
 ## Tests
 

@@ -35,12 +35,20 @@ Use `--run-name` to override it.
 
 ## Default selection
 
-The default Jira query requires:
+For standalone URL runs, the default Jira query requires:
 
 1. An issue type other than `Bug`.
-2. A non-empty Sprint field.
-3. `statusCategory = Done`.
-4. A Jira comment containing `https://github.com`.
+2. `statusCategory = Done`.
+3. A Jira comment containing `https://github.com`.
+
+Configured cluster sources instead use their historical status-or-resolution
+condition from `Source/jira_data_for_instability_cluster.json`. Apache also
+accepts the historical PR labels, and Jira retains its configured evidence
+exception. Explicit CLI filter switches override per-source defaults.
+
+Sprint eligibility is checked from downloaded fields **and changelog**.
+The query no longer excludes issues whose current Sprint field is empty.
+Use `--require-current-sprint` only to request that narrower population.
 
 The effective query is stored in `run_config.json`.
 
@@ -65,7 +73,9 @@ For Jira Cloud:
 
 ```bash
 export JIRA_EMAIL="user@example.com"
-export JIRA_TOKEN="api-token"
+read -r -s -p "Jira token: " JIRA_TOKEN
+echo
+export JIRA_TOKEN
 ```
 
 For bearer-token authentication, set only `JIRA_TOKEN`.

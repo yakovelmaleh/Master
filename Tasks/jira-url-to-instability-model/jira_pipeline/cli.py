@@ -8,8 +8,9 @@ from .orchestrator import run_pipeline
 TASK_DIR = Path(__file__).resolve().parents[1]
 
 
-def main():
+def build_parser():
     parser = argparse.ArgumentParser(
+        allow_abbrev=False,
         description=(
             "Download Jira issues from a repository URL, reproduce the "
             "instability preprocessing, and train a model."
@@ -85,7 +86,16 @@ def main():
         help="Do not require a GitHub URL in comments.",
     )
     parser.set_defaults(require_pr_evidence=True)
+    parser.add_argument(
+        "--require-current-sprint",
+        action="store_true",
+        help="Restrict to a populated current Sprint field; excludes history-only sprints.",
+    )
     parser.add_argument("--refresh", action="store_true")
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = build_parser().parse_args()
     result = run_pipeline(args)
     print(json.dumps(result, indent=2, default=str))

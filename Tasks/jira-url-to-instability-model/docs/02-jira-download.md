@@ -43,6 +43,11 @@ Selected keys are saved to:
 raw/issue_keys.json
 ```
 
+Configured sources use the original status-or-resolution predicates; generic
+URL runs use the portable Done-only policy. Current Sprint membership is not
+required by default, because valid membership may exist only in the changelog.
+GitHub-comment and pre-sprint-comment requirements are not removed.
+
 ## Detailed download
 
 For each issue key, the pipeline downloads:
@@ -72,5 +77,8 @@ Requests have:
 - Pagination for search, comments, and changelogs.
 - Clear HTTP and invalid-JSON errors.
 
-Without `--refresh`, an existing `raw/issues.jsonl` file is reused. This
-allows preprocessing and model iterations without repeating a long download.
+Without `--refresh`, cached issues are reused only when the saved URL,
+project, effective query, and issue limit match. A changed or missing
+configuration fails with instructions to refresh instead of silently
+reusing a narrower dataset. Any issue-download failures fail the run after
+writing the filtering and dataset-analysis artifacts.

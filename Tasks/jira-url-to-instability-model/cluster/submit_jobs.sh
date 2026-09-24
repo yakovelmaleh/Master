@@ -11,7 +11,8 @@ Usage:
 
 Launcher options:
   --sources-file PATH  Jira source JSON file.
-  --only NAME...       Submit jobs only for the named Jira sources.
+  -jira NAME...        Submit jobs only for the named Jira repositories.
+  --only NAME...       Backward-compatible alias for -jira.
   --run-id ID          Output batch name; defaults to YYYYmmdd-HHMMSS.
   --conda-env NAME     Conda environment; defaults to master.
   --partition NAME     SLURM partition; defaults to main.
@@ -19,10 +20,12 @@ Launcher options:
   --dry-run            Generate files without calling sbatch.
   -h, --help           Show this help.
 
+Without -jira or --only, submit one separate job per enabled repository.
 All other arguments are passed to cluster/run_cluster.py for every source.
 
 Examples:
   ./cluster/submit_jobs.sh --refresh
+  ./cluster/submit_jobs.sh -jira Qt --refresh
   ./cluster/submit_jobs.sh --max-issues 100 --refresh
   ./cluster/submit_jobs.sh --sources-file /path/to/sources.json --refresh
 EOF
@@ -47,17 +50,30 @@ while (($#)); do
       sources_file=$2
       shift 2
       ;;
-    --only)
+    --sources-file=*)
+      sources_file=${1#--sources-file=}
+      shift
+      ;;
+    --only|-jira)
+      selection_option=$1
       shift
       selection_start=${#selected_sources[@]}
-      while (($#)) && [[ "$1" != --* ]]; do
+      while (($#)) && [[ "$1" != -* ]]; do
         selected_sources+=("$1")
         shift
       done
       if ((${#selected_sources[@]} == selection_start)); then
-        echo "--only requires at least one source name." >&2
+        echo "$selection_option requires at least one source name." >&2
         exit 2
       fi
+      ;;
+    --only=*|-jira=*)
+      selected_sources+=("${1#*=}")
+      shift
+      ;;
+    --output-root|--output-root=*)
+      echo "--output-root is owned by the launcher; use --run-id instead." >&2
+      exit 2
       ;;
     --run-id)
       run_id=$2
@@ -85,8 +101,6 @@ while (($#)); do
       ;;
     --)
       shift
-      pipeline_args+=("$@")
-      break
       ;;
     *)
       pipeline_args+=("$1")
@@ -171,7 +185,18 @@ else
       )
       if [[ "$normalized_requested" == "$normalized_available" ]]; then
         source_found=true
-        source_names+=("$available_source")
+        already_selected=false
+        if ((${#source_names[@]} > 0)); then
+          for selected_source in "${source_names[@]}"; do
+            if [[ "$selected_source" == "$available_source" ]]; then
+              already_selected=true
+              break
+            fi
+          done
+        fi
+        if [[ "$already_selected" == false ]]; then
+          source_names+=("$available_source")
+        fi
         break
       fi
     done
@@ -189,7 +214,13 @@ fi
 
 run_root="$TASK_DIR/cluster_runs/$run_id"
 manifest="$run_root/submitted_jobs.tsv"
-mkdir -p "$run_root"
+mkdir -p "$TASK_DIR/cluster_runs"
+if ! mkdir "$run_root"; then
+  echo "Cannot create run directory (existing run IDs cannot be reused): $run_root" >&2
+  exit 2
+fi
+cp "$sources_file" "$run_root/sources.json"
+sources_file="$run_root/sources.json"
 printf 'source\tjob_id\tresults\tlog\tsbatch\n' > "$manifest"
 
 source_count=0

@@ -68,7 +68,7 @@ def load_dataset(data_root, project, threshold):
     if invalid_labels:
         raise ValueError(f"Target contains non-binary values: {invalid_labels}")
     data[target] = data[target].astype(int)
-    return data.sort_values("time_add_to_sprint").reset_index(drop=True)
+    return data.sort_values("time_add_to_sprint", kind="stable").reset_index(drop=True)
 
 
 def prepare_feature_frame(data):

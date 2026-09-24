@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import pandas as pd
@@ -41,6 +42,22 @@ class ModelTests(unittest.TestCase):
         labels = pd.Series([0, 0, 0])
         probabilities = pd.Series([0.1, 0.4, 0.8]).to_numpy()
         self.assertEqual(select_threshold(labels, probabilities), 0.5)
+
+    def test_training_rejects_single_class_training_or_validation(self):
+        for name, labels in (
+            ("training", [0] * 36 + [0, 1] * 12),
+            ("validation", [0, 1] * 18 + [0] * 12 + [0, 1] * 6),
+        ):
+            frame = pd.DataFrame({
+                "is_change_text_num_words_5": labels,
+                "time_add_to_sprint": pd.date_range("2020-01-01", periods=60),
+            })
+            with self.subTest(partition=name), patch(
+                "unstable_model.training.load_dataset", return_value=frame
+            ), patch("unstable_model.training.FeatureTransformer") as transformer:
+                with self.assertRaisesRegex(ValueError, name + " partition must contain both"):
+                    train_model(Path("."), Path("."), "Qt", 5, self.model_config())
+                transformer.assert_not_called()
 
     def test_training_sanitizes_infinite_numeric_values(self):
         with tempfile.TemporaryDirectory() as directory:

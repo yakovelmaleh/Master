@@ -38,6 +38,13 @@ def train_model(
         config.train_fraction,
         config.validation_fraction,
     )
+    for name, partition in (("training", train), ("validation", validation)):
+        if partition[target].nunique() != 2:
+            raise ValueError(
+                f"The {name} partition must contain both stable and unstable "
+                "issues. Collect more data or revise the split explicitly; "
+                "do not use a single-class partition to select a model."
+            )
     transformer = FeatureTransformer()
     train_features = transformer.fit_transform(train)
     validation_features = transformer.transform(validation)
