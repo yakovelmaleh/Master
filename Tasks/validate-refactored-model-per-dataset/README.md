@@ -1,8 +1,9 @@
 # Within-project model-family comparison
 
 Runs RF, legacy XGboost (`GradientBoostingClassifier`), and NN separately within
-each of the six datasets at **5, 10, 15, 20**. Default: 24 jobs, each containing
-three model families and baseline/refactored variants.
+each of the six datasets at **5, 10, 15, 20**. Default: **six jobs**, one per
+dataset. Each job runs all selected levels sequentially, with three model
+families and baseline/refactored variants.
 
 Uses the shared runner and training/evaluation policy documented in
 [`verify-refactored-instability-model`](../verify-refactored-instability-model/README.md).
@@ -21,11 +22,12 @@ bash Tasks/run_cluster_task.sh validate-refactored-model-per-dataset --only Qt
 ```
 
 `--only` and `--label-threshold` can each be repeated. `--only Qt` creates
-exactly four Qt jobs by default, never six-project submissions.
+exactly one Qt job running all four levels by default, never six-project submissions.
 `--label-threshold 5` narrows explicitly to one level.
 
-Outputs: `cluster_runs/<run-id>/<dataset>/words_<level>/results/` and sibling
-`logs/job-<SLURM_ID>.out`, plus `submit.sbatch`. The run root stores
+Outputs: `cluster_runs/<run-id>/<dataset>/results/model/words_<level>/`.
+Each dataset has one shared `logs/job-<SLURM_ID>.out` and `submit.sbatch`
+under `cluster_runs/<run-id>/<dataset>/`. The run root stores
 `job_plan.json`, configuration snapshots, and `submitted_jobs.tsv`.
 
 ```bash

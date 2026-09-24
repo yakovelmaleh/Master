@@ -55,8 +55,10 @@ bash Tasks/run_cluster_task.sh verify-refactored-instability-model --dry-run
 bash Tasks/run_cluster_task.sh verify-refactored-instability-model
 ```
 
-Default: four jobs (one per level), each evaluating all three model families and
-both variants. Narrow explicitly:
+Default: **one job** running levels 5, 10, 15, and 20 sequentially, evaluating all
+three model families and both variants. The comparison runner loads the inputs,
+splits the rows, and fits the feature transformer once for the job; model
+training remains separate for each label level. Narrow explicitly:
 
 ```bash
 bash Tasks/run_cluster_task.sh verify-refactored-instability-model \
@@ -87,7 +89,7 @@ cluster_runs/<run-id>/
   comparison_config.json        # candidate snapshot
   job_plan.json                 # every expected project/level/model/variant
   submitted_jobs.tsv
-  all/words_5/
+  all/
     submit.sbatch
     logs/job-<SLURM_ID>.out
     results/
@@ -111,14 +113,22 @@ cluster_runs/<run-id>/
         words_5/RF/refactored/
         words_5/XGboost/...
         words_5/NN/...
-  all/words_10/...
-  all/words_15/...
-  all/words_20/...
+        words_10/...
+        words_15/...
+        words_20/...
 ```
 
 Model files are trusted local artifacts; do not load untrusted joblib files.
 Run IDs cannot be reused. Partial submission errors and fitting errors remain
 in manifests; successfully written earlier results are preserved.
+The shared job log marks each level's start and completion. A training failure
+fails the grouped job and stops subsequent levels; the summary retains available
+metrics but marks the run incomplete. The time limit applies to the whole job,
+not each level. Existing submitted jobs are not changed by this refactor.
+
+`job_plan.json` stores a `levels` list per job; `submitted_jobs.tsv` has one row
+per job and a comma-separated `levels` column. The summary utility also supports
+older one-level-per-job runs.
 
 ## Summarize the complete batch
 

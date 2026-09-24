@@ -198,6 +198,7 @@ def run_comparison(data, output, protocol, project, levels, models, config, repo
     rows = []
     seed = config["seed"]
     for level in levels:
+        print(f"Starting {project}: unstable level {level}", flush=True)
         y_train = train[label_column(level)].to_numpy()
         y_val = validation[label_column(level)].to_numpy()
         y_test = test[label_column(level)].to_numpy()
@@ -256,4 +257,5 @@ def run_comparison(data, output, protocol, project, levels, models, config, repo
                     **metrics["test"],
                 })
                 pd.DataFrame(rows).to_csv(output / "comparison_results.csv", index=False)
+        print(f"Completed {project}: unstable level {level}", flush=True)
     return rows

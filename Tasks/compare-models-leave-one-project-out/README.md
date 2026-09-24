@@ -11,7 +11,8 @@ window: training dates may overlap held-out-project dates. Project-specific
 categorical values not seen in training receive the transformer's unknown
 encoding.
 
-Default: six held-out datasets x four unstable levels = 24 jobs. Each runs
+Default: **six jobs**, one per held-out dataset, with all four unstable levels
+running sequentially inside each job. Each runs
 RF/RF, legacy GradientBoosting/GradientBoosting, and NN/NN baseline/refactored
 pairs. See the [shared methodology](../verify-refactored-instability-model/README.md)
 for balancing, unweighted AUC-PRC, candidates, and the distinction between
@@ -27,7 +28,9 @@ bash Tasks/run_cluster_task.sh compare-models-leave-one-project-out --only Qt
 be configured. Repeat `--label-threshold` to narrow levels explicitly.
 
 Outputs and logs stay in this task:
-`cluster_runs/<run-id>/<held-out-project>/words_<level>/{results,logs,submit.sbatch}`.
+`cluster_runs/<run-id>/<held-out-project>/{results,logs,submit.sbatch}`.
+Per-level model artifacts are in `results/model/words_<level>/`; all levels
+share one job log.
 The job plan and split manifests identify every model, level and held-out row.
 
 ```bash
