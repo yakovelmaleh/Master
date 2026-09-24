@@ -1,0 +1,18 @@
+------------------------------------
+Thu 17 Sep 2026 20:47:24 IDT
+SLURM_JOBID:		21438571
+SLURM_JOB_NODELIST:	ise-cpu-intl-28
+SLURM_SCRATCH_DIR:	
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:47:24 IDT
+
+SLURM_JOBID:		21438571
+SLURM_JOB_NODELIST:	ise-cpu-intl-28
+
+Dataset: Apache
+Results: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/apache/results
+Log: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/apache/logs/job-21438571.out
+Verification manifest: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/apache/results/verification_manifest.json

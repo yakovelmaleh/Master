@@ -1,0 +1,20 @@
+------------------------------------
+Thu 17 Sep 2026 20:47:25 IDT
+SLURM_JOBID:		21438575
+SLURM_JOB_NODELIST:	ise-cpu-intl-05
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21438575
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 20:47:25 IDT
+
+SLURM_JOBID:		21438575
+SLURM_JOB_NODELIST:	ise-cpu-intl-05
+
+Dataset: MariaDB
+Results: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/mariadb/results
+Log: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/mariadb/logs/job-21438575.out
+/home/yakovelm/.conda/envs/master/lib/python3.8/site-packages/numpy/lib/nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+Verification manifest: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/mariadb/results/verification_manifest.json

@@ -1,0 +1,93 @@
+{
+  "comparison_performed": false,
+  "created_at_utc": "2026-09-17T17:47:53.715507+00:00",
+  "datasets_file": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/datasets.json",
+  "inputs": {
+    "Qt": {
+      "path": "/home/yakovelm/Master/Data/Qt/features_labels_table_os.csv",
+      "sha256": "be7d3674003a64e80214951607f4b85ecf070b79c435340f83d4b1f632b65c2a",
+      "size_bytes": 8824785
+    }
+  },
+  "label_threshold": 5,
+  "metrics": {
+    "test": {
+      "accuracy": 0.8577269010629599,
+      "average_precision": 0.2021347432482459,
+      "balanced_accuracy": 0.5730654191272337,
+      "confusion_matrix": [
+        [
+          1023,
+          82
+        ],
+        [
+          92,
+          26
+        ]
+      ],
+      "f1": 0.23008849557522124,
+      "first_sprint_entry": "2022-08-24T15:41:42",
+      "last_sprint_entry": "2023-04-27T18:22:56",
+      "positive_count": 118,
+      "positive_rate": 0.0964840556009812,
+      "precision": 0.24074074074074073,
+      "recall": 0.22033898305084745,
+      "roc_auc": 0.6750364291740164,
+      "row_count": 1223,
+      "threshold": 0.61
+    },
+    "train": {
+      "accuracy": 0.8224222585924713,
+      "average_precision": 0.20962753652647445,
+      "balanced_accuracy": 0.5868944807346992,
+      "confusion_matrix": [
+        [
+          2903,
+          374
+        ],
+        [
+          277,
+          112
+        ]
+      ],
+      "f1": 0.256,
+      "first_sprint_entry": "2016-11-17T12:16:04",
+      "last_sprint_entry": "2021-11-22T08:44:53",
+      "positive_count": 389,
+      "positive_rate": 0.10611020185488271,
+      "precision": 0.23045267489711935,
+      "recall": 0.2879177377892031,
+      "roc_auc": 0.6795732192824806,
+      "row_count": 3666,
+      "threshold": 0.61
+    },
+    "validation": {
+      "accuracy": 0.8338788870703764,
+      "average_precision": 0.13769619967841348,
+      "balanced_accuracy": 0.5965666582977656,
+      "confusion_matrix": [
+        [
+          992,
+          146
+        ],
+        [
+          57,
+          27
+        ]
+      ],
+      "f1": 0.21011673151750973,
+      "first_sprint_entry": "2021-11-22T08:49:29",
+      "last_sprint_entry": "2022-08-24T15:40:41",
+      "positive_count": 84,
+      "positive_rate": 0.06873977086743044,
+      "precision": 0.15606936416184972,
+      "recall": 0.32142857142857145,
+      "roc_auc": 0.6848376433174325,
+      "row_count": 1222,
+      "threshold": 0.61
+    }
+  },
+  "model_run_directory": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/qt/results/model/qt_words_5",
+  "project": "Qt",
+  "status": "succeeded"
+}

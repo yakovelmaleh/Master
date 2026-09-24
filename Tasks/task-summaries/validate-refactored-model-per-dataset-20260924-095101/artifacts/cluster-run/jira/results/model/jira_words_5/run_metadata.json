@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.6458105778198362,
+  "created_at_utc": "2026-09-17T17:47:28.615779+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260917-204655/jira/results/input_layout",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_5",
+  "model": "dependency_light_logistic_regression",
+  "project": "Jira",
+  "selected_threshold": 0.48999999999999994,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 2000
+}
