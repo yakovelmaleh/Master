@@ -1,0 +1,24 @@
+------------------------------------
+Thu 17 Sep 2026 22:31:01 IDT
+SLURM_JOBID:		21441505
+SLURM_JOB_NODELIST:	ise-cpu128-05
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21441505
+Allocated Resouces:	cpu - 12 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+Thu 17 Sep 2026 22:31:01 IDT
+
+SLURM_JOBID:		21441505
+SLURM_JOB_NODELIST:	ise-cpu128-05
+
+Source: IntelDAOS
+Results: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/inteldaos/results
+Log: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/inteldaos/logs/job-21441505.out
+[1/1] Starting Qt: https://bugreports.qt.io
+Downloaded 25/86 issues (0 errors)
+Downloaded 50/86 issues (0 errors)
+Downloaded 75/86 issues (0 errors)
+Downloaded 86/86 issues (0 errors)
+Finished Qt
+Cluster summary: /home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/inteldaos/results/cluster_run_summary.json

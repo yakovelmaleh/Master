@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.7171982181963584,
+  "created_at_utc": "2026-09-17T19:32:43.657397+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260917-223051/hyperledger/results/qt/processed",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_5",
+  "model": "dependency_light_logistic_regression",
+  "project": "qt",
+  "selected_threshold": 0.5,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 51
+}

@@ -1,0 +1,10 @@
+{
+  "accepted_records": 38,
+  "downloaded_records": 86,
+  "reasons": {
+    "accepted": 38,
+    "no_comment_before_sprint": 45,
+    "no_sprint_entry": 3
+  },
+  "rejected_records": 48
+}
