@@ -32,12 +32,16 @@ From this task folder, the equivalent direct command is:
 ./cluster/submit_jobs.sh --refresh
 ```
 
-Submit only selected sources:
+Without `-jira` (or the compatible `--only` alias), all enabled repositories
+are submitted, each in its own SLURM job with separate results and logs.
+Entries marked `enabled: false` remain skipped.
+
+Submit only Qt:
 
 ```bash
 ./Tasks/run_cluster_task.sh \
   jira-url-to-instability-model \
-  --only Qt \
+  -jira Qt \
   --refresh
 ```
 
@@ -47,12 +51,17 @@ selected source:
 ```bash
 ./Tasks/run_cluster_task.sh \
   jira-url-to-instability-model \
-  --only MariaDB Qt \
+  -jira MariaDB Qt \
   --refresh
 ```
 
 Source names are validated before any job is submitted. Unknown or disabled
 sources stop the command without creating partial submissions.
+`-jira` and `--only` are also handled after a `--` separator; they cannot be passed through
+to override every generated job with Qt. The launcher owns `--output-root`
+and rejects attempts to override it. Reusing a run ID fails without altering
+the existing results. The selected source configuration is copied to
+`cluster_runs/<run-id>/sources.json` before submission.
 
 The launcher uses the existing cluster settings:
 
@@ -175,6 +184,23 @@ Disable it for a separate experiment:
 ./cluster/submit_jobs.sh --no-require-pr-evidence --refresh
 ```
 
+The source file's `terminal_jql` predicates preserve the original per-source
+status **or** resolution lists from `Data_Analysis/JQL_Queries.py`, rather than
+replacing them with Done-only. Apache's `pr_evidence_jql` also accepts its
+original PR labels. Jira retains its existing `require_pr_evidence: false`
+exception. Explicit CLI switches take precedence over source defaults.
+Unknown sources without these predicates use the portable defaults.
+
+Current Sprint membership is no longer a query requirement. Preprocessing
+still requires a recoverable sprint entry and at least one pre-sprint comment,
+as before. `--require-current-sprint` requests the old narrow query explicitly.
+
+After collection, inspect `processed/filter_summary.json`,
+`processed/filter_decisions.csv`, and `processed/dataset_analysis.json`
+inside each source's results. They show collection losses and label/split
+counts for all levels before training. A single-class training or validation
+partition fails the job rather than producing a misleading successful model.
+
 ## Sequential local run
 
 For a local run without SLURM:
@@ -194,3 +220,5 @@ python3 cluster/run_cluster.py \
 
 The sequential runner writes to `runs/` by default. One repository failure
 does not stop the other repositories unless `--fail-fast` is supplied.
+It also accepts `-jira` as an alias for `--only`, but only the shell launcher
+creates separate SLURM jobs.

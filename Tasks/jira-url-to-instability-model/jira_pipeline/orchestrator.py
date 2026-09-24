@@ -8,7 +8,8 @@ from urllib.parse import urlparse
 import pandas as pd
 
 from unstable_model.config import load_config
-from unstable_model.training import train_model
+from unstable_model.training import partition_summary, train_model
+from unstable_model.data import chronological_split, label_column
 
 from .client import JiraClient
 from .preprocessing import add_previous_creator_counts, preprocess_record
@@ -70,16 +71,20 @@ def selected_field_ids(field_map):
     return standard + custom
 
 
-def build_jql(project, custom_jql, terminal_only, require_pr_evidence):
+def build_jql(
+    project, custom_jql, terminal_only, require_pr_evidence,
+    require_current_sprint=False, pr_evidence_jql=None, terminal_jql=None,
+):
     clauses = []
     if project:
         clauses.append(f'project = "{project}"')
     clauses.append(custom_jql or "type != Bug")
-    clauses.append("Sprint is not EMPTY")
+    if require_current_sprint:
+        clauses.append("Sprint is not EMPTY")
     if terminal_only:
-        clauses.append("statusCategory = Done")
+        clauses.append(terminal_jql or "statusCategory = Done")
     if require_pr_evidence:
-        clauses.append('comment ~ "https://github.com"')
+        clauses.append(pr_evidence_jql or 'comment ~ "https://github.com"')
     return " AND ".join(f"({clause})" for clause in clauses) + (
         " ORDER BY created ASC"
     )
@@ -125,6 +130,44 @@ def read_records(raw_path):
     return records
 
 
+def dataset_analysis(frame, config):
+    analysis = {
+        "rows": len(frame),
+        "unique_issues": int(frame["issue_key"].nunique()) if len(frame) else 0,
+        "levels": {},
+        "warnings": [],
+    }
+    if len(frame) and frame["issue_key"].duplicated().any():
+        raise ValueError("Duplicate issue keys in the processed dataset.")
+    partitions = {}
+    if len(frame) >= 30:
+        train, validation, test = chronological_split(
+            frame, config.train_fraction, config.validation_fraction
+        )
+        partitions = {"train": train, "validation": validation, "test": test}
+    else:
+        analysis["warnings"].append("Fewer than 30 rows; model training is not possible.")
+    for level in (5, 10, 15, 20):
+        target = label_column(level)
+        positives = int(frame[target].sum()) if len(frame) else 0
+        details = {
+            "positive_count": positives,
+            "negative_count": len(frame) - positives,
+            "positive_rate": positives / len(frame) if len(frame) else None,
+            "partitions": {},
+        }
+        for name, partition in partitions.items():
+            summary = partition_summary(partition, target)
+            details["partitions"][name] = summary
+            if summary["positive_count"] in (0, summary["row_count"]):
+                analysis["warnings"].append(
+                    f"Level {level}: {name} has only one class; "
+                    "PR/ROC discrimination cannot be evaluated."
+                )
+        analysis["levels"][str(level)] = details
+    return analysis
+
+
 def run_pipeline(args):
     run_name = args.run_name or default_run_name(
         args.jira_url, args.project
@@ -150,6 +193,9 @@ def run_pipeline(args):
         args.jql,
         args.terminal_only,
         args.require_pr_evidence,
+        getattr(args, "require_current_sprint", False),
+        getattr(args, "pr_evidence_jql", None),
+        getattr(args, "terminal_jql", None),
     )
     metadata = {
         "jira_url": args.jira_url,
@@ -158,17 +204,33 @@ def run_pipeline(args):
         "max_issues": args.max_issues,
         "terminal_only": args.terminal_only,
         "require_pr_evidence": args.require_pr_evidence,
+        "require_current_sprint": getattr(args, "require_current_sprint", False),
         "label_threshold": args.label_threshold,
         "api_version": client.api_version,
     }
-    write_json(run_dir / "run_config.json", metadata)
-
     raw_path = raw_dir / "issues.jsonl"
     error_path = raw_dir / "download_errors.csv"
+    config_path = run_dir / "run_config.json"
     if raw_path.exists() and not args.refresh:
+        if not config_path.exists():
+            raise ValueError("Cached issues have no run configuration. Use --refresh.")
+        previous = json.loads(config_path.read_text(encoding="utf-8"))
+        if previous.get("download_complete") is False:
+            raise ValueError("The cached download is incomplete. Use --refresh.")
+        selection_keys = ("jira_url", "project", "jql", "max_issues")
+        if any(previous.get(key) != metadata[key] for key in selection_keys):
+            raise ValueError(
+                "Cached issues were collected with different selection settings. "
+                "Use --refresh or a new --run-name."
+            )
         records = read_records(raw_path)
+        keys = json.loads((raw_dir / "issue_keys.json").read_text(encoding="utf-8"))
     else:
         keys = client.search_issue_keys(jql, args.max_issues)
+        if len(keys) != len(set(keys)):
+            raise ValueError("Jira search returned duplicate issue keys.")
+        metadata["download_complete"] = False
+        write_json(config_path, metadata)
         write_json(raw_dir / "issue_keys.json", keys)
         records = download_records(
             client,
@@ -177,28 +239,39 @@ def run_pipeline(args):
             raw_path,
             error_path,
         )
+    if len(keys) != len(set(keys)):
+        raise ValueError("Jira search returned duplicate issue keys.")
+    metadata["download_complete"] = len(records) == len(keys)
+    write_json(config_path, metadata)
 
     rows = []
+    decisions = []
     reasons = Counter()
     for record in records:
         row, reason = preprocess_record(record, field_map)
         reasons[reason] += 1
+        decisions.append({"issue_key": record["issue"]["key"], "reason": reason})
         if row:
             rows.append(row)
-    if not rows:
-        raise RuntimeError(
-            f"No valid model rows remained after preprocessing: {reasons}"
-        )
-    frame = add_previous_creator_counts(pd.DataFrame(rows))
+    frame = add_previous_creator_counts(pd.DataFrame(rows)) if rows else pd.DataFrame()
     source_name = default_run_name(args.jira_url, args.project)
     source_dir = processed_dir / source_name
     source_dir.mkdir(parents=True, exist_ok=True)
     dataset_path = source_dir / "features_labels_table_os.csv"
-    frame.to_csv(dataset_path, index=False)
+    if rows:
+        frame.to_csv(dataset_path, index=False)
+    with (processed_dir / "filter_decisions.csv").open("w", newline="", encoding="utf-8") as output:
+        writer = csv.DictWriter(output, fieldnames=["issue_key", "reason"])
+        writer.writeheader()
+        writer.writerows(decisions)
     write_json(
         processed_dir / "filter_summary.json",
         {
+            "selected_keys": len(keys),
             "downloaded_records": len(records),
+            "download_failed_records": len(keys) - len(records),
+            "download_limited": args.max_issues is not None,
+            "effective_jql": jql,
             "accepted_records": len(frame),
             "rejected_records": len(records) - len(frame),
             "reasons": dict(reasons),
@@ -206,6 +279,19 @@ def run_pipeline(args):
     )
 
     config = load_config(Path(__file__).resolve().parents[1] / "model_config.json")
+    analysis = dataset_analysis(frame, config)
+    write_json(processed_dir / "dataset_analysis.json", analysis)
+    for warning in analysis["warnings"]:
+        print(f"WARNING: {warning}", flush=True)
+    if len(records) != len(keys):
+        raise RuntimeError(
+            f"{len(keys) - len(records)} issues failed to download. "
+            "See raw/download_errors.csv; use --refresh to retry."
+        )
+    if not rows:
+        raise RuntimeError(
+            f"No valid model rows remained after preprocessing: {reasons}"
+        )
     trained_dir, metrics = train_model(
         data_root=processed_dir,
         output_root=model_dir,

@@ -46,6 +46,9 @@ def load_sources(path, selected_names=None):
                 "project": entry.get("project"),
                 "run_name": entry.get("run_name"),
                 "jql": entry.get("jql"),
+                "terminal_only": entry.get("terminal_only", True),
+                "terminal_jql": entry.get("terminal_jql"),
+                "pr_evidence_jql": entry.get("pr_evidence_jql"),
                 "require_pr_evidence": entry.get(
                     "require_pr_evidence"
                 ),
@@ -67,6 +70,7 @@ def load_sources(path, selected_names=None):
 
 def build_parser():
     parser = argparse.ArgumentParser(
+        allow_abbrev=False,
         description=(
             "Run the Jira URL to instability model pipeline for every "
             "repository in a cluster sources JSON file."
@@ -79,8 +83,10 @@ def build_parser():
     )
     parser.add_argument(
         "--only",
+        "-jira",
         nargs="+",
-        help="Run only the named source entries, for example Apache Qt.",
+        action="extend",
+        help="Select repository names, for example Apache Qt; default: all enabled sources.",
     )
     parser.add_argument(
         "--output-root",
@@ -109,7 +115,7 @@ def build_parser():
         dest="terminal_only",
         action="store_false",
     )
-    parser.set_defaults(terminal_only=True)
+    parser.set_defaults(terminal_only=None)
 
     evidence_group = parser.add_mutually_exclusive_group()
     evidence_group.add_argument(
@@ -122,7 +128,8 @@ def build_parser():
         dest="require_pr_evidence",
         action="store_false",
     )
-    parser.set_defaults(require_pr_evidence=True)
+    parser.set_defaults(require_pr_evidence=None)
+    parser.add_argument("--require-current-sprint", action="store_true")
     parser.add_argument("--refresh", action="store_true")
     parser.add_argument(
         "--fail-fast",
@@ -146,17 +153,25 @@ def run_cluster(args):
         pipeline_args = Namespace(
             jira_url=source["jira_url"],
             project=source["project"],
-            jql=source["jql"] or args.jql,
+            jql=args.jql if args.jql is not None else source["jql"],
             run_name=source["run_name"],
             output_root=args.output_root,
             max_issues=args.max_issues,
             label_threshold=args.label_threshold,
-            terminal_only=args.terminal_only,
-            require_pr_evidence=(
-                args.require_pr_evidence
-                if source["require_pr_evidence"] is None
-                else source["require_pr_evidence"]
+            terminal_only=(
+                source["terminal_only"]
+                if args.terminal_only is None else args.terminal_only
             ),
+            require_pr_evidence=(
+                args.require_pr_evidence if args.require_pr_evidence is not None
+                else (
+                    source["require_pr_evidence"]
+                    if source["require_pr_evidence"] is not None else True
+                )
+            ),
+            pr_evidence_jql=source["pr_evidence_jql"],
+            terminal_jql=source["terminal_jql"],
+            require_current_sprint=args.require_current_sprint,
             refresh=args.refresh,
         )
         try:
@@ -195,6 +210,7 @@ def run_cluster(args):
             "label_threshold": args.label_threshold,
             "terminal_only": args.terminal_only,
             "require_pr_evidence": args.require_pr_evidence,
+            "require_current_sprint": args.require_current_sprint,
             "refresh": args.refresh,
         },
         "succeeded": sum(item["status"] == "succeeded" for item in results),

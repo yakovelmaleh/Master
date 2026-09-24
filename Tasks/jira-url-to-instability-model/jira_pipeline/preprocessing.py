@@ -258,4 +258,4 @@ def add_previous_creator_counts(frame):
         previous.append(counts[creator])
         counts[creator] += 1
     frame["num_issues_cretor_prev"] = previous
-    return frame.sort_values("time_add_to_sprint").reset_index(drop=True)
+    return frame.sort_values("time_add_to_sprint", kind="stable").reset_index(drop=True)

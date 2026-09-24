@@ -43,9 +43,10 @@ The model produces an instability probability.
 
 The classification threshold is selected on the validation partition by
 maximum F1. The final test partition is not used for fitting or threshold
-selection. If the validation partition contains only one label class, the
-trainer uses a neutral threshold of `0.50` because validation F1 cannot select
-a meaningful threshold.
+selection. Training stops with an explicit error if the training or validation
+partition contains only one class. Dataset diagnostics are still saved; the
+runner does not silently substitute a `0.50` threshold for an unusable
+validation set. A single-class test partition has undefined PR/ROC metrics.
 
 ## Model output
 
@@ -76,8 +77,8 @@ python3 run_pipeline.py \
   --refresh
 ```
 
-Run without `--refresh` to reuse the raw JSONL and repeat only preprocessing
-and training:
+Run without `--refresh` to reuse the raw JSONL with the same selection settings
+and repeat only preprocessing and training:
 
 ```bash
 python3 run_pipeline.py \
@@ -91,6 +92,9 @@ python3 run_pipeline.py \
   --jira-url https://issues.apache.org/jira \
   --label-threshold 10
 ```
+
+Changing the URL, project, query, or issue limit requires `--refresh` or a new
+run folder. Changing only the label threshold can reuse the same raw issues.
 
 ## Cluster execution
 
