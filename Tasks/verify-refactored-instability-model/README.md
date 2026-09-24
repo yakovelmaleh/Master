@@ -1,150 +1,138 @@
-# Verify the refactored instability model
+# Combined chronological model-family comparison
 
-This task runs the refactored weighted instability model on the same existing
-processed CSV datasets. It does not download Jira issues and does not compare
-the refactored outputs with the original model outputs.
+This task replaces the previous logistic-only verification. It runs **RF,
+legacy XGboost, and NN**, each at unstable levels **5, 10, 15, 20**.
+Logistic regression now has its own task:
+`Tasks/evaluate-logistic-instability-model/`.
 
-The comparison will be implemented as a separate task and pull request.
+## What is compared
 
-## Input datasets
+Each family is run twice on identical rows and the same pre-sprint features:
 
-`datasets.json` explicitly lists the six existing datasets:
+| Variant | Training | Validation/test |
+| --- | --- | --- |
+| baseline | Unweighted family rerun | Original unweighted distribution |
+| refactored | Balanced training sample weights (RF/boosting); training-only oversampling (NN) | Original unweighted distribution |
 
-```text
-Data/Apache/features_labels_table_os.csv
-Data/Hyperledger/features_labels_table_os.csv
-Data/IntelDAOS/features_labels_table_os.csv
-Data/Jira/features_labels_table_os.csv
-Data/MariaDB/features_labels_table_os.csv
-Data/Qt/features_labels_table_os.csv
-```
+**These are controlled family reruns, not a replay of the old NLP/topic/document
+vector pipeline.** Published old scores from `Models/results_best_para/` are
+exported separately as `historical_reference.csv`, explicitly marked not
+directly comparable. They must never be mixed with matched rerun scores.
 
-Paths are resolved from the repository root. The verification manifest records
-the absolute path, byte size, and SHA-256 hash of every input. These
-fingerprints will let the later comparison task prove that both model runs used
-the same CSV files.
+Historical `XGboost` is actually `sklearn.ensemble.GradientBoostingClassifier`
+in `Utils/ml_algorithms_run_best_parameters.py`; we preserve that class and
+record the exact estimator class. RF uses `RandomForestClassifier`, NN uses
+`MLPClassifier`. An actual `XGBClassifier` experiment requires a separate task.
 
-## Model being verified
+## Data and selection
 
-The task calls the refactored model in:
+`datasets.json` points to the six original `Data/<project>/features_labels_table_os.csv`
+files. They are fingerprinted, not modified. Invalid sprint timestamps are
+excluded by the existing loader. Non-binary labels, duplicate issue keys, and
+different eligible rows between selected levels fail explicitly.
 
-```text
-Tasks/jira-url-to-instability-model/unstable_model/
-```
+The pooled task trains on the first 60% of globally chronological rows,
+validates on the next 20%, and tests on the last 20%. Both variants use exactly
+the same partitions. `split_manifest.json` records counts, class counts, source
+composition, row-ID hashes, and software versions. Saved row lists prove membership.
+This is a **pooled temporal** experiment, not held-out-project generalization.
 
-The model uses:
+`comparison_config.json` defines the seed and a small validation search for each
+family. Both variants use the same search space. Selection maximizes
+**unweighted validation trapezoidal AUC-PRC**; average precision is also recorded
+and is not substituted for AUC-PRC. The decision threshold maximizes validation
+F1. Final models remain fitted on training only. There is no test-set selection
+or weighting. One-class test PR/ROC metrics are null; one-class train/validation
+fails. NN convergence warnings are printed and retained in candidate metadata.
 
-- Balanced class-based sample weights.
-- Chronological 60/20/20 train, validation, and test splits.
-- Validation-only threshold selection.
-- L2 regularization and validation early stopping.
-- Only features available at or before sprint entry.
-
-The default target is `is_change_text_num_words_5`.
-
-## Cluster run
+## Run
 
 From the repository root:
 
 ```bash
-./Tasks/run_cluster_task.sh \
-  --pull \
-  verify-refactored-instability-model
+python3 -m pip install -r Tasks/verify-refactored-instability-model/requirements.txt
+bash Tasks/run_cluster_task.sh verify-refactored-instability-model --dry-run
+bash Tasks/run_cluster_task.sh verify-refactored-instability-model
 ```
 
-`--pull` runs `git pull --ff-only` before the task is submitted. Omit it to use
-the code currently checked out on the cluster.
-
-The task submits one SLURM job that trains the combined `all` model using all
-six configured datasets.
-
-Run one dataset instead:
+Default: four jobs (one per level), each evaluating all three model families and
+both variants. Narrow explicitly:
 
 ```bash
-./Tasks/run_cluster_task.sh \
-  verify-refactored-instability-model \
-  --project Apache
+bash Tasks/run_cluster_task.sh verify-refactored-instability-model \
+  --label-threshold 5 --label-threshold 20 --models RF XGboost
 ```
 
-Use another instability threshold:
-
-```bash
-./Tasks/run_cluster_task.sh \
-  verify-refactored-instability-model \
-  --label-threshold 10
-```
-
-## Validate before submitting
-
-Generate and inspect the sbatch file without calling SLURM:
-
-```bash
-./Tasks/run_cluster_task.sh \
-  verify-refactored-instability-model \
-  --dry-run
-```
-
-Validate dataset paths and hashes without training:
+`--project Apache` pools only Apache; use the per-dataset task to run all projects
+independently. `--comparison-config PATH` supplies a different candidate grid.
+`--validate-only` validates inputs/labels and fingerprints without fitting.
+Local equivalent:
 
 ```bash
 python3 Tasks/verify-refactored-instability-model/run_verification.py \
-  --validate-only
+  --protocol pooled --output-root /tmp/master-comparison-run
 ```
 
-## Results and logs
+## Other protocols
 
-Each invocation creates a timestamped task-owned folder:
+- `validate-refactored-model-per-dataset`: chronological split within each dataset.
+- `compare-models-leave-one-project-out`: excluded project never enters fitting or validation.
+- `evaluate-logistic-instability-model`: separate logistic experiment.
+
+## Outputs
 
 ```text
 cluster_runs/<run-id>/
-├── submitted_jobs.tsv
-└── all/
-    ├── submit.sbatch
-    ├── logs/
-    │   └── job-<SLURM_JOB_ID>.out
-    └── results/
-        ├── verification_manifest.json
-        ├── input_layout/
-        │   ├── Apache/features_labels_table_os.csv
-        │   └── ...
-        └── model/
-            └── all_words_5/
-                ├── model.npz
-                ├── feature_transformer.json
-                ├── metrics.json
-                ├── run_metadata.json
-                ├── validation_predictions.csv
-                ├── test_predictions.csv
-                ├── feature_coefficients.csv
-                └── report.html
+  datasets.json                 # resolved snapshot
+  comparison_config.json        # candidate snapshot
+  job_plan.json                 # every expected project/level/model/variant
+  submitted_jobs.tsv
+  all/words_5/
+    submit.sbatch
+    logs/job-<SLURM_ID>.out
+    results/
+      verification_manifest.json
+      input_layout/<project>/features_labels_table_os.csv  # symlink
+      model/
+        comparison_results.csv
+        historical_reference.csv
+        historical_sources.json
+        split_manifest.json
+        train_rows.csv
+        validation_rows.csv
+        test_rows.csv
+        feature_transformer.json
+        words_5/RF/baseline/
+          model.joblib
+          run_metadata.json
+          metrics.json
+          validation_predictions.csv
+          test_predictions.csv
+        words_5/RF/refactored/
+        words_5/XGboost/...
+        words_5/NN/...
+  all/words_10/...
+  all/words_15/...
+  all/words_20/...
 ```
 
-The files under `input_layout/` are symbolic links to the original datasets;
-the CSV files are not copied or modified.
+Model files are trusted local artifacts; do not load untrusted joblib files.
+Run IDs cannot be reused. Partial submission errors and fitting errors remain
+in manifests; successfully written earlier results are preserved.
 
-`verification_manifest.json` records the exact inputs, selected project,
-label threshold, status, final metrics, and model output directory.
-
-`submitted_jobs.tsv` maps the SLURM job ID to its results, `.out` log, and
-generated sbatch file. `cluster_runs/latest_run.txt` contains the latest run
-directory.
-
-Generated `cluster_runs/` content is ignored by Git.
-
-## Local run
-
-Install the small dependency set:
+## Summarize the complete batch
 
 ```bash
-python3 -m pip install -r \
-  Tasks/verify-refactored-instability-model/requirements.txt
+bash Tasks/create-task-summary-pr/create_task_summary_pr.sh \
+  --task verify-refactored-instability-model --run-id <run-id>
 ```
 
-Then run:
+All levels, models, logs, and shared code are included. `LEVELS.csv` reports
+missing/failed entries; `RESULTS.csv` contains available test metrics.
+
+## Tests
 
 ```bash
-python3 Tasks/verify-refactored-instability-model/run_verification.py
+PYTHONPATH=Tasks/verify-refactored-instability-model:Tasks/jira-url-to-instability-model \
+  python3 -m unittest discover -s Tasks/verify-refactored-instability-model/tests
 ```
-
-This performs only the refactored run. It intentionally makes no statement
-about whether the original and refactored results match.

@@ -35,6 +35,35 @@ Runtime caches, bytecode, untracked `runs/`, and unrelated historical
   --run-id 20260917-204018
 ```
 
+Model-comparison batches now contain all four unstable levels by default.
+The entire run tree is copied, including every model, level, `.out` log,
+prediction file, metrics file and manifest. Shared runner/model code is also
+included automatically for the model tasks.
+
+For older batches where levels were run separately, repeat `--run-id`:
+
+```bash
+bash Tasks/create-task-summary-pr/create_task_summary_pr.sh \
+  --task validate-refactored-model-per-dataset \
+  --run-id level-5-run --run-id level-10-run \
+  --run-id level-15-run --run-id level-20-run
+```
+
+Multiple runs are preserved under `artifacts/cluster-runs/<id>/`; no level
+overwrites another. A single run retains `artifacts/cluster-run/`.
+
+Every summary includes:
+
+- `LEVELS.csv`: expected project/level/model/variant entries and missing files.
+- `RESULTS.csv`: available unweighted test AUC-PRC, average precision, accuracy,
+  ROC AUC and supporting metrics.
+- `LEVEL_SUMMARY.md`: missing standard levels and incomplete/unverified entries.
+
+Partial and failed runs can still be summarized; they are visibly marked
+incomplete. Older runs without a job plan have **unknown** completeness, not
+assumed success. The summary never fabricates missing level results or replaces
+AUC-PRC with average precision.
+
 To summarize only the task definition:
 
 ```bash

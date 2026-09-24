@@ -64,10 +64,10 @@ def load_dataset(data_root, project, threshold):
     data = prepare_feature_frame(data)
     data[target] = target_values
     data = data.dropna(subset=["time_add_to_sprint", target]).copy()
-    data[target] = data[target].astype(int)
     invalid_labels = sorted(set(data[target].unique()) - {0, 1})
     if invalid_labels:
         raise ValueError(f"Target contains non-binary values: {invalid_labels}")
+    data[target] = data[target].astype(int)
     return data.sort_values("time_add_to_sprint").reset_index(drop=True)
 
 
