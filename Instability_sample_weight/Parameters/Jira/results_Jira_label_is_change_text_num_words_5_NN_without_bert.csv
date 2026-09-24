@@ -1,0 +1,19 @@
+project_key,usability_label,accuracy_nn,confusion_matrix_nn,classification_report_nn,area_under_pre_recall_curve_nn,avg_precision_nn,area_under_roc_curve_nn,y_pred_nn,num_units_hidden_layer,max_iterations,solver,num_batches_size,activation,alpha,learning_rate,random_state
+Jira,is_change_text_num_words_5,0.6498422712933754,"[[120  34]
+ [ 77  86]]","              precision    recall  f1-score   support
+
+           0       0.61      0.78      0.68       154
+           1       0.72      0.53      0.61       163
+
+    accuracy                           0.65       317
+   macro avg       0.66      0.65      0.65       317
+weighted avg       0.66      0.65      0.64       317
+",0.7179968631107938,0.719241695939868,0.6881523384590869,"[0 0 0 0 0 1 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 0 0 1 0 1 0 0 0 0 0 1 0 0 1
+ 1 1 0 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1 1 0 0 1 1 1 0 0 0 0 0 0 0 0 0
+ 0 1 1 0 0 0 1 0 0 1 0 0 1 0 1 1 0 1 0 1 0 0 1 0 0 0 0 1 0 0 0 0 0 1 0 1 0
+ 0 0 1 1 0 1 0 1 0 0 1 0 1 1 1 1 1 0 0 0 1 1 0 0 0 1 1 0 1 0 0 0 1 0 0 1 0
+ 1 1 0 1 0 0 0 0 0 0 1 0 1 1 0 0 0 1 0 1 1 1 0 0 1 1 0 0 0 0 1 0 0 0 0 0 0
+ 0 1 0 0 0 0 1 0 1 1 0 1 0 0 0 0 1 0 1 0 0 1 1 0 0 0 0 0 1 0 0 0 0 1 0 1 0
+ 1 1 1 0 1 1 0 1 1 1 1 1 1 0 0 0 1 1 1 0 0 0 0 0 1 0 1 1 0 1 0 0 0 0 0 1 0
+ 0 0 0 1 0 0 1 0 1 0 1 1 0 0 1 1 0 1 0 0 1 1 1 0 0 0 0 0 1 0 1 1 1 1 1 1 1
+ 0 0 0 0 0 0 1 1 0 1 0 1 0 1 0 0 1 0 1 0 0]","(50,)",1500,lbfgs,20,logistic,0.05,adaptive,15

@@ -1,0 +1,37 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap,random_state,class_weight
+Hyperledger,is_change_text_num_words_10,"['num_headlines', 'has_code', 'has_url', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'if_acceptance_empty_tbd', 'len_acceptance', 'avg_word_len', 'avg_num_word_in_sentence', 'has_tbd', 'has_please', 'len_description', 'if_description_empty_tbd', 'num_stopwords', 'num_issues_cretor_prev', 'priority', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'ratio_unusable_issues_text_by_previous', 'dominant_topic_1']",0,0.6669525979538043,"[[318.03860072 163.96139928]
+ [157.0962963  324.9037037 ]]","              precision    recall  f1-score   support
+
+           0       0.67      0.66      0.66 481.999999999997
+           1       0.66      0.67      0.67 481.99999999999994
+
+    accuracy                           0.67 963.9999999999969
+   macro avg       0.67      0.67      0.67 963.9999999999969
+weighted avg       0.67      0.67      0.67 963.9999999999969
+",0.6858100047769593,0.6888863762003365,0.7355314301032005,"[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0
+ 1 1 1 0 0 0 1 1 0 0 1 0 1 1 0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 0 1 0 0 0
+ 0 0 0 0 1 0 1 0 0 0 1 1 0 0 0 0 1 0 1 0 0 0 0 0 1 0 0 0 1 0 0 1 0 1 0 1 0
+ 1 1 1 1 0 0 0 0 1 0 1 1 0 0 0 0 1 0 0 1 1 0 1 1 1 0 1 1 1 1 1 1 1 0 0 0 0
+ 0 0 0 0 1 1 0 1 0 0 0 0 0 0 1 0 0 0 1 1 1 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+ 0 0 0 1 0 0 0 1 1 1 1 0 0 0 1 0 0 0 0 1 0 1 0 0 1 0 1 1 1 0 0 1 0 0 0 1 1
+ 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 0 0 1 0 0 1 1 1 1 1 0 0 0 1 0 0 0 0 0 0 0
+ 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 0 0 0 1 1 0 0 1 0 0 0 0 1 0 0 1 1 1
+ 0 0 1 1 1 0 1 0 0 0 1 1 0 1 0 0 0 0 1 0 1 0 0 0 0 1 1 1 0 0 1 0 0 1 0 1 0
+ 0 0 0 1 1 1 1 1 1 1 1 1 1 1 0 1 1 1 0 0 0 0 1 1 0 1 0 0 0 1 1 1 1 1 1 1 0
+ 1 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1 1 1 1 1 1 1 0 0 0 0 1 0
+ 0 0 0 0 0 0 0 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 0 1 1 1 1 1 0 1 1 1 1 1
+ 1 1 1 1 0 1 0 0 1 1 1 1 1 1 1 1 0 1 0 0 1 0 0 0 1 1 1 0 1 0 1 0 0 0 1 1 1
+ 1 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0
+ 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 1 0 1 1 0 1 1 1 0 0 0 0 1 0 0 1 1 1 0 1 0 0 0 1 0 0
+ 1 1 1 0 1 1 1 0 0 0 0 1 1 0 1 1 0 1 1 1 1 0 0 1 1 0 0 0 0 0 0 0 0 1 0 1 1
+ 1 0 1 1 1 1 1 1 0 1 0 1 0 0 1 0 0 0 1 0 1 0 1 0 1 1 1 0 0 1 0 0 1 0 0 1 0
+ 0 1 0 0 0 0 0 0 1 0 1 1 0 1 1 0 0 1 0 1 0 1 0 0 0 1 0 1 0 0 0 1 1 0 1 1 0
+ 0 0 1 1 0 1 1 0 0 1 1 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0 0 0 0 0 1 1 0 0 0 1 1
+ 0 1 0 1 1 0 1 0 1 0 0 0 0 1 1 1 0 0 1 1 1 1 0 1 1 0 1 1 1 0 1 0 0 0 0 0 0
+ 0 0 0 1 0 0 1 1 1 0 1 0 1 0 0 0 0 0 0 1 0 0 1 1 1 0 1 1 0 0 0 0 0 0 0 0 1
+ 1 0 0 0 0 0 0 1 0 1 1 1 1 1 1 1 1 0 1 0 0 0 0 1 0 1 1 1 1 0 0 1 0 1 1 0 1
+ 0 0 1 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 0 1 0 0 0 0 0 0 0 0 0
+ 0 0]",400,log2,110,50,100,True,2,

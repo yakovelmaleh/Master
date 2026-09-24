@@ -1,0 +1,21 @@
+project_key,usability_label,accuracy_nn,confusion_matrix_nn,classification_report_nn,area_under_pre_recall_curve_nn,avg_precision_nn,area_under_roc_curve_nn,y_pred_nn,num_units_hidden_layer,max_iterations,solver,num_batches_size,activation,alpha,learning_rate,random_state
+MariaDB,is_change_text_num_words_20,0.964824120603015,"[[383   3]
+ [ 11   1]]","              precision    recall  f1-score   support
+
+           0       0.97      0.99      0.98       386
+           1       0.25      0.08      0.12        12
+
+    accuracy                           0.96       398
+   macro avg       0.61      0.54      0.55       398
+weighted avg       0.95      0.96      0.96       398
+",0.13147792096040506,0.13779444589524115,0.6295336787564767,"[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]","(100,)",1500,adam,100,logistic,0.01,adaptive,0

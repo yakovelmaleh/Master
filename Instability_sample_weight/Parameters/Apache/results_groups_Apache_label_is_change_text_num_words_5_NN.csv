@@ -1,0 +1,11 @@
+project_key,usability_label,accuracy_nn,confusion_matrix_nn,classification_report_nn,area_under_pre_recall_curve_nn,avg_precision_nn,area_under_roc_curve_nn,y_pred_nn,num_units_hidden_layer,max_iterations,solver,num_batches_size,activation,alpha,learning_rate,random_state
+Apache,is_change_text_num_words_5,0.7913950456323338,"[[1205   58]
+ [ 262    9]]","              precision    recall  f1-score   support
+
+           0       0.82      0.95      0.88      1263
+           1       0.13      0.03      0.05       271
+
+    accuracy                           0.79      1534
+   macro avg       0.48      0.49      0.47      1534
+weighted avg       0.70      0.79      0.74      1534
+",0.16964532018232048,0.17134857932336345,0.4712320282347716,[0 0 0 ... 0 0 0],"(50,)",1500,lbfgs,20,logistic,0.05,adaptive,15

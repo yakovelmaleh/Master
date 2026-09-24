@@ -1,0 +1,19 @@
+project_key,usability_label,accuracy_xgboost,confusion_matrix_xgboost,classification_report_xgboost,area_under_pre_recall_curve_xgboost,avg_precision_xgboost,area_under_roc_curve_xgboost,y_pred_xgboost,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,random_state,learning_rate,subsample
+Jira,is_change_text_num_words_15,0.7290470494417863,"[[150.81515152   7.68484848]
+ [ 78.20723684  80.29276316]]","              precision    recall  f1-score   support
+
+           0       0.66      0.95      0.78 158.4999999999998
+           1       0.91      0.51      0.65 158.50000000000034
+
+    accuracy                           0.73 317.0000000000001
+   macro avg       0.79      0.73      0.71 317.0000000000001
+weighted avg       0.79      0.73      0.71 317.0000000000001
+",0.8664414502616993,0.866980836091247,0.8588516746411481,"[0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+ 0 1 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 1 1 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+ 0 1 1 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0
+ 0 0 1 0 0 0 0 0 1 0 1 1 1 1 1 1 0 0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0
+ 1 1 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 1 0 1 0 1 0 1 0 0 1 0 1 0 0 1 0 0 0
+ 1 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 1 1
+ 0 0 1 0 1 0 0 0 1 1 1 0 0 0 0 0 1 1 1 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 1 0 1 0 1 1 0 0 0 1 0 1 1 0 0 0 0 0 1 1 0 0 1 0 1 0 1 0 1 0 1
+ 0 0 0 0 0 0 1 1 0 1 0 1 0 0 0 0 1 0 1 1 0]",400,sqrt,50,20,10,15,0.05,0.9

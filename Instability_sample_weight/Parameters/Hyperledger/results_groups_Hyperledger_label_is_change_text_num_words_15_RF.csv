@@ -1,0 +1,37 @@
+project_key,usability_label,features,feature_importance,accuracy_rf,confusion_matrix_rf,classification_report_rf,area_under_pre_recall_curve_rf,avg_precision_rf,area_under_roc_curve_rf,y_pred_rf,num_trees,max_features,max_depth,min_samples_split,min_samples_leaf,bootstrap,random_state,class_weight
+Hyperledger,is_change_text_num_words_15,"['num_headlines', 'has_code', 'has_url', 'num_question_marks', 'has_template', 'len_sum_desc', 'num_sentences', 'num_words', 'has_acceptance_criteria', 'if_acceptance_empty_tbd', 'len_acceptance', 'avg_word_len', 'avg_num_word_in_sentence', 'has_tbd', 'has_please', 'len_description', 'if_description_empty_tbd', 'num_stopwords', 'num_issues_cretor_prev', 'priority', 'num_comments_before_sprint', 'num_changes_text_before_sprint', 'num_changes_story_point_before_sprint', 'original_story_points_sprint', 'time_until_add_sprint', 'noun_count', 'verb_count', 'adj_count', 'adv_count', 'pron_count', 'block', 'block_by', 'duplicate', 'relates', 'duplicate_by', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', 'ratio_unusable_issues_text_by_previous', 'BERT_5_instability', 'BERT_10_instability', 'BERT_15_instability', 'BERT_20_instability', 'dominant_topic_1']",0,0.6069851999795156,"[[358.803298   123.196702  ]
+ [255.66956522 226.33043478]]","              precision    recall  f1-score   support
+
+           0       0.58      0.74      0.65 481.999999999994
+           1       0.65      0.47      0.54 481.99999999999915
+
+    accuracy                           0.61 963.9999999999932
+   macro avg       0.62      0.61      0.60 963.9999999999932
+weighted avg       0.62      0.61      0.60 963.9999999999932
+",0.6668903860608579,0.6704413765729733,0.7093357914682215,"[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1
+ 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 0 1 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ 0 0 0 1 1 0 0 0 1 0 1 0 1 0 0 0 1 1 1 1 1 1 1 1 1 0 1 0 0 1 0 0 0 0 1 0 0
+ 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0
+ 0 1 1 1 1 1 1 1 1 0 1 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 1 0
+ 0 0 1 1 1 1 1 1 0 0 1 0 0 0 1 1 0 0 0 0 0 1 0 1 0 1 0 0 0 0 1 0 0 0 0 0 0
+ 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 1 1
+ 1 0 0 1 1 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 1 1
+ 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 1 1 0 0 0 1 1 1 0 1 1 0 0 1 0
+ 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 1 1 1 0 0 1 0 1 0
+ 0 0 0 0 0 0 0 1 0 0 0 0 1 1 1 0 0 0 0 1 0 1 0 1 0 1 1 1 1 1 0 0 1 0 0 0 0
+ 0 0 0 1 1 1 0 1 0 0 1 1 1 0 1 0 1 1 1 0 0 1 1 0 0 0 0 1 0 0 1 1 0 0 0 1 1
+ 1 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 1 0 0 0 0 1 1 1 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0
+ 0 0 0 0 0 0 0 1 0 0 1 0 1 0 0 1 0 0 1 0 0 0 0 0 0 0 1 0 0 0 1 0 0 1 1 0 0
+ 1 0 0 0 0 0 0 0 1 1 0 0 0 0 1 1 0 0 1 1 0 1 1 0 1 0 0 0 1 0 0 1 0 0 0 1 0
+ 0 1 1 0 0 0 1 1 0 1 0 0 1 1 0 0 0 1 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 1 0
+ 0 1 0 1 0 0 0 0 0 0 1 0 0 1 0 0 1 0 0 0 0 1 0 0 0 1 0 0 1 1 0 0 0 0 1 1 0
+ 0 0 1 0 0 0 0 0 0 1 0 0 1 0 0 1 0 1 1 0 0 0 0 1 1 0 0 0 1 0 0 1 0 0 0 0 1
+ 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 0 1 1 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 1 0 1 1 1 1 1 1 1 1 0 1 0 0 0 0 1 0 1 1 0 1 0 0 1 0 0 0 0 1
+ 0 0 1 0 0 1 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+ 0 0]",2000,auto,10,30,10,False,15,balanced
