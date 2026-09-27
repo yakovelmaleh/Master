@@ -1,0 +1,67 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2006-08-23 06:57:12",
+      "last_sprint_entry": "2023-04-19 01:56:36",
+      "positive_counts": {
+        "10": 610,
+        "15": 457,
+        "20": 377,
+        "5": 878
+      },
+      "row_ids_sha256": "d3c5659ed8dacf813a03e3c43bca481c63caf56a6c36d714cf37283ad29e19a5",
+      "rows": 7672,
+      "source_counts": {
+        "Apache": 7672
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2012-02-08 00:06:30",
+      "last_sprint_entry": "2021-08-03 08:19:53",
+      "positive_counts": {
+        "10": 1661,
+        "15": 1435,
+        "20": 988,
+        "5": 2002
+      },
+      "row_ids_sha256": "5d7d76b0f03de713e7b267d50df398080d4483b1266d6434cec1f787a1a69ef6",
+      "rows": 12920,
+      "source_counts": {
+        "Hyperledger": 4816,
+        "IntelDAOS": 1666,
+        "Jira": 1556,
+        "MariaDB": 1713,
+        "Qt": 3169
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2021-08-03 09:29:29",
+      "last_sprint_entry": "2023-04-27 18:22:56",
+      "positive_counts": {
+        "10": 208,
+        "15": 164,
+        "20": 136,
+        "5": 310
+      },
+      "row_ids_sha256": "66fbeda3dbb49c61fe19a48321661c3b66c74b2fd6ff9548bfee8368032bf3af",
+      "rows": 3230,
+      "source_counts": {
+        "Jira": 18,
+        "MariaDB": 270,
+        "Qt": 2942
+      }
+    }
+  },
+  "project": "Apache",
+  "protocol": "leave-one-project-out",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}
