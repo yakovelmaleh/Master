@@ -235,17 +235,23 @@ echo "Logs: $logs_dir"
 echo "Dataset CSV files found: $dataset_count"
 echo "Dataset status: $dataset_status"
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 is required to select size-bounded investigation artifacts." >&2
+  exit 2
+fi
+package_args=(--results "$results_dir" --logs "$logs_dir")
+[[ -f "$sbatch_file" ]] && package_args+=(--sbatch "$sbatch_file")
+[[ -f "$run_manifest" ]] && package_args+=(--manifest "$run_manifest")
+[[ -n "$configured_dataset" ]] && package_args+=(--dataset "$configured_dataset")
+
 if [[ "$dry_run" == true ]]; then
   echo
-  echo "Files that would be included:"
-  find -L "$results_dir" "$logs_dir" -type f -print | sort
-  [[ -f "$sbatch_file" ]] && echo "$sbatch_file"
-  [[ -f "$run_manifest" ]] && echo "$run_manifest"
-  [[ -n "$configured_dataset" ]] && echo "$configured_dataset"
+  echo "Files that would be included or omitted (90 MiB per-file limit):"
+  python3 "$SCRIPT_DIR/package_artifacts.py" "${package_args[@]}"
   exit 0
 fi
 
-for required_command in git gzip; do
+for required_command in git; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "Required command not found: $required_command" >&2
     exit 2
@@ -298,28 +304,9 @@ git -C "$REPO_ROOT" worktree add \
 destination="$pr_worktree/Tasks/investigations/$investigation_id"
 artifacts_dir="$destination/artifacts"
 mkdir -p "$artifacts_dir"
-cp -RL "$results_dir" "$artifacts_dir/results"
-cp -RL "$logs_dir" "$artifacts_dir/logs"
-[[ -f "$sbatch_file" ]] && cp "$sbatch_file" "$artifacts_dir/submit.sbatch"
-[[ -f "$run_manifest" ]] &&
-  cp "$run_manifest" "$artifacts_dir/submitted_jobs.tsv"
-
-if [[ -n "$configured_dataset" ]]; then
-  mkdir -p "$artifacts_dir/dataset"
-  cp "$configured_dataset" \
-    "$artifacts_dir/dataset/features_labels_table_os.csv"
-fi
-
-copied_dataset_count=$(
-  find "$artifacts_dir" \
-    -type f \
-    -name 'features_labels_table_os.csv' |
-    wc -l |
-    tr -d ' '
-)
-if [[ "$copied_dataset_count" == 0 ]]; then
-  dataset_status=not_created
-fi
+echo "Selecting and copying investigation artifacts (maximum 90 MiB per file)..."
+python3 "$SCRIPT_DIR/package_artifacts.py" "${package_args[@]}" --destination "$destination"
+dataset_status=$(cat "$destination/DATASET_STATUS.txt")
 
 declare -a secret_scan_paths=()
 [[ -d "$artifacts_dir/logs" ]] &&
@@ -331,7 +318,7 @@ declare -a secret_scan_paths=()
 while IFS= read -r -d '' metadata_file; do
   secret_scan_paths+=("$metadata_file")
 done < <(
-  find "$artifacts_dir/results" \
+  find "$artifacts_dir" \
     -type f \
     \( -name '*.json' -o -name '*.txt' -o -name '*.log' \) \
     ! -path '*/raw/*' \
@@ -352,13 +339,9 @@ if [[ -n "$secret_matches" ]]; then
   exit 2
 fi
 
-while IFS= read -r -d '' large_file; do
-  gzip -9 "$large_file"
-done < <(find "$artifacts_dir" -type f -size +90M -print0)
-
-oversized_files=$(find "$artifacts_dir" -type f -size +95M -print)
+oversized_files=$(find "$artifacts_dir" -type f -size +90M -print)
 if [[ -n "$oversized_files" ]]; then
-  echo "Files remain above GitHub's safe per-file size after compression:" >&2
+  echo "Unexpected files above the 90 MiB investigation limit; refusing to publish:" >&2
   echo "$oversized_files" >&2
   exit 2
 fi
@@ -366,8 +349,8 @@ fi
 cat > "$destination/README.md" <<EOF
 # Investigation: $task_name / $dataset_name
 
-This folder contains the complete investigation bundle for one cluster
-dataset run.
+This folder contains a size-limited investigation bundle for one cluster
+dataset run. Files above 90 MiB are omitted, not compressed.
 
 ## Source
 
@@ -381,11 +364,12 @@ dataset run.
 
 ## Included artifacts
 
-- The complete \`results/\` directory for this dataset.
-- All available SLURM \`.out\` logs.
+- Result files and SLURM \`.out\` logs at or below 90 MiB each.
 - The generated \`submit.sbatch\` file, when present.
 - The run-level \`submitted_jobs.tsv\` manifest, when present.
 - Complete or partial result files produced before the failure.
+- \`OMITTED_FILES.csv\` lists every omitted artifact, original size, and reason.
+- \`DATASET_STATUS.txt\` distinguishes missing datasets from size exclusions.
 
 EOF
 
@@ -393,18 +377,25 @@ if [[ "$dataset_status" == "complete" ]]; then
   cat >> "$destination/README.md" <<'EOF'
 - The complete `features_labels_table_os.csv` dataset.
 EOF
-else
+elif [[ "$dataset_status" == "not_created" ]]; then
   cat >> "$destination/README.md" <<'EOF'
 - No final `features_labels_table_os.csv` exists because dataset creation did
   not complete. The logs and partial results are included to investigate that
   failure.
 EOF
+else
+  cat >> "$destination/README.md" <<'EOF'
+- One or more final dataset CSVs were omitted because they exceeded 90 MiB.
+  This is a publication exclusion, not evidence that dataset creation failed.
+  See `OMITTED_FILES.csv`; original files remain on the cluster.
+EOF
 fi
 
 cat >> "$destination/README.md" <<'EOF'
 
-Files larger than 90 MiB are gzip-compressed before committing. This PR is
-for investigation only; it does not change model or pipeline behavior.
+Files larger than 90 MiB (including already compressed files) are excluded
+before copying. Original cluster files are unchanged. This PR is for
+investigation only; it does not change model or pipeline behavior.
 EOF
 
 (
