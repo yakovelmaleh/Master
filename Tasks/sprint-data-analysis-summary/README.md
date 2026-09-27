@@ -7,7 +7,7 @@ when adding more experiments; a copy in Downloads is only for convenience.
 
 `results/Master-Sprint-Summary-2026-09-24.pptx`
 
-The deck uses the existing presentation template and contains 17 slides:
+The deck uses the existing presentation template and contains 21 slides:
 
 | Slides | Content |
 |---|---|
@@ -16,12 +16,15 @@ The deck uses the existing presentation template and contains 17 slides:
 | 6-9 | `unstable-user-story-timechart-without-pr-evidence` |
 | 10-13 | `research-new-public-jira-repositories` |
 | 14-17 | PR #357: `validate-refactored-model-per-dataset` |
+| 18-21 | PR #360: `compare-models-leave-one-project-out` |
 
 Each task has an introduction, Data Analysis, results, and conclusions.
 The first three tasks were measured on September 10, 2026; the presentation was
 assembled on September 24, 2026. PR #357's model experiment was appended on
 September 27, 2026, using cluster run `20260924-212251-041726`.
-No Jira data was refreshed. The original 13 slides remain unchanged.
+PR #360 was also appended on September 27, 2026, using cluster run
+`20260924-212328-564730`. No Jira data was refreshed. The existing slides,
+including #357's section, remain unchanged when appending #360.
 
 ## PR #357 experiment
 
@@ -46,6 +49,38 @@ Evidence: PR #357, artifact commit
 partition counts and evaluation policies. Scores were aggregated from the
 reported metrics, not independently recomputed from predictions. Provenance
 and detailed counts are also included in the new slides' speaker notes.
+
+## PR #360 experiment
+
+The four added slides cover introduction, baseline-versus-refactored Data
+Analysis, results, and conclusions for leave-one-project-out evaluation.
+For each fold, the entire held-out repository is the test set; the other five
+repositories are combined and split chronologically into approximately 80%
+training and 20% validation. The held-out project is absent from both.
+The same 23,822 eligible historical CSV rows are used across six folds,
+four unstable levels, three model families, and two variants: all 144 outputs
+are present and all six verification manifests report success.
+
+Training-only balancing wins 20 of 72 paired comparisons and loses 52. The
+descriptive macro AUC-PRC decreases from 0.1861 to 0.1753; only legacy boosting
+at level 20 improves in the six-project model/level averages. The highest
+individual result is Jira, baseline legacy boosting, level 5: 0.5059 AUC-PRC
+with 34.6% test prevalence.
+
+This tests project transfer, not strictly future-time transfer: source and
+target dates overlap. Test populations differ from #357, so differences between
+the two experiments are not paired improvement estimates. Macro scores are not
+pooled-prediction scores or statistical-significance evidence. The same
+historical-pipeline and legacy-model naming caveats described above apply.
+
+Evidence: PR #360, artifact commit
+`e554ad3e3fecfb9e5c0e3e40665274ff9bcb3f6a`, bundle
+`Tasks/task-summaries/compare-models-leave-one-project-out-20260927-135429/`.
+Aggregates use `RESULTS.csv`; fold counts and isolation use each project's
+`artifacts/cluster-run/<project>/results/model/split_manifest.json`.
+Success is recorded in `results/verification_manifest.json`. Individual
+predictions were not independently rescored. Detailed provenance, counts,
+date ranges, and metrics are included in the new slides' speaker notes.
 
 ## Open and update
 
