@@ -7,7 +7,7 @@ when adding more experiments; a copy in Downloads is only for convenience.
 
 `results/Master-Sprint-Summary-2026-09-24.pptx`
 
-The deck uses the existing presentation template and contains 30 slides:
+The deck uses the existing presentation template and contains 29 slides:
 
 | Slides | Content |
 |---|---|
@@ -19,9 +19,10 @@ The deck uses the existing presentation template and contains 30 slides:
 | 18-21 | PR #360: `compare-models-leave-one-project-out` |
 | 22-25 | PR #358: `verify-refactored-instability-model` |
 | 26-29 | PR #365: `evaluate-logistic-instability-model` |
-| 30 | Plain-language comparison: #358 pooled versus #357 within-project |
 
 Each task has an introduction, Data Analysis, results, and conclusions.
+Each model task's introduction is its own two-column **Item / This task**
+table, not a side-by-side comparison with another task.
 The first three tasks were measured on September 10, 2026; the presentation was
 assembled on September 24, 2026. PR #357's model experiment was appended on
 September 27, 2026, using cluster run `20260924-212251-041726`.
@@ -30,8 +31,10 @@ PR #360 was also appended on September 27, 2026, using cluster run
 including #357's section, remain unchanged when appending #360.
 PR #358 was appended on September 27, 2026, using cluster run
 `20260924-212306-286254`, preserving all 21 preceding slides.
-PR #365 and the comparison guide were appended on September 27, 2026,
-preserving all 25 preceding slides.
+PR #365 was appended on September 27, 2026. The model-task introduction slides
+were subsequently replaced with individual overview tables; their data,
+results, and conclusion slides remain unchanged. The standalone comparison
+slide was removed.
 
 ## PR #357 experiment
 
@@ -163,14 +166,13 @@ Reported results and per-level metrics/metadata come from
 The bundled `unstable_model/model.py` documents weighting and saved-iterate
 selection. Metrics were not independently rescored from predictions.
 
-## Plain-language experiment comparison
+## Individual task overview tables
 
-Slide 30 compares **#358 pooled/shared training** with **#357 within-project
-training** using research question, training data, split, model count, test
-coverage, result aggregation, and completed outputs (24 versus 144).
-It explicitly distinguishes both from #360's unseen-repository evaluation.
-Different test populations mean their scores do not isolate the benefit of
-shared versus repository-specific training.
+Slides 14 (#357), 18 (#360), 22 (#358), and 26 (#365) each explain only their
+own task in a two-column **Item / This task** table. Every table includes:
+research question, training data, split, models trained, test coverage,
+results/aggregation, and completed outputs. There is no standalone
+task-versus-task comparison slide.
 
 ## Open and update
 
