@@ -7,7 +7,7 @@ when adding more experiments; a copy in Downloads is only for convenience.
 
 `results/Master-Sprint-Summary-2026-09-24.pptx`
 
-The deck uses the existing presentation template and contains 25 slides:
+The deck uses the existing presentation template and contains 29 slides:
 
 | Slides | Content |
 |---|---|
@@ -18,8 +18,11 @@ The deck uses the existing presentation template and contains 25 slides:
 | 14-17 | PR #357: `validate-refactored-model-per-dataset` |
 | 18-21 | PR #360: `compare-models-leave-one-project-out` |
 | 22-25 | PR #358: `verify-refactored-instability-model` |
+| 26-29 | PR #365: `evaluate-logistic-instability-model` |
 
 Each task has an introduction, Data Analysis, results, and conclusions.
+Each model task's introduction is its own two-column **Item / This task**
+table, not a side-by-side comparison with another task.
 The first three tasks were measured on September 10, 2026; the presentation was
 assembled on September 24, 2026. PR #357's model experiment was appended on
 September 27, 2026, using cluster run `20260924-212251-041726`.
@@ -28,6 +31,10 @@ PR #360 was also appended on September 27, 2026, using cluster run
 including #357's section, remain unchanged when appending #360.
 PR #358 was appended on September 27, 2026, using cluster run
 `20260924-212306-286254`, preserving all 21 preceding slides.
+PR #365 was appended on September 27, 2026. The model-task introduction slides
+were subsequently replaced with individual overview tables; their data,
+results, and conclusion slides remain unchanged. The standalone comparison
+slide was removed.
 
 ## PR #357 experiment
 
@@ -122,6 +129,50 @@ for identical test-row hashes, unweighted test evaluation, validation-based
 selection, and the refactored training-balancing policy. Scores were not
 independently recomputed from predictions. Detailed metrics and source
 provenance are included in the new slides' speaker notes.
+
+## PR #365 experiment
+
+**Research question (slide 26):** How well does a simple logistic model predict
+newer issues from older multi-repository data, using the pooled split?
+
+Cluster run `20260924-212357-961761` completed four logistic outputs at levels
+5/10/15/20. It uses 23,822 eligible rows and the same 14,293/4,764/4,765 split
+counts as #358. At every level, validation/test issue-key and label sequences
+match #358, and saved feature transformers are identical.
+
+This is a separate dependency-light logistic model, not another matched
+baseline/refactored pair. Training is class-weighted; saved-iterate selection
+uses **balanced validation log loss**, unlike #358's validation AUC-PRC
+selection. Threshold selection uses validation F1. Reported metrics are
+unweighted. The change is therefore not an estimator-only comparison.
+
+| Level | Test AUC-PRC | Average precision | Accuracy | ROC AUC |
+|---|---:|---:|---:|---:|
+| 5 | 0.1454 | 0.1463 | 56.03% | 0.5933 |
+| 10 | 0.1157 | 0.1171 | 84.51% | 0.6493 |
+| 15 | 0.1027 | 0.1044 | 86.27% | 0.6912 |
+| 20 | 0.0820 | 0.0841 | 88.92% | 0.6779 |
+
+At level 5, precision is 13.12% and recall is 56.15%. Always predicting stable
+would yield 89.42% accuracy but zero unstable recall. No unweighted logistic
+control is included, so this experiment cannot isolate balancing's effect.
+The pooled test population has the same coverage limitations as #358.
+
+Evidence: PR #365, artifact commit
+`05384024a0abf96b2b60f786f4e5a63ba584aa7e`, bundle
+`Tasks/task-summaries/evaluate-logistic-instability-model-20260927-144611/`.
+Reported results and per-level metrics/metadata come from
+`artifacts/cluster-run/all/results/model/words_<level>/Logistic/logistic/all_words_<level>/`.
+The bundled `unstable_model/model.py` documents weighting and saved-iterate
+selection. Metrics were not independently rescored from predictions.
+
+## Individual task overview tables
+
+Slides 14 (#357), 18 (#360), 22 (#358), and 26 (#365) each explain only their
+own task in a two-column **Item / This task** table. Every table includes:
+research question, training data, split, models trained, test coverage,
+results/aggregation, and completed outputs. There is no standalone
+task-versus-task comparison slide.
 
 ## Open and update
 
