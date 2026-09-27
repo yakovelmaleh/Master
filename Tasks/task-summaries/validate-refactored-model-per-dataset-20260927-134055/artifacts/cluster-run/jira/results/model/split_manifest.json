@@ -1,0 +1,61 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2015-11-16 00:07:29",
+      "last_sprint_entry": "2023-01-27 02:40:56",
+      "positive_counts": {
+        "10": 164,
+        "15": 160,
+        "20": 41,
+        "5": 170
+      },
+      "row_ids_sha256": "391abdec6c68bda5a77c5b4c50801221513238224174dd07c742498f06df9a6e",
+      "rows": 316,
+      "source_counts": {
+        "Jira": 316
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2012-02-08 00:06:30",
+      "last_sprint_entry": "2013-08-29 09:05:00",
+      "positive_counts": {
+        "10": 207,
+        "15": 197,
+        "20": 120,
+        "5": 221
+      },
+      "row_ids_sha256": "b89d2eae86f99e64643e46593c6b80763322ac19c2bddf038ba37c30112b2fe8",
+      "rows": 944,
+      "source_counts": {
+        "Jira": 944
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2013-08-29 12:21:51",
+      "last_sprint_entry": "2015-11-16 00:07:26",
+      "positive_counts": {
+        "10": 152,
+        "15": 143,
+        "20": 19,
+        "5": 154
+      },
+      "row_ids_sha256": "4271654930c7aade78ab7690a945812082432576a04e35af633631d903a1b48b",
+      "rows": 314,
+      "source_counts": {
+        "Jira": 314
+      }
+    }
+  },
+  "project": "Jira",
+  "protocol": "within-project",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}
