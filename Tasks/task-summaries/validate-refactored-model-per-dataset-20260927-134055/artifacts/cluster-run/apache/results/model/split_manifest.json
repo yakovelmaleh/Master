@@ -1,0 +1,61 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2022-02-08 03:48:19",
+      "last_sprint_entry": "2023-04-19 01:56:36",
+      "positive_counts": {
+        "10": 118,
+        "15": 81,
+        "20": 59,
+        "5": 190
+      },
+      "row_ids_sha256": "f5a472b25300a5f972102446ef2b28e776b1117cae8df5195362f7654ed201eb",
+      "rows": 1535,
+      "source_counts": {
+        "Apache": 1535
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2006-08-23 06:57:12",
+      "last_sprint_entry": "2019-07-03 17:27:45",
+      "positive_counts": {
+        "10": 284,
+        "15": 211,
+        "20": 173,
+        "5": 417
+      },
+      "row_ids_sha256": "31f7e50759794d461c487df67552c0e9dadc09c7d1f3bacf37439ebb3d53ce7c",
+      "rows": 4603,
+      "source_counts": {
+        "Apache": 4603
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2019-07-03 18:19:55",
+      "last_sprint_entry": "2022-02-08 03:22:31",
+      "positive_counts": {
+        "10": 208,
+        "15": 165,
+        "20": 145,
+        "5": 271
+      },
+      "row_ids_sha256": "807e631475ee4a225686ba299c383ce17ab27c0bf436684ca5dfa9df6d7ff80c",
+      "rows": 1534,
+      "source_counts": {
+        "Apache": 1534
+      }
+    }
+  },
+  "project": "Apache",
+  "protocol": "within-project",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}

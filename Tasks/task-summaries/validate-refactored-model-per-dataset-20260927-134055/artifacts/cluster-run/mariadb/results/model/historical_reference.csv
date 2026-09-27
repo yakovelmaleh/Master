@@ -1,0 +1,13 @@
+project,level,model,estimator_class,variant,directly_comparable,auc_prc,average_precision,accuracy,roc_auc
+MariaDB,5,RF,RandomForestClassifier,published_historical_reference,False,0.1771874348638113,0.1834257575731722,0.8492462311557789,0.5531065088757396
+MariaDB,5,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.1514996864249863,0.1564650097737093,0.8492462311557789,0.5035996055226825
+MariaDB,5,NN,MLPClassifier,published_historical_reference,False,0.152179458760364,0.1595137393841044,0.8492462311557789,0.5013313609467456
+MariaDB,10,RF,RandomForestClassifier,published_historical_reference,False,0.1458056661217328,0.1562742556280357,0.8919597989949749,0.5624631509990174
+MariaDB,10,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.1023788725419595,0.1068451194016435,0.8919597989949749,0.4888306583688175
+MariaDB,10,NN,MLPClassifier,published_historical_reference,False,0.0943191726345292,0.0993077151427927,0.8919597989949749,0.4526039960694399
+MariaDB,15,RF,RandomForestClassifier,published_historical_reference,False,0.1179978583865651,0.1315802067935947,0.9170854271356784,0.6262349522623496
+MariaDB,15,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.106857809259333,0.1134277918516227,0.9170854271356784,0.6054794520547945
+MariaDB,15,NN,MLPClassifier,published_historical_reference,False,0.0702699423669626,0.0753773716094645,0.9170854271356784,0.4384391863843918
+MariaDB,20,RF,RandomForestClassifier,published_historical_reference,False,0.1742968387445931,0.1798545807195858,0.9296482412060302,0.6288127413127412
+MariaDB,20,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.1408050836547286,0.1470424006845117,0.9296482412060302,0.6598455598455598
+MariaDB,20,NN,MLPClassifier,published_historical_reference,False,0.0578668303560609,0.0633693199713194,0.9296482412060302,0.4191119691119691
