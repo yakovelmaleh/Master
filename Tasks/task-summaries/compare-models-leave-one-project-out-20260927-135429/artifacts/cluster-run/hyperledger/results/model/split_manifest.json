@@ -1,0 +1,68 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2016-08-12 14:07:02",
+      "last_sprint_entry": "2021-07-01 22:13:28",
+      "positive_counts": {
+        "10": 613,
+        "15": 516,
+        "20": 456,
+        "5": 754
+      },
+      "row_ids_sha256": "72b9121795406b1acc75eca6638975d9b7de2b30698e6ad5305fb6fec0b62fd7",
+      "rows": 4816,
+      "source_counts": {
+        "Hyperledger": 4816
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2006-08-23 06:57:12",
+      "last_sprint_entry": "2022-02-11 08:40:26",
+      "positive_counts": {
+        "10": 1615,
+        "15": 1356,
+        "20": 903,
+        "5": 2034
+      },
+      "row_ids_sha256": "07a60164cd341317d2f59da71ae21c50e1d8b8e5c9cafd4472be68212ba003ca",
+      "rows": 15204,
+      "source_counts": {
+        "Apache": 6156,
+        "IntelDAOS": 1666,
+        "Jira": 1558,
+        "MariaDB": 1791,
+        "Qt": 4033
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2022-02-11 08:53:55",
+      "last_sprint_entry": "2023-04-27 18:22:56",
+      "positive_counts": {
+        "10": 251,
+        "15": 184,
+        "20": 142,
+        "5": 402
+      },
+      "row_ids_sha256": "c7cef7f8556a104a6201becfc67e19220253aa11cfb3b91e3a28b1a2d9d036b5",
+      "rows": 3802,
+      "source_counts": {
+        "Apache": 1516,
+        "Jira": 16,
+        "MariaDB": 192,
+        "Qt": 2078
+      }
+    }
+  },
+  "project": "Hyperledger",
+  "protocol": "leave-one-project-out",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}

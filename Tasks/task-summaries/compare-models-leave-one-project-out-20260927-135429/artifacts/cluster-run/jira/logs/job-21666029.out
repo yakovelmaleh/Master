@@ -1,0 +1,20 @@
+------------------------------------
+Thu 24 Sep 2026 21:23:45 IDT
+SLURM_JOBID:		21666029
+SLURM_JOB_NODELIST:	ise-cpu128-14
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666029
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666029 NODE=ise-cpu128-14
+Project: Jira; levels: 5,10,15,20
+Starting Jira: unstable level 5
+Completed Jira: unstable level 5
+Starting Jira: unstable level 10
+Completed Jira: unstable level 10
+Starting Jira: unstable level 15
+Completed Jira: unstable level 15
+Starting Jira: unstable level 20
+Completed Jira: unstable level 20
+Verification manifest: /home/yakovelm/Master/Tasks/compare-models-leave-one-project-out/cluster_runs/20260924-212328-564730/jira/results/verification_manifest.json

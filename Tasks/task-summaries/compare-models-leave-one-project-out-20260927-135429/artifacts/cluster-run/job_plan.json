@@ -1,0 +1,156 @@
+{
+  "task": "compare-models-leave-one-project-out",
+  "protocol": "leave-one-project-out",
+  "experiment": "comparison",
+  "levels": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "models": [
+    "RF",
+    "XGboost",
+    "NN"
+  ],
+  "variants": [
+    "baseline",
+    "refactored"
+  ],
+  "validate_only": false,
+  "dry_run": false,
+  "jobs": [
+    {
+      "project": "Apache",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "apache/results",
+      "log": "apache/logs/job-%J.out",
+      "sbatch": "apache/submit.sbatch",
+      "job_id": "21666026"
+    },
+    {
+      "project": "Hyperledger",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "hyperledger/results",
+      "log": "hyperledger/logs/job-%J.out",
+      "sbatch": "hyperledger/submit.sbatch",
+      "job_id": "21666027"
+    },
+    {
+      "project": "IntelDAOS",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "inteldaos/results",
+      "log": "inteldaos/logs/job-%J.out",
+      "sbatch": "inteldaos/submit.sbatch",
+      "job_id": "21666028"
+    },
+    {
+      "project": "Jira",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "jira/results",
+      "log": "jira/logs/job-%J.out",
+      "sbatch": "jira/submit.sbatch",
+      "job_id": "21666029"
+    },
+    {
+      "project": "MariaDB",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "mariadb/results",
+      "log": "mariadb/logs/job-%J.out",
+      "sbatch": "mariadb/submit.sbatch",
+      "job_id": "21666030"
+    },
+    {
+      "project": "Qt",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "RF",
+        "XGboost",
+        "NN"
+      ],
+      "variants": [
+        "baseline",
+        "refactored"
+      ],
+      "results": "qt/results",
+      "log": "qt/logs/job-%J.out",
+      "sbatch": "qt/submit.sbatch",
+      "job_id": "21666031"
+    }
+  ]
+}
