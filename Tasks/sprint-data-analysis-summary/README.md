@@ -55,6 +55,9 @@ and detailed counts are also included in the new slides' speaker notes.
 
 ## PR #360 experiment
 
+**Research question (slide 18):** Can a model trained on five repositories
+predict instability in a sixth repository it has never seen?
+
 The four added slides cover introduction, baseline-versus-refactored Data
 Analysis, results, and conclusions for leave-one-project-out evaluation.
 For each fold, the entire held-out repository is the test set; the other five
@@ -86,6 +89,9 @@ predictions were not independently rescored. Detailed provenance, counts,
 date ranges, and metrics are included in the new slides' speaker notes.
 
 ## PR #358 experiment
+
+**Research question (slide 22):** Can a model trained on older data from multiple
+repositories predict instability in newer issues?
 
 The four added slides cover introduction, baseline-versus-refactored Data
 Analysis, results, and conclusions for pooled chronological evaluation. All
