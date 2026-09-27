@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.6897240106678021,
+  "created_at_utc": "2026-09-25T18:19:28.672094+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/jira-url-to-instability-model/cluster_runs/20260924-212417/apache/results/apache/processed",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_5",
+  "model": "dependency_light_logistic_regression",
+  "project": "apache",
+  "selected_threshold": 0.5399999999999999,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 63
+}
