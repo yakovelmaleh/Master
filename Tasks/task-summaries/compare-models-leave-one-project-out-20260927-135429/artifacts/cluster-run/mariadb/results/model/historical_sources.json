@@ -1,0 +1,122 @@
+[
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_5.csv",
+    "sha256": "c97e6252f053fba053619b15c835e638f22c8a7563b4c3b5010d3da093940782",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_10.csv",
+    "sha256": "b0cf12155946c56247673837c5507f36e161c47dba28147dbab68cf0e24b147d",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_15.csv",
+    "sha256": "c41221bc54afc9eaa2209a03602788de877144f516ec2cd8236cb9485f802f8e",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_20.csv",
+    "sha256": "f19283feb51acd4ce5d45f683215ad3806a24b5617045bdb142df3277b1fd001",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Hyperledger/results_groups_Hyperledger_is_change_text_num_words_5.csv",
+    "sha256": "b479cb1a573472c606bc00dfeca15bfa35b8c75535bfe071c371e2797a3cf8f4",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Hyperledger/results_groups_Hyperledger_is_change_text_num_words_10.csv",
+    "sha256": "42d90d02f90f53239447907f728e516c183ff69d29956e5c5226524533006fca",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Hyperledger/results_groups_Hyperledger_is_change_text_num_words_15.csv",
+    "sha256": "26abb72904e6b4f3282c2f781196a4f47a14220d428f40553f2bc037c50b1b71",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Hyperledger/results_groups_Hyperledger_is_change_text_num_words_20.csv",
+    "sha256": "bee0d4f1f8e2d463d07ac1a1b358de43360c9c3822f451b219caf17e51732783",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_5.csv",
+    "sha256": "be7f42dd9e30166fe9e6617fabd74acab7de441f6a66b09ae8d62fb3bf7df461",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_10.csv",
+    "sha256": "253595d6563da353378e332d132cf22249aca1daecaa1b9dc2917aedd5ee28c3",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_15.csv",
+    "sha256": "ea8ddc7620e8b6ece5694999db867f374e45ddeb8798875011aa0432b492a432",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_20.csv",
+    "sha256": "dd73a616f2b00a679c60ac585c44bfe04566f6ac271763c5cb48be0429f9e058",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_5.csv",
+    "sha256": "0c2e5d05ebf9058e007fd7374c5b3f472270f78a7d4281127dce2673a4c6d5a1",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_10.csv",
+    "sha256": "4265fd06ee30c9da11d21e0385478d2a6a01ee2f3acd0b9c110553f7f66d08d3",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_15.csv",
+    "sha256": "41ab80b693f915334ff3c45fc9fae0cea4516b30e01543195fa70412e3eb1beb",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_20.csv",
+    "sha256": "a931f264897180b765a5cb85873028ed5933ddd615507504e71a970f2e65b7c8",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_5.csv",
+    "sha256": "07d1925166769cfca2fd18d5defbb8749784846866f2700cdeea5a3ce1f1adae",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_10.csv",
+    "sha256": "0b6255f765eae9160ceb4b8f6d03b296c92ab1f35290c66af7874d1725e6928f",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_15.csv",
+    "sha256": "7f4a3362af086110156861e51dab6cbe340e9f020d70ff12cfe55cdea2949d43",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_20.csv",
+    "sha256": "78d60513aec417aa813f957261a93a7f63c10a51293eda933febe6db60041c01",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_5.csv",
+    "sha256": "1018c8cf11d934deeac1c8d05feb03a631782c4202ba460f94e049e0b39e8d1d",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_10.csv",
+    "sha256": "509524c3f67b0827f37e3f2ed30dd397c6898cddc3c75b9e52f2aea13b4c6029",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_15.csv",
+    "sha256": "03abea7062afc69a27ce889a7147d7ce5f0dbe7e57bb4a838ee6c7fb98b5910c",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_20.csv",
+    "sha256": "b95a0f4add9d936acf60c3a728534bbdf1ceddb1e6742b280f27df20999d44b9",
+    "status": "available"
+  }
+]
