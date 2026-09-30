@@ -1,0 +1,20 @@
+------------------------------------
+Thu 24 Sep 2026 21:24:01 IDT
+SLURM_JOBID:		21666041
+SLURM_JOB_NODELIST:	ise-cpu-intl-04
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666041
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666041 NODE=ise-cpu-intl-04
+Project: all; levels: 5,10,15,20
+Starting all: logistic unstable level 5
+Completed all: logistic unstable level 5
+Starting all: logistic unstable level 10
+Completed all: logistic unstable level 10
+Starting all: logistic unstable level 15
+Completed all: logistic unstable level 15
+Starting all: logistic unstable level 20
+Completed all: logistic unstable level 20
+Verification manifest: /home/yakovelm/Master/Tasks/evaluate-logistic-instability-model/cluster_runs/20260924-212357-961761/all/results/verification_manifest.json
