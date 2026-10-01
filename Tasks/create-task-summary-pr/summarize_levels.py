@@ -67,6 +67,28 @@ def summarize(bundle):
                         "coverage": "complete" if not missing and status == "succeeded" else "incomplete",
                         "missing_files": ";".join(missing),
                     })
+    for path in sorted(artifacts.rglob("hf_report.json")):
+        report = json.loads(path.read_text())
+        if report.get("schema") != "hf-instability-report-v1" or report.get("stage") != "final-test":
+            raise ValueError("HF report must explicitly identify a final-test experiment.")
+        cells = {(cell["project"], cell["level"]): cell for cell in report["cells"]}
+        expected = {(project, level)
+                    for project in ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt")
+                    for level in (5, 10, 15, 20)}
+        if set(cells) != expected or len(report["cells"]) != 24:
+            raise ValueError("HF report must contain exactly all 24 repository/level cells.")
+        for cell in report["cells"]:
+            identity = {"run": str(path.parent.relative_to(artifacts)), "project": cell["project"],
+                        "level": cell["level"], "model": cell.get("model", "unselected"),
+                        "variant": "hf_final_test"}
+            complete = ("test" in cell and "checkpoint_files" in cell
+                        and "test_predictions_sha256" in cell)
+            coverage.append({**identity, "job_status": "succeeded" if complete else "missing",
+                             "coverage": "complete" if complete else "incomplete",
+                             "missing_files": "" if complete else "final_test_artifact_reference"})
+            if complete:
+                results.append({**identity, **{k: cell["test"].get(k) for k in metric_fields},
+                                "metrics_path": str(path.relative_to(bundle))})
     # Older runs have no job plan. Include every available level, but do not
     # infer completeness from whatever happens to be present.
     for path in sorted(artifacts.rglob("metrics.json")):
@@ -84,6 +106,8 @@ def summarize(bundle):
             "run": str(path.parent.relative_to(artifacts)), "project": meta.get("project", "unknown"),
             "level": level, "model": meta.get("model", "unknown"), "variant": meta.get("variant", "legacy_unplanned"),
         }
+        if "test" not in json.loads(path.read_text()):
+            continue
         collect(path, identity)
         coverage.append({**identity, "job_status": "unplanned", "coverage": "unknown", "missing_files": ""})
     keys = ["run", "project", "level", "model", "variant"]

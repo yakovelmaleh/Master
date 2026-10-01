@@ -8,28 +8,38 @@ import shutil
 
 
 MAX_FILE_BYTES = 90 * 1024 * 1024
+HF_BINARY_SUFFIXES = {".safetensors", ".bin", ".pt", ".pth", ".onnx", ".gguf"}
+HF_MODEL_DIRS = {"checkpoint", "checkpoints", "adapter", "snapshots", "blobs", "embeddings", "cache", "hub"}
 
 
-def tree_files(root, relative=Path(), ancestors=frozenset()):
+def tree_files(root, relative=Path(), ancestors=frozenset(), exclude_models=False):
     resolved = root.resolve()
     if resolved in ancestors:
         raise ValueError(f"Directory symlink cycle: {root}")
     for child in sorted(root.iterdir()):
         target = relative / child.name
+        if exclude_models and (child.name in HF_MODEL_DIRS or child.is_symlink()):
+            yield child, target
+            continue
         if child.is_dir():
-            yield from tree_files(child, target, ancestors | {resolved})
+            yield from tree_files(child, target, ancestors | {resolved}, exclude_models)
         elif child.is_file():
             yield child, target
         else:
             raise ValueError(f"Unsupported or missing artifact: {child}")
 
 
-def package(results, logs, destination=None, sbatch=None, manifest=None, dataset=None):
+def package(results, logs, destination=None, sbatch=None, manifest=None, dataset=None, exclude_models=False):
     included = []
     omitted = []
 
     def copy(source, target):
         size = source.stat().st_size
+        if exclude_models and (source.is_symlink() or source.suffix.lower() in HF_BINARY_SUFFIXES or
+                               any(p in HF_MODEL_DIRS for p in source.resolve().parts)):
+            omitted.append((str(target), size, "model_artifact_not_for_git"))
+            print(f"SKIP (model artifact): {target}")
+            return
         if size > MAX_FILE_BYTES:
             omitted.append((str(target), size, "exceeds_90_MiB"))
             print(f"SKIP (>90 MiB): {target} ({size} bytes)")
@@ -55,7 +65,7 @@ def package(results, logs, destination=None, sbatch=None, manifest=None, dataset
         included.append(target)
 
     for source, prefix in ((results, "results"), (logs, "logs")):
-        for path, relative in tree_files(source):
+        for path, relative in tree_files(source, exclude_models=exclude_models):
             copy(path, Path(prefix) / relative)
     for source, target in (
         (sbatch, "submit.sbatch"),
@@ -78,7 +88,7 @@ def package(results, logs, destination=None, sbatch=None, manifest=None, dataset
             "omitted_size" if omitted_count else "not_created"
         )
         (destination / "DATASET_STATUS.txt").write_text(status + "\n")
-    print(f"Artifacts: {len(included)} included; {len(omitted)} omitted (over 90 MiB).")
+    print(f"Artifacts: {len(included)} included; {len(omitted)} omitted.")
 
 
 def main():
@@ -89,8 +99,9 @@ def main():
     parser.add_argument("--sbatch", type=Path)
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--dataset", type=Path)
+    parser.add_argument("--exclude-models", action="store_true")
     args = parser.parse_args()
-    package(args.results, args.logs, args.destination, args.sbatch, args.manifest, args.dataset)
+    package(args.results, args.logs, args.destination, args.sbatch, args.manifest, args.dataset, args.exclude_models)
 
 
 if __name__ == "__main__":

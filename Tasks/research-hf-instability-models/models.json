@@ -1,0 +1,54 @@
+{
+  "modernbert": {
+    "id": "answerdotai/ModernBERT-base",
+    "revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+    "license": "apache-2.0",
+    "pooling": "mean",
+    "lora_targets": ["Wqkv", "Wo"],
+    "quantize": false,
+    "profile_vram_gib": [16, 24],
+    "parameters_billions": 0.149
+  },
+  "qwen_embedding": {
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "license": "apache-2.0",
+    "pooling": "last",
+    "lora_targets": ["q_proj", "v_proj"],
+    "quantize": false,
+    "profile_vram_gib": [12, 24],
+    "parameters_billions": 0.6
+  },
+  "phi": {
+    "id": "microsoft/Phi-4-mini-instruct",
+    "revision": "cfbefacb99257ffa30c83adab238a50856ac3083",
+    "license": "mit",
+    "pooling": "last",
+    "lora_targets": ["qkv_proj", "o_proj"],
+    "quantize": true,
+    "profile_vram_gib": [24, 48],
+    "parameters_billions": 3.8
+  },
+  "qwen": {
+    "id": "Qwen/Qwen3.5-4B",
+    "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+    "license": "apache-2.0",
+    "pooling": "last",
+    "lora_targets": ["q_proj", "v_proj"],
+    "quantize": true,
+    "profile_vram_gib": [24, 48],
+    "parameters_billions": 4.0,
+    "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile."
+  },
+  "gemma": {
+    "id": "google/gemma-4-E2B-it",
+    "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7",
+    "license": "apache-2.0",
+    "pooling": "last",
+    "lora_targets": ["q_proj", "v_proj"],
+    "quantize": true,
+    "profile_vram_gib": [24, 48],
+    "parameters_billions": 5.1,
+    "compatibility_gate": "E2B is effective size, not stored size. Profile complete multimodal loading and language-only adapters."
+  }
+}

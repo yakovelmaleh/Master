@@ -1,0 +1,16 @@
+# Hugging Face task runtime data belongs on cluster storage, never in a PR.
+/Tasks/*hf-instability*/cluster_runs/
+/Tasks/*hf-instability*/**/__pycache__/
+/Tasks/*hf-instability*/**/.pytest_cache/
+/Tasks/*hf-instability*/**/cache/
+/Tasks/*hf-instability*/**/checkpoint/
+/Tasks/*hf-instability*/**/checkpoints/
+/Tasks/*hf-instability*/**/adapter/
+/Tasks/*hf-instability*/**/*.safetensors
+/Tasks/*hf-instability*/**/*.bin
+/Tasks/*hf-instability*/**/*.pt
+/Tasks/*hf-instability*/**/*.pth
+/Tasks/*hf-instability*/**/*.onnx
+/Tasks/*hf-instability*/**/*.gguf
+/Tasks/*hf-instability*/**/*.npy
+/Tasks/*hf-instability*/**/*.npz

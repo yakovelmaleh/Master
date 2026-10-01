@@ -1,0 +1,12 @@
+# Isolated Python >=3.10 environment; do not replace the existing master environment.
+numpy==2.2.6
+pandas==2.2.3
+scikit-learn==1.6.1
+joblib==1.5.3
+torch==2.14.1
+transformers==5.18.0
+peft==0.21.2
+accelerate==1.15.0
+huggingface-hub==2.0.0
+safetensors==0.8.0
+bitsandbytes==0.50.2; sys_platform == "linux"
