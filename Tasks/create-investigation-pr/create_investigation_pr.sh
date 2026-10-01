@@ -240,6 +240,7 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 2
 fi
 package_args=(--results "$results_dir" --logs "$logs_dir")
+[[ "$task_name" == *hf-instability* ]] && package_args+=(--exclude-models)
 [[ -f "$sbatch_file" ]] && package_args+=(--sbatch "$sbatch_file")
 [[ -f "$run_manifest" ]] && package_args+=(--manifest "$run_manifest")
 [[ -n "$configured_dataset" ]] && package_args+=(--dataset "$configured_dataset")
@@ -329,7 +330,7 @@ secret_matches=
 if ((${#secret_scan_paths[@]} > 0)); then
   secret_matches=$(
     grep -RIlE \
-      '(Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN)[=:][^[:space:]]{8,})' \
+      '(Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN)[=:][^[:space:]]{8,}|hf_[A-Za-z0-9]{20,})' \
       "${secret_scan_paths[@]}" || true
   )
 fi

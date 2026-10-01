@@ -46,6 +46,12 @@ descriptions and caused false positives.
 Size filtering is not credential sanitization. A smaller raw file can still
 contain secrets; resolve any known credential findings before publishing.
 
+For HF-named tasks, model binaries and checkpoint/adapter/cache artifacts are
+excluded regardless of size (`package_artifacts.py --exclude-models`). Normal
+dataset-task behavior is unchanged. HF array jobs use a different output layout;
+use the HF training task's lightweight `report` plus task-summary workflow,
+rather than pointing this dataset-centric investigation launcher at an array run.
+
 ## Requirements
 
 The cluster environment must provide:

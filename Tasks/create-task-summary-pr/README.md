@@ -68,6 +68,22 @@ incomplete. Older runs without a job plan have **unknown** completeness, not
 assumed success. The summary never fabricates missing level results or replaces
 AUC-PRC with average precision.
 
+### Hugging Face runtime tasks
+
+HF tasks are an exception to full-tree copying: their bundles contain source and
+explicitly allowlisted operational metadata only. Pretrained weights, adapters,
+checkpoints, embedding caches and symlinked model directories are excluded
+regardless of size. `HF_OMITTED_FILES.csv` records exclusions. HF `--include`
+accepts allowlisted directories, not individual files.
+
+Run the training task's `report` stage first, then select that submission ID.
+`hf_report.json` must identify final-test results and contain all 24 cells.
+Coverage is verified from checkpoint/prediction references, not a nonexistent
+`model.joblib`; validation sweeps are not reported as completed test experiments.
+The scientific target flags remain in `hf_report.json`, independently of artifact
+completeness. Large weights stay on cluster storage or in an explicitly approved
+private HF repository, never in the summary PR.
+
 To summarize only the task definition:
 
 ```bash

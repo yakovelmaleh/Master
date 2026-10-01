@@ -1,0 +1,1793 @@
+{
+  "projects": {
+    "Apache": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.8703583061889251,
+              "auc_prc": 0.11673850866307559,
+              "average_precision": 0.1201999676966554,
+              "balanced_accuracy": 0.5335693695202326,
+              "confusion_matrix": [
+                [
+                  1320,
+                  97
+                ],
+                [
+                  102,
+                  16
+                ]
+              ],
+              "f1": 0.13852813852813853,
+              "positive_count": 118,
+              "positive_rate": 0.07687296416938111,
+              "precision": 0.1415929203539823,
+              "recall": 0.13559322033898305,
+              "roc_auc": 0.6539358635455665,
+              "row_count": 1535,
+              "threshold": 0.62
+            },
+            "validation": {
+              "accuracy": 0.7164276401564538,
+              "auc_prc": 0.2926457686956398,
+              "average_precision": 0.2922554808295055,
+              "balanced_accuracy": 0.6535633484162896,
+              "confusion_matrix": [
+                [
+                  981,
+                  345
+                ],
+                [
+                  90,
+                  118
+                ]
+              ],
+              "f1": 0.35171385991058124,
+              "positive_count": 208,
+              "positive_rate": 0.13559322033898305,
+              "precision": 0.2548596112311015,
+              "recall": 0.5673076923076923,
+              "roc_auc": 0.6883266620257571,
+              "row_count": 1534,
+              "threshold": 0.62
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/apache/results/model/words_10/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "12ebed3c449743ae2f3ccc9a8b308583a7830b8a1aa965247799ee0c5e433dc8",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9114006514657981,
+              "auc_prc": 0.0964500311122774,
+              "average_precision": 0.09971765671814088,
+              "balanced_accuracy": 0.533547302460645,
+              "confusion_matrix": [
+                [
+                  1390,
+                  64
+                ],
+                [
+                  72,
+                  9
+                ]
+              ],
+              "f1": 0.11688311688311688,
+              "positive_count": 81,
+              "positive_rate": 0.05276872964169381,
+              "precision": 0.1232876712328767,
+              "recall": 0.1111111111111111,
+              "roc_auc": 0.7046164688301323,
+              "row_count": 1535,
+              "threshold": 0.62
+            },
+            "validation": {
+              "accuracy": 0.8663624511082139,
+              "auc_prc": 0.3081607505823212,
+              "average_precision": 0.30808895495862954,
+              "balanced_accuracy": 0.6239745888394537,
+              "confusion_matrix": [
+                [
+                  1277,
+                  92
+                ],
+                [
+                  113,
+                  52
+                ]
+              ],
+              "f1": 0.3365695792880259,
+              "positive_count": 165,
+              "positive_rate": 0.1075619295958279,
+              "precision": 0.3611111111111111,
+              "recall": 0.3151515151515151,
+              "roc_auc": 0.7443167983708524,
+              "row_count": 1534,
+              "threshold": 0.62
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/apache/results/model/words_15/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "3409d86dc7b158c4b1e724bcc86401caff8179a9dd645fd805626686dbc1ed4a",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9250814332247557,
+              "auc_prc": 0.07660777122663817,
+              "average_precision": 0.07979742460932318,
+              "balanced_accuracy": 0.5298447476000184,
+              "confusion_matrix": [
+                [
+                  1414,
+                  62
+                ],
+                [
+                  53,
+                  6
+                ]
+              ],
+              "f1": 0.09448818897637795,
+              "positive_count": 59,
+              "positive_rate": 0.038436482084690554,
+              "precision": 0.08823529411764706,
+              "recall": 0.1016949152542373,
+              "roc_auc": 0.7377761701345827,
+              "row_count": 1535,
+              "threshold": 0.61
+            },
+            "validation": {
+              "accuracy": 0.7301173402868318,
+              "auc_prc": 0.3068493268823628,
+              "average_precision": 0.30257107842333564,
+              "balanced_accuracy": 0.6842034706189022,
+              "confusion_matrix": [
+                [
+                  1029,
+                  360
+                ],
+                [
+                  54,
+                  91
+                ]
+              ],
+              "f1": 0.3053691275167785,
+              "positive_count": 145,
+              "positive_rate": 0.09452411994784876,
+              "precision": 0.2017738359201774,
+              "recall": 0.6275862068965518,
+              "roc_auc": 0.754849680991038,
+              "row_count": 1534,
+              "threshold": 0.61
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/apache/results/model/words_20/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "7685c04236433de5ef9bf81e9753ff3be516821aef60368805a3e99e6366ed99",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.8586319218241042,
+              "auc_prc": 0.19186403840642263,
+              "average_precision": 0.19445281964389127,
+              "balanced_accuracy": 0.5216004695754255,
+              "confusion_matrix": [
+                [
+                  1304,
+                  41
+                ],
+                [
+                  176,
+                  14
+                ]
+              ],
+              "f1": 0.11428571428571427,
+              "positive_count": 190,
+              "positive_rate": 0.1237785016286645,
+              "precision": 0.2545454545454545,
+              "recall": 0.07368421052631578,
+              "roc_auc": 0.6139894345529251,
+              "row_count": 1535,
+              "threshold": 0.16999999999999998
+            },
+            "validation": {
+              "accuracy": 0.6923076923076923,
+              "auc_prc": 0.35089135212745254,
+              "average_precision": 0.3501610426965255,
+              "balanced_accuracy": 0.6537383901154925,
+              "confusion_matrix": [
+                [
+                  901,
+                  362
+                ],
+                [
+                  110,
+                  161
+                ]
+              ],
+              "f1": 0.4055415617128464,
+              "positive_count": 271,
+              "positive_rate": 0.17666232073011734,
+              "precision": 0.3078393881453155,
+              "recall": 0.5940959409594095,
+              "roc_auc": 0.6736523184709282,
+              "row_count": 1534,
+              "threshold": 0.16999999999999998
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/apache/results/model/words_5/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "7ff7787277502e4795f3dd92548823d6669bee06c383aeb464b500cb8169bbfa",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        }
+      },
+      "input_sha256": "737a3f342698a30c1f19859e0e303b41be04b1773cd56d6aaa9a08e7b5791a08",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2022-02-08 03:48:19",
+          "labels_sha256": {
+            "10": "8c31ac44f61cd356f2bd59747a0810c5e546b8a6ea62c9275c452fa3761be359",
+            "15": "b7e9554d8c4faa118a9bfecd702c0ce158fd74bf0248a14f9f6f12b92b70d5c0",
+            "20": "bbb5c8b09413363b9108cf661cffed463053d3dbdbd3e19cd432ad1757129200",
+            "5": "453054b0c69043c53cf4dce960353830f2b659b547288a710170118a229614cd"
+          },
+          "last_sprint_entry": "2023-04-19 01:56:36",
+          "positive_counts": {
+            "10": 118,
+            "15": 81,
+            "20": 59,
+            "5": 190
+          },
+          "row_ids_sha256": "f5a472b25300a5f972102446ef2b28e776b1117cae8df5195362f7654ed201eb",
+          "rows": 1535,
+          "source_counts": {
+            "Apache": 1535
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2006-08-23 06:57:12",
+          "labels_sha256": {
+            "10": "a8576f9f6f381adfbdadc0fddf62c7e0e07566d1dbc9bc8a97047326982927d3",
+            "15": "b72f9fd96d2dbcfb6bf678ea68d29f32bc00c920f86a9821c88b0017b502b087",
+            "20": "6f9c3ce39e7ad721850c33c4c70a43244ec99fb3a2f9629a1e821e24595490fd",
+            "5": "0577b7c0c088c856350dd82dafa1db82df3f9e393a93e37a4508a3e16b2d7c48"
+          },
+          "last_sprint_entry": "2019-07-03 17:27:45",
+          "positive_counts": {
+            "10": 284,
+            "15": 211,
+            "20": 173,
+            "5": 417
+          },
+          "row_ids_sha256": "31f7e50759794d461c487df67552c0e9dadc09c7d1f3bacf37439ebb3d53ce7c",
+          "rows": 4603,
+          "source_counts": {
+            "Apache": 4603
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2019-07-03 18:19:55",
+          "labels_sha256": {
+            "10": "8c03d406b835071918d88db533051714182fbedd5af692fc7850fc60de32e03c",
+            "15": "8fa3275787c8dda7455744145853f8270c4e176e7b4517d8a6d7b6c201d40a8c",
+            "20": "fb740deb80421ef36e90a30bf427ba8300e82b901bd1e22fe87ea8f6eb72c260",
+            "5": "408cad00af9ebcd085da1275f87484aaa69268d62bd8a8cf2b5f3cf9a619837d"
+          },
+          "last_sprint_entry": "2022-02-08 03:22:31",
+          "positive_counts": {
+            "10": 208,
+            "15": 165,
+            "20": 145,
+            "5": 271
+          },
+          "row_ids_sha256": "807e631475ee4a225686ba299c383ce17ab27c0bf436684ca5dfa9df6d7ff80c",
+          "rows": 1534,
+          "source_counts": {
+            "Apache": 1534
+          }
+        }
+      }
+    },
+    "Hyperledger": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7510373443983402,
+              "auc_prc": 0.22517241274150118,
+              "average_precision": 0.2286345797834445,
+              "balanced_accuracy": 0.5714677358555225,
+              "confusion_matrix": [
+                [
+                  679,
+                  143
+                ],
+                [
+                  97,
+                  45
+                ]
+              ],
+              "f1": 0.27272727272727276,
+              "positive_count": 142,
+              "positive_rate": 0.14730290456431536,
+              "precision": 0.2393617021276596,
+              "recall": 0.31690140845070425,
+              "roc_auc": 0.6736917857510024,
+              "row_count": 964,
+              "threshold": 0.30999999999999994
+            },
+            "validation": {
+              "accuracy": 0.7767393561786086,
+              "auc_prc": 0.2745489440136935,
+              "average_precision": 0.2797906726135129,
+              "balanced_accuracy": 0.6469806763285024,
+              "confusion_matrix": [
+                [
+                  685,
+                  143
+                ],
+                [
+                  72,
+                  63
+                ]
+              ],
+              "f1": 0.36950146627565983,
+              "positive_count": 135,
+              "positive_rate": 0.14018691588785046,
+              "precision": 0.3058252427184466,
+              "recall": 0.4666666666666667,
+              "roc_auc": 0.737323313651816,
+              "row_count": 963,
+              "threshold": 0.30999999999999994
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/hyperledger/results/model/words_10/RF/refactored/test_predictions.csv",
+          "predictions_sha256": "57f35ca01af73d0e40b5db39195fd7b0ef123324ed2cd10a1724a605c0dc95b4",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7406639004149378,
+              "auc_prc": 0.223368516196756,
+              "average_precision": 0.22800782997466426,
+              "balanced_accuracy": 0.6097309294809392,
+              "confusion_matrix": [
+                [
+                  661,
+                  181
+                ],
+                [
+                  69,
+                  53
+                ]
+              ],
+              "f1": 0.297752808988764,
+              "positive_count": 122,
+              "positive_rate": 0.12655601659751037,
+              "precision": 0.2264957264957265,
+              "recall": 0.4344262295081967,
+              "roc_auc": 0.7150909232506523,
+              "row_count": 964,
+              "threshold": 0.27999999999999997
+            },
+            "validation": {
+              "accuracy": 0.7642782969885774,
+              "auc_prc": 0.25209035782113437,
+              "average_precision": 0.2585512310899315,
+              "balanced_accuracy": 0.6782454881050041,
+              "confusion_matrix": [
+                [
+                  671,
+                  177
+                ],
+                [
+                  50,
+                  65
+                ]
+              ],
+              "f1": 0.3641456582633053,
+              "positive_count": 115,
+              "positive_rate": 0.11941848390446522,
+              "precision": 0.26859504132231404,
+              "recall": 0.5652173913043478,
+              "roc_auc": 0.7591878589007383,
+              "row_count": 963,
+              "threshold": 0.27999999999999997
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/hyperledger/results/model/words_15/RF/refactored/test_predictions.csv",
+          "predictions_sha256": "dd1fbb63b268dde1b1f7cbe758634e6cf14f2de4f72f98e35e5aad75ffc5c1d8",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7738589211618258,
+              "auc_prc": 0.22041267956815153,
+              "average_precision": 0.22372715809319532,
+              "balanced_accuracy": 0.627787558685446,
+              "confusion_matrix": [
+                [
+                  697,
+                  155
+                ],
+                [
+                  63,
+                  49
+                ]
+              ],
+              "f1": 0.310126582278481,
+              "positive_count": 112,
+              "positive_rate": 0.11618257261410789,
+              "precision": 0.24019607843137256,
+              "recall": 0.4375,
+              "roc_auc": 0.7296225268276325,
+              "row_count": 964,
+              "threshold": 0.26999999999999996
+            },
+            "validation": {
+              "accuracy": 0.7663551401869159,
+              "auc_prc": 0.24297494739971648,
+              "average_precision": 0.24782094138161614,
+              "balanced_accuracy": 0.6799339388934764,
+              "confusion_matrix": [
+                [
+                  682,
+                  183
+                ],
+                [
+                  42,
+                  56
+                ]
+              ],
+              "f1": 0.3323442136498516,
+              "positive_count": 98,
+              "positive_rate": 0.10176531671858775,
+              "precision": 0.23430962343096234,
+              "recall": 0.5714285714285714,
+              "roc_auc": 0.7682729739294561,
+              "row_count": 963,
+              "threshold": 0.26999999999999996
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/hyperledger/results/model/words_20/RF/refactored/test_predictions.csv",
+          "predictions_sha256": "17e3467ce0a01d1ecd7020acd467ac89945f9fe6f9af4bf316e911322a363873",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.5031120331950207,
+              "auc_prc": 0.260598376632622,
+              "average_precision": 0.2645629912456322,
+              "balanced_accuracy": 0.6298742501153669,
+              "confusion_matrix": [
+                [
+                  339,
+                  449
+                ],
+                [
+                  30,
+                  146
+                ]
+              ],
+              "f1": 0.3787289234760052,
+              "positive_count": 176,
+              "positive_rate": 0.1825726141078838,
+              "precision": 0.2453781512605042,
+              "recall": 0.8295454545454546,
+              "roc_auc": 0.6588277284263959,
+              "row_count": 964,
+              "threshold": 0.3499999999999999
+            },
+            "validation": {
+              "accuracy": 0.5524402907580478,
+              "auc_prc": 0.30672756650138605,
+              "average_precision": 0.3093047268199426,
+              "balanced_accuracy": 0.6687121629058889,
+              "confusion_matrix": [
+                [
+                  399,
+                  406
+                ],
+                [
+                  25,
+                  133
+                ]
+              ],
+              "f1": 0.381635581061693,
+              "positive_count": 158,
+              "positive_rate": 0.1640706126687435,
+              "precision": 0.24675324675324675,
+              "recall": 0.8417721518987342,
+              "roc_auc": 0.6992373614277853,
+              "row_count": 963,
+              "threshold": 0.3499999999999999
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/hyperledger/results/model/words_5/RF/refactored/test_predictions.csv",
+          "predictions_sha256": "e453d22be174dab808d074add416ba1c9313a6341640c0ebdcadaa7b2a2c7c08",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        }
+      },
+      "input_sha256": "66159291c7c0bbf268afd1d00bf91098425cc7a02e31ebd0dd8d469b567464ec",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2019-02-27 04:31:03",
+          "labels_sha256": {
+            "10": "3cb1a6403998431c4d2ff82b2b65cdd98f25fce9823aa1d26284f63e79936512",
+            "15": "839a1b3edae36d4dc951510e42ad83566d8d575f162690d290d41b38543f1d30",
+            "20": "0515b222f86a674abeb45424646ea337d6e5612df2ea3b894878ff61b71b3323",
+            "5": "63390c037ae92571e4217086374f7421a00611e76cd726566f38d34727810160"
+          },
+          "last_sprint_entry": "2021-07-01 22:13:28",
+          "positive_counts": {
+            "10": 142,
+            "15": 122,
+            "20": 112,
+            "5": 176
+          },
+          "row_ids_sha256": "a141a1d826708a3474e44fb82a0d5fe4f9e413a0fd9e6d870ac62668cf5719ae",
+          "rows": 964,
+          "source_counts": {
+            "Hyperledger": 964
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2016-08-12 14:07:02",
+          "labels_sha256": {
+            "10": "e93606192a479aba2ecc40cea937e9b1d5cc98cf74527550c4784ece2f5151dd",
+            "15": "fe67f536d180fd09d69f925ceb84939fc34607760edeccd45106e5b155ef0c70",
+            "20": "ce14dc5c410df2bef5d1c32c9032de69d7e70361a5b1e083b24f0a41e8ac50d0",
+            "5": "37055dd8d79d04d4a600ebe901ffeb7c19a8c37291260c83a8a2e417c630b624"
+          },
+          "last_sprint_entry": "2018-04-27 13:55:58",
+          "positive_counts": {
+            "10": 336,
+            "15": 279,
+            "20": 246,
+            "5": 420
+          },
+          "row_ids_sha256": "550111cd493cbe1d650f75433b8ea5dea3ad7e3c020200328ad47cd9b91c681c",
+          "rows": 2889,
+          "source_counts": {
+            "Hyperledger": 2889
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2018-04-27 15:22:44",
+          "labels_sha256": {
+            "10": "c3fa35fd799099aa7a8d5becfbceb9775a2d46e92049b8c17db742b293e2466c",
+            "15": "97dbc69d82e43aa58a26d9f98e99bc75ee103aec1a403b0f24b2928a46a50006",
+            "20": "d88680b2626a1f8965af99ca96f0363a45855024690256c2125c1bf6f9582eb3",
+            "5": "cd597d35643ced74a4e755baa1aa69a983a0fc48b839559523fbdf78a09b83a5"
+          },
+          "last_sprint_entry": "2019-02-27 04:29:28",
+          "positive_counts": {
+            "10": 135,
+            "15": 115,
+            "20": 98,
+            "5": 158
+          },
+          "row_ids_sha256": "38d1aa877f2f20d669570bdbebba8490f28d55dbb05b08026fc3de19d7764079",
+          "rows": 963,
+          "source_counts": {
+            "Hyperledger": 963
+          }
+        }
+      }
+    },
+    "IntelDAOS": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.6107784431137725,
+              "auc_prc": 0.2060907279754762,
+              "average_precision": 0.21563174885998476,
+              "balanced_accuracy": 0.6932730356133409,
+              "confusion_matrix": [
+                [
+                  181,
+                  124
+                ],
+                [
+                  6,
+                  23
+                ]
+              ],
+              "f1": 0.2613636363636364,
+              "positive_count": 29,
+              "positive_rate": 0.08682634730538923,
+              "precision": 0.1564625850340136,
+              "recall": 0.7931034482758621,
+              "roc_auc": 0.7213114754098361,
+              "row_count": 334,
+              "threshold": 0.14999999999999997
+            },
+            "validation": {
+              "accuracy": 0.4924924924924925,
+              "auc_prc": 0.1403252124030216,
+              "average_precision": 0.1462103006137821,
+              "balanced_accuracy": 0.5670103092783505,
+              "confusion_matrix": [
+                [
+                  136,
+                  155
+                ],
+                [
+                  14,
+                  28
+                ]
+              ],
+              "f1": 0.24888888888888885,
+              "positive_count": 42,
+              "positive_rate": 0.12612612612612611,
+              "precision": 0.15300546448087432,
+              "recall": 0.6666666666666666,
+              "roc_auc": 0.5404189167075765,
+              "row_count": 333,
+              "threshold": 0.14999999999999997
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/inteldaos/results/model/words_10/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "106297b653992d3181347a472def7cfbd84fe89363dcd160cc2c02c9055ce858",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.8323353293413174,
+              "auc_prc": 0.24364200589496596,
+              "average_precision": 0.2524883734368554,
+              "balanced_accuracy": 0.6021505376344086,
+              "confusion_matrix": [
+                [
+                  270,
+                  40
+                ],
+                [
+                  16,
+                  8
+                ]
+              ],
+              "f1": 0.2222222222222222,
+              "positive_count": 24,
+              "positive_rate": 0.0718562874251497,
+              "precision": 0.16666666666666666,
+              "recall": 0.3333333333333333,
+              "roc_auc": 0.690994623655914,
+              "row_count": 334,
+              "threshold": 0.7499999999999999
+            },
+            "validation": {
+              "accuracy": 0.7837837837837838,
+              "auc_prc": 0.11896043542941717,
+              "average_precision": 0.12507237987658784,
+              "balanced_accuracy": 0.5570026761819804,
+              "confusion_matrix": [
+                [
+                  251,
+                  44
+                ],
+                [
+                  28,
+                  10
+                ]
+              ],
+              "f1": 0.21739130434782608,
+              "positive_count": 38,
+              "positive_rate": 0.11411411411411411,
+              "precision": 0.18518518518518517,
+              "recall": 0.2631578947368421,
+              "roc_auc": 0.4840321141837645,
+              "row_count": 333,
+              "threshold": 0.7499999999999999
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/inteldaos/results/model/words_15/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "95e0b9b14f2f3ff513f5d2ee5b1081ab47082c522ddf5f39b9a1c323dd339107",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.8293413173652695,
+              "auc_prc": 0.10267715858007523,
+              "average_precision": 0.12024835361654783,
+              "balanced_accuracy": 0.5284090909090909,
+              "confusion_matrix": [
+                [
+                  273,
+                  39
+                ],
+                [
+                  18,
+                  4
+                ]
+              ],
+              "f1": 0.12307692307692308,
+              "positive_count": 22,
+              "positive_rate": 0.0658682634730539,
+              "precision": 0.09302325581395349,
+              "recall": 0.18181818181818182,
+              "roc_auc": 0.6401515151515151,
+              "row_count": 334,
+              "threshold": 0.24
+            },
+            "validation": {
+              "accuracy": 0.8168168168168168,
+              "auc_prc": 0.10197530076979065,
+              "average_precision": 0.10992895053578891,
+              "balanced_accuracy": 0.553960396039604,
+              "confusion_matrix": [
+                [
+                  265,
+                  38
+                ],
+                [
+                  23,
+                  7
+                ]
+              ],
+              "f1": 0.18666666666666668,
+              "positive_count": 30,
+              "positive_rate": 0.09009009009009009,
+              "precision": 0.15555555555555556,
+              "recall": 0.23333333333333334,
+              "roc_auc": 0.5012651265126513,
+              "row_count": 333,
+              "threshold": 0.24
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/inteldaos/results/model/words_20/RF/baseline/test_predictions.csv",
+          "predictions_sha256": "8d56a20fce86d79a12448fb10a7a82d5141b650dc4dccb753d4c8a94d1de4f8d",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.6347305389221557,
+              "auc_prc": 0.15016806535005314,
+              "average_precision": 0.16588169254737842,
+              "balanced_accuracy": 0.6024420529801324,
+              "confusion_matrix": [
+                [
+                  194,
+                  108
+                ],
+                [
+                  14,
+                  18
+                ]
+              ],
+              "f1": 0.22784810126582278,
+              "positive_count": 32,
+              "positive_rate": 0.09580838323353294,
+              "precision": 0.14285714285714285,
+              "recall": 0.5625,
+              "roc_auc": 0.6580091059602649,
+              "row_count": 334,
+              "threshold": 0.27999999999999997
+            },
+            "validation": {
+              "accuracy": 0.6066066066066066,
+              "auc_prc": 0.2013937877584027,
+              "average_precision": 0.20882157844968305,
+              "balanced_accuracy": 0.6336914864494936,
+              "confusion_matrix": [
+                [
+                  167,
+                  114
+                ],
+                [
+                  17,
+                  35
+                ]
+              ],
+              "f1": 0.3482587064676617,
+              "positive_count": 52,
+              "positive_rate": 0.15615615615615616,
+              "precision": 0.2348993288590604,
+              "recall": 0.6730769230769231,
+              "roc_auc": 0.6143238434163701,
+              "row_count": 333,
+              "threshold": 0.27999999999999997
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/inteldaos/results/model/words_5/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "b2e1f10dd7913e0277b2e0698c76c77a0a518459ea154ff3016c0fee6c94e1b1",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        }
+      },
+      "input_sha256": "3ba037bf5591509babae309019a6d7a8c7c95e6fad8463d47e03ad362b2ab833",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2020-01-22 10:52:40",
+          "labels_sha256": {
+            "10": "2f4a5c525573fb240e588a18e20d6b30f07b4f09bb7b741ce83a3b60ec725607",
+            "15": "5ab4c3307681b2ee300ff457375d9e84b2e803f7a5b497baf51c30d1b47f89be",
+            "20": "1e8256a877ddca485fb18dd9b40d9a2e5e67449011cb1c2f1b8e2660f9a2cd6d",
+            "5": "670721493da73072ae268137e2961a7ee4164392101163a292b5448091e77097"
+          },
+          "last_sprint_entry": "2021-01-11 19:45:00",
+          "positive_counts": {
+            "10": 29,
+            "15": 24,
+            "20": 22,
+            "5": 32
+          },
+          "row_ids_sha256": "e194270d27ce6ee532348e561e05b2a8ebfb96c49736493fc18b10babad7b596",
+          "rows": 334,
+          "source_counts": {
+            "IntelDAOS": 334
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2016-04-06 02:31:57",
+          "labels_sha256": {
+            "10": "03812c1096ede1ee4666243afb16cd2d6b8f1e5365bb9f82573b4439410cfc37",
+            "15": "f7a7120d774d0aac10b99dcdc8c8530fcbab31b0c0b102778cbf0d875549ec1c",
+            "20": "7c9d24409f56d5d199d9bf932dcba8cd12bd1babaf0ba4809061d8844bba6136",
+            "5": "dc5b9ff27151dc0cda2de46e1268fcd6630742b55f26bf43d7e5ca831a7add37"
+          },
+          "last_sprint_entry": "2019-01-29 12:34:36",
+          "positive_counts": {
+            "10": 80,
+            "15": 54,
+            "20": 39,
+            "5": 126
+          },
+          "row_ids_sha256": "50110dd6267bbe21a5d93775e462555ed9acf131a5543619cc74bd7d5b45c55e",
+          "rows": 999,
+          "source_counts": {
+            "IntelDAOS": 999
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2019-02-05 07:51:34",
+          "labels_sha256": {
+            "10": "1013d66a79e4e7ae2ede435c70d13426c3f1349aa9a8692e0500d73397044b5c",
+            "15": "fc48a30eaf45a57977ef99bf66e830d55e07f04570530d7ccaaa3f79054f7cab",
+            "20": "99363e8e8057dfe27ca2bc7da3bed2dcb974d1acdda496df5ead0b494888018c",
+            "5": "32f7bce4da22f10aeafa4fb1125189e06bf8377d8e67d3cb9e726d396e03df12"
+          },
+          "last_sprint_entry": "2020-01-22 10:52:40",
+          "positive_counts": {
+            "10": 42,
+            "15": 38,
+            "20": 30,
+            "5": 52
+          },
+          "row_ids_sha256": "27d791d7403024d341a4d5828828fc90afa482be5764720491b93c85d39fb4bf",
+          "rows": 333,
+          "source_counts": {
+            "IntelDAOS": 333
+          }
+        }
+      }
+    },
+    "Jira": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7436708860759493,
+              "auc_prc": 0.5661166448407884,
+              "average_precision": 0.5759045306249805,
+              "balanced_accuracy": 0.7383664955070603,
+              "confusion_matrix": [
+                [
+                  91,
+                  61
+                ],
+                [
+                  20,
+                  144
+                ]
+              ],
+              "f1": 0.7804878048780488,
+              "positive_count": 164,
+              "positive_rate": 0.5189873417721519,
+              "precision": 0.7024390243902439,
+              "recall": 0.8780487804878049,
+              "roc_auc": 0.6604621309370988,
+              "row_count": 316,
+              "threshold": 0.31999999999999995
+            },
+            "validation": {
+              "accuracy": 0.8694267515923567,
+              "auc_prc": 0.9258057267313121,
+              "average_precision": 0.9260769786502197,
+              "balanced_accuracy": 0.8710201429499675,
+              "confusion_matrix": [
+                [
+                  133,
+                  29
+                ],
+                [
+                  12,
+                  140
+                ]
+              ],
+              "f1": 0.8722741433021807,
+              "positive_count": 152,
+              "positive_rate": 0.4840764331210191,
+              "precision": 0.8284023668639053,
+              "recall": 0.9210526315789473,
+              "roc_auc": 0.9151234567901234,
+              "row_count": 314,
+              "threshold": 0.31999999999999995
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/jira/results/model/words_10/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "ef2b899591f2b5851ef88ce08dbaaba5b751fdb5dab881a99acbef96abacac50",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7088607594936709,
+              "auc_prc": 0.5472892979370305,
+              "average_precision": 0.5521474289143389,
+              "balanced_accuracy": 0.7071314102564102,
+              "confusion_matrix": [
+                [
+                  89,
+                  67
+                ],
+                [
+                  25,
+                  135
+                ]
+              ],
+              "f1": 0.7458563535911602,
+              "positive_count": 160,
+              "positive_rate": 0.5063291139240507,
+              "precision": 0.6683168316831684,
+              "recall": 0.84375,
+              "roc_auc": 0.6557892628205129,
+              "row_count": 316,
+              "threshold": 0.20999999999999996
+            },
+            "validation": {
+              "accuracy": 0.8535031847133758,
+              "auc_prc": 0.9222958445024516,
+              "average_precision": 0.9226736818655735,
+              "balanced_accuracy": 0.8580542264752791,
+              "confusion_matrix": [
+                [
+                  138,
+                  33
+                ],
+                [
+                  13,
+                  130
+                ]
+              ],
+              "f1": 0.8496732026143791,
+              "positive_count": 143,
+              "positive_rate": 0.4554140127388535,
+              "precision": 0.7975460122699386,
+              "recall": 0.9090909090909091,
+              "roc_auc": 0.9195190774138142,
+              "row_count": 314,
+              "threshold": 0.20999999999999996
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/jira/results/model/words_15/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "964fe6f61886fb42f10bbe00d4f031a6eee9951ca54d910f2a4fda9cf4cab113",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7215189873417721,
+              "auc_prc": 0.19499981723367565,
+              "average_precision": 0.2075819328647004,
+              "balanced_accuracy": 0.57019955654102,
+              "confusion_matrix": [
+                [
+                  213,
+                  62
+                ],
+                [
+                  26,
+                  15
+                ]
+              ],
+              "f1": 0.2542372881355932,
+              "positive_count": 41,
+              "positive_rate": 0.12974683544303797,
+              "precision": 0.19480519480519481,
+              "recall": 0.36585365853658536,
+              "roc_auc": 0.5887361419068736,
+              "row_count": 316,
+              "threshold": 0.15999999999999998
+            },
+            "validation": {
+              "accuracy": 0.8375796178343949,
+              "auc_prc": 0.1546501417566886,
+              "average_precision": 0.1622829570687164,
+              "balanced_accuracy": 0.667350579839429,
+              "confusion_matrix": [
+                [
+                  254,
+                  41
+                ],
+                [
+                  10,
+                  9
+                ]
+              ],
+              "f1": 0.2608695652173913,
+              "positive_count": 19,
+              "positive_rate": 0.06050955414012739,
+              "precision": 0.18,
+              "recall": 0.47368421052631576,
+              "roc_auc": 0.6333630686886709,
+              "row_count": 314,
+              "threshold": 0.15999999999999998
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/jira/results/model/words_20/RF/baseline/test_predictions.csv",
+          "predictions_sha256": "eaa4a93aebcd6b3ecd29f9c5a9c5804e0fd34d9ab0cf02f683140e21749e006d",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.6613924050632911,
+              "auc_prc": 0.5753418831841499,
+              "average_precision": 0.5790822636139572,
+              "balanced_accuracy": 0.657252215954875,
+              "confusion_matrix": [
+                [
+                  88,
+                  58
+                ],
+                [
+                  49,
+                  121
+                ]
+              ],
+              "f1": 0.6934097421203439,
+              "positive_count": 170,
+              "positive_rate": 0.5379746835443038,
+              "precision": 0.6759776536312849,
+              "recall": 0.711764705882353,
+              "roc_auc": 0.6402095084609186,
+              "row_count": 316,
+              "threshold": 0.3499999999999999
+            },
+            "validation": {
+              "accuracy": 0.8471337579617835,
+              "auc_prc": 0.9235899542066995,
+              "average_precision": 0.9237801540784717,
+              "balanced_accuracy": 0.8469561688311689,
+              "confusion_matrix": [
+                [
+                  137,
+                  23
+                ],
+                [
+                  25,
+                  129
+                ]
+              ],
+              "f1": 0.8431372549019608,
+              "positive_count": 154,
+              "positive_rate": 0.49044585987261147,
+              "precision": 0.8486842105263158,
+              "recall": 0.8376623376623377,
+              "roc_auc": 0.907224025974026,
+              "row_count": 314,
+              "threshold": 0.3499999999999999
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/jira/results/model/words_5/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "6a149578541d99e7ffb0119362cb711ded9ec0c524491bb18369bddcc685586e",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        }
+      },
+      "input_sha256": "26a3beb4ab889fef45df3b212fd5b742b26811f08d03c848607066687e5d8765",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2015-11-16 00:07:29",
+          "labels_sha256": {
+            "10": "9c3290378eaafa0e9265a8353ae00572e49180b51afd9d6715ab62d8378f407c",
+            "15": "b72087165f606d7f3a6fc0b085150ddb08f2c1f36d268a8a76fbad2f1ee9e2c4",
+            "20": "8c573e916c6ea59b04745da419903e53901f0330595f31588171349283b7b889",
+            "5": "dea34cabf0831b42335c99b19ce5f42fdce6df1d713ad480891b56e6939a76b7"
+          },
+          "last_sprint_entry": "2023-01-27 02:40:56",
+          "positive_counts": {
+            "10": 164,
+            "15": 160,
+            "20": 41,
+            "5": 170
+          },
+          "row_ids_sha256": "391abdec6c68bda5a77c5b4c50801221513238224174dd07c742498f06df9a6e",
+          "rows": 316,
+          "source_counts": {
+            "Jira": 316
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2012-02-08 00:06:30",
+          "labels_sha256": {
+            "10": "46e8ac9ed835140edab34ea8f6e75c7e1eeac735920cf7072c8fb040bcd1afb2",
+            "15": "2754e919e954b30e2f14206377081abb96e76564521b771d0023da38ee20bfec",
+            "20": "420b6026e39a6127a93d1254fdf4450151df2a6dbab627d267dd767fd35b5ab8",
+            "5": "a09807a1ec62babfeda13b224a09c2d66aa4a90317f9441f1f4816f7ce65954f"
+          },
+          "last_sprint_entry": "2013-08-29 09:05:00",
+          "positive_counts": {
+            "10": 207,
+            "15": 197,
+            "20": 120,
+            "5": 221
+          },
+          "row_ids_sha256": "b89d2eae86f99e64643e46593c6b80763322ac19c2bddf038ba37c30112b2fe8",
+          "rows": 944,
+          "source_counts": {
+            "Jira": 944
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2013-08-29 12:21:51",
+          "labels_sha256": {
+            "10": "7c90bc725ed1b4d1e77a2bbbd7a5312127bc3902b97d701261a217f2cc72ba1d",
+            "15": "eb3f1fb5d55f5757b2981043f5bb261cefaad084ac1f5908b3e991905da9fe4f",
+            "20": "5ea3b8dac66768bba10b0c47833b435fc743b8f7027e5ad3b5c2d0c6dc089c16",
+            "5": "662b1768b713b4a1af09bf788b0efd73b4c0fd1a79feaf7c0ac580c56860d9b0"
+          },
+          "last_sprint_entry": "2015-11-16 00:07:26",
+          "positive_counts": {
+            "10": 152,
+            "15": 143,
+            "20": 19,
+            "5": 154
+          },
+          "row_ids_sha256": "4271654930c7aade78ab7690a945812082432576a04e35af633631d903a1b48b",
+          "rows": 314,
+          "source_counts": {
+            "Jira": 314
+          }
+        }
+      }
+    },
+    "MariaDB": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7864321608040201,
+              "auc_prc": 0.155084524931062,
+              "average_precision": 0.16548126800780694,
+              "balanced_accuracy": 0.511748844375963,
+              "confusion_matrix": [
+                [
+                  306,
+                  48
+                ],
+                [
+                  37,
+                  7
+                ]
+              ],
+              "f1": 0.1414141414141414,
+              "positive_count": 44,
+              "positive_rate": 0.11055276381909548,
+              "precision": 0.12727272727272726,
+              "recall": 0.1590909090909091,
+              "roc_auc": 0.6271828454031844,
+              "row_count": 398,
+              "threshold": 0.12
+            },
+            "validation": {
+              "accuracy": 0.9040404040404041,
+              "auc_prc": 0.21691554245809694,
+              "average_precision": 0.22772906050004368,
+              "balanced_accuracy": 0.7116402116402116,
+              "confusion_matrix": [
+                [
+                  349,
+                  29
+                ],
+                [
+                  9,
+                  9
+                ]
+              ],
+              "f1": 0.32142857142857145,
+              "positive_count": 18,
+              "positive_rate": 0.045454545454545456,
+              "precision": 0.23684210526315788,
+              "recall": 0.5,
+              "roc_auc": 0.8578777189888301,
+              "row_count": 396,
+              "threshold": 0.12
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/mariadb/results/model/words_10/RF/baseline/test_predictions.csv",
+          "predictions_sha256": "963d41743736817a6bd9ae1408d68e1e792b306b08093d522c555a0d295522f2",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.7989949748743719,
+              "auc_prc": 0.10881496705402251,
+              "average_precision": 0.11289825475418147,
+              "balanced_accuracy": 0.504524699045247,
+              "confusion_matrix": [
+                [
+                  313,
+                  52
+                ],
+                [
+                  28,
+                  5
+                ]
+              ],
+              "f1": 0.1111111111111111,
+              "positive_count": 33,
+              "positive_rate": 0.0829145728643216,
+              "precision": 0.08771929824561403,
+              "recall": 0.15151515151515152,
+              "roc_auc": 0.4899128268991283,
+              "row_count": 398,
+              "threshold": 0.18
+            },
+            "validation": {
+              "accuracy": 0.9065656565656566,
+              "auc_prc": 0.2130947181410214,
+              "average_precision": 0.22762180527543316,
+              "balanced_accuracy": 0.7118421052631578,
+              "confusion_matrix": [
+                [
+                  351,
+                  29
+                ],
+                [
+                  8,
+                  8
+                ]
+              ],
+              "f1": 0.3018867924528302,
+              "positive_count": 16,
+              "positive_rate": 0.04040404040404041,
+              "precision": 0.21621621621621623,
+              "recall": 0.5,
+              "roc_auc": 0.7577302631578947,
+              "row_count": 396,
+              "threshold": 0.18
+            }
+          },
+          "model": "NN",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/mariadb/results/model/words_15/NN/baseline/test_predictions.csv",
+          "predictions_sha256": "30af3035c51e39736a0727b23927c1b3957c5338fbcb43bbf257f11a49651e05",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9120603015075377,
+              "auc_prc": 0.12182267085738707,
+              "average_precision": 0.133107696306499,
+              "balanced_accuracy": 0.5235521235521235,
+              "confusion_matrix": [
+                [
+                  361,
+                  9
+                ],
+                [
+                  26,
+                  2
+                ]
+              ],
+              "f1": 0.10256410256410255,
+              "positive_count": 28,
+              "positive_rate": 0.07035175879396985,
+              "precision": 0.18181818181818182,
+              "recall": 0.07142857142857142,
+              "roc_auc": 0.6720559845559846,
+              "row_count": 398,
+              "threshold": 0.37999999999999995
+            },
+            "validation": {
+              "accuracy": 0.952020202020202,
+              "auc_prc": 0.22412258237119118,
+              "average_precision": 0.24011691408327485,
+              "balanced_accuracy": 0.65234375,
+              "confusion_matrix": [
+                [
+                  373,
+                  11
+                ],
+                [
+                  8,
+                  4
+                ]
+              ],
+              "f1": 0.2962962962962963,
+              "positive_count": 12,
+              "positive_rate": 0.030303030303030304,
+              "precision": 0.26666666666666666,
+              "recall": 0.3333333333333333,
+              "roc_auc": 0.8717447916666666,
+              "row_count": 396,
+              "threshold": 0.37999999999999995
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/mariadb/results/model/words_20/RF/refactored/test_predictions.csv",
+          "predictions_sha256": "6db5ed14a7eb8d6be5ca629cd0d34094028e613266ed59cfb4bb3f4542e9950c",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.678391959798995,
+              "auc_prc": 0.19484574838475716,
+              "average_precision": 0.20505354435535234,
+              "balanced_accuracy": 0.5147151821763876,
+              "confusion_matrix": [
+                [
+                  253,
+                  84
+                ],
+                [
+                  44,
+                  17
+                ]
+              ],
+              "f1": 0.20987654320987653,
+              "positive_count": 61,
+              "positive_rate": 0.15326633165829145,
+              "precision": 0.16831683168316833,
+              "recall": 0.2786885245901639,
+              "roc_auc": 0.5828914724911223,
+              "row_count": 398,
+              "threshold": 0.10999999999999999
+            },
+            "validation": {
+              "accuracy": 0.803030303030303,
+              "auc_prc": 0.18610022287925548,
+              "average_precision": 0.1944331270997479,
+              "balanced_accuracy": 0.7158004158004159,
+              "confusion_matrix": [
+                [
+                  302,
+                  68
+                ],
+                [
+                  10,
+                  16
+                ]
+              ],
+              "f1": 0.2909090909090909,
+              "positive_count": 26,
+              "positive_rate": 0.06565656565656566,
+              "precision": 0.19047619047619047,
+              "recall": 0.6153846153846154,
+              "roc_auc": 0.7521829521829522,
+              "row_count": 396,
+              "threshold": 0.10999999999999999
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/mariadb/results/model/words_5/RF/baseline/test_predictions.csv",
+          "predictions_sha256": "3dee3b48fe301970a76da9ae1ff4da136cf7bccb392efd1b2b03f08f667534ad",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        }
+      },
+      "input_sha256": "2dbc1341156c625eafa799b58f17a1f9c317e74d27a5952db3eff36f07967c2e",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2021-03-05 17:11:17",
+          "labels_sha256": {
+            "10": "73fdb824296a54d6599e554d97a940c83184c1a8b0735b0bae61e1e86e6c894d",
+            "15": "1dfbc1dcfe8f1f92b4e09e1c9c3640d70a9d36f9196387aff6b6c70056f999a8",
+            "20": "4f64a34bb0d73c4e71da3d6289e6c5a890ab4a9e7f45dcaeb5f725bfa7fc0c0d",
+            "5": "605787edf0210f3ab6d92cbe2ff573c5d876221c178d62275a97cb56eecb8741"
+          },
+          "last_sprint_entry": "2023-04-04 10:33:05",
+          "positive_counts": {
+            "10": 44,
+            "15": 33,
+            "20": 28,
+            "5": 61
+          },
+          "row_ids_sha256": "32569f81abe52dccb12160de2eb366b8e23217c85873d445c6dcc9ae5eba8733",
+          "rows": 398,
+          "source_counts": {
+            "MariaDB": 398
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2014-05-27 14:43:09",
+          "labels_sha256": {
+            "10": "d72ff358f2bf1e68fb762d7fba5b71bf4d11dc45215a198a5c4c5194fda550c9",
+            "15": "e4f0ed7efc097ffad796e8b1e011c7d5c260cfef3fbe4889190c9a12a22eb6f5",
+            "20": "b8d0026caa3c8dfa170f9f299a1fa7ee00cd39d8d9e527746d40e6faee5c5d54",
+            "5": "e41b7aecdb964a78dd6202f6647d91a9f6810c8e2066f82d2c4d8e5e32d0ebd9"
+          },
+          "last_sprint_entry": "2019-02-04 16:44:24",
+          "positive_counts": {
+            "10": 100,
+            "15": 84,
+            "20": 77,
+            "5": 125
+          },
+          "row_ids_sha256": "6a15b9a09abfa1d7943452b9de7b48f1aa7389033984fb1ab0f4adb768e9e1e6",
+          "rows": 1189,
+          "source_counts": {
+            "MariaDB": 1189
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2019-02-05 07:53:45",
+          "labels_sha256": {
+            "10": "47c3415e4020cd171a3a3371af8c6c89753fc9df34cd2d66cd9c1e6d393a71ad",
+            "15": "cbf41b692f44720ee0f1017c4709e34ea0ffb7cdfdc484f0c717028ceb58f3b6",
+            "20": "f244dd8ef880f63fd1967be8084da46749b484aa40edde8c068eadd53f8841b7",
+            "5": "8b9eba50812f9eb22e0db74c833e2080823a65fee9c36ba39821e1cb25583ae1"
+          },
+          "last_sprint_entry": "2021-03-05 12:46:10",
+          "positive_counts": {
+            "10": 18,
+            "15": 16,
+            "20": 12,
+            "5": 26
+          },
+          "row_ids_sha256": "07c50b9e91fbdc52013a00aaa728136366303a2c1867b2aee250f56c6f52cee3",
+          "rows": 396,
+          "source_counts": {
+            "MariaDB": 396
+          }
+        }
+      }
+    },
+    "Qt": {
+      "baseline": {
+        "10": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9051512673753066,
+              "auc_prc": 0.17394196940901607,
+              "average_precision": 0.1784419161306906,
+              "balanced_accuracy": 0.594475494411006,
+              "confusion_matrix": [
+                [
+                  1092,
+                  71
+                ],
+                [
+                  45,
+                  15
+                ]
+              ],
+              "f1": 0.20547945205479454,
+              "positive_count": 60,
+              "positive_rate": 0.04905968928863451,
+              "precision": 0.1744186046511628,
+              "recall": 0.25,
+              "roc_auc": 0.7276153625680711,
+              "row_count": 1223,
+              "threshold": 0.6
+            },
+            "validation": {
+              "accuracy": 0.8797054009819967,
+              "auc_prc": 0.12029227907071678,
+              "average_precision": 0.12878535045257875,
+              "balanced_accuracy": 0.5751788026195055,
+              "confusion_matrix": [
+                [
+                  1059,
+                  94
+                ],
+                [
+                  53,
+                  16
+                ]
+              ],
+              "f1": 0.1787709497206704,
+              "positive_count": 69,
+              "positive_rate": 0.05646481178396072,
+              "precision": 0.14545454545454545,
+              "recall": 0.2318840579710145,
+              "roc_auc": 0.6537639679726486,
+              "row_count": 1222,
+              "threshold": 0.6
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/qt/results/model/words_10/XGboost/refactored/test_predictions.csv",
+          "predictions_sha256": "7618e08ab44948e84b0d3ef7aa7ec7486474c420990aba953bee8c6ce268b339",
+          "selection": "validation_auc_prc",
+          "variant": "refactored"
+        },
+        "15": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9566639411283728,
+              "auc_prc": 0.13670706740744334,
+              "average_precision": 0.1493418412262666,
+              "balanced_accuracy": 0.5293752463539614,
+              "confusion_matrix": [
+                [
+                  1167,
+                  13
+                ],
+                [
+                  40,
+                  3
+                ]
+              ],
+              "f1": 0.10169491525423728,
+              "positive_count": 43,
+              "positive_rate": 0.03515944399018806,
+              "precision": 0.1875,
+              "recall": 0.06976744186046512,
+              "roc_auc": 0.7926487977926685,
+              "row_count": 1223,
+              "threshold": 0.20999999999999996
+            },
+            "validation": {
+              "accuracy": 0.94189852700491,
+              "auc_prc": 0.11861433141088287,
+              "average_precision": 0.12370691045277249,
+              "balanced_accuracy": 0.5599448986846782,
+              "confusion_matrix": [
+                [
+                  1143,
+                  21
+                ],
+                [
+                  50,
+                  8
+                ]
+              ],
+              "f1": 0.1839080459770115,
+              "positive_count": 58,
+              "positive_rate": 0.04746317512274959,
+              "precision": 0.27586206896551724,
+              "recall": 0.13793103448275862,
+              "roc_auc": 0.6623637279298495,
+              "row_count": 1222,
+              "threshold": 0.20999999999999996
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/qt/results/model/words_15/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "4f879adb1d2e9bbeeab09dfd0c213a9231a8ead7f6bf6b5d2b50ca6104a0bffd",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "20": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.9632052330335241,
+              "auc_prc": 0.11893583301874244,
+              "average_precision": 0.1251974969883866,
+              "balanced_accuracy": 0.5382303468065106,
+              "confusion_matrix": [
+                [
+                  1175,
+                  14
+                ],
+                [
+                  31,
+                  3
+                ]
+              ],
+              "f1": 0.11764705882352942,
+              "positive_count": 34,
+              "positive_rate": 0.027800490596892886,
+              "precision": 0.17647058823529413,
+              "recall": 0.08823529411764706,
+              "roc_auc": 0.7569880769801612,
+              "row_count": 1223,
+              "threshold": 0.19999999999999996
+            },
+            "validation": {
+              "accuracy": 0.9361702127659575,
+              "auc_prc": 0.08465363590247352,
+              "average_precision": 0.09086638444736693,
+              "balanced_accuracy": 0.557158574673481,
+              "confusion_matrix": [
+                [
+                  1137,
+                  37
+                ],
+                [
+                  41,
+                  7
+                ]
+              ],
+              "f1": 0.15217391304347827,
+              "positive_count": 48,
+              "positive_rate": 0.03927986906710311,
+              "precision": 0.1590909090909091,
+              "recall": 0.14583333333333334,
+              "roc_auc": 0.6858762776831345,
+              "row_count": 1222,
+              "threshold": 0.19999999999999996
+            }
+          },
+          "model": "RF",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/qt/results/model/words_20/RF/baseline/test_predictions.csv",
+          "predictions_sha256": "509503190bfd58f4db5d454bcaf47cad38e9e2902594f48cb1bfcc8f5dace3d4",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        },
+        "5": {
+          "metrics": {
+            "test": {
+              "accuracy": 0.848732624693377,
+              "auc_prc": 0.18974342862675092,
+              "average_precision": 0.1949165780791524,
+              "balanced_accuracy": 0.560518444666002,
+              "confusion_matrix": [
+                [
+                  1014,
+                  91
+                ],
+                [
+                  94,
+                  24
+                ]
+              ],
+              "f1": 0.2060085836909871,
+              "positive_count": 118,
+              "positive_rate": 0.0964840556009812,
+              "precision": 0.20869565217391303,
+              "recall": 0.2033898305084746,
+              "roc_auc": 0.689911036122402,
+              "row_count": 1223,
+              "threshold": 0.14999999999999997
+            },
+            "validation": {
+              "accuracy": 0.8584288052373159,
+              "auc_prc": 0.12648264954253227,
+              "average_precision": 0.13200656223996762,
+              "balanced_accuracy": 0.5711565821407649,
+              "confusion_matrix": [
+                [
+                  1029,
+                  109
+                ],
+                [
+                  64,
+                  20
+                ]
+              ],
+              "f1": 0.18779342723004694,
+              "positive_count": 84,
+              "positive_rate": 0.06873977086743044,
+              "precision": 0.15503875968992248,
+              "recall": 0.23809523809523808,
+              "roc_auc": 0.6624979077747092,
+              "row_count": 1222,
+              "threshold": 0.14999999999999997
+            }
+          },
+          "model": "XGboost",
+          "predictions_git_path": "Tasks/task-summaries/validate-refactored-model-per-dataset-20260927-134055/artifacts/cluster-run/qt/results/model/words_5/XGboost/baseline/test_predictions.csv",
+          "predictions_sha256": "c0c7ee97bc2ddd3420518e7eb458f0d317e663389c3a5254b0fe8ab182576e6e",
+          "selection": "validation_auc_prc",
+          "variant": "baseline"
+        }
+      },
+      "input_sha256": "be7d3674003a64e80214951607f4b85ecf070b79c435340f83d4b1f632b65c2a",
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2022-08-24 15:41:42",
+          "labels_sha256": {
+            "10": "4e03f3dc1d44d4cf34784cf8fc6674d586e7807740843379139e7bbb410d5b44",
+            "15": "c1fe2d3b66588159fd896d809743a39dc281795e1b2d05f3efa7a257bbaa1615",
+            "20": "d75b2873386a37027779dca1c32d542d348c2c0d3428b010f4c5f33b2df5bd4b",
+            "5": "c145429e724263786558baab4b9e7b4e16860eff5edbeb9f2864f859359c0dc0"
+          },
+          "last_sprint_entry": "2023-04-27 18:22:56",
+          "positive_counts": {
+            "10": 60,
+            "15": 43,
+            "20": 34,
+            "5": 118
+          },
+          "row_ids_sha256": "348b2c748a858112d8e6ea3e97459a85df3f9159a1da7df1b2f651efcbf23399",
+          "rows": 1223,
+          "source_counts": {
+            "Qt": 1223
+          }
+        },
+        "train": {
+          "first_sprint_entry": "2016-11-17 12:16:04",
+          "labels_sha256": {
+            "10": "46f9ae77979394fd451b90309d64af33a21c0f3c76e3de7e24a0a5eae1116292",
+            "15": "f4b7af42617a2addea043fe0219e35c4a338817aa073dc423d14ba5f1e3ba342",
+            "20": "88457d102e22384997a15cb42ba17710983f3489ef3931252710e3367bb3a53f",
+            "5": "17623f3a762e16ea180593f3d636fc85c21ba2d3a331dd48c75bc4d12f080d11"
+          },
+          "last_sprint_entry": "2021-11-22 08:44:53",
+          "positive_counts": {
+            "10": 291,
+            "15": 233,
+            "20": 198,
+            "5": 389
+          },
+          "row_ids_sha256": "31a2e8a9b43077e1a1c3f3e9781ccb6fb4f5dc2aae34d048d8f7b611af373829",
+          "rows": 3666,
+          "source_counts": {
+            "Qt": 3666
+          }
+        },
+        "validation": {
+          "first_sprint_entry": "2021-11-22 08:49:29",
+          "labels_sha256": {
+            "10": "c54ce936b46a2f745c29f82f61ae8e5bf8be1204b62753f32dcef2a7a2235e2c",
+            "15": "f763a8e1345bd9c1623a278cb8591f86005e8c0ccfdf9107e191aace9e5e27e3",
+            "20": "789e06b22a2bb240c469037a4420a12827635b947e631f67c00251002d1fcc3f",
+            "5": "99aa34a1c2e744d01c17d45e2bc4f34f18d7fa6a9e3bf312e4c51d5c40b69b2b"
+          },
+          "last_sprint_entry": "2022-08-24 15:40:41",
+          "positive_counts": {
+            "10": 69,
+            "15": 58,
+            "20": 48,
+            "5": 84
+          },
+          "row_ids_sha256": "b642f38b0b53f23ae37afe02490b6d9d332957d2a68e8b852ebdc2ebd09b3181",
+          "rows": 1222,
+          "source_counts": {
+            "Qt": 1222
+          }
+        }
+      }
+    }
+  },
+  "source_commit": "028b4e40f81ce29f00ae561f795a6df8a52adb7b"
+}
