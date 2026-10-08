@@ -30,6 +30,21 @@ paired final comparisons; it does not check out #357 or download HF models.
 The package pins require compatible cluster CUDA/drivers and must pass the actual
 GPU profile; they do not imply every architecture has already been tested.
 
+If `master-hf` already exists and installing requirements failed, do not recreate
+the environment. After pulling the corrected requirements, rerun only installation
+and the dependency check:
+
+```bash
+conda run -n master-hf python -m pip install \
+  -r "$HOME/Master/Tasks/train-hf-instability-within-project/requirements.txt" &&
+conda run -n master-hf python -m pip check
+```
+
+The Hub client is pinned to 1.33.0: Transformers 5.18.0 requires Hub >=1.31.0,
+while its Tokenizers 0.23 dependency requires Hub <2.0. Installing Hub 2.x
+separately does not resolve this conflict. Continue to model preparation only
+after installation and `pip check` succeed; that check does not validate CUDA.
+
 1. Run `research-hf-instability-models --stage probe`.
 2. Run `prepare-hf-instability-models` on a network-enabled node.
 3. Run `research-hf-instability-models --stage profile --models <one-model>`
