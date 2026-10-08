@@ -1,0 +1,15 @@
+{
+  "id": "com-kotobalabs/open-jev-deberta-v3-large",
+  "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a",
+  "license": "apache-2.0",
+  "identity": "Independent community Jev-style model, not TypeSafe Jev",
+  "max_state_tokens": 256,
+  "max_len": 512,
+  "reviewed_files": {
+    "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+    "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a",
+    "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+    "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799"
+  }
+}
