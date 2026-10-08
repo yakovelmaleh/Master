@@ -141,6 +141,33 @@ class LauncherTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             launcher.render(self.args(kind="publish", stage=None, gres=None), Path("/logs"), [["python"]], {})
 
+    def test_all_task_launchers_default_mail_and_allow_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            stages = {
+                "research": ["--stage", "probe"],
+                "prepare": [],
+                "train": ["--stage", "frozen", "--run-id", "mail-test", "--gres", "gpu:a100:1"],
+                "publish": ["--checkpoint", directory + "/checkpoint", "--hf-repo", "example/model",
+                            "--approve-export", "--gres", "gpu:a100:1"],
+            }
+            for kind, task in launcher.TASKS.items():
+                for recipient in (None, "other@example.invalid"):
+                    with self.subTest(kind=kind, recipient=recipient):
+                        command = [
+                            "bash", str(TASK.parent / "run_cluster_task.sh"), task,
+                            "--partition", "main", "--storage", directory + "/storage",
+                            "--cache", directory + "/cache", "--dry-run", *stages[kind],
+                        ]
+                        if recipient is not None:
+                            command.extend(["--mail-user", recipient])
+                        result = subprocess.run(command, text=True, capture_output=True, check=True)
+                        expected = recipient or "yakovelm@post.bgu.ac.il"
+                        self.assertIn(f"#SBATCH --mail-user={expected}\n", result.stdout)
+                        self.assertIn("#SBATCH --mail-type=ALL\n", result.stdout)
+                        self.assertEqual(result.stdout.count("#SBATCH --mail-user="), 1)
+                        subprocess.run(["bash", "-n"], input=result.stdout, text=True, check=True)
+            self.assertEqual(list(Path(directory).iterdir()), [])
+
     def test_dry_run_has_no_side_effects_and_master_discovers_tasks(self):
         with tempfile.TemporaryDirectory() as directory:
             command = [

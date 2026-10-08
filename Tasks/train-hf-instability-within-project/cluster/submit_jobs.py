@@ -110,7 +110,10 @@ def main():
     parser.add_argument("--time", default="1-00:00:00")
     parser.add_argument("--conda-env", default="master-hf")
     parser.add_argument("--module", default="anaconda")
-    parser.add_argument("--mail-user")
+    parser.add_argument(
+        "--mail-user", default="yakovelm@post.bgu.ac.il",
+        help="SLURM notification recipient (default: %(default)s); requests --mail-type=ALL.",
+    )
     parser.add_argument("--config", type=Path, default=TASK / "experiment.json")
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
