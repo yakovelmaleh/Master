@@ -78,6 +78,19 @@ Training arrays use `%2`; profiles require exactly one model/job. It checks
 not manually bypass the launcher with separate uncoordinated `sbatch` calls.
 This protects quota without presuming unlimited resources.
 
+### Email notifications
+
+All four HF task launchers request SLURM email notifications by default at
+`yakovelm@post.bgu.ac.il`, matching the existing Jira task. Generated jobs include
+`--mail-type=ALL`, which includes start, completion and failure notifications.
+Use `--mail-user OTHER_ADDRESS` to override the recipient; no extra flag is
+needed for the default address. `--dry-run` displays these directives without
+submitting a job.
+
+For job arrays, notifications apply to the array as a whole, not each individual
+array task. This default affects newly submitted jobs only; it does not update
+already pending/running jobs or send missed notifications retroactively.
+
 ## Storage and logs
 
 | Content | Location |
