@@ -1,0 +1,61 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2020-01-22 10:52:40",
+      "last_sprint_entry": "2021-01-11 19:45:00",
+      "positive_counts": {
+        "10": 29,
+        "15": 24,
+        "20": 22,
+        "5": 32
+      },
+      "row_ids_sha256": "e194270d27ce6ee532348e561e05b2a8ebfb96c49736493fc18b10babad7b596",
+      "rows": 334,
+      "source_counts": {
+        "IntelDAOS": 334
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2016-04-06 02:31:57",
+      "last_sprint_entry": "2019-01-29 12:34:36",
+      "positive_counts": {
+        "10": 80,
+        "15": 54,
+        "20": 39,
+        "5": 126
+      },
+      "row_ids_sha256": "50110dd6267bbe21a5d93775e462555ed9acf131a5543619cc74bd7d5b45c55e",
+      "rows": 999,
+      "source_counts": {
+        "IntelDAOS": 999
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2019-02-05 07:51:34",
+      "last_sprint_entry": "2020-01-22 10:52:40",
+      "positive_counts": {
+        "10": 42,
+        "15": 38,
+        "20": 30,
+        "5": 52
+      },
+      "row_ids_sha256": "27d791d7403024d341a4d5828828fc90afa482be5764720491b93c85d39fb4bf",
+      "rows": 333,
+      "source_counts": {
+        "IntelDAOS": 333
+      }
+    }
+  },
+  "project": "IntelDAOS",
+  "protocol": "within-project",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}

@@ -1,0 +1,32 @@
+------------------------------------
+Thu 24 Sep 2026 21:22:58 IDT
+SLURM_JOBID:		21666007
+SLURM_JOB_NODELIST:	ise-cpu-intl-06
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666007
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666007 NODE=ise-cpu-intl-06
+Project: MariaDB; levels: 5,10,15,20
+Starting MariaDB: unstable level 5
+Completed MariaDB: unstable level 5
+Starting MariaDB: unstable level 10
+Completed MariaDB: unstable level 10
+Starting MariaDB: unstable level 15
+Completed MariaDB: unstable level 15
+Starting MariaDB: unstable level 20
+Completed MariaDB: unstable level 20
+/home/yakovelm/.conda/envs/master/lib/python3.8/site-packages/numpy/lib/nanfunctions.py:1215: RuntimeWarning: Mean of empty slice
+  return np.nanmean(a, axis, out=out, keepdims=keepdims)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+Verification manifest: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260924-212251-041726/mariadb/results/verification_manifest.json
