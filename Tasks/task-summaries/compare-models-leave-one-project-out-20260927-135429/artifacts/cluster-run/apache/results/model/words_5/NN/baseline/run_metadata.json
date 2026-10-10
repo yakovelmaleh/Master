@@ -1,0 +1,107 @@
+{
+  "balancing": "none",
+  "candidates": [
+    {
+      "parameters": {
+        "activation": "relu",
+        "alpha": 0.001,
+        "batch_size": "auto",
+        "beta_1": 0.9,
+        "beta_2": 0.999,
+        "early_stopping": false,
+        "epsilon": 1e-08,
+        "hidden_layer_sizes": [
+          100
+        ],
+        "learning_rate": "constant",
+        "learning_rate_init": 0.001,
+        "max_fun": 15000,
+        "max_iter": 600,
+        "momentum": 0.9,
+        "n_iter_no_change": 10,
+        "nesterovs_momentum": true,
+        "power_t": 0.5,
+        "random_state": 7,
+        "shuffle": true,
+        "solver": "adam",
+        "tol": 0.0001,
+        "validation_fraction": 0.1,
+        "verbose": false,
+        "warm_start": false
+      },
+      "validation_auc_prc": 0.12237553293069799,
+      "warnings": []
+    },
+    {
+      "parameters": {
+        "activation": "relu",
+        "alpha": 0.01,
+        "batch_size": "auto",
+        "beta_1": 0.9,
+        "beta_2": 0.999,
+        "early_stopping": false,
+        "epsilon": 1e-08,
+        "hidden_layer_sizes": [
+          100,
+          50
+        ],
+        "learning_rate": "constant",
+        "learning_rate_init": 0.001,
+        "max_fun": 15000,
+        "max_iter": 600,
+        "momentum": 0.9,
+        "n_iter_no_change": 10,
+        "nesterovs_momentum": true,
+        "power_t": 0.5,
+        "random_state": 7,
+        "shuffle": true,
+        "solver": "adam",
+        "tol": 0.0001,
+        "validation_fraction": 0.1,
+        "verbose": false,
+        "warm_start": false
+      },
+      "validation_auc_prc": 0.14386431651094622,
+      "warnings": []
+    }
+  ],
+  "estimator_class": "MLPClassifier",
+  "level": 5,
+  "model": "NN",
+  "parameters": {
+    "activation": "relu",
+    "alpha": 0.01,
+    "batch_size": "auto",
+    "beta_1": 0.9,
+    "beta_2": 0.999,
+    "early_stopping": false,
+    "epsilon": 1e-08,
+    "hidden_layer_sizes": [
+      100,
+      50
+    ],
+    "learning_rate": "constant",
+    "learning_rate_init": 0.001,
+    "max_fun": 15000,
+    "max_iter": 600,
+    "momentum": 0.9,
+    "n_iter_no_change": 10,
+    "nesterovs_momentum": true,
+    "power_t": 0.5,
+    "random_state": 7,
+    "shuffle": true,
+    "solver": "adam",
+    "tol": 0.0001,
+    "validation_fraction": 0.1,
+    "verbose": false,
+    "warm_start": false
+  },
+  "project": "Apache",
+  "protocol": "leave-one-project-out",
+  "seed": 7,
+  "selection_metric": "validation_auc_prc",
+  "test_row_ids_sha256": "d3c5659ed8dacf813a03e3c43bca481c63caf56a6c36d714cf37283ad29e19a5",
+  "test_weights": "none",
+  "threshold_selection": "validation_f1",
+  "variant": "baseline"
+}
