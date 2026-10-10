@@ -1,0 +1,40 @@
+{
+  "task": "evaluate-logistic-instability-model",
+  "protocol": "pooled",
+  "experiment": "logistic",
+  "levels": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "models": [
+    "Logistic"
+  ],
+  "variants": [
+    "logistic"
+  ],
+  "validate_only": false,
+  "dry_run": false,
+  "jobs": [
+    {
+      "project": "all",
+      "levels": [
+        5,
+        10,
+        15,
+        20
+      ],
+      "models": [
+        "Logistic"
+      ],
+      "variants": [
+        "logistic"
+      ],
+      "results": "all/results",
+      "log": "all/logs/job-%J.out",
+      "sbatch": "all/submit.sbatch",
+      "job_id": "21666041"
+    }
+  ]
+}
