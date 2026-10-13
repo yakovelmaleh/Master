@@ -14,3 +14,11 @@
 /Tasks/*hf-instability*/**/*.gguf
 /Tasks/*hf-instability*/**/*.npy
 /Tasks/*hf-instability*/**/*.npz
+
+# Code-smell source snapshots, detector binaries and fitted artifacts stay external.
+/Tasks/*code-smell*/cluster_runs/
+/Tasks/*code-smell*/**/__pycache__/
+/Code_Smells_Detection/runtime/__pycache__/
+/Code_Smells_Detection/runtime/tests/__pycache__/
+/Tasks/*code-smell*/**/*.joblib
+/Tasks/*code-smell*/**/*.npz

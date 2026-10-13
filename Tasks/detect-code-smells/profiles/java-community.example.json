@@ -1,0 +1,23 @@
+{
+  "language": "java",
+  "edition": "community",
+  "version": "REPLACE_WITH_VERIFIED_RELEASE",
+  "origin": "https://github.com/tushartushar/DesigniteJava",
+  "platform": "Linux",
+  "license": "community",
+  "artifacts": [
+    {"name": "DesigniteJavaCommunity.jar", "local_path": "/external/tools/DesigniteJavaCommunity.jar", "sha256": "REPLACE_WITH_SHA256"}
+  ],
+  "command": ["java", "-jar", "{tool}/DesigniteJavaCommunity.jar", "-i", "{input}", "-o", "{output}"],
+  "catalog": {
+    "implementation": ["Abstract Function Call From Constructor", "Complex Conditional", "Complex Method", "Empty catch clause", "Long Identifier", "Long Method", "Long Parameter List", "Long Statement", "Magic Number", "Missing default"],
+    "design": ["Imperative Abstraction", "Multifaceted Abstraction", "Unnecessary Abstraction", "Unutilized Abstraction", "Deficient Encapsulation", "Unexploited Encapsulation", "Broken Modularization", "Cyclic-Dependent Modularization", "Insufficient Modularization", "Hub-like Modularization", "Broken Hierarchy", "Cyclic Hierarchy", "Deep Hierarchy", "Missing Hierarchy", "Multipath Hierarchy", "Rebellious Hierarchy", "Wide Hierarchy"]
+  },
+  "reports": {
+    "implementation": {"file": "implementationCodeSmells.csv", "smell_column": "Code Smell", "qualified_columns": ["Package Name", "Type Name"], "entity_columns": ["Type Name", "Method Name"], "required_columns": ["Package Name", "Type Name", "Method Name"]},
+    "design": {"file": "designCodeSmells.csv", "smell_column": "Code Smell", "qualified_columns": ["Package Name", "Type Name"], "entity_columns": ["Type Name"], "required_columns": ["Package Name", "Type Name"]}
+  },
+  "coverage": [
+    {"file": "typeMetrics.csv", "qualified_columns": ["Package Name", "Type Name"], "required_columns": ["Package Name", "Type Name"]}
+  ]
+}

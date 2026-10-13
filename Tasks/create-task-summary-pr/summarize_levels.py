@@ -15,9 +15,53 @@ def write_csv(path, rows, columns):
         writer.writerows(rows)
 
 
+def summarize_code_smells(bundle, reports):
+    coverage, results = [], []
+    metrics = ["auc_prc", "average_precision", "roc_auc", "precision", "recall", "f1",
+               "row_count", "positive_rate"]
+    for path in reports:
+        report = json.loads(path.read_text())
+        if report.get("schema") != "code-smell-report-v1" or report.get("stage") != "final-test":
+            raise ValueError("Code-smell report must identify a sealed final test.")
+        expected = {(source, target, family, variant)
+                    for source in report["sources"] for target in report["targets"]
+                    for family in ("RF", "XGboost", "NN") for variant in ("baseline", "refactored")}
+        cells = report["results"]
+        actual = {(cell["source"], cell["target"], cell["family"], cell["variant"]) for cell in cells}
+        if actual != expected or len(cells) != len(expected):
+            raise ValueError("Code-smell report is missing or duplicating expected target/model entries.")
+        for cell in cells:
+            identity = {name: cell[name] for name in ("source", "target", "language", "category", "smell", "family", "variant")}
+            identity["run"] = str(path.parent.relative_to(bundle / "artifacts"))
+            status = cell["status"]
+            if status not in ("succeeded", "insufficient_data"):
+                raise ValueError("Code-smell report contains an unfinished target.")
+            if status == "succeeded" and not all(cell.get(key) for key in ("metrics", "test_rows_sha256", "test_artifacts")):
+                raise ValueError("Code-smell test evidence is missing.")
+            if status == "insufficient_data" and not cell.get("reason"):
+                raise ValueError("Skipped target needs an explicit reason.")
+            coverage.append({**identity, "status": status, "reason": cell.get("reason", "")})
+            if status == "succeeded":
+                results.append({**identity, **{key: cell["metrics"].get(key) for key in metrics}})
+    columns = ["run", "source", "target", "language", "category", "smell", "family", "variant"]
+    write_csv(bundle / "TARGETS.csv", coverage, columns + ["status", "reason"])
+    write_csv(bundle / "RESULTS.csv", results, columns + metrics)
+    text = ("\n## Code-smell target coverage\n\n"
+            f"- Evaluated entries: {len(results)}; accounted entries: {len(coverage)}.\n"
+            "- Insufficient-data targets are explicit, not zero scores.\n"
+            "- Targets are language-specific implementation/design smells and any-supported-smell, not instability word levels.\n"
+            "- Legacy XGboost means GradientBoostingClassifier. AP and trapezoidal AUC-PRC are different metrics.\n")
+    (bundle / "TARGET_SUMMARY.md").write_text(text)
+    print(text)
+
+
 def summarize(bundle):
     bundle = Path(bundle).resolve()
     artifacts = bundle / "artifacts"
+    smell_reports = sorted(artifacts.rglob("code_smell_report.json"))
+    if smell_reports:
+        summarize_code_smells(bundle, smell_reports)
+        return
     coverage = []
     results = []
     accounted = set()
@@ -33,6 +77,10 @@ def summarize(bundle):
 
     for plan_path in sorted(artifacts.rglob("job_plan.json")):
         plan = json.loads(plan_path.read_text())
+        if plan.get("schema") == "code-smell-jobs-v1":
+            (bundle / "TARGET_SUMMARY.md").write_text(
+                "Code-smell jobs are recorded, but no final report is present. Results are incomplete.\n")
+            continue
         root = plan_path.parent
         level_jobs = [
             {**job, "level": level}

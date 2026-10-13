@@ -74,7 +74,7 @@ assert_inside_repo() {
 copy_file() {
   source_file=$1
   destination_file=$2
-  if [[ "$task_name" == *hf-instability* || "$task_name" == train-openai-instability-within-project ]]; then
+  if [[ "$task_name" == *hf-instability* || "$task_name" == *code-smell* || "$task_name" == train-openai-instability-within-project ]]; then
     echo "Model-task --include single files are not supported; use an allowlisted metadata directory." >&2
     exit 2
   fi
@@ -85,6 +85,11 @@ copy_file() {
 copy_tree() {
   source_root=$1
   destination_root=$2
+  if [[ "$task_name" == *code-smell* ]]; then
+    python3 "$REPO_ROOT/Code_Smells_Detection/runtime/bundle.py" \
+      --source "$source_root" --destination "$destination_root"
+    return
+  fi
   if [[ "$task_name" == train-openai-instability-within-project ]]; then
     python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
       --source "$source_root" --destination "$destination_root"
@@ -107,6 +112,11 @@ copy_task_definition() {
   local task_dir=${2:-$task_dir}
   local task_name=${3:-$task_name}
 
+  if [[ "$task_name" == *code-smell* ]]; then
+    python3 "$REPO_ROOT/Code_Smells_Detection/runtime/bundle.py" \
+      --source "$task_dir" --destination "$destination_root" --definition
+    return
+  fi
   if [[ "$task_name" == train-openai-instability-within-project ]]; then
     python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
       --source "$task_dir" --destination "$destination_root" --definition
@@ -365,6 +375,17 @@ mkdir -p "$artifacts_dir/task"
 copy_task_definition "$artifacts_dir/task"
 
 case "$task_name" in
+  *code-smell*)
+    python3 "$REPO_ROOT/Code_Smells_Detection/runtime/bundle.py" \
+      --source "$REPO_ROOT/Code_Smells_Detection/runtime" \
+      --destination "$artifacts_dir/dependencies/Code_Smells_Detection/runtime" --definition
+    for dependency in prepare-code-smell-dataset detect-code-smells train-code-smell-models verify-refactored-instability-model jira-url-to-instability-model; do
+      [[ "$dependency" == "$task_name" ]] && continue
+      python3 "$REPO_ROOT/Code_Smells_Detection/runtime/bundle.py" \
+        --source "$REPO_ROOT/Tasks/$dependency" \
+        --destination "$artifacts_dir/dependencies/$dependency" --definition
+    done
+    ;;
   train-openai-instability-within-project)
     for dependency in train-hf-instability-within-project verify-refactored-instability-model jira-url-to-instability-model; do
       python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
@@ -516,7 +537,17 @@ Runtime caches, Python bytecode, and unrelated historical cluster runs are not
 included automatically. Files larger than 90 MiB are gzip-compressed.
 EOF
 
-cat "$stage_destination/LEVEL_SUMMARY.md" >> "$stage_destination/README.md"
+if [[ "$task_name" == *code-smell* && -f "$stage_destination/TARGET_SUMMARY.md" ]]; then
+  cat >> "$stage_destination/README.md" <<'EOF'
+
+For code-smell tasks, `TARGETS.csv` and `TARGET_SUMMARY.md` replace the
+instability-level coverage files. A missing final report means results are
+incomplete, even if submission metadata is present.
+EOF
+  cat "$stage_destination/TARGET_SUMMARY.md" >> "$stage_destination/README.md"
+else
+  cat "$stage_destination/LEVEL_SUMMARY.md" >> "$stage_destination/README.md"
+fi
 
 if [[ -n "$summary_text" ]]; then
   cat >> "$stage_destination/README.md" <<EOF

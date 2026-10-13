@@ -1,0 +1,24 @@
+{
+  "language": "python",
+  "edition": "professional",
+  "version": "REPLACE_WITH_VERIFIED_RELEASE",
+  "origin": "https://www.designite-tools.com/products-dpy",
+  "platform": "Linux",
+  "license": "academic",
+  "schema_observed": "DPy 1.7.8 macOS CSV export on 2026-10-13; requalify the selected platform and license",
+  "artifacts": [
+    {"name": "DPy", "local_path": "/external/tools/DPy", "sha256": "REPLACE_WITH_SHA256", "executable": true}
+  ],
+  "command": ["{tool}/DPy", "analyze", "-i", "{input}", "-o", "{output}", "-f", "csv"],
+  "catalog": {
+    "implementation": ["Complex conditional", "Complex method", "Empty catch block", "Long identifier", "Long method", "Long parameter list", "Long statement", "Magic number", "Missing default", "Long lambda function", "Long message chain"],
+    "design": ["Multifaceted abstraction", "Feature envy", "Deficient encapsulation", "Insufficient modularization", "Broken modularization", "Hub-like modularization", "Wide hierarchy", "Deep hierarchy", "Rebellious hierarchy", "Broken hierarchy"]
+  },
+  "reports": {
+    "implementation": {"file": "*_implementation_smells.csv", "smell_column": "Smell", "path_column": "File", "entity_columns": ["Class", "Method", "Line no"]},
+    "design": {"file": "*_design_smells.csv", "smell_column": "Smell", "path_column": "File", "entity_columns": ["Class", "Line no"]}
+  },
+  "coverage": [
+    {"file": "*_class_module_metrics.csv", "path_column": "File"}
+  ]
+}

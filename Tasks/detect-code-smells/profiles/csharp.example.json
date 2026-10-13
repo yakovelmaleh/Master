@@ -1,0 +1,23 @@
+{
+  "language": "csharp",
+  "edition": "professional",
+  "version": "REPLACE_WITH_VERIFIED_RELEASE",
+  "origin": "https://www.designite-tools.com/products-cs",
+  "platform": "Windows",
+  "license": "academic",
+  "artifacts": [
+    {"name": "DesigniteConsole.exe", "local_path": "C:/tools/DesigniteConsole.exe", "sha256": "REPLACE_WITH_SHA256"}
+  ],
+  "command": ["{tool}/DesigniteConsole.exe", "-i", "{input}", "-o", "{output}", "-c"],
+  "catalog": {
+    "implementation": ["Abstract Function Call From Constructor", "Complex Conditional", "Complex Method", "Empty catch clause", "Long Identifier", "Long Method", "Long Parameter List", "Long Statement", "Magic Number", "Missing default", "Duplicate Code"],
+    "design": ["Imperative Abstraction", "Multifaceted Abstraction", "Unnecessary Abstraction", "Unutilized Abstraction", "Deficient Encapsulation", "Unexploited Encapsulation", "Broken Modularization", "Cyclic-Dependent Modularization", "Insufficient Modularization", "Hub-like Modularization", "Broken Hierarchy", "Cyclic Hierarchy", "Deep Hierarchy", "Missing Hierarchy", "Multipath Hierarchy", "Rebellious Hierarchy", "Wide Hierarchy"]
+  },
+  "reports": {
+    "implementation": {"file": "REPLACE_WITH_NATIVE_IMPLEMENTATION_CSV", "smell_column": "REPLACE_WITH_NATIVE_SMELL_COLUMN", "path_column": "REPLACE_WITH_NATIVE_PATH_COLUMN", "entity_columns": []},
+    "design": {"file": "REPLACE_WITH_NATIVE_DESIGN_CSV", "smell_column": "REPLACE_WITH_NATIVE_SMELL_COLUMN", "path_column": "REPLACE_WITH_NATIVE_PATH_COLUMN", "entity_columns": []}
+  },
+  "coverage": [
+    {"file": "REPLACE_WITH_NATIVE_METRICS_CSV", "path_column": "REPLACE_WITH_NATIVE_PATH_COLUMN"}
+  ]
+}
