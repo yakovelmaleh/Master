@@ -89,6 +89,30 @@ def summarize(bundle):
             if complete:
                 results.append({**identity, **{k: cell["test"].get(k) for k in metric_fields},
                                 "metrics_path": str(path.relative_to(bundle))})
+    for path in sorted(artifacts.rglob("llm_report.json")):
+        report = json.loads(path.read_text())
+        if report.get("schema") != "openai-instability-report-v1" or report.get("stage") != "final-test":
+            raise ValueError("LLM report must identify the final-test protocol.")
+        expected = {(project, level, variant)
+                    for project in ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt")
+                    for level in (5, 10, 15, 20) for variant in ("text", "structured")}
+        cells = report["cells"]
+        if len(cells) != 48 or {(c["project"], c["level"], c["variant"]) for c in cells} != expected:
+            raise ValueError("LLM report must account for exactly all 48 model/variant entries.")
+        for cell in cells:
+            reference = cell.get("model_reference", {})
+            complete = (cell.get("status") == "complete" and "test" in cell
+                        and bool(reference.get("model_id")) and bool(reference.get("job_id"))
+                        and bool(cell.get("scores_sha256")))
+            identity = {"run": str(path.parent.relative_to(artifacts)), "project": cell["project"],
+                        "level": cell["level"], "model": reference.get("model_id", "untrained"),
+                        "variant": "openai_" + cell["variant"]}
+            coverage.append({**identity, "job_status": cell.get("status", "missing"),
+                             "coverage": "complete" if complete else "incomplete",
+                             "missing_files": "" if complete else "final_test_artifact_reference"})
+            if complete:
+                results.append({**identity, **{k: cell["test"].get(k) for k in metric_fields},
+                                "metrics_path": str(path.relative_to(bundle))})
     # Older runs have no job plan. Include every available level, but do not
     # infer completeness from whatever happens to be present.
     for path in sorted(artifacts.rglob("metrics.json")):

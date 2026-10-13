@@ -1,0 +1,17 @@
+{
+  "schema": "openai-instability-v1",
+  "model": "gpt-4.1-nano-2025-04-14",
+  "epochs": 1,
+  "seed": 7,
+  "training_type": "GlobalStandard",
+  "deployment_sku": "DeveloperTier",
+  "deployment_capacity": 1,
+  "text_tokens": 2048,
+  "max_input_tokens": 8192,
+  "top_logprobs": 20,
+  "bootstrap_samples": 2000,
+  "request_attempts": 3,
+  "pilot_limit_usd": 5,
+  "total_limit_usd": 80,
+  "credit_reserve_usd": 20
+}
