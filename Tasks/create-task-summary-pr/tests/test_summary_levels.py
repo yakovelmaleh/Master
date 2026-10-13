@@ -38,6 +38,29 @@ def make_run(run, level, succeeded=True):
 
 
 class SummaryTests(unittest.TestCase):
+    def test_llm_report_accounts_for_both_variants_without_fake_checkpoints(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "artifacts/results/llm_report.json"
+            path.parent.mkdir(parents=True)
+            cells = [{"project": project, "level": level, "variant": variant, "status": "missing"}
+                     for project in ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt")
+                     for level in (5, 10, 15, 20) for variant in ("text", "structured")]
+            cells[0].update({"status": "complete", "model_reference": {"model_id": "ft:fixture", "job_id": "job-fixture"},
+                             "scores_sha256": "fixture", "test": {"auc_prc": .7, "average_precision": .6}})
+            report = {"schema": "openai-instability-report-v1", "stage": "final-test", "cells": cells}
+            path.write_text(json.dumps(report))
+            module.summarize(root)
+            with (root / "LEVELS.csv").open() as stream:
+                rows = list(csv.DictReader(stream))
+            self.assertEqual(len(rows), 48)
+            self.assertEqual(sum(row["coverage"] == "complete" for row in rows), 1)
+            self.assertEqual({row["variant"] for row in rows}, {"openai_text", "openai_structured"})
+            cells[-1] = cells[0]
+            path.write_text(json.dumps(report))
+            with self.assertRaisesRegex(ValueError, "48"):
+                module.summarize(root)
+
     def test_grouped_job_reports_missing_levels_and_failed_runs(self):
         with tempfile.TemporaryDirectory() as directory:
             bundle = Path(directory)

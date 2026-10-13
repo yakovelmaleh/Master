@@ -74,8 +74,8 @@ assert_inside_repo() {
 copy_file() {
   source_file=$1
   destination_file=$2
-  if [[ "$task_name" == *hf-instability* ]]; then
-    echo "HF --include single files are not supported; use an allowlisted metadata directory." >&2
+  if [[ "$task_name" == *hf-instability* || "$task_name" == train-openai-instability-within-project ]]; then
+    echo "Model-task --include single files are not supported; use an allowlisted metadata directory." >&2
     exit 2
   fi
   mkdir -p "$(dirname "$destination_file")"
@@ -85,6 +85,11 @@ copy_file() {
 copy_tree() {
   source_root=$1
   destination_root=$2
+  if [[ "$task_name" == train-openai-instability-within-project ]]; then
+    python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
+      --source "$source_root" --destination "$destination_root"
+    return
+  fi
   if [[ "$task_name" == *hf-instability* ]]; then
     python3 "$REPO_ROOT/Tasks/train-hf-instability-within-project/bundle_artifacts.py" \
       --source "$source_root" --destination "$destination_root"
@@ -102,6 +107,11 @@ copy_task_definition() {
   local task_dir=${2:-$task_dir}
   local task_name=${3:-$task_name}
 
+  if [[ "$task_name" == train-openai-instability-within-project ]]; then
+    python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
+      --source "$task_dir" --destination "$destination_root" --definition
+    return
+  fi
   if [[ "$task_name" == *hf-instability* ]]; then
     python3 "$REPO_ROOT/Tasks/train-hf-instability-within-project/bundle_artifacts.py" \
       --source "$task_dir" --destination "$destination_root" --definition
@@ -355,6 +365,13 @@ mkdir -p "$artifacts_dir/task"
 copy_task_definition "$artifacts_dir/task"
 
 case "$task_name" in
+  train-openai-instability-within-project)
+    for dependency in train-hf-instability-within-project verify-refactored-instability-model jira-url-to-instability-model; do
+      python3 "$REPO_ROOT/Tasks/train-openai-instability-within-project/bundle_artifacts.py" \
+        --source "$REPO_ROOT/Tasks/$dependency" \
+        --destination "$artifacts_dir/dependencies/$dependency" --definition
+    done
+    ;;
   *hf-instability*)
     for dependency in research-hf-instability-models prepare-hf-instability-models train-hf-instability-within-project publish-hf-instability-models; do
       [[ "$dependency" == "$task_name" ]] && continue
@@ -421,7 +438,7 @@ fi
 
 secret_matches=$(
   grep -RIlE \
-    '(-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN|AWS_SECRET_ACCESS_KEY)[=:][^[:space:]]{8,}|gh[pousr]_[A-Za-z0-9]{20,}|hf_[A-Za-z0-9]{20,})' \
+    '(-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|Authorization:[[:space:]]*(Bearer|Basic)[[:space:]]+[A-Za-z0-9._~+/-]{20,}|(JIRA_TOKEN|GITHUB_TOKEN|GH_TOKEN|AWS_SECRET_ACCESS_KEY|AZURE_OPENAI_API_KEY|AZURE_CLIENT_SECRET|OPENAI_API_KEY)[=:][^[:space:]]{8,}|gh[pousr]_[A-Za-z0-9]{20,}|hf_[A-Za-z0-9]{20,})' \
     "$stage_destination" || true
 )
 if [[ -n "$secret_matches" ]]; then
