@@ -1,0 +1,3 @@
+-r ../prepare-code-smell-dataset/requirements.txt
+scikit-learn==1.6.1
+joblib>=1.3,<2
