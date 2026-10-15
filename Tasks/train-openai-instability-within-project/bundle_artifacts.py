@@ -34,7 +34,7 @@ def copy_tree(source, destination, definition=False):
                 continue
             if not definition:
                 value = json.loads(path.read_text())
-                if value.get("schema") != "openai-instability-report-v1":
+                if value.get("schema") not in ("openai-instability-report-v1", "openai-instability-report-v2"):
                     raise ValueError("Only the explicit LLM report schema may be bundled.")
             with path.open("rb") as stream:
                 content = stream.read(MAX_BYTES + 1)

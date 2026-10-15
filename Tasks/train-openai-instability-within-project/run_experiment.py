@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 from protocol import (
-    CELLS, PILOT, TASK, cell_key, checked_json, config_at, digest, exclusive_lock,
+    CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, TASK, cell_key, checked_json, config_at, digest, exclusive_lock,
     file_hash, read_json, require_unsealed, study, study_id, write_json,
 )
 from cost_control import Ledger, check_approval, estimate, inference_bound, money
@@ -90,17 +90,17 @@ def smoke(root, config, ledger, backend):
     authorization = authorized(root, config, ledger)
     tokenizer = Tokenizer(config["model"])
     for index, text in enumerate(("Add a settings page.", "requirement " * config["text_tokens"])):
-        prompt, count, _ = messages(text, 10, None, tokenizer, config)
+        prompt, count, _ = messages(text, PILOT_LEVEL, None, tokenizer, config)
         score_once(root, config, ledger, backend, authorization["approval"]["base_deployment"],
                    f"smoke-{index}", prompt, count)
-    records, rows = partition(root, cell_key("Jira", 10, "text"), "validation")
+    records, rows = partition(root, cell_key(PILOT_PROJECT, PILOT_LEVEL, "text"), "validation")
     scores = []
     for index, (record, row) in enumerate(zip(records[:20], rows[:20])):
         result = score_once(root, config, ledger, backend, authorization["approval"]["base_deployment"],
                             f"base-control-{index}", record["messages"], row["input_tokens"])
         scores.append(result["score"])
     write_json(root / "base_control.json", {
-        "protocol": "unfine-tuned text-only; first 20 Jira/10 validation rows; diagnostic only",
+        "protocol": f"unfine-tuned text-only; first 20 {PILOT_PROJECT}/{PILOT_LEVEL} validation rows; diagnostic only",
         "row_ids": [row["row_id"] for row in rows[:20]], "scores": scores,
         "metrics": calculate_metrics([row["label"] for row in rows[:20]], scores, .5),
     })
@@ -222,7 +222,7 @@ def sealed_cells(root):
         raise ValueError("Sealed study or data changed.")
     expected = {cell_key(*cell) for cell in CELLS}
     if set(seal["cells"]) != expected:
-        raise ValueError("Seal requires all 48 entries.")
+        raise ValueError(f"Seal requires all {len(CELLS)} approved entries.")
     for key, cell in seal["cells"].items():
         directory = root / "validation" / key
         if read_json(directory / "validation.json") != cell:
@@ -310,6 +310,8 @@ def evaluate(root, config, ledger, backend, split):
 
 
 def report(root, ledger, output):
+    if read_json(root / "study.json")["config"]["schema"] != "openai-instability-v2":
+        raise ValueError("Reporting an older study requires its original protocol version.")
     entries = []
     selections = sealed_cells(root) if (root / "sealed.json").exists() else None
     for project, level, variant in CELLS:
@@ -329,11 +331,12 @@ def report(root, ledger, output):
         entries.append(cell)
     complete = all(cell["status"] == "complete" for cell in entries)
     result = {
-        "schema": "openai-instability-report-v1", "stage": "final-test", "cells": entries,
+        "schema": "openai-instability-report-v2", "stage": "final-test", "cells": entries,
         "complete": complete, "passed": complete and all(c["gates"]["passed"] for c in entries),
         "study_sha256": digest(read_json(root / "study.json")),
         "costs": ledger.snapshot(study_id(root)) if study_id(root) in ledger.read()["runs"] else {"authorized": False},
-        "limitations": ["Retrospective reused holdout; possible pretraining exposure.",
+        "limitations": ["Scope is Jira and Qt at levels 5 and 20, both variants; not the six-project study.",
+                        "Retrospective reused holdout; possible pretraining exposure.",
                         "Conditional label-token scores are not calibrated event probabilities.",
                         "Issue bootstrap does not model temporal dependence.",
                         "Missing comparators are not estimated; hosted weights are not exported."],

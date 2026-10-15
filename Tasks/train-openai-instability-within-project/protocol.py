@@ -9,14 +9,17 @@ TASK = Path(__file__).resolve().parent
 SHARED = TASK.parent / "train-hf-instability-within-project"
 sys.path.insert(0, str(SHARED))
 from common import (  # noqa: E402
-    LEVELS, PROJECTS, REPO, digest, exclusive_lock, external_path,
+    REPO, digest, exclusive_lock, external_path,
     file_hash, read_json, slug, write_json,
 )
 sys.path.insert(0, str(TASK))
 
+PROJECTS = ("Jira", "Qt")
+LEVELS = (5, 20)
 VARIANTS = ("text", "structured")
 CELLS = tuple(itertools.product(PROJECTS, LEVELS, VARIANTS))
-PILOT = tuple(("Jira", 10, variant) for variant in VARIANTS)
+PILOT_PROJECT, PILOT_LEVEL = "Jira", 20
+PILOT = tuple((PILOT_PROJECT, PILOT_LEVEL, variant) for variant in VARIANTS)
 PACKAGES = ("numpy", "pandas", "scikit-learn", "joblib", "openai",
             "tiktoken", "azure-identity", "httpx")
 PROMPT = (
@@ -39,8 +42,8 @@ def config_at(path):
     expected = read_json(TASK / "experiment.json")
     if set(config) != set(expected):
         raise ValueError("Configuration keys differ from the experiment schema.")
-    if config["schema"] != "openai-instability-v1":
-        raise ValueError("Unsupported configuration schema.")
+    if config["schema"] != "openai-instability-v2":
+        raise ValueError("Unsupported configuration schema; use the current experiment.json and a new run ID.")
     if config["model"] not in ("gpt-4.1-nano-2025-04-14", "gpt-4.1-mini-2025-04-14"):
         raise ValueError("Use a reviewed, versioned SFT model.")
     for name, lower, upper in (
@@ -67,6 +70,7 @@ def signature(config):
     files.extend((TASK.parent / "jira-url-to-instability-model/unstable_model").glob("*.py"))
     return {
         "config": config, "prompt": PROMPT, "cells": [list(cell) for cell in CELLS],
+        "pilot_cells": [list(cell) for cell in PILOT],
         "objective": "validation-guided trapezoidal AUC-PRC; untouched final test",
         "versions": {name: importlib.metadata.version(name) for name in PACKAGES},
         "source_sha256": digest({

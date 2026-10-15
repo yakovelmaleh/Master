@@ -1,6 +1,6 @@
 {
-  "schema": "openai-instability-v1",
-  "model": "gpt-4.1-nano-2025-04-14",
+  "schema": "openai-instability-v2",
+  "model": "gpt-4.1-mini-2025-04-14",
   "epochs": 1,
   "seed": 7,
   "training_type": "GlobalStandard",
@@ -11,7 +11,7 @@
   "top_logprobs": 20,
   "bootstrap_samples": 2000,
   "request_attempts": 3,
-  "pilot_limit_usd": 5,
+  "pilot_limit_usd": 7,
   "total_limit_usd": 80,
   "credit_reserve_usd": 20
 }
