@@ -84,6 +84,14 @@ The scientific target flags remain in `hf_report.json`, independently of artifac
 completeness. Large weights stay on cluster storage or in an explicitly approved
 private HF repository, never in the summary PR.
 
+The hosted OpenAI task instead emits `llm_report.json`. Its v2 protocol requires
+exactly eight entries: Jira and Qt, levels 5 and 20, both text and structured
+variants. Levels 10 and 15 are explicitly outside that protocol. Archived v1
+reports still require all 48 original entries. Missing entries, duplicate cells,
+or a project/level outside the report version's scope are rejected. Hosted model
+and prediction references replace HF checkpoint files; raw payloads and
+credentials remain excluded from the bundle.
+
 To summarize only the task definition:
 
 ```bash

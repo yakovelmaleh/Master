@@ -75,7 +75,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=STAGES, required=True)
     parser.add_argument("--storage", required=True)
-    parser.add_argument("--run-id", default="openai-study-01")
+    parser.add_argument("--run-id", default="openai-qt-jira-01")
     parser.add_argument("--partition", required=True)
     parser.add_argument("--time", default="04:00:00")
     parser.add_argument("--mem", default="8G")

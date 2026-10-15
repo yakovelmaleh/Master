@@ -9,7 +9,7 @@ import re
 import sqlite3
 from urllib.parse import urlparse
 
-from protocol import CELLS, PILOT, cell_key, digest
+from protocol import CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, cell_key, digest
 
 CONTROL = Path.home() / ".local/state/master-openai"
 CHECKS = (
@@ -93,7 +93,7 @@ def estimate(prepared, config, approval):
         costs[key] = values
     # Two maximum-sized synthetic capability requests, before fine-tuning.
     smoke = 2 * inference_bound(config["max_input_tokens"], config, approval)
-    control_part = prepared["entries"][cell_key("Jira", 10, "text")]["partitions"]["validation"]
+    control_part = prepared["entries"][cell_key(PILOT_PROJECT, PILOT_LEVEL, "text")]["partitions"]["validation"]
     control = min(20, control_part["rows"]) * inference_bound(control_part["max_tokens"], config, approval)
     pilot = sum(money(costs[cell_key(*cell)][stage]) for cell in PILOT for stage in ("train", "validation"))
     full = sum(money(amount) for item in costs.values() for amount in item.values())

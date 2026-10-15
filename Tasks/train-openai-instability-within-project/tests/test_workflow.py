@@ -180,8 +180,12 @@ class Fixture(unittest.TestCase):
 
 class DataTests(Fixture):
     def test_exact_splits_and_original_feature_serialization(self):
-        prepared = self.prepared()
-        self.assertEqual(len(prepared["entries"]), 48)
+        selected_loader = Mock(side_effect=loader)
+        prepared = prepare(self.root, self.config, FakeTokenizer(), selected_loader)
+        self.assertEqual([call.args[0] for call in selected_loader.call_args_list], ["Jira", "Qt"])
+        expected = {f"{project}-{level}-{variant}" for project in ("Jira", "Qt")
+                    for level in (5, 20) for variant in ("text", "structured")}
+        self.assertEqual(set(prepared["entries"]), expected)
         for cell in CELLS:
             key = cell_key(*cell)
             for split in ("train", "validation", "test"):
@@ -234,15 +238,19 @@ class BudgetTests(Fixture):
 
     def test_boundaries_protected_credit_and_unconfirmed_requests(self):
         approval = self.approval()
-        self.ledger.authorize("a", approval, {"pilot": "5"}, self.config)
-        self.assertIsNone(self.ledger.begin("a", "one", "5", "inference", {}))
+        with self.assertRaisesRegex(ValueError, "cost limit"):
+            self.ledger.authorize("a", approval, {"pilot": "7.00001"}, self.config)
+        self.ledger.authorize("a", approval, {"pilot": "7"}, self.config)
+        self.assertIsNone(self.ledger.begin("a", "one", "7", "inference", {}))
         with self.assertRaisesRegex(ValueError, "exceed"):
             self.ledger.begin("a", "two", ".00001", "inference", {})
         with self.assertRaisesRegex(ValueError, "Unconfirmed"):
-            self.ledger.begin("a", "one", "5", "inference", {})
+            self.ledger.begin("a", "one", "7", "inference", {})
         self.ledger.finish("a", "one", {"score": .4}, actual="1")
-        self.assertEqual(self.ledger.begin("a", "one", "5", "inference", {}), {"score": .4})
+        self.assertEqual(self.ledger.begin("a", "one", "7", "inference", {}), {"score": .4})
         full = self.approval("full")
+        with self.assertRaisesRegex(ValueError, "cost limit"):
+            self.ledger.authorize("a", full, {"full": "80.00001"}, self.config)
         self.ledger.authorize("a", full, {"full": "80"}, self.config)
         with self.assertRaisesRegex(ValueError, "Global"):
             self.ledger.authorize("b", approval, {"pilot": ".01"}, self.config)
@@ -368,16 +376,19 @@ class ScoringTests(unittest.TestCase):
 
 
 class WorkflowTests(Fixture):
-    def test_mocked_48_entry_workflow_and_summary(self):
+    def test_mocked_eight_entry_workflow_and_summary(self):
         self.run_pilot()
+        self.assertEqual({path.stem for path in (self.root / "remote").glob("*.json")},
+                         {"Jira-20-text", "Jira-20-structured"})
+        self.assertIn("Jira/20", read_json(self.root / "base_control.json")["protocol"])
         self.assertFalse((self.root / "final").exists())
         with self.assertRaises(FileNotFoundError):
             runner.seal(self.root)
         self.authorize("full")
-        for _ in range(46):
+        for _ in range(6):
             runner.train_submit(self.root, self.config, self.ledger, self.backend)
             runner.train_status(self.root, self.config, self.ledger, self.backend)
-        self.assertEqual(len(self.backend.jobs), 48)
+        self.assertEqual(len(self.backend.jobs), 8)
         runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
         runner.seal(self.root)
         with self.assertRaisesRegex(ValueError, "sealing"):
@@ -393,9 +404,10 @@ class WorkflowTests(Fixture):
         result = runner.report(self.root, self.ledger, output)
         self.assertTrue(result["complete"])
         self.assertTrue(result["passed"])
-        self.assertEqual(len(result["cells"]), 48)
+        self.assertEqual(result["schema"], "openai-instability-report-v2")
+        self.assertEqual(len(result["cells"]), 8)
         summary.summarize(output.parents[2])
-        self.assertEqual(len((output.parents[2] / "RESULTS.csv").read_text().splitlines()), 49)
+        self.assertEqual(len((output.parents[2] / "RESULTS.csv").read_text().splitlines()), 9)
         runner.cleanup(self.root, self.config, self.ledger, self.backend)
         self.assertEqual(self.backend.files, {})
         self.assertEqual(self.backend.deployments, {})
@@ -452,9 +464,27 @@ class WorkflowTests(Fixture):
 
     def test_missing_report_entries_remain_explicit(self):
         value = runner.report(self.root, self.ledger, self.root / "llm_report.json")
-        self.assertEqual(len(value["cells"]), 48)
+        self.assertEqual(len(value["cells"]), 8)
         self.assertFalse(value["complete"])
         self.assertFalse(value["passed"])
+
+    def test_old_configuration_and_run_cannot_be_reinterpreted_as_reduced_scope(self):
+        old_config = {**self.config, "schema": "openai-instability-v1", "pilot_limit_usd": 5}
+        path = Path(self.temporary.name) / "old-config.json"
+        write_json(path, old_config)
+        with self.assertRaisesRegex(ValueError, "new run ID"):
+            protocol.config_at(path)
+        old_study = {"config": old_config, "fixture": True}
+        storage = Path(self.temporary.name) / "legacy-storage"
+        old_root = storage / "openai-runs/legacy-study"
+        write_json(old_root / "study.json", old_study)
+        with patch.object(protocol, "signature", return_value={"config": self.config, "fixture": True}):
+            with self.assertRaisesRegex(ValueError, "new run ID"):
+                protocol.study(storage, "legacy-study", self.config)
+        with self.assertRaisesRegex(ValueError, "original protocol"):
+            runner.report(old_root, self.ledger, old_root / "llm_report.json")
+        self.assertEqual(read_json(old_root / "study.json"), old_study)
+        self.assertFalse((old_root / "llm_report.json").exists())
 
 
 class LauncherAndBundleTests(Fixture):
@@ -517,10 +547,15 @@ class LauncherAndBundleTests(Fixture):
         (source / "approval.json").write_text("private config")
         (source / "train.jsonl").write_text("training data")
         (source / "linked").symlink_to(source / "prepared", target_is_directory=True)
-        write_json(source / "llm_report.json", {"schema": "openai-instability-report-v1"})
         destination = Path(self.temporary.name) / "bundle"
-        copy_tree(source, destination)
-        self.assertEqual({p.name for p in destination.iterdir()}, {"llm_report.json", "LLM_OMITTED_FILES.json"})
+        for schema in ("openai-instability-report-v1", "openai-instability-report-v2"):
+            write_json(source / "llm_report.json", {"schema": schema})
+            copy_tree(source, destination)
+            self.assertEqual(read_json(destination / "llm_report.json")["schema"], schema)
+            self.assertEqual({p.name for p in destination.iterdir()}, {"llm_report.json", "LLM_OMITTED_FILES.json"})
+        write_json(source / "llm_report.json", {"schema": "unreviewed-scope"})
+        with self.assertRaisesRegex(ValueError, "explicit LLM report schema"):
+            copy_tree(source, destination)
         with self.assertRaisesRegex(ValueError, "symlink"):
             copy_tree(source / "linked", destination)
 
