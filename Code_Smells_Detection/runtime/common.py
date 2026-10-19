@@ -193,4 +193,10 @@ def verify_study(root):
     for name, expected in manifest["inputs"].items():
         if file_hash(root / "cohort" / name) != expected:
             raise ValueError(f"Study input changed: {name}")
+    if "migration_sha256" in manifest:
+        expected = manifest["migration_sha256"]
+        if (not (root / "migration.json").is_file() or not (root / "migration_complete.json").is_file() or
+                file_hash(root / "migration.json") != expected or
+                read_json(root / "migration_complete.json") != {"migration_sha256": expected}):
+            raise ValueError("Run migration is incomplete or its provenance changed.")
     return manifest

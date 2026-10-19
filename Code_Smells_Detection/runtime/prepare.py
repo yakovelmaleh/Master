@@ -1,6 +1,7 @@
 """Enrich fixed Jira IDs and freeze split membership before code exclusions."""
 
 from collections import Counter
+from contextlib import ExitStack
 import csv
 import json
 from pathlib import Path
@@ -8,9 +9,10 @@ import re
 
 import pandas as pd
 
+from . import collection
 from .common import (
     CANDIDATE_HASH, PARTITIONS, SCHEMA, SOURCES, atomic_bytes, digest, file_hash,
-    identifier, immutable_json, now, read_json, require_stage, source_hash,
+    identifier, immutable_json, lock, now, read_json, require_stage, source_hash,
     verify_study, write_csv, write_json,
 )
 from jira_pipeline.client import JiraClient
@@ -31,6 +33,25 @@ FEATURE_COLUMNS = IDENTIFIER_COLUMNS + TEXT_COLUMNS + CATEGORICAL_COLUMNS + NUME
 class CompleteJiraClient(JiraClient):
     """The legacy expanded-changelog fallback must not silently truncate history."""
 
+    def request(self, method, path, **kwargs):
+        try:
+            return super().request(method, path, **kwargs)
+        except RuntimeError as error:
+            raise collection.CollectionError("request_retries_exhausted") from error
+
+    @staticmethod
+    def response_json(response):
+        if response.status_code >= 400:
+            raise collection.CollectionError(
+                collection.REASONS.get(response.status_code, "http_failure"), response.status_code)
+        try:
+            return response.json()
+        except ValueError as error:
+            raise collection.CollectionError("invalid_json") from error
+
+    def json_request(self, method, path, **kwargs):
+        return self.response_json(self.request(method, path, **kwargs))
+
     def pages(self, key, endpoint, fields, fallback=False):
         rows, start, total = [], 0, None
         while True:
@@ -46,8 +67,7 @@ class CompleteJiraClient(JiraClient):
                 if payload.get("total") != len(history) or payload.get("startAt", 0) != 0:
                     raise ValueError(f"Incomplete expanded changelog for {key}")
                 return history
-            response.raise_for_status()
-            payload = response.json()
+            payload = self.response_json(response)
             page = next((payload[name] for name in fields if name in payload), None)
             if not isinstance(page, list) or payload.get("startAt", start) != start:
                 raise ValueError(f"Invalid {endpoint} page for {key}")
@@ -77,7 +97,7 @@ class CompleteJiraClient(JiraClient):
         return self.pages(key, "changelog", ("values", "histories"), fallback=True)
 
 
-def audit(root, candidates, sources, prior_manifest=None):
+def audit(root, candidates, sources, prior_manifest=None, migration_sha256=None):
     candidates, sources = Path(candidates), Path(sources)
     if file_hash(candidates) != CANDIDATE_HASH:
         raise ValueError("Expected the frozen September 10 candidate CSV, not a refreshed cohort.")
@@ -116,6 +136,8 @@ def audit(root, candidates, sources, prior_manifest=None):
             entry[kind] = {"path": str(path), "sha256": file_hash(path)}
     manifest = {"schema": SCHEMA, "source_sha256": source_hash(), "inputs": inputs,
                 "sources": configuration, "min_rows": 100, "prior": prior}
+    if migration_sha256:
+        manifest["migration_sha256"] = migration_sha256
     root.mkdir(parents=True, exist_ok=True)
     if (root / "study.json").exists() and read_json(root / "study.json") != manifest:
         raise ValueError("Study exists with different inputs/configuration.")
@@ -151,12 +173,39 @@ def source_candidates(root, source):
     return frame[frame.source == source]
 
 
-def enrich(root, source, client_factory=CompleteJiraClient):
+def enrich(root, source, client_factory=CompleteJiraClient, missing_records=None, diagnose=False):
+    identifier(source)
+    if source not in verify_study(root)["sources"]:
+        raise ValueError(f"Source is not selected: {source}")
+    if diagnose and missing_records:
+        raise ValueError("Diagnosis cannot approve collection exclusions.")
+    with lock(root / "raw" / source / ".collection.lock"), ExitStack() as resources:
+        def managed_client(url):
+            client = client_factory(url)
+            if getattr(client, "session", None) is not None:
+                resources.callback(client.session.close)
+            return client
+        return collect(root, source, managed_client, missing_records, diagnose)
+
+
+def collect(root, source, client_factory, missing_records, diagnose):
     manifest = verify_study(root)
     candidates = source_candidates(root, source)
     raw = root / "raw" / source
     raw.mkdir(parents=True, exist_ok=True)
     keys = set(candidates.issue_key)
+    if (raw / "manifest.json").exists():
+        saved, approved = collection.load_manifest(root, source, keys)
+        if missing_records and (not approved or
+                                collection.read_review(missing_records) != collection.read_review(raw / "collection_exclusions.json")):
+            raise ValueError("Collection is already finalized with a different approval.")
+        for key, expected in saved["records"].items():
+            if file_hash(raw / f"{key}.json") != expected:
+                raise ValueError(f"Finalized Jira record changed: {key}")
+        print(f"{source}: finalized; {len(saved['records'])} collected, {len(approved)} approved unavailable.", flush=True)
+        return
+    if (raw / "collection_exclusions.json").exists() and not missing_records:
+        raise ValueError("Approval finalization was interrupted; resume with the same --missing-records ledger.")
     previous = prior_file(manifest, source, "raw_jsonl")
     if previous:
         field_map = json.loads(prior_file(manifest, source, "field_map").read_text())
@@ -177,34 +226,73 @@ def enrich(root, source, client_factory=CompleteJiraClient):
                     continue
                 immutable_json(raw / f"{identifier(key)}.json", record)
     missing = [key for key in candidates.issue_key if not (raw / f"{key}.json").exists()]
+    if missing_records:
+        hashes = {key: file_hash(raw / f"{key}.json") for key in sorted(keys - set(missing))}
+        ledger = collection.read_review(missing_records)
+        collection.validate_review(root, source, keys, hashes, ledger,
+                                   read_json(raw / "collection_diagnostics.json"))
+        immutable_json(raw / "collection_exclusions.json", ledger)
+        immutable_json(raw / "manifest.json", {
+            "records": hashes, "field_map": file_hash(raw / "field_map.json"),
+            "collection": {name: file_hash(raw / name) for name in
+                           ("collection_diagnostics.json", "collection_exclusions.json")}})
+        print(f"{source}: finalized with {len(missing)} explicitly approved unavailable records.", flush=True)
+        return
     client = client_factory(manifest["sources"][source]["url"]) if missing else None
     if client:
-        immutable_json(raw / "field_map.json", client.fields())
+        current_fields = client.fields()
+        if (raw / "field_map.json").exists():
+            cached_fields = read_json(raw / "field_map.json")
+            if any(cached_fields.get(name) != current_fields.get(name)
+                   for name in ("Sprint", "Acceptance Criteria", "Story Points")):
+                raise ValueError("Required Jira field mappings changed; do not mix cached and current records.")
+        else:
+            immutable_json(raw / "field_map.json", current_fields)
     if not (raw / "field_map.json").exists():
         raise ValueError("Missing field map for cached Jira records.")
     field_map = read_json(raw / "field_map.json")
-    errors = []
+    errors, observations = [], {}
     for index, key in enumerate(missing):
+        operation = "issue"
         try:
-            record = {"issue": client.issue(key, selected_field_ids(field_map)),
-                      "comments": client.comments(key), "changelog": client.changelog(key),
-                      "collection_complete": True, "collected_at": now()}
-            if record["issue"]["key"] != key:
+            issue = client.issue(key, selected_field_ids(field_map))
+            if not isinstance(issue, dict) or issue.get("key") != key:
                 raise ValueError(f"Jira returned a different key for {key}")
+            operation = "comments"
+            comments = client.comments(key)
+            operation = "changelog"
+            record = {"issue": issue, "comments": comments, "changelog": client.changelog(key),
+                      "collection_complete": True, "collected_at": now()}
+            collection.valid_record(record, key)
             immutable_json(raw / f"{key}.json", record)
         except (ValueError, RuntimeError, OSError) as error:
             errors.append({"issue_key": key, "error_type": type(error).__name__})
-            print(f"Failed Jira collection {source}/{key}: {type(error).__name__}", flush=True)
+            observations[key] = collection.failure(error, operation)
+            print(f"Failed Jira collection {source}/{key}: {observations[key]['reason']} "
+                  f"(HTTP {observations[key]['http_status']}, {operation})", flush=True)
         except Exception:
             # HTTP failures are not swallowed; a failed stage can reuse completed records.
             write_json(raw / "collection_errors.json", errors + [{"issue_key": key, "error_type": "request_failed"}])
             raise
         if (index + 1) % 25 == 0:
-            print(f"{source}: {index + 1}/{len(missing)} downloaded; {len(errors)} failed", flush=True)
+            print(f"{source}: {index + 1}/{len(missing)} attempted; {len(errors)} failed", flush=True)
     write_json(raw / "collection_errors.json", errors)
+    hashes = {}
+    for key in sorted(keys - set(observations)):
+        path = raw / f"{key}.json"
+        collection.valid_record(read_json(path), key)
+        hashes[key] = file_hash(path)
+    checked = collection.controls(client, selected_field_ids(field_map), observations, hashes) if observations else {}
+    diagnostics = collection.diagnostic(root, source, keys, hashes, observations, checked)
+    write_json(raw / "collection_diagnostics.json", diagnostics)
+    write_json(raw / "missing_records.proposed.json",
+               collection.proposal(diagnostics, file_hash(raw / "collection_diagnostics.json")))
+    if diagnose:
+        print(f"{source}: diagnostic complete; {len(hashes)} collected, {len(observations)} unresolved. "
+              "Review collection_diagnostics.json; enrichment is not finalized.", flush=True)
+        return
     if errors:
         raise ValueError(f"{source}: {len(errors)} incomplete records; resolve/retry before freezing.")
-    hashes = {key: file_hash(raw / f"{key}.json") for key in sorted(keys)}
     immutable_json(raw / "manifest.json", {"records": hashes, "field_map": file_hash(raw / "field_map.json")})
 
 
@@ -247,16 +335,20 @@ def freeze(root, source):
     manifest = verify_study(root)
     require_stage(root, "enrich", source)
     raw = root / "raw" / source
-    raw_manifest = read_json(raw / "manifest.json")
-    if file_hash(raw / "field_map.json") != raw_manifest["field_map"]:
-        raise ValueError("Jira field map changed.")
+    candidates = source_candidates(root, source)
+    raw_manifest, unavailable = collection.load_manifest(root, source, set(candidates.issue_key))
     field_map = read_json(raw / "field_map.json")
     rows, decisions = [], []
-    for key in source_candidates(root, source).issue_key:
+    for key in candidates.issue_key:
+        if key in unavailable:
+            decisions.append({"row_id": f"{source}:{key}", "reason": "jira_unavailable",
+                              "collection_reason": unavailable[key]})
+            continue
         path = raw / f"{key}.json"
         if file_hash(path) != raw_manifest["records"][key]:
             raise ValueError(f"Raw record changed: {key}")
         record = read_json(path)
+        collection.valid_record(record, key)
         row, reason = preprocess_record(record, field_map)
         if row is not None:
             try:
@@ -267,7 +359,7 @@ def freeze(root, source):
         if row is not None:
             rows.append(row)
     destination = root / "features" / source
-    write_json(destination / "filter_decisions.json", decisions)
+    immutable_json(destination / "filter_decisions.json", decisions)
     if rows:
         frame = add_previous_creator_counts(pd.DataFrame(rows))
         frame = prepare_feature_frame(frame)
@@ -307,6 +399,8 @@ def freeze(root, source):
              "counts": {name: list(assignment.values()).count(name) for name in PARTITIONS},
              "rows": frame.row_id.tolist(),
              "raw_manifest_sha256": file_hash(raw / "manifest.json")}
+    if unavailable:
+        split["filter_decisions_sha256"] = file_hash(destination / "filter_decisions.json")
     immutable_json(root / "splits" / f"{source}.json", split)
     for partition in PARTITIONS:
         write_csv(root / "splits" / source / f"{partition}_rows.csv",
@@ -316,6 +410,13 @@ def freeze(root, source):
 def frozen_frame(root, source):
     require_stage(root, "freeze", source)
     split = read_json(root / "splits" / f"{source}.json")
+    if "raw_manifest_sha256" in split:
+        if file_hash(root / "raw" / source / "manifest.json") != split["raw_manifest_sha256"]:
+            raise ValueError("Frozen Jira manifest changed.")
+        collection.load_manifest(root, source, set(source_candidates(root, source).issue_key))
+    if ("filter_decisions_sha256" in split and
+            file_hash(root / "features" / source / "filter_decisions.json") != split["filter_decisions_sha256"]):
+        raise ValueError("Frozen preprocessing or collection decisions changed.")
     path = root / "features" / source / "features.csv"
     if file_hash(path) != split["feature_sha256"]:
         raise ValueError(f"Frozen features changed: {source}")

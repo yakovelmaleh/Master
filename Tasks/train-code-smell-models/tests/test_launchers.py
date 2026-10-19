@@ -11,6 +11,35 @@ from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
 class LauncherTests(RuntimeCase):
+    def test_collection_and_migration_arguments_are_forwarded_and_scoped(self):
+        self.frozen_study()
+        environment = {**os.environ, "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ["PATH"]}
+        command = ["bash", str(common.REPO / "Tasks/run_cluster_task.sh"), "prepare-code-smell-dataset",
+                   "--storage", str(self.storage), "--run-id", "test", "--dry-run"]
+        for extra in (
+                ["--stage", "diagnose", "--source", "Apache"],
+                ["--stage", "enrich", "--source", "Apache", "--missing-records", str(self.storage / "approved.json")],
+                ["--stage", "migrate", "--from-run", str(self.storage / "runs/parent")]):
+            output = subprocess.check_output(command + extra, text=True, env=environment)
+            for argument in extra:
+                self.assertIn(argument, output)
+            subprocess.run(["bash", "-n"], input=output, text=True, check=True)
+        for extra in (
+                ["--stage", "enrich", "--missing-records", str(self.storage / "approved.json")],
+                ["--stage", "diagnose", "--source", "Apache", "--missing-records", str(self.storage / "approved.json")],
+                ["--stage", "migrate", "--source", "Apache", "--from-run", str(self.storage / "runs/parent")]):
+            result = subprocess.run(command + extra, capture_output=True, text=True, env=environment)
+            self.assertNotEqual(0, result.returncode)
+        before = common.tree_manifest(self.root)
+        result = subprocess.run([
+            sys.executable, str(common.REPO / "Tasks/prepare-code-smell-dataset/run_task.py"),
+            "--stage", "migrate", "--storage", str(self.storage), "--run-id", "test",
+            "--from-run", str(self.root),
+        ], capture_output=True, text=True, env=environment)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("distinct, non-nested", result.stderr)
+        self.assertEqual(before, common.tree_manifest(self.root))
+
     def test_task_wrappers_dry_run_without_submission(self):
         self.frozen_study()
         environment = {**os.environ, "PATH": str(Path(sys.executable).parent) + os.pathsep + os.environ["PATH"]}

@@ -53,6 +53,8 @@ def main(kind):
     args = arguments.parse_args()
     if args.cpus < 1 or args.stage not in STAGES[kind]:
         raise ValueError("Invalid CPU count or stage.")
+    if args.missing_records is not None and not args.source:
+        raise ValueError("A collection approval requires one explicit --source, not an array.")
     root = study(args.storage, args.run_id)
     if args.stage in SOURCE_STAGES and not args.source:
         if args.stage in ("export-windows", "predict"):
@@ -62,7 +64,7 @@ def main(kind):
         sources = [args.source]
     submission_id = identifier(args.run_id) + "-" + args.stage + "-" + uuid.uuid4().hex[:8]
     run_root = REPO / "Tasks" / TASKS[kind] / "cluster_runs" / submission_id
-    forwarded = ("storage", "run_id", "candidates", "sources", "prior_manifest", "profile",
+    forwarded = ("storage", "run_id", "candidates", "sources", "prior_manifest", "from_run", "missing_records", "profile",
                  "fixture", "expected", "exclusions", "bundle", "config", "report_output", "input", "output", "family", "variant")
     commands = []
     for source in sources:

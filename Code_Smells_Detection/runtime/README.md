@@ -10,6 +10,8 @@ for this experiment.
 | --- | --- |
 | `common.py` | External storage, hashes, immutable artifacts, locks and stage state |
 | `prepare.py` | Fixed cohort, complete Jira history, sprint-entry features and frozen splits |
+| `collection.py` | Sanitized collection diagnostics, explicit missing-record approval and candidate accounting |
+| `migration.py` | Verified, resumable import of pinned original preparation runs into a new study |
 | `evidence.py` | Verified GitHub links, pinned snapshots, changed-file lineage and overlap |
 | `detectors.py` | Pinned profiles, qualification, native reports, attribution and labels |
 | `windows.py` | Checksummed C# export, worker execution and result import |
@@ -21,6 +23,9 @@ Runtime data must live outside the repository. Source manifests cover this
 runtime and reused Jira/model code: change code only between studies, not
 mid-run. Preserve frozen row membership when applying evidence and language
 masks. Never convert inaccessible or incompletely analyzed code to a negative.
+Jira collection remains fail-closed unless a source-specific reviewed ledger
+explicitly approves evidenced unavailable records. Read the preparation task's
+recovery procedure before using `migrate`, `diagnose` or `--missing-records`.
 
 Native adapters accept a configured CSV schema, not arbitrary vendor output.
 Actual profiles must be qualified against a licensed pinned release and

@@ -12,11 +12,12 @@ import numpy as np
 import pandas as pd
 import sklearn
 
+from . import collection
 from .common import (
     COMPARISON, PARTITIONS, SCHEMA, digest, file_hash, immutable_json, lock,
     read_json, require_stage, verify_study, write_csv, write_json,
 )
-from .prepare import FEATURE_COLUMNS, frozen_frame
+from .prepare import FEATURE_COLUMNS, frozen_frame, source_candidates
 from unstable_model.data import prepare_feature_frame
 from unstable_model.features import FeatureTransformer
 from unstable_model.evaluation import calculate_metrics, select_threshold
@@ -302,19 +303,30 @@ def report(root, report_output=None):
     comparisons, multilabel = comparison_summaries(root, expected)
     retention = {"cohort": read_json(root / "cohort/retention.json"), "sources": {}}
     for source in verify_study(root)["sources"]:
+        candidates = source_candidates(root, source)
+        raw, approved = collection.load_manifest(root, source, set(candidates.issue_key))
+        frozen_frame(root, source)
         decisions = read_json(root / "features" / source / "filter_decisions.json")
         retention["sources"][source] = {
-            "preprocessing": dict(Counter(item["reason"] or "included" for item in decisions)),
+            "collection": {**collection.summary(candidates, raw["records"], approved),
+                           "provenance": raw.get("collection", {})},
+            "preprocessing": dict(Counter(item["reason"] or "included" for item in decisions
+                                          if item["reason"] != "jira_unavailable")),
             "splits": dict(Counter(read_json(root / "splits" / f"{source}.json")["assignment"].values())),
             "evidence": read_json(root / "evidence" / source / "audit.json"),
         }
     value = {"schema": "code-smell-report-v1", "stage": "final-test", "fingerprint": expected["fingerprint"],
              "sources": sorted(verify_study(root)["sources"]), "targets": read_json(root / "labels/catalog.json"),
              "complete": True, "results": results,
+             "collection_complete": all(not value["collection"]["approved_unavailable"]
+                                        for value in retention["sources"].values()),
              "paired_comparisons": comparisons, "multilabel": multilabel,
              "retention": retention,
              "coverage": read_json(root / "labels/coverage.json"),
-             "interpretation": "Detector findings in associated files, not introduced defects or story causation."}
+             "interpretation": "Detector findings in associated files, not introduced defects or story causation. "
+                               "Results are conditional on accessible, preprocessing-eligible stories. "
+                               "Approved unavailable candidates have no features, partition or negative label; "
+                               "missingness may be selective and creator-history counts may be incomplete."}
     write_json(root / "reports/code_smell_report.json", value)
     flat = []
     for row in results:
@@ -323,9 +335,15 @@ def report(root, report_output=None):
                      **{key: val for key, val in metrics.items() if not isinstance(val, (list, dict))}})
     frame = pd.DataFrame(flat)
     write_csv(root / "reports/results.csv", frame)
+    collection_table = pd.DataFrame([
+        {"source": source, **{name: details["collection"][name] for name in
+                             ("state", "candidates", "collected_complete", "approved_unavailable", "unresolved")}}
+        for source, details in retention["sources"].items()])
     (root / "reports/report.html").write_text(
         "<!doctype html><meta charset='utf-8'><h1>Story code-smell prediction</h1><p>" +
-        html.escape(value["interpretation"]) + "</p>" + frame.to_html(index=False, escape=True))
+        html.escape(value["interpretation"]) + "</p><h2>Jira collection accounting</h2>" +
+        collection_table.to_html(index=False, escape=True) + "<h2>Model results</h2>" +
+        frame.to_html(index=False, escape=True))
     if report_output:
         write_json(report_output, value)
     return value

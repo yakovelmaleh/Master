@@ -3,15 +3,15 @@
 import argparse
 from pathlib import Path
 
-from .common import REPO, TASKS, digest, stage_state, study, verify_study
+from .common import REPO, TASKS, digest, external, stage_state, study, verify_study
 
 
 STAGES = {
-    "prepare": ("environment", "audit", "enrich", "freeze", "fetch-code"),
+    "prepare": ("environment", "audit", "migrate", "diagnose", "enrich", "freeze", "fetch-code"),
     "detect": ("setup", "qualify", "detect", "export-windows", "import-windows", "labels"),
     "train": ("validate", "train", "seal", "test", "report", "predict"),
 }
-SOURCE_STAGES = {"enrich", "freeze", "fetch-code", "detect", "export-windows", "train", "test", "predict"}
+SOURCE_STAGES = {"diagnose", "enrich", "freeze", "fetch-code", "detect", "export-windows", "train", "test", "predict"}
 
 
 def parser(kind=None):
@@ -27,6 +27,8 @@ def parser(kind=None):
     result.add_argument("--candidates", type=Path)
     result.add_argument("--sources", type=Path)
     result.add_argument("--prior-manifest", type=Path)
+    result.add_argument("--from-run", type=Path)
+    result.add_argument("--missing-records", type=Path)
     result.add_argument("--profile", type=Path)
     result.add_argument("--fixture", type=Path)
     result.add_argument("--expected", type=Path)
@@ -45,7 +47,7 @@ def validate_arguments(args):
     if args.stage not in STAGES[args.kind]:
         raise ValueError(f"Unsupported stage for {args.kind}: {args.stage}")
     required = {
-        "audit": ("candidates", "sources"), "setup": ("profile",),
+        "audit": ("candidates", "sources"), "migrate": ("from_run",), "setup": ("profile",),
         "qualify": ("profile", "fixture", "expected"), "detect": ("profile",),
         "export-windows": ("profile", "bundle"), "import-windows": ("bundle",),
         "predict": ("input", "output", "family", "variant"),
@@ -55,13 +57,21 @@ def validate_arguments(args):
             raise ValueError(f"--{name.replace('_', '-')} is required for {args.stage}.")
     if args.stage in SOURCE_STAGES and not args.source:
         raise ValueError("--source is required for source-level execution.")
+    if args.missing_records is not None and (args.kind != "prepare" or args.stage != "enrich" or not args.source):
+        raise ValueError("--missing-records requires prepare/enrich and one explicit --source.")
+    if args.from_run is not None and (args.kind != "prepare" or args.stage != "migrate" or args.source):
+        raise ValueError("--from-run requires prepare/migrate without --source.")
 
 
 def main(kind=None):
     args = parser(kind).parse_args()
     validate_arguments(args)
     root = study(args.storage, args.run_id)
-    if args.stage not in ("environment", "audit", "setup", "qualify"):
+    if args.stage == "migrate":
+        parent = external(args.from_run)
+        if root == parent or root in parent.parents or parent in root.parents:
+            raise ValueError("Migration must use distinct, non-nested run directories.")
+    if args.stage not in ("environment", "audit", "migrate", "setup", "qualify"):
         verify_study(root)
     unit = args.source or "all"
     if args.stage in ("setup", "qualify", "detect"):
@@ -74,6 +84,10 @@ def main(kind=None):
 
 def dispatch(args, root):
     if args.kind == "prepare":
+        if args.stage == "migrate":
+            from .migration import migrate
+            migrate(root, args.from_run)
+            return
         if args.stage == "environment":
             import json
             import subprocess
@@ -90,8 +104,8 @@ def dispatch(args, root):
         from .evidence import fetch_code
         if args.stage == "audit":
             audit(root, args.candidates, args.sources, args.prior_manifest)
-        elif args.stage == "enrich":
-            enrich(root, args.source)
+        elif args.stage in ("enrich", "diagnose"):
+            enrich(root, args.source, missing_records=args.missing_records, diagnose=args.stage == "diagnose")
         elif args.stage == "freeze":
             freeze(root, args.source)
         else:

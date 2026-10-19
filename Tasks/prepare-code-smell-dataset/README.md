@@ -93,10 +93,115 @@ GitHub access uses `GITHUB_TOKEN` when supplied. Jira authentication follows
 the reused `jira_pipeline.client` environment-variable contract. Do not place
 tokens in task arguments, profiles or committed files.
 
-Unavailable Jira records stop enrichment after recording failures; rerun after
-restoring access. Evidence failures and unsupported links are explicitly
+Unavailable Jira records stop enrichment after recording failures by default;
+rerun after restoring access, or use the explicit reviewed policy below.
+Evidence failures and unsupported links are explicitly
 recorded, not labeled clean. Read the exclusion ledger before accepting cohort
 retention. Detection incompleteness is a separate hard gate in the next task.
+
+## Reviewed unavailable Jira records
+
+Use this path only when authorized access or complete historical records are
+unavailable and the study explicitly accepts collection attrition. It does not
+weaken code-evidence or detector-completeness gates. All original selected
+candidate IDs remain in the cohort; inaccessible issues are never negative
+labels or imputed feature rows.
+
+Code changes require a **new run ID**. Do not edit `study.json` hashes to resume
+an old run. The `migrate` stage supports the pinned original preparation
+implementation (source hash
+`67c6b55de71534f36736c3756b8ab895eb83638b7ed4a7baf6ad2adaec5f2e07`),
+with no prior imports and no downstream evidence/detection/model artifacts.
+It checks input and artifact hashes, copies complete cached records and field
+maps, and imports existing frozen features/splits byte-for-byte. The parent is
+read-only and must have no running stages. Partial-cache hashes are recorded
+at migration time, not misrepresented as harvest-time verification.
+
+```bash
+STORAGE="$HOME/master-code-smells"
+RUN="code-smells-002"
+
+# Submit once; wait for successful completion before subsequent stages.
+bash Tasks/run_cluster_task.sh prepare-code-smell-dataset \
+  --stage migrate --storage "$STORAGE" --run-id "$RUN" \
+  --from-run "$STORAGE/runs/code-smells-001"
+
+# Each command is a separate submission; wait between submissions.
+bash Tasks/run_cluster_task.sh prepare-code-smell-dataset \
+  --stage diagnose --storage "$STORAGE" --run-id "$RUN" --source MongoDB
+bash Tasks/run_cluster_task.sh prepare-code-smell-dataset \
+  --stage diagnose --storage "$STORAGE" --run-id "$RUN" --source RedHat
+```
+
+Migration is resumable with the same arguments and fails on conflicting
+artifacts. It does not copy old successful stage statuses blindly: complete
+collections are checked again; frozen sources must pass `freeze` under the new
+code before they can be used. A recomputed feature/split difference is an error,
+not permission to overwrite an existing split.
+
+`diagnose` attempts only uncached records, keeps newly successful collections,
+and probes known cached issues as source/project access controls. It does not
+finalize enrichment. Inspect these files under `raw/<source>/`:
+
+- `collection_diagnostics.json`: every remaining failed ID, operation, HTTP
+  status, normalized reason, observation time, controls and inventory binding.
+  Credentials, response bodies and raw exception text are not recorded.
+- `missing_records.proposed.json`: **unapproved** review template. Only
+  issue-level 401/403 (`authentication_or_permission_denied`) and 404
+  (`not_found_or_not_visible`) observations are proposed. A 404 does not prove
+  deletion. Legacy `RuntimeError` entries alone are insufficient evidence.
+
+Review every missing ID and the controls. Copy the proposal to an external
+approval file and set `approved` to `true`, `reviewed_at` to the UTC ISO timestamp
+of your review (for example the format `YYYY-MM-DDTHH:MM:SS+00:00`), and
+`review_note` to your actual reason for accepting the exclusions. Keep the
+study/source/candidate/diagnostic hashes and exact issue-to-reason mapping
+unchanged. For any project whose control status is `no_cached_control`,
+explicitly list its project key in `reviewed_uncontrolled_projects` and
+explain your decision in the note. The list must contain exactly those projects.
+Do not put tokens or personal issue content in the ledger.
+
+A failed source/project control blocks approval. Transient HTTP/network
+failures, unexpected JSON, incomplete pagination and comments/changelog-only
+failures remain unresolved; a proposal covering only some missing IDs cannot
+finalize collection. Fix those failures and rerun diagnostics before reviewing
+again. New diagnostics or changed cached bytes invalidate an earlier approval.
+Required custom-field mappings must remain compatible with the cached field
+map; the collector never silently replaces that map.
+
+After review, finalize **one explicit source per approval**:
+
+```bash
+bash Tasks/run_cluster_task.sh prepare-code-smell-dataset \
+  --stage enrich --storage "$STORAGE" --run-id "$RUN" --source MongoDB \
+  --missing-records /external/reviewed-mongodb.json
+# Repeat for RedHat with its own reviewed file after the first job completes.
+# If diagnosis recovered every missing record, run enrich WITHOUT this flag.
+```
+
+Successful finalization pins `collection_exclusions.json` and the diagnostic
+evidence in the raw manifest. The exact candidate set must equal the disjoint
+union of complete records and approved unavailable records. There must be zero
+unresolved records. A finalized approval cannot be changed or silently recovered
+in place; use another study run for a later policy/cohort change. If interrupted
+while finalizing approval, resume with the same approval file.
+
+Once every source is finalized, submit `freeze` for the new run. Unavailable
+records appear in `filter_decisions.json` as `jira_unavailable`, separately from
+ordinary preprocessing failures. They have no reconstructed sprint-entry time,
+feature row or partition; candidate creation dates are **not** substitutes.
+New splits retain the existing post-preprocessing chronological 60/20/20 rule.
+Existing frozen features/splits must remain byte-identical, including Apache's
+454/151/153 membership in the current study. Later evidence/label masks never
+re-split the remaining rows. The 100-fully-labeled-story training gate remains.
+
+Reports distinguish complete collection from complete accounting with approved
+missing records, with attrition by source, project and candidate creation year.
+Model results are conditional on accessible, eligible stories; missingness may
+be selective, and observed creator-history counts may be incomplete. This is a
+disclosed change to study eligibility, not a claim of unbiased full-cohort
+inference. Never exclude all failures merely because a few sampled issues were
+inaccessible.
 
 ## Outputs and restart
 
