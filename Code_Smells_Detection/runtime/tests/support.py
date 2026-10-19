@@ -38,6 +38,16 @@ class RuntimeCase(unittest.TestCase):
                 "time_until_add_to_sprint": 120, "num_issues_cretor_prev": index,
             })
         frame = pd.DataFrame(rows)
+        common.write_csv(self.root / "cohort/candidates.csv", frame[["source", "issue_key", "issue_type", "created"]])
+        common.write_json(self.root / "raw/Apache/field_map.json", {})
+        records = {}
+        for row in rows:
+            raw_path = self.root / "raw/Apache" / f"{row['issue_key']}.json"
+            common.write_json(raw_path, {"issue": {"key": row["issue_key"], "fields": {}},
+                                        "comments": [], "changelog": [], "collection_complete": True})
+            records[row["issue_key"]] = common.file_hash(raw_path)
+        common.write_json(self.root / "raw/Apache/manifest.json", {
+            "records": records, "field_map": common.file_hash(self.root / "raw/Apache/field_map.json")})
         path = self.root / "features/Apache/features.csv"
         common.write_csv(path, frame)
         train_end, val_end = int(count * .6), int(count * .6) + int(count * .2)

@@ -62,6 +62,13 @@ The report includes retention, applicability, model completeness, per-target
 metrics, bootstrap intervals, paired average-precision comparisons and
 per-language common-mask multilabel metrics. Dependence/overlap audits limit
 interpretation: correlated stories are not independent causal evidence.
+Collection attrition is separate from preprocessing and detector coverage.
+`complete` describes final evaluation completion; `collection_complete` is
+false when reviewed unavailable Jira records were excluded. JSON and HTML
+reports disclose that distinction, source-level counts and conditional-cohort
+interpretation. The JSON also reports project and candidate-creation-year
+attrition, approval/diagnostic hashes and reasons. Missing records never appear
+as negative labels or reconstructed feature rows.
 
 Reload saved models on a new CSV with the same feature-column contract:
 
