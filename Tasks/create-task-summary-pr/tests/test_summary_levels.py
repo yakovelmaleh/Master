@@ -61,6 +61,33 @@ class SummaryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "48"):
                 module.summarize(root)
 
+    def test_reduced_llm_report_requires_exact_approved_eight_entries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "artifacts/results/llm_report.json"
+            path.parent.mkdir(parents=True)
+            cells = [{"project": project, "level": level, "variant": variant, "status": "missing"}
+                     for project in ("Jira", "Qt") for level in (5, 20)
+                     for variant in ("text", "structured")]
+            report = {"schema": "openai-instability-report-v2", "stage": "final-test", "cells": cells}
+            path.write_text(json.dumps(report))
+            module.summarize(root)
+            with (root / "LEVELS.csv").open() as stream:
+                rows = list(csv.DictReader(stream))
+            self.assertEqual(len(rows), 8)
+            self.assertEqual({row["project"] for row in rows}, {"Jira", "Qt"})
+            self.assertEqual({row["level"] for row in rows}, {"5", "20"})
+            self.assertTrue(all(row["coverage"] == "incomplete" for row in rows))
+            self.assertIn("levels 10 and 15 are outside that protocol",
+                          (root / "LEVEL_SUMMARY.md").read_text())
+            for invalid in (cells[:-1], cells[:-1] + [cells[0]],
+                            [{**cells[0], "project": "Apache"}] + cells[1:],
+                            [{**cells[0], "level": 10}] + cells[1:]):
+                with self.subTest(cells=invalid):
+                    path.write_text(json.dumps({**report, "cells": invalid}))
+                    with self.assertRaisesRegex(ValueError, "exactly all 8"):
+                        module.summarize(root)
+
     def test_grouped_job_reports_missing_levels_and_failed_runs(self):
         with tempfile.TemporaryDirectory() as directory:
             bundle = Path(directory)

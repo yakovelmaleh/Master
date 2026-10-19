@@ -64,6 +64,7 @@ def summarize(bundle):
         return
     coverage = []
     results = []
+    reduced_openai = False
     accounted = set()
     metric_fields = ["auc_prc", "average_precision", "accuracy", "roc_auc",
                      "precision", "recall", "f1", "row_count", "positive_rate"]
@@ -139,14 +140,21 @@ def summarize(bundle):
                                 "metrics_path": str(path.relative_to(bundle))})
     for path in sorted(artifacts.rglob("llm_report.json")):
         report = json.loads(path.read_text())
-        if report.get("schema") != "openai-instability-report-v1" or report.get("stage") != "final-test":
+        schemas = {
+            "openai-instability-report-v1": (
+                ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt"), (5, 10, 15, 20)),
+            "openai-instability-report-v2": (("Jira", "Qt"), (5, 20)),
+        }
+        if report.get("schema") not in schemas or report.get("stage") != "final-test":
             raise ValueError("LLM report must identify the final-test protocol.")
+        projects, levels = schemas[report["schema"]]
+        reduced_openai |= report["schema"] == "openai-instability-report-v2"
         expected = {(project, level, variant)
-                    for project in ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt")
-                    for level in (5, 10, 15, 20) for variant in ("text", "structured")}
+                    for project in projects
+                    for level in levels for variant in ("text", "structured")}
         cells = report["cells"]
-        if len(cells) != 48 or {(c["project"], c["level"], c["variant"]) for c in cells} != expected:
-            raise ValueError("LLM report must account for exactly all 48 model/variant entries.")
+        if len(cells) != len(expected) or {(c["project"], c["level"], c["variant"]) for c in cells} != expected:
+            raise ValueError(f"LLM report must account for exactly all {len(expected)} model/variant entries.")
         for cell in cells:
             reference = cell.get("model_reference", {})
             complete = (cell.get("status") == "complete" and "test" in cell
@@ -197,6 +205,8 @@ def summarize(bundle):
         "- Published historical reference CSVs are kept separately; they are not matched rerun scores.\n"
         "- AUC-PRC is trapezoidal PR area; average precision is a separate metric. Blank means not recorded.\n"
     )
+    if reduced_openai:
+        text += "- OpenAI v2 covers only Jira and Qt at levels 5 and 20, both variants; levels 10 and 15 are outside that protocol.\n"
     (bundle / "LEVEL_SUMMARY.md").write_text(text)
     print(text)
 
