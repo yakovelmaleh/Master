@@ -1,0 +1,80 @@
+{
+  "test": {
+    "accuracy": 0.8891920251836306,
+    "auc_prc": 0.0820352506791452,
+    "average_precision": 0.084115513616915,
+    "balanced_accuracy": 0.5660093357172454,
+    "confusion_matrix": [
+      [
+        4196,
+        378
+      ],
+      [
+        150,
+        41
+      ]
+    ],
+    "f1": 0.13442622950819674,
+    "first_sprint_entry": "2021-09-29T05:43:37",
+    "last_sprint_entry": "2023-04-27T18:22:56",
+    "positive_count": 191,
+    "positive_rate": 0.04008394543546694,
+    "precision": 0.09785202863961814,
+    "recall": 0.21465968586387435,
+    "roc_auc": 0.6778788371331702,
+    "row_count": 4765,
+    "threshold": 0.6599999999999999
+  },
+  "train": {
+    "accuracy": 0.855733575876303,
+    "auc_prc": 0.175221285143473,
+    "average_precision": 0.1760891967094827,
+    "balanced_accuracy": 0.6118473295019105,
+    "confusion_matrix": [
+      [
+        11903,
+        1391
+      ],
+      [
+        671,
+        328
+      ]
+    ],
+    "f1": 0.24135393671817512,
+    "first_sprint_entry": "2006-08-23T06:57:12",
+    "last_sprint_entry": "2019-12-16T10:53:39",
+    "positive_count": 999,
+    "positive_rate": 0.06989435387952145,
+    "precision": 0.1908086096567772,
+    "recall": 0.3283283283283283,
+    "roc_auc": 0.7489067975753698,
+    "row_count": 14293,
+    "threshold": 0.6599999999999999
+  },
+  "validation": {
+    "accuracy": 0.8469773299748111,
+    "auc_prc": 0.16643672089942604,
+    "average_precision": 0.16793336521744062,
+    "balanced_accuracy": 0.6280310322243828,
+    "confusion_matrix": [
+      [
+        3918,
+        535
+      ],
+      [
+        194,
+        117
+      ]
+    ],
+    "f1": 0.2429906542056075,
+    "first_sprint_entry": "2019-12-16T12:37:11",
+    "last_sprint_entry": "2021-09-29T05:39:56",
+    "positive_count": 311,
+    "positive_rate": 0.06528127623845507,
+    "precision": 0.1794478527607362,
+    "recall": 0.3762057877813505,
+    "roc_auc": 0.7240626103432565,
+    "row_count": 4764,
+    "threshold": 0.6599999999999999
+  }
+}

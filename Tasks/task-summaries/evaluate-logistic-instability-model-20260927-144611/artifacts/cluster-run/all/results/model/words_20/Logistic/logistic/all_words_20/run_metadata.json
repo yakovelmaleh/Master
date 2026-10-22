@@ -1,0 +1,13 @@
+{
+  "best_validation_log_loss": 0.6159776814100205,
+  "created_at_utc": "2026-09-24T18:24:43.504944+00:00",
+  "data_root": "/home/yakovelm/Master/Tasks/evaluate-logistic-instability-model/cluster_runs/20260924-212357-961761/all/results/input_layout",
+  "feature_policy": "pre_sprint_only",
+  "label_column": "is_change_text_num_words_20",
+  "model": "dependency_light_logistic_regression",
+  "project": "all",
+  "selected_threshold": 0.6599999999999999,
+  "split_strategy": "chronological_60_20_20",
+  "threshold_strategy": "maximum_validation_f1",
+  "training_iterations": 2000
+}

@@ -1,0 +1,5 @@
+run,project,level,model,variant,job_status,coverage,missing_files
+cluster-run,all,5,Logistic,logistic,succeeded,complete,
+cluster-run,all,10,Logistic,logistic,succeeded,complete,
+cluster-run,all,15,Logistic,logistic,succeeded,complete,
+cluster-run,all,20,Logistic,logistic,succeeded,complete,

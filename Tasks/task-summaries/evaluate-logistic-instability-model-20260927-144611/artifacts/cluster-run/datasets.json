@@ -1,0 +1,8 @@
+{
+  "Apache": "/home/yakovelm/Master/Data/Apache/features_labels_table_os.csv",
+  "Hyperledger": "/home/yakovelm/Master/Data/Hyperledger/features_labels_table_os.csv",
+  "IntelDAOS": "/home/yakovelm/Master/Data/IntelDAOS/features_labels_table_os.csv",
+  "Jira": "/home/yakovelm/Master/Data/Jira/features_labels_table_os.csv",
+  "MariaDB": "/home/yakovelm/Master/Data/MariaDB/features_labels_table_os.csv",
+  "Qt": "/home/yakovelm/Master/Data/Qt/features_labels_table_os.csv"
+}
