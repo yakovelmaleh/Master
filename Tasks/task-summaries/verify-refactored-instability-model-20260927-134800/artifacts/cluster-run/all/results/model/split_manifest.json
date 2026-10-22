@@ -1,0 +1,74 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2021-09-29 05:43:37",
+      "last_sprint_entry": "2023-04-27 18:22:56",
+      "positive_counts": {
+        "10": 325,
+        "15": 240,
+        "20": 191,
+        "5": 504
+      },
+      "row_ids_sha256": "181521dbae0ae27219420d0a5f878caae34cbec6dc080320464dd70b99ea709f",
+      "rows": 4765,
+      "source_counts": {
+        "Apache": 1841,
+        "Jira": 16,
+        "MariaDB": 239,
+        "Qt": 2669
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2006-08-23 06:57:12",
+      "last_sprint_entry": "2019-12-16 10:53:39",
+      "positive_counts": {
+        "10": 1703,
+        "15": 1452,
+        "20": 999,
+        "5": 2114
+      },
+      "row_ids_sha256": "a5e2cca916f9797ce249d69ca0e280048d80b5b9f8d5b4fc37edbaeb0d958d7c",
+      "rows": 14293,
+      "source_counts": {
+        "Apache": 5006,
+        "Hyperledger": 4380,
+        "IntelDAOS": 1258,
+        "Jira": 1530,
+        "MariaDB": 1365,
+        "Qt": 754
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2019-12-16 12:37:11",
+      "last_sprint_entry": "2021-09-29 05:39:56",
+      "positive_counts": {
+        "10": 451,
+        "15": 364,
+        "20": 311,
+        "5": 572
+      },
+      "row_ids_sha256": "1ee57e9c7f89b88b487e016294a3f96d5b54651b80e646f445fefb2602a7baf7",
+      "rows": 4764,
+      "source_counts": {
+        "Apache": 825,
+        "Hyperledger": 436,
+        "IntelDAOS": 408,
+        "Jira": 28,
+        "MariaDB": 379,
+        "Qt": 2688
+      }
+    }
+  },
+  "project": "all",
+  "protocol": "pooled",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}
