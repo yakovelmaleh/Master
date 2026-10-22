@@ -1,0 +1,7 @@
+project	levels	job_id	results	log	sbatch
+Apache	5,10,15,20	21666003	apache/results	apache/logs/job-%J.out	apache/submit.sbatch
+Hyperledger	5,10,15,20	21666004	hyperledger/results	hyperledger/logs/job-%J.out	hyperledger/submit.sbatch
+IntelDAOS	5,10,15,20	21666005	inteldaos/results	inteldaos/logs/job-%J.out	inteldaos/submit.sbatch
+Jira	5,10,15,20	21666006	jira/results	jira/logs/job-%J.out	jira/submit.sbatch
+MariaDB	5,10,15,20	21666007	mariadb/results	mariadb/logs/job-%J.out	mariadb/submit.sbatch
+Qt	5,10,15,20	21666008	qt/results	qt/logs/job-%J.out	qt/submit.sbatch

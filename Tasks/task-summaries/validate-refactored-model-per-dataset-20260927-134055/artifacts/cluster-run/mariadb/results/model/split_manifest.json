@@ -1,0 +1,61 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2021-03-05 17:11:17",
+      "last_sprint_entry": "2023-04-04 10:33:05",
+      "positive_counts": {
+        "10": 44,
+        "15": 33,
+        "20": 28,
+        "5": 61
+      },
+      "row_ids_sha256": "32569f81abe52dccb12160de2eb366b8e23217c85873d445c6dcc9ae5eba8733",
+      "rows": 398,
+      "source_counts": {
+        "MariaDB": 398
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2014-05-27 14:43:09",
+      "last_sprint_entry": "2019-02-04 16:44:24",
+      "positive_counts": {
+        "10": 100,
+        "15": 84,
+        "20": 77,
+        "5": 125
+      },
+      "row_ids_sha256": "6a15b9a09abfa1d7943452b9de7b48f1aa7389033984fb1ab0f4adb768e9e1e6",
+      "rows": 1189,
+      "source_counts": {
+        "MariaDB": 1189
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2019-02-05 07:53:45",
+      "last_sprint_entry": "2021-03-05 12:46:10",
+      "positive_counts": {
+        "10": 18,
+        "15": 16,
+        "20": 12,
+        "5": 26
+      },
+      "row_ids_sha256": "07c50b9e91fbdc52013a00aaa728136366303a2c1867b2aee250f56c6f52cee3",
+      "rows": 396,
+      "source_counts": {
+        "MariaDB": 396
+      }
+    }
+  },
+  "project": "MariaDB",
+  "protocol": "within-project",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_5.csv",
+    "sha256": "be7f42dd9e30166fe9e6617fabd74acab7de441f6a66b09ae8d62fb3bf7df461",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_10.csv",
+    "sha256": "253595d6563da353378e332d132cf22249aca1daecaa1b9dc2917aedd5ee28c3",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_15.csv",
+    "sha256": "ea8ddc7620e8b6ece5694999db867f374e45ddeb8798875011aa0432b492a432",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/IntelDAOS/results_groups_IntelDAOS_is_change_text_num_words_20.csv",
+    "sha256": "dd73a616f2b00a679c60ac585c44bfe04566f6ac271763c5cb48be0429f9e058",
+    "status": "available"
+  }
+]

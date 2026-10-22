@@ -1,0 +1,61 @@
+{
+  "baseline_definition": "unweighted model-family rerun, not the published old pipeline",
+  "feature_policy": "same_pre_sprint_transform_for_both_variants",
+  "historical_pipeline_replayed": false,
+  "partitions": {
+    "test": {
+      "first_sprint_entry": "2022-08-24 15:41:42",
+      "last_sprint_entry": "2023-04-27 18:22:56",
+      "positive_counts": {
+        "10": 60,
+        "15": 43,
+        "20": 34,
+        "5": 118
+      },
+      "row_ids_sha256": "348b2c748a858112d8e6ea3e97459a85df3f9159a1da7df1b2f651efcbf23399",
+      "rows": 1223,
+      "source_counts": {
+        "Qt": 1223
+      }
+    },
+    "train": {
+      "first_sprint_entry": "2016-11-17 12:16:04",
+      "last_sprint_entry": "2021-11-22 08:44:53",
+      "positive_counts": {
+        "10": 291,
+        "15": 233,
+        "20": 198,
+        "5": 389
+      },
+      "row_ids_sha256": "31a2e8a9b43077e1a1c3f3e9781ccb6fb4f5dc2aae34d048d8f7b611af373829",
+      "rows": 3666,
+      "source_counts": {
+        "Qt": 3666
+      }
+    },
+    "validation": {
+      "first_sprint_entry": "2021-11-22 08:49:29",
+      "last_sprint_entry": "2022-08-24 15:40:41",
+      "positive_counts": {
+        "10": 69,
+        "15": 58,
+        "20": 48,
+        "5": 84
+      },
+      "row_ids_sha256": "b642f38b0b53f23ae37afe02490b6d9d332957d2a68e8b852ebdc2ebd09b3181",
+      "rows": 1222,
+      "source_counts": {
+        "Qt": 1222
+      }
+    }
+  },
+  "project": "Qt",
+  "protocol": "within-project",
+  "selection_metric": "validation_auc_prc",
+  "test_weights": "none",
+  "versions": {
+    "numpy": "1.23.5",
+    "pandas": "2.0.1",
+    "sklearn": "1.2.2"
+  }
+}

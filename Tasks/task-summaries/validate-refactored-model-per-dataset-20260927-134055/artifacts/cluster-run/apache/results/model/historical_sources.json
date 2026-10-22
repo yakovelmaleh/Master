@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_5.csv",
+    "sha256": "c97e6252f053fba053619b15c835e638f22c8a7563b4c3b5010d3da093940782",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_10.csv",
+    "sha256": "b0cf12155946c56247673837c5507f36e161c47dba28147dbab68cf0e24b147d",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_15.csv",
+    "sha256": "c41221bc54afc9eaa2209a03602788de877144f516ec2cd8236cb9485f802f8e",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Apache/results_groups_Apache_is_change_text_num_words_20.csv",
+    "sha256": "f19283feb51acd4ce5d45f683215ad3806a24b5617045bdb142df3277b1fd001",
+    "status": "available"
+  }
+]

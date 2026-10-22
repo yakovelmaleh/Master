@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_5.csv",
+    "sha256": "0c2e5d05ebf9058e007fd7374c5b3f472270f78a7d4281127dce2673a4c6d5a1",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_10.csv",
+    "sha256": "4265fd06ee30c9da11d21e0385478d2a6a01ee2f3acd0b9c110553f7f66d08d3",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_15.csv",
+    "sha256": "41ab80b693f915334ff3c45fc9fae0cea4516b30e01543195fa70412e3eb1beb",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Jira/results_groups_Jira_is_change_text_num_words_20.csv",
+    "sha256": "a931f264897180b765a5cb85873028ed5933ddd615507504e71a970f2e65b7c8",
+    "status": "available"
+  }
+]

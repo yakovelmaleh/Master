@@ -1,0 +1,13 @@
+project,level,model,estimator_class,variant,directly_comparable,auc_prc,average_precision,accuracy,roc_auc
+Apache,5,RF,RandomForestClassifier,published_historical_reference,False,0.2045097607816788,0.208118160822107,0.8762214983713354,0.6555194678145178
+Apache,5,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.18389222904802,0.1873307166454371,0.8762214983713354,0.6257562120915672
+Apache,5,NN,MLPClassifier,published_historical_reference,False,0.1436507603322908,0.1454411457267737,0.8762214983713354,0.564147916259049
+Apache,10,RF,RandomForestClassifier,published_historical_reference,False,0.1231517019609542,0.1255608811689805,0.923127035830619,0.6659928471466334
+Apache,10,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.1201760314133482,0.1236263336272972,0.923127035830619,0.6370465174694688
+Apache,10,NN,MLPClassifier,published_historical_reference,False,0.0861930476811912,0.088425007501862,0.8781758957654723,0.5075535566905494
+Apache,15,RF,RandomForestClassifier,published_historical_reference,False,0.0955355966455099,0.0987887972849491,0.9472312703583062,0.705236300032265
+Apache,15,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.0832968198317729,0.0860120265168136,0.9472312703583062,0.6482245656936165
+Apache,15,NN,MLPClassifier,published_historical_reference,False,0.0631462079574712,0.0651521655840579,0.9472312703583062,0.5310085417834157
+Apache,20,RF,RandomForestClassifier,published_historical_reference,False,0.0663491370958029,0.0692715492645895,0.9615635179153096,0.6935602406871526
+Apache,20,XGboost,GradientBoostingClassifier,published_historical_reference,False,0.0661480941581356,0.0696840213819419,0.9602605863192184,0.6979238436452161
+Apache,20,NN,MLPClassifier,published_historical_reference,False,0.0575079763963087,0.0601845015096163,0.9237785016286644,0.6002021037159523

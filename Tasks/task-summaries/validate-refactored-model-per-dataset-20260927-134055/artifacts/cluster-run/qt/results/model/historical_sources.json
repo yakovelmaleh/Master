@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_5.csv",
+    "sha256": "1018c8cf11d934deeac1c8d05feb03a631782c4202ba460f94e049e0b39e8d1d",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_10.csv",
+    "sha256": "509524c3f67b0827f37e3f2ed30dd397c6898cddc3c75b9e52f2aea13b4c6029",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_15.csv",
+    "sha256": "03abea7062afc69a27ce889a7147d7ce5f0dbe7e57bb4a838ee6c7fb98b5910c",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/Qt/results_groups_Qt_is_change_text_num_words_20.csv",
+    "sha256": "b95a0f4add9d936acf60c3a728534bbdf1ceddb1e6742b280f27df20999d44b9",
+    "status": "available"
+  }
+]

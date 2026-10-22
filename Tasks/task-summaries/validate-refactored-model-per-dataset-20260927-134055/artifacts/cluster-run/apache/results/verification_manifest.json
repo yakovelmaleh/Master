@@ -1,0 +1,80 @@
+{
+  "comparison_config": {
+    "models": {
+      "NN": [
+        {
+          "alpha": 0.001,
+          "hidden_layer_sizes": [
+            100
+          ],
+          "max_iter": 600
+        },
+        {
+          "alpha": 0.01,
+          "hidden_layer_sizes": [
+            100,
+            50
+          ],
+          "max_iter": 600
+        }
+      ],
+      "RF": [
+        {
+          "max_depth": null,
+          "min_samples_leaf": 2,
+          "n_estimators": 200
+        },
+        {
+          "max_depth": 12,
+          "min_samples_leaf": 4,
+          "n_estimators": 200
+        }
+      ],
+      "XGboost": [
+        {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        },
+        {
+          "learning_rate": 0.05,
+          "max_depth": 2,
+          "n_estimators": 200
+        }
+      ]
+    },
+    "seed": 7
+  },
+  "comparison_performed": true,
+  "created_at_utc": "2026-09-24T18:23:02.545746+00:00",
+  "datasets_file": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260924-212251-041726/datasets.json",
+  "experiment": "comparison",
+  "historical_pipeline_replayed": false,
+  "inputs": {
+    "Apache": {
+      "path": "/home/yakovelm/Master/Data/Apache/features_labels_table_os.csv",
+      "sha256": "737a3f342698a30c1f19859e0e303b41be04b1773cd56d6aaa9a08e7b5791a08",
+      "size_bytes": 13675865
+    }
+  },
+  "label_thresholds": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "model_run_directory": "/home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260924-212251-041726/apache/results/model",
+  "models": [
+    "RF",
+    "XGboost",
+    "NN"
+  ],
+  "project": "Apache",
+  "protocol": "within-project",
+  "result_count": 24,
+  "status": "succeeded",
+  "variants": [
+    "baseline",
+    "refactored"
+  ]
+}

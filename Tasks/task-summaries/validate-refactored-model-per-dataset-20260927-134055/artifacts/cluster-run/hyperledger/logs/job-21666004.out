@@ -1,0 +1,30 @@
+------------------------------------
+Thu 24 Sep 2026 21:22:57 IDT
+SLURM_JOBID:		21666004
+SLURM_JOB_NODELIST:	ise-cpu-intl-22
+SLURM_SCRATCH_DIR:	
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666004 NODE=ise-cpu-intl-22
+Project: Hyperledger; levels: 5,10,15,20
+Starting Hyperledger: unstable level 5
+Completed Hyperledger: unstable level 5
+Starting Hyperledger: unstable level 10
+Completed Hyperledger: unstable level 10
+Starting Hyperledger: unstable level 15
+Completed Hyperledger: unstable level 15
+Starting Hyperledger: unstable level 20
+Completed Hyperledger: unstable level 20
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+Verification manifest: /home/yakovelm/Master/Tasks/validate-refactored-model-per-dataset/cluster_runs/20260924-212251-041726/hyperledger/results/verification_manifest.json

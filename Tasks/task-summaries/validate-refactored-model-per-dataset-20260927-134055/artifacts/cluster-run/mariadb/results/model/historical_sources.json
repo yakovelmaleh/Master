@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_5.csv",
+    "sha256": "07d1925166769cfca2fd18d5defbb8749784846866f2700cdeea5a3ce1f1adae",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_10.csv",
+    "sha256": "0b6255f765eae9160ceb4b8f6d03b296c92ab1f35290c66af7874d1725e6928f",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_15.csv",
+    "sha256": "7f4a3362af086110156861e51dab6cbe340e9f020d70ff12cfe55cdea2949d43",
+    "status": "available"
+  },
+  {
+    "path": "Models/results_best_para/MariaDB/results_groups_MariaDB_is_change_text_num_words_20.csv",
+    "sha256": "78d60513aec417aa813f957261a93a7f63c10a51293eda933febe6db60041c01",
+    "status": "available"
+  }
+]
