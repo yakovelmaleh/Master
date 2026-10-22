@@ -1,0 +1,20 @@
+------------------------------------
+Thu 24 Sep 2026 21:23:13 IDT
+SLURM_JOBID:		21666013
+SLURM_JOB_NODELIST:	ise-cpu-intl-01
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666013
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666013 NODE=ise-cpu-intl-01
+Project: all; levels: 5,10,15,20
+Starting all: unstable level 5
+Completed all: unstable level 5
+Starting all: unstable level 10
+Completed all: unstable level 10
+Starting all: unstable level 15
+Completed all: unstable level 15
+Starting all: unstable level 20
+Completed all: unstable level 20
+Verification manifest: /home/yakovelm/Master/Tasks/verify-refactored-instability-model/cluster_runs/20260924-212306-286254/all/results/verification_manifest.json
