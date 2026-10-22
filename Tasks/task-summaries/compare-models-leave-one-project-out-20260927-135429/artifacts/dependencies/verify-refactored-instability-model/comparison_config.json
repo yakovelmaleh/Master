@@ -1,0 +1,17 @@
+{
+  "seed": 7,
+  "models": {
+    "RF": [
+      {"n_estimators": 200, "max_depth": null, "min_samples_leaf": 2},
+      {"n_estimators": 200, "max_depth": 12, "min_samples_leaf": 4}
+    ],
+    "XGboost": [
+      {"n_estimators": 100, "max_depth": 3, "learning_rate": 0.1},
+      {"n_estimators": 200, "max_depth": 2, "learning_rate": 0.05}
+    ],
+    "NN": [
+      {"hidden_layer_sizes": [100], "max_iter": 600, "alpha": 0.001},
+      {"hidden_layer_sizes": [100, 50], "max_iter": 600, "alpha": 0.01}
+    ]
+  }
+}

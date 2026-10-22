@@ -1,0 +1,22 @@
+------------------------------------
+Thu 24 Sep 2026 21:23:45 IDT
+SLURM_JOBID:		21666031
+SLURM_JOB_NODELIST:	ise-cpu128-14
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666031
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666031 NODE=ise-cpu128-14
+Project: Qt; levels: 5,10,15,20
+Starting Qt: unstable level 5
+Completed Qt: unstable level 5
+Starting Qt: unstable level 10
+Completed Qt: unstable level 10
+Starting Qt: unstable level 15
+Completed Qt: unstable level 15
+Starting Qt: unstable level 20
+Completed Qt: unstable level 20
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+Verification manifest: /home/yakovelm/Master/Tasks/compare-models-leave-one-project-out/cluster_runs/20260924-212328-564730/qt/results/verification_manifest.json

@@ -1,0 +1,22 @@
+------------------------------------
+Thu 24 Sep 2026 21:23:45 IDT
+SLURM_JOBID:		21666026
+SLURM_JOB_NODELIST:	ise-cpu-intl-01
+SLURM_SCRATCH_DIR:	/scratch/yakovelm/21666026
+Allocated Resouces:	cpu - 6 / mem - 16384 MB / gpu - 
+SLURM_GPU_INDEX:	
+Running as yakovelm from sturm account with normal QOS
+------------------------------------
+SLURM_JOB_ID=21666026 NODE=ise-cpu-intl-01
+Project: Apache; levels: 5,10,15,20
+Starting Apache: unstable level 5
+Completed Apache: unstable level 5
+Starting Apache: unstable level 10
+Completed Apache: unstable level 10
+Starting Apache: unstable level 15
+Completed Apache: unstable level 15
+Starting Apache: unstable level 20
+Completed Apache: unstable level 20
+/home/yakovelm/Master/Tasks/verify-refactored-instability-model/model_comparison.py:218: ConvergenceWarning: Stochastic Optimizer: Maximum iterations (600) reached and the optimization hasn't converged yet.
+  warnings.warn(str(warning.message), warning.category)
+Verification manifest: /home/yakovelm/Master/Tasks/compare-models-leave-one-project-out/cluster_runs/20260924-212328-564730/apache/results/verification_manifest.json

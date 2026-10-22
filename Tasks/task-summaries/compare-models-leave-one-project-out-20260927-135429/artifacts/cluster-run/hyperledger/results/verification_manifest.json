@@ -1,0 +1,105 @@
+{
+  "comparison_config": {
+    "models": {
+      "NN": [
+        {
+          "alpha": 0.001,
+          "hidden_layer_sizes": [
+            100
+          ],
+          "max_iter": 600
+        },
+        {
+          "alpha": 0.01,
+          "hidden_layer_sizes": [
+            100,
+            50
+          ],
+          "max_iter": 600
+        }
+      ],
+      "RF": [
+        {
+          "max_depth": null,
+          "min_samples_leaf": 2,
+          "n_estimators": 200
+        },
+        {
+          "max_depth": 12,
+          "min_samples_leaf": 4,
+          "n_estimators": 200
+        }
+      ],
+      "XGboost": [
+        {
+          "learning_rate": 0.1,
+          "max_depth": 3,
+          "n_estimators": 100
+        },
+        {
+          "learning_rate": 0.05,
+          "max_depth": 2,
+          "n_estimators": 200
+        }
+      ]
+    },
+    "seed": 7
+  },
+  "comparison_performed": true,
+  "created_at_utc": "2026-09-24T18:24:18.309067+00:00",
+  "datasets_file": "/home/yakovelm/Master/Tasks/compare-models-leave-one-project-out/cluster_runs/20260924-212328-564730/datasets.json",
+  "experiment": "comparison",
+  "historical_pipeline_replayed": false,
+  "inputs": {
+    "Apache": {
+      "path": "/home/yakovelm/Master/Data/Apache/features_labels_table_os.csv",
+      "sha256": "737a3f342698a30c1f19859e0e303b41be04b1773cd56d6aaa9a08e7b5791a08",
+      "size_bytes": 13675865
+    },
+    "Hyperledger": {
+      "path": "/home/yakovelm/Master/Data/Hyperledger/features_labels_table_os.csv",
+      "sha256": "66159291c7c0bbf268afd1d00bf91098425cc7a02e31ebd0dd8d469b567464ec",
+      "size_bytes": 8510489
+    },
+    "IntelDAOS": {
+      "path": "/home/yakovelm/Master/Data/IntelDAOS/features_labels_table_os.csv",
+      "sha256": "3ba037bf5591509babae309019a6d7a8c7c95e6fad8463d47e03ad362b2ab833",
+      "size_bytes": 2429856
+    },
+    "Jira": {
+      "path": "/home/yakovelm/Master/Data/Jira/features_labels_table_os.csv",
+      "sha256": "26a3beb4ab889fef45df3b212fd5b742b26811f08d03c848607066687e5d8765",
+      "size_bytes": 3750039
+    },
+    "MariaDB": {
+      "path": "/home/yakovelm/Master/Data/MariaDB/features_labels_table_os.csv",
+      "sha256": "2dbc1341156c625eafa799b58f17a1f9c317e74d27a5952db3eff36f07967c2e",
+      "size_bytes": 3887223
+    },
+    "Qt": {
+      "path": "/home/yakovelm/Master/Data/Qt/features_labels_table_os.csv",
+      "sha256": "be7d3674003a64e80214951607f4b85ecf070b79c435340f83d4b1f632b65c2a",
+      "size_bytes": 8824785
+    }
+  },
+  "label_thresholds": [
+    5,
+    10,
+    15,
+    20
+  ],
+  "model_run_directory": "/home/yakovelm/Master/Tasks/compare-models-leave-one-project-out/cluster_runs/20260924-212328-564730/hyperledger/results/model",
+  "models": [
+    "RF",
+    "XGboost",
+    "NN"
+  ],
+  "project": "Hyperledger",
+  "protocol": "leave-one-project-out",
+  "result_count": 24,
+  "status": "succeeded",
+  "variants": [
+    "baseline",
+    "refactored"
+  ]
+}
