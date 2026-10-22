@@ -1,0 +1,119 @@
+{
+  "levels": {
+    "10": {
+      "negative_count": 829,
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2021-10-11T03:10:54.242000",
+          "last_sprint_entry": "2025-04-09T21:08:00",
+          "positive_count": 18,
+          "positive_rate": 0.10344827586206896,
+          "row_count": 174
+        },
+        "train": {
+          "first_sprint_entry": "2014-04-23T20:55:42.569000",
+          "last_sprint_entry": "2019-08-05T14:13:27.671000",
+          "positive_count": 17,
+          "positive_rate": 0.032692307692307694,
+          "row_count": 520
+        },
+        "validation": {
+          "first_sprint_entry": "2019-08-05T14:13:27.671000",
+          "last_sprint_entry": "2021-09-29T05:39:56.149000",
+          "positive_count": 3,
+          "positive_rate": 0.017341040462427744,
+          "row_count": 173
+        }
+      },
+      "positive_count": 38,
+      "positive_rate": 0.04382929642445214
+    },
+    "15": {
+      "negative_count": 836,
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2021-10-11T03:10:54.242000",
+          "last_sprint_entry": "2025-04-09T21:08:00",
+          "positive_count": 15,
+          "positive_rate": 0.08620689655172414,
+          "row_count": 174
+        },
+        "train": {
+          "first_sprint_entry": "2014-04-23T20:55:42.569000",
+          "last_sprint_entry": "2019-08-05T14:13:27.671000",
+          "positive_count": 13,
+          "positive_rate": 0.025,
+          "row_count": 520
+        },
+        "validation": {
+          "first_sprint_entry": "2019-08-05T14:13:27.671000",
+          "last_sprint_entry": "2021-09-29T05:39:56.149000",
+          "positive_count": 3,
+          "positive_rate": 0.017341040462427744,
+          "row_count": 173
+        }
+      },
+      "positive_count": 31,
+      "positive_rate": 0.03575547866205306
+    },
+    "20": {
+      "negative_count": 837,
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2021-10-11T03:10:54.242000",
+          "last_sprint_entry": "2025-04-09T21:08:00",
+          "positive_count": 14,
+          "positive_rate": 0.08045977011494253,
+          "row_count": 174
+        },
+        "train": {
+          "first_sprint_entry": "2014-04-23T20:55:42.569000",
+          "last_sprint_entry": "2019-08-05T14:13:27.671000",
+          "positive_count": 13,
+          "positive_rate": 0.025,
+          "row_count": 520
+        },
+        "validation": {
+          "first_sprint_entry": "2019-08-05T14:13:27.671000",
+          "last_sprint_entry": "2021-09-29T05:39:56.149000",
+          "positive_count": 3,
+          "positive_rate": 0.017341040462427744,
+          "row_count": 173
+        }
+      },
+      "positive_count": 30,
+      "positive_rate": 0.03460207612456748
+    },
+    "5": {
+      "negative_count": 817,
+      "partitions": {
+        "test": {
+          "first_sprint_entry": "2021-10-11T03:10:54.242000",
+          "last_sprint_entry": "2025-04-09T21:08:00",
+          "positive_count": 24,
+          "positive_rate": 0.13793103448275862,
+          "row_count": 174
+        },
+        "train": {
+          "first_sprint_entry": "2014-04-23T20:55:42.569000",
+          "last_sprint_entry": "2019-08-05T14:13:27.671000",
+          "positive_count": 21,
+          "positive_rate": 0.04038461538461539,
+          "row_count": 520
+        },
+        "validation": {
+          "first_sprint_entry": "2019-08-05T14:13:27.671000",
+          "last_sprint_entry": "2021-09-29T05:39:56.149000",
+          "positive_count": 5,
+          "positive_rate": 0.028901734104046242,
+          "row_count": 173
+        }
+      },
+      "positive_count": 50,
+      "positive_rate": 0.05767012687427912
+    }
+  },
+  "rows": 867,
+  "unique_issues": 867,
+  "warnings": []
+}

@@ -1,0 +1,12 @@
+{
+  "api_version": 2,
+  "download_complete": true,
+  "jira_url": "https://issues.apache.org/jira",
+  "jql": "(type != Bug) AND (status in (Accepted,\"Auto Closed\",\"Changes Suggested\",Closed,Completed,Continued,Done,FixedInBranch,Fixed,\"Fix Released/Published\",Passed,\"Pull Request Available\",\"Pull Request Merged\",Ported,\"Patch Reviewed\",Resolved,\"Ready to Commit\",Verified,Duplicate) OR resolution in (\"Auto Closed\",Delivered,Done,Duplicate,Fixed,\"Feedback Received\",Implemented,\"Pending Closed\",Resolved)) AND (labels in (pull-request-available,pull-requests-available,pull_request_available) OR comment ~ \"https://github.com\") ORDER BY created ASC",
+  "label_threshold": 5,
+  "max_issues": null,
+  "project": null,
+  "require_current_sprint": false,
+  "require_pr_evidence": true,
+  "terminal_only": true
+}

@@ -1,0 +1,15 @@
+{
+  "accepted_records": 867,
+  "download_failed_records": 0,
+  "download_limited": false,
+  "downloaded_records": 178552,
+  "effective_jql": "(type != Bug) AND (status in (Accepted,\"Auto Closed\",\"Changes Suggested\",Closed,Completed,Continued,Done,FixedInBranch,Fixed,\"Fix Released/Published\",Passed,\"Pull Request Available\",\"Pull Request Merged\",Ported,\"Patch Reviewed\",Resolved,\"Ready to Commit\",Verified,Duplicate) OR resolution in (\"Auto Closed\",Delivered,Done,Duplicate,Fixed,\"Feedback Received\",Implemented,\"Pending Closed\",Resolved)) AND (labels in (pull-request-available,pull-requests-available,pull_request_available) OR comment ~ \"https://github.com\") ORDER BY created ASC",
+  "reasons": {
+    "accepted": 867,
+    "invalid_created": 16,
+    "no_comment_before_sprint": 1512,
+    "no_sprint_entry": 176157
+  },
+  "rejected_records": 177685,
+  "selected_keys": 178552
+}
