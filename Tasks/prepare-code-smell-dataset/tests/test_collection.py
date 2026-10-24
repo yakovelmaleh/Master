@@ -265,3 +265,161 @@ class CollectionTests(RuntimeCase):
         common.write_json(target / "study.json", study)
         with self.assertRaisesRegex(ValueError, "code/schema changed"):
             common.verify_study(target)
+
+    def reviewed_frozen_parent(self, count=120, migrated=False):
+        self.root = self.storage / "runs/frozen-parent"
+        self.make_study(count)
+        failures = {f"T-{count - 1}": collection.CollectionError("not_found_or_not_visible", 404)}
+        self.diagnose(failures)
+        if migrated:
+            for name in ("collection_diagnostics.json", "missing_records.proposed.json"):
+                (self.raw / name).unlink()
+            target = self.storage / "runs/parent-002"
+            with mock.patch.object(migration, "PARENT_SOURCE_SHA256", common.source_hash()):
+                migration.migrate(target, self.root)
+            self.root = target
+            self.raw = target / "raw/Apache"
+            self.diagnose(failures)
+        prepare.enrich(self.root, "Apache", missing_records=self.approval())
+        self.succeeded("enrich", "Apache")
+        prepare.freeze(self.root, "Apache")
+        self.succeeded("freeze", "Apache")
+        common.write_json(self.root / "evidence/resolved/partial.json", {
+            "status": "excluded", "url": "https://github.com/a/b/pull/1",
+            "reason": "repository_or_revision_unavailable"})
+        common.write_json(self.root / "status/fetch-code-Apache.json", {
+            "status": "failed", "error_type": "HTTPError"})
+        return self.root
+
+    def test_frozen_migration_keeps_original_approvals_and_758_partitions(self):
+        parent = self.reviewed_frozen_parent(759, migrated=True)
+        before = common.tree_manifest(parent)
+        target = self.storage / "runs/child-003"
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(target, parent)
+            migration.migrate(target, parent)
+        self.assertEqual(before, common.tree_manifest(parent))
+        self.assertFalse((target / "evidence").exists(), "Old code-evidence decisions must be re-evaluated")
+        self.assertFalse((target / "status/fetch-code-Apache.json").exists())
+        self.assertFalse((target / "status/freeze-Apache.json").exists())
+        self.assertEqual(before["evidence/resolved/partial.json"],
+                         common.file_hash(target / "parent/evidence/resolved/partial.json"))
+        with self.assertRaisesRegex(ValueError, "Required stage"):
+            prepare.frozen_frame(target, "Apache")
+        prepare.enrich(target, "Apache", lambda _: self.fail("Migration must not fetch Jira"))
+        prepare.freeze(target, "Apache")
+        for name, expected in before.items():
+            if name.startswith(("raw/", "features/", "splits/")) and not name.endswith(
+                    ("collection_errors.json", ".collection.lock")):
+                self.assertEqual(expected, common.file_hash(target / name), name)
+        self.assertEqual({"train": 454, "validation": 151, "test": 153},
+                         common.read_json(target / "splits/Apache.json")["counts"])
+        self.assertNotEqual(common.file_hash(parent / "study.json"), common.file_hash(target / "study.json"))
+        ledger = common.read_json(target / "raw/Apache/collection_exclusions.json")
+        self.assertEqual(common.file_hash(parent / "study.json"), ledger["study_sha256"])
+        saved, approved = collection.load_manifest(target, "Apache", {f"T-{i}" for i in range(759)})
+        self.assertEqual(758, len(saved["records"]))
+        self.assertEqual({"T-758": "not_found_or_not_visible"}, approved)
+        self.assertNotIn("Apache:T-758", common.read_json(target / "splits/Apache.json")["assignment"])
+        self.assertEqual(before, common.tree_manifest(parent))
+
+    def test_frozen_migration_rejects_incomplete_or_changed_parent(self):
+        parent = self.reviewed_frozen_parent(migrated=True)
+        cases = {
+            "raw/Apache/T-0.json": b"{}",
+            "raw/Apache/collection_exclusions.json": b"{}",
+            "features/Apache/features.csv": b"changed",
+            "splits/Apache/train_rows.csv": b"row_id,source,issue_key\n",
+            "migration_complete.json": b"{}",
+            "parent/study.json": b"{}",
+            "status/freeze-Apache.json": b'{"status":"failed"}',
+            "status/fetch-code-Apache.json": b'{"status":"running"}',
+        }
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            for index, (name, content) in enumerate(cases.items()):
+                with self.subTest(name=name):
+                    path = parent / name
+                    original = path.read_bytes()
+                    path.write_bytes(content)
+                    target = self.storage / "runs" / f"rejected-{index}"
+                    try:
+                        with self.assertRaises(ValueError):
+                            migration.migrate(target, parent)
+                        self.assertFalse((target / "study.json").exists())
+                    finally:
+                        path.write_bytes(original)
+            (parent / "models").mkdir()
+            with self.assertRaisesRegex(ValueError, "preparation-only"):
+                migration.migrate(self.storage / "runs/has-models", parent)
+
+    def test_frozen_migration_preserves_all_sources_with_and_without_approvals(self):
+        self.root = self.storage / "runs/four-sources"
+        names = ("Apache", "IntelDAOS", "MongoDB", "RedHat")
+        rows = [{"source": source, "issue_key": f"T-{i}", "issue_type": "Story", "created": "2020-01-01"}
+                for source in names for i in range(120)]
+        pd.DataFrame(rows).to_csv(self.candidates, index=False)
+        pd.DataFrame([{"source": source, "candidate_count": 120,
+                       "base_url": "https://example.invalid", "jql": "test"} for source in names]).to_csv(
+                           self.sources, index=False)
+        with mock.patch.object(prepare, "CANDIDATE_HASH", common.file_hash(self.candidates)), mock.patch.object(
+                prepare, "SOURCES", dict.fromkeys(names, 120)):
+            prepare.audit(self.root, self.candidates, self.sources)
+            for source in names:
+                missing = {"MongoDB": ["T-119"], "RedHat": ["T-118", "T-119"]}.get(source, [])
+                client = Client({key: collection.CollectionError("not_found_or_not_visible", 404) for key in missing})
+                prepare.enrich(self.root, source, lambda _: client, diagnose=bool(missing))
+                if missing:
+                    raw = self.root / "raw" / source
+                    ledger = common.read_json(raw / "missing_records.proposed.json")
+                    ledger.update(approved=True, reviewed_at=common.now(), review_note="Reviewed fixture exclusions.")
+                    approval = self.storage / f"approved-{source}.json"
+                    common.write_json(approval, ledger)
+                    prepare.enrich(self.root, source, missing_records=approval)
+                self.succeeded("enrich", source)
+                prepare.freeze(self.root, source)
+                self.succeeded("freeze", source)
+            before = common.tree_manifest(self.root)
+            target = self.storage / "runs/four-sources-imported"
+            with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+                migration.migrate(target, self.root)
+            for source in names:
+                prepare.freeze(target, source)
+                for name in (f"features/{source}/features.csv", f"features/{source}/filter_decisions.json",
+                             f"splits/{source}.json", *(f"splits/{source}/{p}_rows.csv" for p in common.PARTITIONS)):
+                    self.assertEqual(before[name], common.file_hash(target / name), name)
+                saved, approved = collection.load_manifest(target, source, {f"T-{i}" for i in range(120)})
+                self.assertEqual({"Apache": 0, "IntelDAOS": 0, "MongoDB": 1, "RedHat": 2}[source], len(approved))
+                self.assertEqual(120, len(saved["records"]) + len(approved))
+            self.assertEqual(before, common.tree_manifest(self.root))
+
+    def test_frozen_migration_resume_and_imported_review_tamper_checks(self):
+        parent = self.reviewed_frozen_parent()
+        before = common.tree_manifest(parent)
+        target = self.storage / "runs/child-003"
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            original_copy = migration.atomic_bytes
+            def interrupted_copy(path, content):
+                if path.name == "T-20.json":
+                    raise OSError("interrupted frozen import")
+                return original_copy(path, content)
+            with mock.patch.object(migration, "atomic_bytes", side_effect=interrupted_copy):
+                with self.assertRaisesRegex(OSError, "interrupted frozen import"):
+                    migration.migrate(target, parent)
+            with self.assertRaisesRegex(ValueError, "migration is incomplete"):
+                common.verify_study(target)
+            migration.migrate(target, parent)
+            for name in ("parent/study.json", "raw/Apache/collection_exclusions.json",
+                         "migration.json", "migration_complete.json"):
+                with self.subTest(name=name):
+                    path = target / name
+                    original = path.read_bytes()
+                    path.write_text("{}")
+                    try:
+                        with self.assertRaises(ValueError):
+                            collection.load_manifest(target, "Apache", {f"T-{i}" for i in range(120)})
+                    finally:
+                        path.write_bytes(original)
+            (target / "raw/Apache/T-0.json").write_text("{}")
+            with self.assertRaisesRegex(ValueError, "destination changed"):
+                migration.migrate(target, parent)
+        self.assertEqual(before, common.tree_manifest(parent))

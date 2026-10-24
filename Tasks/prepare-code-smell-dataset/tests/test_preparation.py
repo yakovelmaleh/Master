@@ -5,6 +5,7 @@ import tarfile
 from unittest import mock
 
 import pandas as pd
+import requests
 
 from Code_Smells_Detection.runtime import common, evidence, prepare
 from Code_Smells_Detection.runtime.tests.support import RuntimeCase
@@ -85,6 +86,91 @@ class PreparationTests(RuntimeCase):
         ])
         with self.assertRaisesRegex(evidence.EvidenceExcluded, "default_history"):
             github.resolve("https://github.com/a/b/commit/" + "a" * 40)
+
+    @staticmethod
+    def github_response(status, payload):
+        response = requests.Response()
+        response.status_code = status
+        response.url = "https://api.github.com/repos/a/b/commits/main"
+        response._content = json.dumps(payload).encode()
+        return response
+
+    def test_empty_repository_is_explicit_missing_evidence_not_a_negative_label(self):
+        self.frozen_study(1)
+        split_before = (self.root / "splits/Apache.json").read_bytes()
+        path = self.root / "raw/Apache/TEST-0.json"
+        record = common.read_json(path)
+        record["comments"] = [{"body": "https://github.com/a/b/pull/1"}]
+        common.write_json(path, record)
+        saved = common.read_json(self.root / "raw/Apache/manifest.json")
+        saved["records"]["TEST-0"] = common.file_hash(path)
+        common.write_json(self.root / "raw/Apache/manifest.json", saved)
+        github = object.__new__(evidence.GitHub)
+        github.session = mock.Mock()
+        github.session.get.side_effect = [
+            self.github_response(200, {"default_branch": "main"}),
+            self.github_response(409, {"message": "Git Repository is empty."}),
+        ]
+        loader = mock.Mock(side_effect=AssertionError("An empty repository has no snapshot"))
+        evidence.fetch_code(self.root, self.storage, "Apache", github=github, snapshot_loader=loader)
+        result = common.read_json(self.root / "evidence/Apache/TEST-0.json")
+        self.assertEqual("excluded", result["status"])
+        self.assertEqual("repository_empty", result["exclusions"][0]["reason"])
+        self.assertEqual([], result["evidence"])
+        self.assertEqual({"excluded": 1}, common.read_json(self.root / "evidence/Apache/audit.json")["counts"])
+        self.assertEqual(split_before, (self.root / "splits/Apache.json").read_bytes())
+        github.session.get.reset_mock(side_effect=True)
+        github.session.get.side_effect = AssertionError("Recorded empty repository must be reused")
+        evidence.fetch_code(self.root, self.storage, "Apache", github=github, snapshot_loader=loader)
+
+    def test_other_conflicts_and_auth_failures_are_not_excluded_or_retried(self):
+        github = object.__new__(evidence.GitHub)
+        github.session = mock.Mock()
+        for status, payload, path in (
+                (409, {"message": "A different conflict"}, "/repos/a/b/commits/main"),
+                (409, ["Git Repository is empty."], "/repos/a/b/commits/main"),
+                (409, {"message": "Git Repository is empty."}, "/repos/a/b/pulls/1"),
+                (401, {"message": "Bad credentials"}, "/repos/a/b/commits/main"),
+                (403, {"message": "Forbidden"}, "/repos/a/b/commits/main")):
+            with self.subTest(status=status, payload=payload, path=path):
+                github.session.get.reset_mock()
+                github.session.get.return_value = self.github_response(status, payload)
+                with mock.patch.object(evidence.time, "sleep") as sleep:
+                    with self.assertRaises(requests.HTTPError):
+                        github.get(path)
+                    self.assertEqual(1, github.session.get.call_count)
+                    sleep.assert_not_called()
+        response = self.github_response(409, {})
+        response._content = b"not json"
+        github.session.get.return_value = response
+        with self.assertRaises(requests.HTTPError):
+            github.get("/repos/a/b/commits/main")
+
+    def test_transport_errors_retry_boundedly_but_tls_errors_fail_immediately(self):
+        github = object.__new__(evidence.GitHub)
+        github.session = mock.Mock()
+        github.session.get.side_effect = [
+            requests.ConnectionError("closed"), requests.Timeout("timeout"),
+            self.github_response(200, {"sha": "a" * 40}),
+        ]
+        with mock.patch.object(evidence.time, "sleep") as sleep:
+            self.assertEqual({"sha": "a" * 40}, github.get("/repos/a/b/commits/main"))
+            self.assertEqual(3, github.session.get.call_count)
+            self.assertEqual([mock.call(1), mock.call(2)], sleep.call_args_list)
+        github.session.get.reset_mock()
+        github.session.get.side_effect = requests.ConnectionError("still closed")
+        with mock.patch.object(evidence.time, "sleep") as sleep:
+            with self.assertRaises(requests.ConnectionError):
+                github.get("/repos/a/b/commits/main")
+            self.assertEqual(5, github.session.get.call_count)
+            self.assertEqual([mock.call(1), mock.call(2), mock.call(4), mock.call(8)], sleep.call_args_list)
+        github.session.get.reset_mock()
+        github.session.get.side_effect = requests.exceptions.SSLError("certificate verification failed")
+        with mock.patch.object(evidence.time, "sleep") as sleep:
+            with self.assertRaises(requests.exceptions.SSLError):
+                github.get("/repos/a/b/commits/main")
+            self.assertEqual(1, github.session.get.call_count)
+            sleep.assert_not_called()
 
     def test_adf_links_and_deduplication(self):
         url = "https://github.com/owner/repo/pull/123"
