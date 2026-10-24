@@ -4,7 +4,7 @@ import sqlite3
 import sys
 from types import SimpleNamespace as NS
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from test_workflow import Fixture
 import run_experiment as runner
@@ -15,6 +15,70 @@ from cloud_control import (
 from control_admin import audit, bootstrap, contend_probe, extend_storage, hold_probe, probe
 from fake_control import BINDING, PLAN, FakeStore
 from protocol import digest, read_json, study_id, write_json
+
+
+class AccountVerificationTests(unittest.TestCase):
+    def setUp(self):
+        self.account = {
+            "id": BINDING["storage_resource_id"], "kind": "StorageV2",
+            "sku": {"name": "Standard_ZRS"}, "location": "israelcentral",
+            "properties": {
+                "accessTier": "Hot", "allowBlobPublicAccess": False,
+                "allowSharedKeyAccess": False, "supportsHttpsTrafficOnly": True,
+                "isHnsEnabled": False,
+                "encryption": {
+                    "keySource": "Microsoft.Storage",
+                    "services": {
+                        "blob": {"enabled": True, "keyType": "Account"},
+                        "file": {"enabled": True, "keyType": "Account"},
+                    },
+                },
+                "primaryEndpoints": {
+                    "table": "https://fixture.table.core.windows.net/",
+                    "blob": "https://fixture.blob.core.windows.net/",
+                },
+            },
+        }
+        self.store = object.__new__(AzureStore)
+        self.store.binding = BINDING
+        self.store.credential = Mock()
+        self.store.credential.get_token.return_value = NS(token="offline-test-token")
+        httpx = MagicMock()
+        httpx.Client.return_value.__enter__.return_value.get.return_value = Mock(
+            status_code=200, json=Mock(return_value=self.account)
+        )
+        patcher = patch.dict(sys.modules, {"httpx": httpx})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_arm_omitted_table_encryption_uses_service_default(self):
+        self.assertEqual(self.store.verify_account(), {
+            "storage_account_verified": True, "storage_location": "israelcentral",
+        })
+
+    def test_explicit_service_scoped_table_encryption_is_accepted(self):
+        self.account["properties"]["encryption"]["services"]["table"] = {
+            "keyType": "Service", "enabled": True,
+        }
+        self.assertTrue(self.store.verify_account()["storage_account_verified"])
+
+    def test_explicit_invalid_table_encryption_is_not_treated_as_default(self):
+        for table in (None, {}, [], {"keyType": "Account"}, {"keyType": "Unknown"},
+                      {"keyType": "Service", "enabled": False},
+                      {"keyType": "Service", "enabled": None}):
+            with self.subTest(table=table):
+                self.account["properties"]["encryption"]["services"]["table"] = table
+                with self.assertRaises(ControlError):
+                    self.store.verify_account()
+
+    def test_service_default_does_not_bypass_account_policy(self):
+        for field in ("allowBlobPublicAccess", "allowSharedKeyAccess"):
+            with self.subTest(field=field), patch.dict(self.account["properties"], {field: True}):
+                with self.assertRaises(ControlError):
+                    self.store.verify_account()
+        with patch.dict(self.account["properties"]["encryption"], {"keySource": "Microsoft.Keyvault"}):
+            with self.assertRaises(ControlError):
+                self.store.verify_account()
 
 
 class CloudControlTests(Fixture):
