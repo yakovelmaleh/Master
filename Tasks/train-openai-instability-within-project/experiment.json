@@ -12,7 +12,7 @@
   "top_logprobs": 20,
   "bootstrap_samples": 2000,
   "request_attempts": 3,
-  "pilot_limit_usd": 7,
+  "pilot_limit_usd": 9,
   "total_limit_usd": 80,
   "credit_reserve_usd": 20
 }

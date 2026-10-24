@@ -13,7 +13,7 @@ training and inference using CPU jobs; no OpenAI weights run on cluster GPUs.
 | Variants | Original pre-sprint text; text plus serialized train-fitted `FeatureTransformer` values |
 | Full scope | 4 repository/level cells x 2 variants = 8 fine-tunes; no pooled model or automatic sweep |
 | Pilot | Both Jira/20 variants, all 944 training and 314 validation rows; no early test |
-| Cost ceilings | $7 pilot, $80 entire experiment including pilot, $20 credit reserve |
+| Cost ceilings | $9 pilot, $80 entire experiment including pilot, $20 credit reserve |
 | Default candidate | `gpt-4.1-mini-2025-04-14`, one explicit epoch; subject to actual Azure availability and approval |
 
 **No real OpenAI scores or cloud-validation claims are included.** Offline tests
@@ -38,6 +38,14 @@ not the eight-model scientific scope. Preserve `openai-qt-jira-01` too; do not
 resume it under changed code. Update the existing environment's pinned
 requirements, complete separately approved cloud-control setup below, then
 prepare a new run. A code change is not authorization for paid calls.
+
+The reviewed pilot ceiling is now $9 including storage; the $80 total ceiling
+and protected $20 credit reserve are unchanged. Existing $7 study manifests and
+approvals cannot be reused: prepare a new run and obtain a matching private
+approval after reviewing current rates and affordability. Keep the same cloud
+authority and all prior reservations; do not rerun bootstrap. This change does
+not increase approved storage request/session allowances, the storage reserve,
+or the separate storage-only bootstrap ceiling (strictly below $7).
 
 ## Account and cost prerequisites
 
@@ -134,7 +142,7 @@ probes and even cloud status reads incur storage activity and require approval.
    operation, breach, authorization or upload/deployment intent blocks this
    zero-use migration. Nonempty/uncertain migration needs a separate review.
 2. Review exact storage rates, offer coverage, capacity/transfer assumptions,
-   retention and cleanup charges. Reserve storage **inside** $7/$80. This
+   retention and cleanup charges. Reserve storage **inside** $9/$80. This
    implementation uses one cumulative storage reserve, included in scope
    estimates but counted only once globally. Reserve enough for the approved
    workflow, probes and recovery. Full-study expansion may increase it only
@@ -359,11 +367,11 @@ charges, currency/tax differences, and cleanup costs explicitly.
 ```
 
 The `pilot` approval must fit both Jira/20 fine-tunes, both complete validation
-passes, retries, two synthetic scoring probes, and an unfine-tuned diagnostic on
-the first 20 Jira/20 validation rows into $7. This is included within, not added
-to, the $80 total ceiling. A cost worksheet is persisted before
-any training request. Unknown/insufficient funding blocks execution, not just
-prints a warning.
+passes, retries, two synthetic scoring probes, an unfine-tuned diagnostic on
+the first 20 Jira/20 validation rows, and the storage reserve into $9. This is
+included within, not added to, the $80 total ceiling. A cost worksheet is
+persisted before any training request. Unknown/insufficient funding blocks
+execution, not just prints a warning.
 
 Fill `control_schema`, `authority_sha256` and `storage_reserve_usd` from the
 reviewed binding/storage approval. The reserve must equal the bootstrapped
