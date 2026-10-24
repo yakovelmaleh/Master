@@ -102,7 +102,7 @@ class InstalledSdkTests(unittest.TestCase):
         self.assertEqual(request.method, "POST")
         self.assertTrue(request.url.split("?")[0].endswith("/$batch"))
         body = request.body.encode() if isinstance(request.body, str) else request.body
-        self.assertIn(b"if-match: etag-before", body.lower())
+        self.assertIn(b'if-match: "etag-before"\r\n', body.lower())
         self.assertIn(b"PUT ", body)
         self.assertIn(b"POST ", body)
         self.assertNotIn(b"if-match: *", body.lower())
