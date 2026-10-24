@@ -172,6 +172,15 @@ class AzureStore:
         properties = account["properties"]
         name = self.binding["storage_resource_id"].rsplit("/", 1)[1]
         endpoints = properties["primaryEndpoints"]
+        services = properties["encryption"]["services"]
+        if not isinstance(services, dict):
+            raise ControlError("Storage encryption service metadata is malformed.")
+        table = services.get("table")
+        # ARM omits Table settings for the default Microsoft-managed service key.
+        service_key = "table" not in services or (
+            isinstance(table, dict) and table.get("keyType") == "Service"
+            and ("enabled" not in table or table["enabled"] is True)
+        )
         if (account["id"].casefold() != self.binding["storage_resource_id"].casefold()
                 or account["kind"] != "StorageV2" or account["sku"]["name"] != "Standard_ZRS"
                 or properties.get("accessTier") != "Hot"
@@ -180,7 +189,7 @@ class AzureStore:
                 or properties.get("supportsHttpsTrafficOnly") is not True
                 or properties.get("isHnsEnabled", False)
                 or properties["encryption"]["keySource"] != "Microsoft.Storage"
-                or properties["encryption"]["services"]["table"]["keyType"] != "Service"
+                or not service_key
                 or endpoints["table"].rstrip("/") != f"https://{name}.table.core.windows.net"
                 or endpoints["blob"].rstrip("/") != f"https://{name}.blob.core.windows.net"):
             raise ControlError("Storage account identity, SKU, encryption, or access policy differs from the reviewed design.")
