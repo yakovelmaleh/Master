@@ -3,7 +3,40 @@
 This folder keeps the sprint PowerPoint in the repository. Maintain this copy
 when adding more experiments; a copy in Downloads is only for convenience.
 
-## Presentation
+## October 8 presentation: code-smell preparation update
+
+`results/Master-Sprint-Summary-2026-10-08.pptx`
+
+This 18-slide deck preserves the 14 existing local HF-results slides and adds
+four code-smell dataset-preparation slides recorded on October 24, 2026:
+
+| Slides | Content |
+|---|---|
+| 15 | Separate code-smell study scope and preparation status |
+| 16 | Per-source retention: 68,244 candidates to 12,986 frozen rows |
+| 17 | Exact reasons for the 54,933 preprocessing exclusions |
+| 18 | Frozen chronological train / validation / test partitions |
+
+Of 68,244 selected candidates, 325 were explicitly approved as unavailable,
+leaving 67,919 complete Jira records. Preprocessing excluded 47,104 records
+without a qualifying comment by sprint entry, 7,804 without a usable
+sprint-entry timestamp, and 25 with unreconstructable pre-sprint metadata.
+These mutually exclusive counts record the first failed eligibility gate.
+The comment requirement is inherited from the study, not an inherent
+code-smell requirement.
+
+The remaining 12,986 feature rows have frozen partitions totaling 7,790 train,
+2,596 validation, and 2,600 test rows. Code evidence and code-smell labeling
+are still pending; these are not final model-ready counts.
+
+`data/code-smells-002-retention.json` preserves the source-level counts,
+definitions, and provenance transcribed from user-supplied cluster outputs.
+The same evidence is included in the added slides' speaker notes. The October
+8 deck was previously local-only, so this PR versions the whole deck; its
+original 14 slides are unchanged. Local authoring tools are not included.
+The September 24 presentation below is unchanged.
+
+## September 24 presentation
 
 `results/Master-Sprint-Summary-2026-09-24.pptx`
 

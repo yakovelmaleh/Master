@@ -1,0 +1,95 @@
+{
+  "schema": "code-smell-retention-summary-v1",
+  "run_id": "code-smells-002",
+  "recorded_on": "2026-10-24",
+  "evidence_origin": "User-supplied cluster output from freeze status files, split manifests, raw manifests and filter_decisions.json. Counts are transcribed, not independently recomputed from raw Jira records on this Mac.",
+  "base_presentation_sha256": "79212043e95e79662eacd79f8971bd7ff2681107b1f000515fa3719894fb9351",
+  "preparation_pr": 377,
+  "preparation_merge_commit": "e5daaf1773672f1dc7e914ca0afe724fd684fbd8",
+  "original_candidate_file_rows": 68358,
+  "source_selection_exclusions": 114,
+  "source_selection_rule": "Exclude sources with fewer than 100 original candidates: Qt 86, JiraEcosystem 23, Jira 3, Sakai 2.",
+  "candidate_file_sha256": "a96d260478dfe2c6eb78ce8c47bac74707039c05853e90e0c8e2775d103d0aab",
+  "checks_reported": {
+    "all_four_freeze_stages_succeeded": true,
+    "all_feature_file_hashes_match_split_manifests": true,
+    "apache_features_and_split_match_original_run_byte_for_byte": true
+  },
+  "filter_interpretation": {
+    "jira_unavailable": "Explicitly approved collection exclusions, before preprocessing. MongoDB: one issue returned 401. RedHat: 324 returned 404 (not found or not visible, not proof of deletion).",
+    "no_sprint_entry": "No usable sprint-entry timestamp could be derived from sprint fields/change history on or after issue creation.",
+    "no_comment_before_sprint": "No comment with a valid timestamp on or before the derived sprint-entry time. Includes no comments and comments only after entry. This is a retained study eligibility rule, not an inherent requirement for code-smell prediction.",
+    "unreconstructable_pre_sprint_metadata": "The preparation step could not reconstruct required pre-sprint metadata from the available history.",
+    "accepted": "Passed Jira preprocessing and pre-sprint reconstruction. These rows have frozen features and split membership, not yet verified code-smell labels."
+  },
+  "counting_rule": "One decision per selected candidate. The first failed gate is recorded; counts are mutually exclusive, not the total number of all conditions each issue violates.",
+  "reviewed_uncontrolled_projects": ["BUILD", "OCMUI", "RHDM"],
+  "sources": {
+    "Apache": {
+      "candidates": 3289,
+      "available": 3289,
+      "feature_rows": 758,
+      "filter_decisions": {
+        "accepted": 758,
+        "no_comment_before_sprint": 1441,
+        "no_sprint_entry": 1090
+      },
+      "splits": {"train": 454, "validation": 151, "test": 153},
+      "freeze_finished": "2026-10-24T17:40:26.397188+00:00"
+    },
+    "IntelDAOS": {
+      "candidates": 866,
+      "available": 866,
+      "feature_rows": 235,
+      "filter_decisions": {
+        "accepted": 235,
+        "no_comment_before_sprint": 575,
+        "no_sprint_entry": 56
+      },
+      "splits": {"train": 141, "validation": 47, "test": 47},
+      "freeze_finished": "2026-10-24T17:39:14.311540+00:00"
+    },
+    "MongoDB": {
+      "candidates": 39169,
+      "available": 39168,
+      "feature_rows": 5088,
+      "filter_decisions": {
+        "accepted": 5088,
+        "no_comment_before_sprint": 29104,
+        "unreconstructable_pre_sprint_metadata": 12,
+        "no_sprint_entry": 4964,
+        "jira_unavailable": 1
+      },
+      "splits": {"train": 3052, "validation": 1017, "test": 1019},
+      "freeze_finished": "2026-10-24T17:53:41.470662+00:00"
+    },
+    "RedHat": {
+      "candidates": 24920,
+      "available": 24596,
+      "feature_rows": 6905,
+      "filter_decisions": {
+        "accepted": 6905,
+        "no_comment_before_sprint": 15984,
+        "no_sprint_entry": 1694,
+        "jira_unavailable": 324,
+        "unreconstructable_pre_sprint_metadata": 13
+      },
+      "splits": {"train": 4143, "validation": 1381, "test": 1381},
+      "freeze_finished": "2026-10-24T17:52:39.554651+00:00"
+    }
+  },
+  "totals": {
+    "candidates": 68244,
+    "jira_unavailable": 325,
+    "available": 67919,
+    "no_sprint_entry": 7804,
+    "no_comment_before_sprint": 47104,
+    "unreconstructable_pre_sprint_metadata": 25,
+    "preprocessing_exclusions": 54933,
+    "feature_rows": 12986,
+    "train": 7790,
+    "validation": 2596,
+    "test": 2600
+  },
+  "remaining_work": "Fetch linked code, establish complete supported detector coverage, generate labels, then determine final model eligibility. No real code-smell model results or class balance are available yet."
+}
