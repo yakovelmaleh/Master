@@ -298,7 +298,9 @@ class CloudControlTests(Fixture):
             audit(storage, control)
 
     def test_unbound_configuration_and_offline_prepare_never_construct_storage(self):
-        with patch("cloud_control.AzureStore") as constructor:
+        unbound = Path(self.temporary.name) / "unbound"
+        write_json(unbound / "control_store.json", {**BINDING, "storage_resource_id": ""})
+        with patch("cloud_control.TASK", unbound), patch("cloud_control.AzureStore") as constructor:
             with self.assertRaisesRegex(ControlError, "unbound"):
                 binding_at()
             constructor.assert_not_called()
