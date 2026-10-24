@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from test_workflow import Fixture
 import run_experiment as runner
+import control_admin
 from cloud_control import (
     AzureStore, Conflict, ControlError, Ledger, RequestBudget, RetryableRejection, ROOT,
     binding_at, encoded, storage_plan,
@@ -82,6 +83,77 @@ class AccountVerificationTests(unittest.TestCase):
 
 
 class CloudControlTests(Fixture):
+    def test_slow_startup_renews_before_work_without_extending_session_runtime(self):
+        store = FakeStore()
+        clock = [100]
+        store.storage.clock = lambda: clock[0]
+        ledger = Ledger(store, BINDING, PLAN, remaining_credit="100", clock=lambda: clock[0])
+        acquire = store.acquire
+
+        def slow_acquire():
+            lease = acquire()
+            clock[0] += 44
+            return lease
+
+        with patch.object(store, "acquire", side_effect=slow_acquire), patch.object(
+            store, "renew", wraps=store.renew
+        ) as renew, patch("cloud_control.threading.Thread"):
+            with ledger.session():
+                clock[0] += 20
+                ledger.check()
+                renew.assert_called_once_with(ledger.lease)
+                self.assertEqual(ledger.session_deadline, 100 + PLAN["session_seconds"])
+        self.assertIsNone(store.storage.lease)
+
+    def test_startup_expiring_after_reservation_never_renews_or_enters_work(self):
+        store = FakeStore()
+        clock = [100]
+        store.storage.clock = lambda: clock[0]
+        ledger = Ledger(store, BINDING, PLAN, remaining_credit="100", clock=lambda: clock[0])
+
+        def slow_commit():
+            clock[0] += 51
+
+        store.storage.after_commit = slow_commit
+        with patch.object(store, "renew") as renew, patch("cloud_control.threading.Thread") as thread:
+            with self.assertRaisesRegex(ControlError, "lease"):
+                with ledger.session():
+                    self.fail("Expired startup entered work")
+            renew.assert_not_called()
+            thread.assert_not_called()
+        self.assertTrue(ledger.lost)
+        self.assertIsNone(store.storage.lease)
+        self.assertEqual(store.get(ROOT)[0]["io_reserved"], 100 + PLAN["session_requests"])
+
+    def test_unconfirmed_startup_renewal_preserves_reservation_and_releases_lease(self):
+        for late_response in (False, True):
+            with self.subTest(late_response=late_response):
+                store = FakeStore()
+                clock = [100]
+                store.storage.clock = lambda: clock[0]
+                ledger = Ledger(store, BINDING, PLAN, remaining_credit="100", clock=lambda: clock[0])
+                renew = store.renew
+
+                def unconfirmed(lease):
+                    if late_response:
+                        renew(lease)
+                        clock[0] += 51
+                    else:
+                        raise TimeoutError
+
+                with patch.object(store, "renew", side_effect=unconfirmed), patch(
+                    "cloud_control.threading.Thread"
+                ) as thread:
+                    with self.assertRaisesRegex(ControlError, "renewal|lease"):
+                        with ledger.session():
+                            self.fail("Unconfirmed startup entered work")
+                    thread.assert_not_called()
+                self.assertTrue(ledger.lost)
+                self.assertIsNone(store.storage.lease)
+                state = store.get(ROOT)[0]
+                self.assertEqual(state["io_reserved"], 100 + PLAN["session_requests"])
+                self.assertEqual(state["sessions"], 1)
+
     def test_second_worker_is_excluded_and_stale_epoch_cannot_write(self):
         second = Ledger(FakeStore(self.ledger.store.storage), BINDING, PLAN, remaining_credit="100")
         with self.assertRaisesRegex(Conflict, "Lease"):
@@ -408,6 +480,8 @@ class CloudControlTests(Fixture):
         probe(first)
         self.assertTrue(store.get(ROOT)[0]["probe_atomic"])
         self.assertFalse(store.get(ROOT)[0]["probe_verified"])
+        self.assertEqual(store.get(ROOT)[0]["io_reserved"], 1100)
+        self.assertEqual(store.budget.limit, 1000)
         holder = Ledger(FakeStore(store.storage), BINDING, PLAN, remaining_credit="100")
         output = Path(self.temporary.name) / "holder.json"
 
@@ -433,6 +507,42 @@ class CloudControlTests(Fixture):
         ):
             self.assertEqual(hold_probe(holder, output), {"two_node_probe": "passed"})
         self.assertTrue(store.get(ROOT)[0]["probe_verified"])
+        self.assertEqual(store.get(ROOT)[0]["io_reserved"], 2100)
+        self.assertEqual(holder.store.budget.limit, 1000)
+
+    def test_probe_respects_smaller_approved_request_allowance(self):
+        store = FakeStore()
+        plan = {**PLAN, "session_requests": 100}
+        store.storage.rows[ROOT][0]["storage"] = plan
+        ledger = Ledger(store, BINDING, plan, remaining_credit="100")
+        self.assertEqual(probe(ledger)["storage_probe"], "passed")
+        self.assertEqual(store.get(ROOT)[0]["io_reserved"], 200)
+        self.assertEqual(store.budget.limit, 100)
+        self.assertLess(store.budget.used, 100)
+
+    def test_probe_commands_enforce_transport_cap_before_cloud_access(self):
+        for stage, action in (("probe", "probe"), ("lease-hold", "hold_probe"),
+                              ("lease-contend", "contend_probe")):
+            for approved, expected in ((PLAN["session_requests"], 1000), (100, 100)):
+                with self.subTest(stage=stage, approved=approved):
+                    approval = {
+                        "live_storage_test_approved": True, "expires_at": PLAN["retention_until"],
+                        "remaining_credit_usd": "100", "storage": {**PLAN, "session_requests": approved},
+                    }
+                    output = Path(self.temporary.name) / "command.json"
+                    with patch.object(control_admin, "binding_at", return_value=BINDING), patch.object(
+                        control_admin, "access_at", return_value=approval
+                    ), patch.object(control_admin, "AzureStore") as factory, patch.object(
+                        control_admin, action, return_value={}
+                    ), patch("builtins.print"), patch.object(sys, "argv", [
+                        "control_admin", stage, "--storage", self.temporary.name,
+                        "--output", str(output), "--holding", str(output),
+                    ]):
+                        control_admin.main()
+                    budget = factory.call_args.args[1]
+                    budget.charge(expected)
+                    with self.assertRaisesRegex(ControlError, "allowance exhausted"):
+                        budget.charge()
 
     def test_missing_contender_times_out_and_releases_lease_without_marking_ready(self):
         store = FakeStore()

@@ -358,6 +358,8 @@ class Ledger:
             state.update(epoch=self.owner, sessions=state["sessions"] + 1, io_reserved=reserved)
             self.check()
             self.store.transaction([(ROOT, state, etag)])
+            # Acquisition and startup I/O can consume most of the initial lease.
+            self.renew()
             thread = threading.Thread(target=self._heartbeat, name="control-lease")
             thread.start()
             yield self

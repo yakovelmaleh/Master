@@ -20,6 +20,8 @@ from cost_control import CONTROL, money
 from cost_control import control_envelope, control_requests
 from protocol import PILOT, TASK, cell_key, digest, external_path, file_hash, read_json, write_json
 
+PROBE_REQUEST_LIMIT = 1000
+
 
 def audit(storage, control=CONTROL):
     """Read only; any paid/ambiguous old state requires a separately reviewed migration."""
@@ -136,7 +138,7 @@ def extend_storage(store, binding, approval):
 
 def probe(ledger):
     """Conditional batch and data/lease access probe, with no model calls."""
-    with ledger.session():
+    with ledger.session(requests=lambda: min(PROBE_REQUEST_LIMIT, ledger.plan["session_requests"])):
         key = "probe:" + ledger.owner
         ledger.store.transaction([(key, {"value": 1}, None)])
         value, stale = ledger.store.get(key)
@@ -157,7 +159,7 @@ def probe(ledger):
 
 
 def hold_probe(ledger, output):
-    with ledger.session():
+    with ledger.session(requests=lambda: min(PROBE_REQUEST_LIMIT, ledger.plan["session_requests"])):
         if not ledger._root()[0]["probe_atomic"]:
             raise ControlError("Run the conditional-transaction probe first.")
         host = socket.gethostname()
@@ -254,7 +256,8 @@ def main():
     approval = access_at(binding)
     if args.stage != "extend" and approval.get("live_storage_test_approved") is not True:
         raise ControlError("Explicit billable bootstrap/probe approval is required.")
-    limit = 100 if args.stage in ("bootstrap", "extend") else approval["storage"]["session_requests"]
+    limit = (100 if args.stage in ("bootstrap", "extend")
+             else min(PROBE_REQUEST_LIMIT, approval["storage"]["session_requests"]))
     store = AzureStore(binding, RequestBudget(limit))
     ledger = Ledger(store, binding, approval["storage"], access_expires=approval["expires_at"],
                     remaining_credit=approval["remaining_credit_usd"])
