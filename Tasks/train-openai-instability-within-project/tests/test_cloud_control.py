@@ -316,7 +316,7 @@ class CloudControlTests(Fixture):
         self.assertEqual(self.backend.jobs, {})
 
     def test_budget_and_authority_survive_run_root_and_client_changes(self):
-        self.ledger.authorize("first-root", self.approval(), {"pilot": "7"}, self.config)
+        self.ledger.authorize("first-root", self.approval(), {"pilot": "9"}, self.config)
         with self.assertRaisesRegex(ControlError, "Global pilot"):
             self.ledger.authorize("different-root", self.approval(), {"pilot": ".02"}, self.config)
         changed = deepcopy(BINDING)

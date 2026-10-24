@@ -108,7 +108,7 @@ def access_at(binding):
         raise ControlError("Storage setup, migration and cost approval is incomplete.")
     storage_plan(value["storage"])
     if value["scope"] == "pilot" and money(value["storage"]["reserve_usd"]) >= money("7"):
-        raise ControlError("Pilot storage reserve must leave room under $7 for model work.")
+        raise ControlError("Pilot storage reserve must stay below the separate $7 storage-only ceiling.")
     if money(value["remaining_credit_usd"]) < money(value["storage"]["reserve_usd"]) + money("20"):
         raise ControlError("Storage approval cannot cover its reserve plus the protected $20.")
     return value
@@ -268,7 +268,7 @@ class AzureStore:
 def initial_state(binding, plan):
     storage_plan(plan)
     if money(plan["reserve_usd"]) >= money("7"):
-        raise ControlError("Initial storage reserve exceeds the pilot cap.")
+        raise ControlError("Initial storage reserve must stay below the separate $7 storage-only ceiling.")
     return {"schema": SCHEMA, "authority": digest(binding), "storage": plan,
             "total": "0", "pilot_total": "0", "breached": False, "epoch": None, "pending": None,
             "training": None, "deployment": None, "deployment_sequence": 0,
@@ -468,7 +468,9 @@ class Ledger:
         if approval["scope"] == "pilot":
             pilot_total = money(state["pilot_total"]) - pilot_amount + amount
             if pilot_total + storage > money(config["pilot_limit_usd"]):
-                raise ControlError("Global pilot reservations exceed the $7 cost limit including storage.")
+                raise ControlError(
+                    f"Global pilot reservations exceed the ${config['pilot_limit_usd']} cost limit including storage."
+                )
             state["pilot_total"], pilot_amount = str(pilot_total), amount
         if total + storage > money(config["total_limit_usd"]):
             raise ControlError("Global experiment reservations exceed $80 including storage.")

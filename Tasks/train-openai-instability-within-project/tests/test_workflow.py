@@ -266,16 +266,16 @@ class BudgetTests(Fixture):
     def test_boundaries_protected_credit_and_unconfirmed_requests(self):
         approval = self.approval()
         with self.assertRaisesRegex(ValueError, "cost limit"):
-            self.ledger.authorize("a", approval, {"pilot": "7.00001"}, self.config)
-        self.ledger.authorize("a", approval, {"pilot": "7"}, self.config)
-        self.assertIsNone(self.ledger.begin("a", "one", "6.99", "inference", {}))
+            self.ledger.authorize("a", approval, {"pilot": "9.00001"}, self.config)
+        self.ledger.authorize("a", approval, {"pilot": "9"}, self.config)
+        self.assertIsNone(self.ledger.begin("a", "one", "8.99", "inference", {}))
         with self.assertRaisesRegex(ValueError, "exceed"):
             self.ledger.begin("a", "two", ".00001", "inference", {})
         self.ledger.dispatch("a", "one", 1)
         with self.assertRaisesRegex(ValueError, "Unconfirmed"):
-            self.ledger.begin("a", "one", "7", "inference", {})
+            self.ledger.begin("a", "one", "9", "inference", {})
         self.ledger.finish("a", "one", {"score": .4}, actual="1")
-        self.assertEqual(self.ledger.begin("a", "one", "7", "inference", {}), {"score": .4})
+        self.assertEqual(self.ledger.begin("a", "one", "9", "inference", {}), {"score": .4})
         full = self.approval("full")
         with self.assertRaisesRegex(ValueError, "cost limit"):
             self.ledger.authorize("a", full, {"full": "80.00001"}, self.config)
@@ -284,6 +284,43 @@ class BudgetTests(Fixture):
             self.ledger.authorize("b", approval, {"pilot": ".02"}, self.config)
         with self.assertRaisesRegex(ValueError, "credit|Credit"):
             self.ledger.authorize("a", {**full, "remaining_credit_usd": "99.99"}, {"full": "80"}, self.config)
+
+    def test_reviewed_pilot_cap_preserves_prior_reservations_and_storage(self):
+        previous_config = {**self.config, "pilot_limit_usd": 7}
+        approval = self.approval()
+        self.ledger.authorize("prior", approval, {"pilot": "6"}, previous_config)
+        allocation = self.ledger.allocation("prior")
+        before, _ = self.ledger._root()
+        self.ledger.authorize("new", approval, {"pilot": "3.01"}, self.config)
+        after, _ = self.ledger._root()
+        self.assertEqual(self.ledger.allocation("prior"), allocation)
+        self.assertEqual(after["pilot_total"], "8.99")
+        self.assertEqual(after["total"], "8.99")
+        for field in ("storage", "io_reserved", "sessions", "authority", "probe_verified"):
+            self.assertEqual(after[field], before[field])
+        with self.assertRaisesRegex(ValueError, r"Global pilot.*\$9"):
+            self.ledger.authorize("another", approval, {"pilot": ".02"}, self.config)
+        self.assertIsNone(self.ledger.allocation("another"))
+        self.assertEqual(self.ledger._root()[0], after)
+
+    def test_previous_pilot_cap_cannot_reuse_its_run_or_approval(self):
+        previous_config = {**self.config, "pilot_limit_usd": 7}
+        path = Path(self.temporary.name) / "previous-config.json"
+        write_json(path, previous_config)
+        with self.assertRaisesRegex(ValueError, "review: pilot_limit_usd"):
+            protocol.config_at(path)
+        previous_study = {"config": previous_config, "fixture": True}
+        current_study = {"config": self.config, "fixture": True}
+        storage = Path(self.temporary.name) / "previous-storage"
+        previous_root = storage / "openai-runs/previous-pilot"
+        write_json(previous_root / "study.json", previous_study)
+        with patch.object(protocol, "signature", return_value=current_study):
+            with self.assertRaisesRegex(ValueError, "new run ID"):
+                protocol.study(storage, "previous-pilot", self.config)
+        self.assertEqual(read_json(previous_root / "study.json"), previous_study)
+        previous_approval = {**self.approval(), "study_sha256": digest(previous_study)}
+        with self.assertRaisesRegex(ValueError, "current study hash"):
+            check_approval(previous_approval, digest(current_study), self.config)
 
     def test_global_training_lock_and_usage_overrun(self):
         self.ledger.authorize("a", self.approval(), {"pilot": "3"}, self.config)
