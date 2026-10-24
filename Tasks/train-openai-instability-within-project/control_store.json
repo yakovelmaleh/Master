@@ -1,0 +1,10 @@
+{
+  "schema": "azure-table-control-v1",
+  "experiment": "master-openai-instability",
+  "storage_resource_id": "",
+  "table": "",
+  "container": "",
+  "authority_id": "",
+  "resource_id": "",
+  "endpoint": ""
+}

@@ -58,10 +58,18 @@ class AzureBackend:
             max_retries=0, timeout=60,
         )
         self.http = httpx.Client(timeout=60, follow_redirects=False)
+        self.guard = None
+
+    def before_mutation(self):
+        if self.guard is None:
+            raise ValueError("A durable cloud dispatch guard is required.")
+        self.guard()
 
     def arm(self, method, suffix="", body=None, missing_ok=False):
         url = "https://management.azure.com" + self.approval["resource_id"] + suffix
         token = self.credential.get_token("https://management.azure.com/.default").token
+        if method != "GET":
+            self.before_mutation()
         response = self.http.request(method, url, params={"api-version": "2024-10-01"},
                                      headers={"Authorization": "Bearer " + token}, json=body)
         if missing_ok and response.status_code == 404:
@@ -89,6 +97,7 @@ class AzureBackend:
 
     def upload(self, path, filename):
         with path.open("rb") as stream:
+            self.before_mutation()
             item = self.client.files.create(file=(filename, stream), purpose="fine-tune")
         return item.id
 
@@ -98,8 +107,11 @@ class AzureBackend:
             raise ValueError("Upload outcome ambiguous; reconcile files in the approved Azure account.")
         return found[0]
 
-    def train(self, training_file, suffix):
+    def wait_file(self, training_file):
         self.client.files.wait_for_processing(training_file)
+
+    def train(self, training_file, suffix):
+        self.before_mutation()
         result = self.client.fine_tuning.jobs.create(
             model=self.config["model"], training_file=training_file, suffix=suffix,
             seed=self.config["seed"],
@@ -127,6 +139,7 @@ class AzureBackend:
         return self.job_value(self.client.fine_tuning.jobs.retrieve(job_id))
 
     def cancel(self, job_id):
+        self.before_mutation()
         return self.job_value(self.client.fine_tuning.jobs.cancel(job_id))
 
     def get_deployment(self, name):
@@ -166,33 +179,32 @@ class AzureBackend:
 
     def predict(self, deployment, messages):
         from openai import APIConnectionError, APIStatusError
+        from cloud_control import RetryableRejection
 
-        for attempt in range(self.config["request_attempts"]):
-            try:
-                response = self.client.chat.completions.create(
-                    model=deployment, messages=messages, temperature=1, seed=self.config["seed"],
-                    max_tokens=1, logprobs=True, top_logprobs=self.config["top_logprobs"],
-                )
-                result = positive_score(response)
-                result["attempts"] = attempt + 1
-                return result
-            except (APIConnectionError, APIStatusError) as error:
-                status = getattr(error, "status_code", None)
-                if status is not None and status != 429 and status < 500:
-                    raise ProviderError(f"Inference failed (HTTP {status}); request not retried.") from None
-                if attempt + 1 == self.config["request_attempts"]:
-                    raise ProviderError("Inference retry allowance exhausted; reservation retained.") from None
+        self.before_mutation()
+        try:
+            response = self.client.chat.completions.create(
+                model=deployment, messages=messages, temperature=1, seed=self.config["seed"],
+                max_tokens=1, logprobs=True, top_logprobs=self.config["top_logprobs"],
+            )
+            return positive_score(response)
+        except (APIConnectionError, APIStatusError) as error:
+            status = getattr(error, "status_code", None)
+            if status == 429:
                 response = getattr(error, "response", None)
                 header = response.headers.get("retry-after") if response is not None else None
-                delay = float(header) if header and header.replace(".", "", 1).isdigit() else 2 ** attempt
-                if not math.isfinite(delay) or delay > 120:
-                    raise ProviderError("Server retry delay exceeds this job's retry policy.") from None
-                time.sleep(max(0, delay))
+                delay = float(header) if header and header.replace(".", "", 1).isdigit() else 1
+                if math.isfinite(delay) and 0 <= delay <= 120:
+                    raise RetryableRejection(delay) from None
+            raise ProviderError(
+                f"Inference failed (HTTP {status}); outcome retained, no automatic replay."
+            ) from None
 
     def delete_file(self, file_id):
         from openai import NotFoundError
 
         try:
+            self.before_mutation()
             self.client.files.delete(file_id)
         except NotFoundError:
             pass  # An already absent, manifest-owned file is cleaned up.
@@ -201,9 +213,26 @@ class AzureBackend:
         from openai import NotFoundError
 
         try:
+            self.before_mutation()
             self.client.models.delete(model)
         except NotFoundError:
             pass  # An already absent, manifest-owned model is cleaned up.
+
+    def file_exists(self, file_id):
+        from openai import NotFoundError
+        try:
+            self.client.files.retrieve(file_id)
+        except NotFoundError:
+            return False
+        return True
+
+    def model_exists(self, model):
+        from openai import NotFoundError
+        try:
+            self.client.models.retrieve(model)
+        except NotFoundError:
+            return False
+        return True
 
     def close(self):
         self.client.close()

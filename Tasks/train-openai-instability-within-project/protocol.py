@@ -21,7 +21,7 @@ CELLS = tuple(itertools.product(PROJECTS, LEVELS, VARIANTS))
 PILOT_PROJECT, PILOT_LEVEL = "Jira", 20
 PILOT = tuple((PILOT_PROJECT, PILOT_LEVEL, variant) for variant in VARIANTS)
 PACKAGES = ("numpy", "pandas", "scikit-learn", "joblib", "openai",
-            "tiktoken", "azure-identity", "httpx")
+            "tiktoken", "azure-identity", "httpx", "azure-core", "azure-data-tables", "azure-storage-blob")
 PROMPT = (
     "Predict whether the issue text will change by at least the specified number "
     "of words after sprint entry, according to the historical instability label. "
@@ -41,7 +41,7 @@ def config_at(path):
     config = read_json(path)
     expected = read_json(TASK / "experiment.json")
     if set(config) != set(expected):
-        raise ValueError("Configuration keys differ from the experiment schema.")
+        raise ValueError("Configuration keys differ; use the current experiment.json and a new run ID.")
     if config["schema"] != "openai-instability-v2":
         raise ValueError("Unsupported configuration schema; use the current experiment.json and a new run ID.")
     if config["model"] not in ("gpt-4.1-nano-2025-04-14", "gpt-4.1-mini-2025-04-14"):
@@ -53,7 +53,7 @@ def config_at(path):
     ):
         if type(config[name]) is not int or not lower <= config[name] <= upper:
             raise ValueError(f"Invalid bounded configuration: {name}")
-    for name in ("seed", "training_type", "deployment_sku", "deployment_capacity",
+    for name in ("control_schema", "seed", "training_type", "deployment_sku", "deployment_capacity",
                  "pilot_limit_usd", "total_limit_usd", "credit_reserve_usd"):
         if config[name] != expected[name]:
             raise ValueError(f"Changing the approved protocol requires review: {name}")
@@ -63,7 +63,7 @@ def config_at(path):
 
 
 def signature(config):
-    files = [*TASK.glob("*.py"), TASK / "requirements.txt",
+    files = [*TASK.glob("*.py"), TASK / "requirements.txt", TASK / "control_store.json",
              SHARED / "reference_contract.json", SHARED / "data_contract.py",
              SHARED / "freeze_reference.py", SHARED / "common.py", SHARED / "evaluate.py",
              TASK.parent / "verify-refactored-instability-model/model_comparison.py"]

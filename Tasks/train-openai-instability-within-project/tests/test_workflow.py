@@ -18,7 +18,9 @@ sys.path.insert(0, str(TASK))
 import protocol
 from protocol import CELLS, PILOT, PROJECTS, cell_key, digest, read_json, write_json
 from azure_backend import AzureBackend, positive_score
-from cost_control import CHECKS, Ledger, check_approval, estimate, money
+from cost_control import CHECKS, check_approval, estimate, money
+from cloud_control import Ledger, RetryableRejection
+from fake_control import BINDING, PLAN, FakeStore, authority_fields
 from prepare_data import messages, partition, prepare
 import run_experiment as runner
 from bundle_artifacts import copy_tree
@@ -87,6 +89,7 @@ class FakeBackend:
         return {"account_verified": True, "fixture": True}
 
     def upload(self, path, name):
+        self.guard()
         value = "file-" + str(len(self.files))
         self.files[value] = name
         return value
@@ -95,11 +98,15 @@ class FakeBackend:
         return next(key for key, filename in self.files.items() if filename == name)
 
     def train(self, file_id, suffix):
+        self.guard()
         key = "job-" + str(len(self.jobs))
         value = {"id": key, "model": self.config["model"], "training_file": file_id,
                  "fine_tuned_model": "ft:" + key, "status": "queued", "trained_tokens": 100}
         self.jobs[key] = value
         return dict(value)
+
+    def wait_file(self, file_id):
+        pass
 
     def job(self, job_id):
         self.jobs[job_id]["status"] = "succeeded"
@@ -115,6 +122,7 @@ class FakeBackend:
         return self.deployments.get(name)
 
     def deploy(self, name, model, owner):
+        self.guard()
         self.deployments[name] = {"tags": {"master-study": owner}, "sku": {"name": "DeveloperTier"},
                                  "properties": {"model": {"name": model}, "provisioningState": "Succeeded"}}
 
@@ -123,19 +131,33 @@ class FakeBackend:
             raise ValueError("Wrong model")
 
     def remove_deployment(self, name):
+        self.guard()
         self.deployments.pop(name, None)
 
     def predict(self, deployment, prompt):
+        self.guard()
         self.predict_calls += 1
         score = .9 if "positive" in prompt[-1]["content"] else .1
         return {"score": score, "usage": {"input_tokens": 30, "output_tokens": 1},
                 "attempts": 1, "response_model": deployment, "request_id": str(self.predict_calls)}
 
     def delete_file(self, file_id):
+        self.guard()
         self.files.pop(file_id, None)
 
     def delete_model(self, model):
-        pass
+        self.guard()
+
+    def cancel(self, job_id):
+        self.guard()
+        self.jobs[job_id]["status"] = "cancelled"
+        return dict(self.jobs[job_id])
+
+    def file_exists(self, file_id):
+        return file_id in self.files
+
+    def model_exists(self, model):
+        return False
 
 
 class Fixture(unittest.TestCase):
@@ -145,14 +167,19 @@ class Fixture(unittest.TestCase):
         self.root = Path(self.temporary.name) / "study"
         self.config = {**read_json(TASK / "experiment.json"), "bootstrap_samples": 100}
         write_json(self.root / "study.json", {"config": self.config, "fixture": True})
-        self.ledger = Ledger(Path(self.temporary.name) / "control")
+        self.ledger = Ledger(FakeStore(), BINDING, PLAN, remaining_credit="100")
+        self.session = self.ledger.session()
+        self.session.__enter__()
+        self.addCleanup(self.session.__exit__, None, None, None)
         self.backend = FakeBackend(self.config)
+        self.backend.guard = self.ledger.guard_remote
 
     def prepared(self):
         return prepare(self.root, self.config, FakeTokenizer(), loader)
 
     def approval(self, scope="pilot"):
         return {
+            **authority_fields(),
             "study_sha256": digest(read_json(self.root / "study.json")), "scope": scope,
             "endpoint": "https://fixture.openai.azure.com", "base_deployment": "base-fixture",
             "resource_id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/fixture/providers/Microsoft.CognitiveServices/accounts/fixture",
@@ -241,9 +268,10 @@ class BudgetTests(Fixture):
         with self.assertRaisesRegex(ValueError, "cost limit"):
             self.ledger.authorize("a", approval, {"pilot": "7.00001"}, self.config)
         self.ledger.authorize("a", approval, {"pilot": "7"}, self.config)
-        self.assertIsNone(self.ledger.begin("a", "one", "7", "inference", {}))
+        self.assertIsNone(self.ledger.begin("a", "one", "6.99", "inference", {}))
         with self.assertRaisesRegex(ValueError, "exceed"):
             self.ledger.begin("a", "two", ".00001", "inference", {})
+        self.ledger.dispatch("a", "one", 1)
         with self.assertRaisesRegex(ValueError, "Unconfirmed"):
             self.ledger.begin("a", "one", "7", "inference", {})
         self.ledger.finish("a", "one", {"score": .4}, actual="1")
@@ -253,7 +281,7 @@ class BudgetTests(Fixture):
             self.ledger.authorize("a", full, {"full": "80.00001"}, self.config)
         self.ledger.authorize("a", full, {"full": "80"}, self.config)
         with self.assertRaisesRegex(ValueError, "Global"):
-            self.ledger.authorize("b", approval, {"pilot": ".01"}, self.config)
+            self.ledger.authorize("b", approval, {"pilot": ".02"}, self.config)
         with self.assertRaisesRegex(ValueError, "credit|Credit"):
             self.ledger.authorize("a", {**full, "remaining_credit_usd": "99.99"}, {"full": "80"}, self.config)
 
@@ -263,8 +291,10 @@ class BudgetTests(Fixture):
         self.ledger.begin("a", "train", "1", "training", {})
         with self.assertRaisesRegex(ValueError, "cloud training"):
             self.ledger.begin("b", "train", "1", "training", {})
+        self.ledger.dispatch("a", "train", 1)
         self.ledger.training_terminal("a", "train", {"status": "succeeded"})
         self.ledger.begin("b", "train", "1", "training", {})
+        self.ledger.dispatch("b", "train", 1)
         with self.assertRaisesRegex(ValueError, "exceeded"):
             self.ledger.finish("b", "train", {}, actual="1.01")
         self.assertTrue(self.ledger.read()["breached"])
@@ -273,7 +303,7 @@ class BudgetTests(Fixture):
 
     def test_concurrent_requests_cannot_both_spend_the_last_allowance(self):
         self.ledger.authorize("a", self.approval(), {"pilot": "5"}, self.config)
-        self.ledger.begin("a", "initial", "4.99", "inference", {})
+        self.ledger.begin("a", "initial", "4.98", "inference", {})
 
         def spend(name):
             try:
@@ -285,7 +315,7 @@ class BudgetTests(Fixture):
         with ThreadPoolExecutor(max_workers=2) as pool:
             results = list(pool.map(spend, ("one", "two")))
         self.assertEqual(sum(results), 1)
-        self.assertEqual(money(self.ledger.snapshot("a")["operation_bounds_usd"]), money("5"))
+        self.assertEqual(money(self.ledger.snapshot("a")["operation_bounds_usd"]), money("4.99"))
 
     def test_full_scope_cost_is_not_hidden_by_pilot(self):
         prepared = self.prepared()
@@ -320,6 +350,7 @@ class ScoringTests(unittest.TestCase):
 
     def test_sdk_training_has_explicit_epochs_and_no_validation_training_rows(self):
         backend = object.__new__(AzureBackend)
+        backend.guard = Mock()
         backend.client = Mock()
         backend.config = read_json(TASK / "experiment.json")
         backend.client.fine_tuning.jobs.create.return_value = NS(
@@ -333,6 +364,7 @@ class ScoringTests(unittest.TestCase):
 
     def test_deployment_uses_only_owned_developer_resources(self):
         backend = object.__new__(AzureBackend)
+        backend.guard = Mock()
         backend.config = read_json(TASK / "experiment.json")
         backend.arm = Mock()
         backend.deploy("name", "ft:model", "owner")
@@ -356,13 +388,17 @@ class ScoringTests(unittest.TestCase):
                 self.response = NS(headers={"retry-after": "0"})
 
         backend = object.__new__(AzureBackend)
+        backend.guard = Mock()
         backend.config = read_json(TASK / "experiment.json")
         backend.client = Mock()
         client = backend.client.chat.completions.create
         fake_sdk = NS(APIConnectionError=ConnectionError, APIStatusError=StatusError)
         with patch.dict(sys.modules, {"openai": fake_sdk}), patch("azure_backend.time.sleep"):
             client.side_effect = [StatusError(429), response()]
-            self.assertEqual(backend.predict("model", [])["attempts"], 2)
+            with self.assertRaises(RetryableRejection):
+                backend.predict("model", [])
+            self.assertEqual(client.call_count, 1)
+            self.assertAlmostEqual(backend.predict("model", [])["score"], .8)
             client.reset_mock()
             client.side_effect = StatusError(401)
             with self.assertRaisesRegex(RuntimeError, "401"):
@@ -370,9 +406,9 @@ class ScoringTests(unittest.TestCase):
             self.assertEqual(client.call_count, 1)
             client.reset_mock()
             client.side_effect = ConnectionError()
-            with self.assertRaisesRegex(RuntimeError, "exhausted"):
+            with self.assertRaisesRegex(RuntimeError, "no automatic replay"):
                 backend.predict("model", [])
-            self.assertEqual(client.call_count, 3)
+            self.assertEqual(client.call_count, 1)
 
 
 class WorkflowTests(Fixture):
@@ -383,14 +419,14 @@ class WorkflowTests(Fixture):
         self.assertIn("Jira/20", read_json(self.root / "base_control.json")["protocol"])
         self.assertFalse((self.root / "final").exists())
         with self.assertRaises(FileNotFoundError):
-            runner.seal(self.root)
+            runner.seal(self.root, self.ledger)
         self.authorize("full")
         for _ in range(6):
             runner.train_submit(self.root, self.config, self.ledger, self.backend)
             runner.train_status(self.root, self.config, self.ledger, self.backend)
         self.assertEqual(len(self.backend.jobs), 8)
         runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
-        runner.seal(self.root)
+        runner.seal(self.root, self.ledger)
         with self.assertRaisesRegex(ValueError, "sealing"):
             runner.train_submit(self.root, self.config, self.ledger, self.backend)
         with patch("data_contract.load_project", loader), patch(
@@ -411,17 +447,29 @@ class WorkflowTests(Fixture):
         runner.cleanup(self.root, self.config, self.ledger, self.backend)
         self.assertEqual(self.backend.files, {})
         self.assertEqual(self.backend.deployments, {})
+        for cell in CELLS:
+            key = cell_key(*cell)
+            for relative in (f"remote/{key}.json", f"validation/{key}/validation.json",
+                             f"validation/{key}/scores.json", f"final/{key}/metrics.json",
+                             f"final/{key}/scores.json"):
+                (self.root / relative).unlink()
+        (self.root / "authorization.json").unlink()
+        (self.root / "sealed.json").unlink()
+        restored = runner.report(self.root, self.ledger, output)
+        self.assertEqual(restored["cells"], result["cells"])
+        self.assertEqual(self.backend.predict_calls, calls)
         selection_path = self.root / "validation" / cell_key(*PILOT[0]) / "validation.json"
         value = read_json(selection_path)
         value["threshold"] = .99
         write_json(selection_path, value)
         with self.assertRaisesRegex(ValueError, "selection changed"):
-            runner.sealed_cells(self.root)
+            runner.sealed_cells(self.root, self.ledger)
 
     def test_training_timeout_reconciles_without_resubmission(self):
         self.prepared()
         self.authorize()
-        write_json(self.root / "smoke.json", {"study_sha256": digest(read_json(self.root / "study.json"))})
+        self.ledger.record(protocol.study_id(self.root), "smoke",
+                           {"study_sha256": digest(read_json(self.root / "study.json"))})
         real_train = self.backend.train
 
         def timeout(file_id, suffix):
@@ -452,13 +500,19 @@ class WorkflowTests(Fixture):
         with self.assertRaisesRegex(ValueError, "Unconfirmed"):
             runner.score_once(self.root, self.config, self.ledger, self.backend, deployment, "row-b", prompt, 100)
 
-    def test_deployment_expiry_recreates_same_model_and_does_not_adopt_others(self):
+    def test_deployment_expiry_requires_cleanup_and_does_not_adopt_others(self):
+        self.prepared()
+        self.authorize()
         name = runner.deploy(self.root, self.config, self.ledger, self.backend, "key", "ft:one")
         self.backend.deployments.clear()
-        self.assertEqual(runner.deploy(self.root, self.config, self.ledger, self.backend, "key", "ft:one"), name)
+        with self.assertRaisesRegex(ValueError, "expired"):
+            runner.deploy(self.root, self.config, self.ledger, self.backend, "key", "ft:one")
+        runner.remove_deployment(self.root, self.ledger, self.backend)
+        new_name = runner.deploy(self.root, self.config, self.ledger, self.backend, "key", "ft:one")
+        self.assertNotEqual(name, new_name)
         with self.assertRaisesRegex(ValueError, "Another"):
             runner.deploy(self.root, self.config, self.ledger, self.backend, "other", "ft:two")
-        self.backend.deployments[name]["tags"]["master-study"] = "unrelated"
+        self.backend.deployments[new_name]["tags"]["master-study"] = "unrelated"
         with self.assertRaisesRegex(ValueError, "ownership"):
             runner.remove_deployment(self.root, self.ledger, self.backend)
 

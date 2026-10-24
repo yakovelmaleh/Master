@@ -1,5 +1,6 @@
 {
   "schema": "openai-instability-v2",
+  "control_schema": "azure-table-control-v1",
   "model": "gpt-4.1-mini-2025-04-14",
   "epochs": 1,
   "seed": 7,

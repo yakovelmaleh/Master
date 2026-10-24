@@ -19,7 +19,7 @@ training and inference using CPU jobs; no OpenAI weights run on cluster GPUs.
 **No real OpenAI scores or cloud-validation claims are included.** Offline tests
 use synthetic provider responses; these are not research results.
 
-## Reduced-scope protocol and migration
+## Reduced scope and cloud-control migration
 
 Protocol `openai-instability-v2` deliberately selects Jira and Qt at levels 5 and
 20, retaining both variants and every historical row in those cells. The other
@@ -29,13 +29,15 @@ unchanged. "Full" approval now means all eight selected models, not the former
 48-model study.
 
 After updating the checkout, use the current checked-in `experiment.json` and a
-**new run ID**, for example `openai-qt-jira-01`. Do not reuse the old
+**new run ID**, for example `openai-qt-jira-cloud-01`. Do not reuse the old
 `openai-mini-study-01` run or its external `openai-mini.json` configuration: the
 old schema and study signature cannot authorize the revised scope. Keep their
 files and the global ledger; a new run never resets reservations or costs.
-The existing `master-openai` environment can be reused if dependencies are
-unchanged. Run `prepare` again, then review the new approval template and cost
-estimate. A scope change is not authorization for paid calls.
+The `azure-table-control-v1` control contract changes the implementation signature,
+not the eight-model scientific scope. Preserve `openai-qt-jira-01` too; do not
+resume it under changed code. Update the existing environment's pinned
+requirements, complete separately approved cloud-control setup below, then
+prepare a new run. A code change is not authorization for paid calls.
 
 ## Account and cost prerequisites
 
@@ -66,12 +68,17 @@ approval files, command arguments, or sbatch files. Do not assume a corporate
 Azure login is the private credit subscription. The runner checks that the
 explicit ARM resource ID and inference endpoint describe the same account.
 
-All nodes must share the same durable home directory and support SQLite file
-locking. The global control directory is
-`$HOME/.local/state/master-openai/`, shared across run IDs and storage roots.
-SQLite uses rollback journaling and full synchronous writes, not WAL on network
-storage. Confirm these filesystem semantics with the cluster administrators.
-Never copy/delete the ledger to bypass a budget or a pending cloud job.
+Budget and remote-operation correctness no longer depends on NFS SQLite or file
+locks. One Azure Table partition holds the experiment-wide authority, including
+all run IDs and storage roots. Conditional transactions update reservations,
+request intents, ownership and the breach latch together. A finite Blob lease
+coordinates workers; a Table ownership epoch fences stale commits. A Blob lease
+does **not** cancel or fence an already dispatched OpenAI request.
+
+The shared filesystem still stores hashed datasets and rebuildable result
+caches. Local scheduler/study locks are convenience, not spending authorization.
+There is no SQLite or local-file fallback when Azure Storage is unavailable.
+Never reset, delete or redirect the cloud authority to bypass pending work.
 
 The implementation uses:
 
@@ -114,6 +121,135 @@ The implementation uses:
 The runner creates the fine-tuned Developer deployments later, after training
 and approval. You do not need to create eight deployments manually.
 
+### Cloud-control setup: separate spending approval required
+
+The checked-in `control_store.json` is deliberately **unbound**. Normal commands
+never create accounts, tables, containers or a replacement budget. Setup,
+preparation, migration inventory and cost worksheets can run offline; bootstrap,
+probes and even cloud status reads incur storage activity and require approval.
+
+1. Stop old workers and stop submitting old paid-stage scripts. Keep all old
+   runs and `$HOME/.local/state/master-openai/ledger.sqlite3`. Inventory the
+   existing storage root with the read-only command below. Any old reservation,
+   operation, breach, authorization or upload/deployment intent blocks this
+   zero-use migration. Nonempty/uncertain migration needs a separate review.
+2. Review exact storage rates, offer coverage, capacity/transfer assumptions,
+   retention and cleanup charges. Reserve storage **inside** $7/$80. This
+   implementation uses one cumulative storage reserve, included in scope
+   estimates but counted only once globally. Reserve enough for the approved
+   workflow, probes and recovery. Full-study expansion may increase it only
+   through the separate reviewed extension below.
+3. Only after provisioning approval, create a dedicated GPv2 `Standard_ZRS`
+   account, Hot tier, a dedicated empty Table and private Blob container.
+   Prefer Israel Central if available. Require HTTPS; disable public blob and
+   Shared Key access; use service-scoped Table encryption with Microsoft-managed
+   keys, no HNS. A different SKU/encryption mode needs review, not a silent fallback.
+4. Use `DefaultAzureCredential` and grant Storage Table Data Contributor on that
+   Table, Storage Blob Data Contributor on that container, and management Reader
+   on that storage account. Account/resource creation and role assignment are
+   separate provisioning actions, not privileges assumed by the runner.
+5. Fill the single deployment-wide `control_store.json` with the exact storage
+   ARM ID, Table/container, a newly generated fixed UUID, and the existing OpenAI
+   resource ID/endpoint. All nodes/checkouts must use this same binding. There
+   are no per-run or environment endpoint overrides. Keep the binding private
+   if its resource metadata should not be published; artifact bundling excludes it.
+6. Generate the private storage approval template, review its false checks and
+   worksheet, and place the reviewed file at the fixed
+   `$HOME/.local/state/master-openai/cloud-approval.json`. Its authority hash
+   must match the binding, and `migration_sha256` must match a fresh inventory.
+   Supply verified `remaining_credit_usd`; storage and model approvals must both
+   cover global reservations plus the protected $20. Never put credentials in
+   either file.
+
+Offline inventory/template commands, run from the repository:
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py audit \
+  --storage "$HOME/master-openai" --output "$HOME/master-openai/migration-audit.json"
+python Tasks/train-openai-instability-within-project/control_admin.py template \
+  --storage "$HOME/master-openai" \
+  --output "$HOME/.local/state/master-openai/cloud-approval.json"
+```
+
+The template is not approval. Review **all** previous storage roots and remote
+resources; the inventory scans only the supplied root and the fixed legacy
+control directory. Do not overwrite an existing reviewed approval with a template.
+The authority binding must be finalized before creating the new study signature.
+
+The storage worksheet requires positive verified USD rates/allowances,
+`max_requests`, `session_requests` (per-command ceiling), `max_sessions`,
+`session_seconds` (at most four hours), and `retention_until`. The required reserve is:
+
+```text
+margin * (max_requests * request_usd
+          + bootstrap_usd + capacity_usd + transfer_usd)
+```
+
+Use at least 1.25 for `margin`. `request_usd` must cover the most expensive
+recurring Table entity operation or Blob lease request, including failed calls.
+`bootstrap_usd` additionally covers setup, initial Blob writes and probes;
+capacity/transfer allowances must cover the reviewed maximum bytes and retention,
+not merely today's small ledger. SDK storage retries are disabled. Transaction
+batches are conservatively counted per entity, and query pages separately.
+Do not assume free bandwidth, free storage, or a batch discount.
+Set `session_seconds` below the actual SLURM wall time with startup/cleanup
+headroom. The runner stops starting new calls near its own deadline; an external
+job kill can still leave an unconfirmed request requiring reconciliation.
+
+Generate an **offline request-count worksheet** before provisioning. The existing
+eight-cell `openai-qt-jira-01/prepared.json` may be used for counts only; this
+does not authorize or resume that old study. The example uses the new preparation:
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py cost-plan \
+  --storage "$HOME/master-openai" \
+  --prepared "$HOME/master-openai/openai-runs/openai-qt-jira-cloud-01/prepared.json" \
+  --output "$HOME/master-openai/cloud-cost-plan.json"
+```
+
+Include each planned stage, status poll, probe and restart. Command envelopes are
+reserved cumulatively before work and never refunded; unused headroom cannot
+silently authorize extra launches. Exhaustion stops work. Storage reads needed
+to reject a launch and ongoing retained bytes can still cost money: this is not
+a hard Azure subscription cap. Bound manual launches and review billing/retention;
+retain the subscription spending protection.
+Preflight also refuses a storage allowance that cannot cover the remaining
+scope's conservative command envelopes; account for already reserved pilot
+sessions when planning full-study approval.
+
+Only after explicit live-storage approval, with `live_storage_test_approved`
+set in the private approval, bootstrap the already-provisioned empty resources:
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py bootstrap \
+  --storage "$HOME/master-openai" --output "$HOME/master-openai/cloud-bootstrap.json"
+```
+
+Bootstrap re-audits legacy state and never overwrites an existing Table authority.
+Take the final inventory and review its hash after the binding and new preparation
+are finalized: creating a study manifest changes the migration inventory.
+If interrupted, preserve the evidence; only a matching partially created
+coordinator blob may be resumed. No old budget data is imported or reset.
+
+Then run the bounded, synthetic **two-node storage probe**, also separately
+cost-approved. Submit from the repository, using the actual environment Python:
+
+```bash
+sbatch --partition main \
+  Tasks/train-openai-instability-within-project/cluster/check_cloud_control.sbatch \
+  "$HOME/master-openai" "$(command -v python)"
+```
+
+It tests conditional batch atomicity, lease renewal and exclusion from a distinct
+compute node. Only success marks the authority ready for model preflight.
+It makes no model calls and uploads no dataset. Probe records are retained for
+audit. Offline fault tests additionally cover crashes and uncertain responses;
+the live probe is not a proof against all service outages or regional loss.
+
+Keep the authority until all owned cloud work is terminal and billing is
+reconciled. Storage expiry/cleanup needs explicit review; do not automatically
+delete it on the retention deadline or switch to a potentially stale backup.
+
 For an interactive development login, if Azure CLI is available on both login
 and compute nodes, sign in on the cluster with `az login --use-device-code` and
 explicitly select the intended credit subscription. `DefaultAzureCredential`
@@ -149,11 +285,27 @@ rerun setup; an existing environment with another Python version fails explicitl
 CPU jobs request start/completion/failure notifications using the
 repository's existing default recipient; `--mail-user` overrides it.
 
+After setup succeeds, validate the installed SDKs on a CPU node:
+
+```bash
+./Tasks/run_cluster_task.sh train-openai-instability-within-project \
+  --stage check-sdk --partition main --time 00:30:00 \
+  --conda-env master-openai --storage "$HOME/master-openai"
+```
+
+This stage checks the pinned Python/package versions, exercises the actual
+Table and Blob clients with a fake credential and in-memory HTTP transport,
+then runs the workflow and summary regressions. It neither reads the real
+cloud binding nor makes Azure requests. Success ends with
+`SDK_OFFLINE_CHECKS_PASSED`. It is distinct from the separately approved live
+storage probe. Stop on failure and preserve the job log; do not proceed to
+provisioning or model stages.
+
 Run `prepare` with the same command shape:
 
 ```bash
 ./Tasks/run_cluster_task.sh train-openai-instability-within-project \
-  --stage prepare --partition main --run-id openai-qt-jira-01 \
+  --stage prepare --partition main --run-id openai-qt-jira-cloud-01 \
   --storage "$HOME/master-openai"
 ```
 
@@ -191,7 +343,7 @@ charges, currency/tax differences, and cleanup costs explicitly.
 
 ```bash
 ./Tasks/run_cluster_task.sh train-openai-instability-within-project \
-  --stage preflight --partition main --run-id openai-qt-jira-01 \
+  --stage preflight --partition main --run-id openai-qt-jira-cloud-01 \
   --storage "$HOME/master-openai" --approval "$HOME/private/openai-approval.json"
 ```
 
@@ -202,6 +354,11 @@ to, the $80 total ceiling. A cost worksheet is persisted before
 any training request. Unknown/insufficient funding blocks execution, not just
 prints a warning.
 
+Fill `control_schema`, `authority_sha256` and `storage_reserve_usd` from the
+reviewed binding/storage approval. The reserve must equal the bootstrapped
+allowance. `cloud_control_verified` replaces the old filesystem check; do not
+pretend the NFS diagnostic established SQLite crash durability.
+
 Submit these stages separately, waiting for each SLURM job to finish:
 
 | Stage | Effect |
@@ -209,6 +366,7 @@ Submit these stages separately, waiting for each SLURM job to finish:
 | `smoke` | Billable base-model logprob probes and the small validation-only control |
 | `train-submit` | Submit the next not-yet-trained model in the approved scope, then exit |
 | `train-status` | Retrieve/reconcile Azure jobs; it does not wait for a queued job or start another one |
+| `reconcile` | Recover the global pending intent from exact provider evidence or a durable receipt; never replay an unknown request |
 | `validate` | Score all models in the approved scope after their training has succeeded |
 
 Use the same master-launcher command as `prepare`, replacing `--stage`. For the
@@ -229,6 +387,27 @@ evidence and run `preflight` again. It requires both pilot validation results an
 reserves the complete training/validation/test scope, including the already
 reserved pilot and retry bounds. If all eight fine-tunes cannot fit, stop for a scope
 decision; do not drop data, variants, or repositories.
+
+If more storage allowance is needed, first obtain **separate full-scope storage
+approval**. Review an updated private `cloud-approval.json` with `scope: "full"`,
+`storage_extension_approved: true`, the exact prior `previous_storage_sha256`,
+the cloud run key (`run`), and its `study_sha256`. Keep the same authority.
+Increase cumulative request/capacity/transfer/reserve bounds; never subtract
+pilot usage or reduce prior reservations. Record fresh credit/rate evidence.
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py extend \
+  --storage "$HOME/master-openai" --output "$HOME/master-openai/cloud-extension.json"
+```
+
+The extension requires both cloud-recorded pilot validations, enforces $80 plus
+the protected $20, and cannot clear a breach, pending request or model reservation.
+It is a conditional update of the same ledger, not a new bootstrap. Until the
+extension is confirmed, a changed private storage plan makes ordinary commands
+fail closed. A lost confirmation can be checked by repeating the exact reviewed
+extension; it recognizes its immutable review record instead of resetting state.
+Then renew the model approval with the new `storage_reserve_usd` and run full
+preflight. Old model approval cannot silently spend against a changed allowance.
 
 Repeat `train-submit` / `train-status` for the remaining models, then run:
 
@@ -268,15 +447,22 @@ that row: no second paid request is silently made. Review provider request/billi
 evidence before deciding on a separately budgeted recovery/new run. This deliberate
 stop cannot be bypassed with a retry flag or by deleting ledger entries.
 
-Transient inference retries are bounded; SDK auto-retries are disabled. Reservations
-include all attempts. Unknown earlier attempt costs remain reserved. Azure billing
-can lag; the ledger is conservative and never treats delayed billing as free usage.
-Actual usage above the bound sets a global breach flag and stops further spending.
+Only an explicit HTTP 429 rejection is eligible for a new durable inference
+attempt, at most three total. Connection errors, timeouts, 5xx responses, missing
+usage or invalid scoring output remain unknown and are not automatically retried.
+SDK auto-retries are disabled. A stale worker may save an immutable completion
+receipt but cannot finalize the ledger or dispatch another request. Lease expiry
+or an absent job listing is not evidence that a request was never accepted.
+Reservations remain conservative; an actual overrun permanently latches a stop.
+There is no exactly-once guarantee across Azure Storage and Azure OpenAI.
 
 `cancel` requests Azure job cancellation. A killed SLURM job is not a cancelled
 Azure job. Confirm terminal provider status using `train-status`, then run
 `cleanup`. These recovery stages remain usable after approval expiry or code/
-environment changes; they read the original study identity and configuration.
+environment changes within the cloud-control contract; they read the original
+study identity and configuration. They still need valid storage access/cost
+approval. Legacy SQLite studies require their original recovery code, not an
+implicit migration. Deletion/cancellation timeouts also require reconciliation.
 
 Cleanup deletes only manifest-owned deployments and uploaded training files.
 Models are retained by default for reproducibility. Explicitly add
@@ -294,7 +480,8 @@ successful. No resource group or subscription is deleted.
 | Validation scores and selection | Same run's `validation/<project>-<level>-<variant>/` |
 | Sealed protocol | Same run's `sealed.json` |
 | Test scores/metrics | Same run's `final/<project>-<level>-<variant>/` |
-| Global reservations and response cache | `$HOME/.local/state/master-openai/ledger.sqlite3` |
+| Authoritative reservations, remote intents, receipts, selections and results | Fixed Azure Table partition |
+| Private storage approval | `$HOME/.local/state/master-openai/cloud-approval.json` |
 | SLURM logs and job mapping | `Tasks/<task>/cluster_runs/<submission>/logs/` and `llm_job_plan.json` |
 | Summary | Report submission's `results/llm_report.json` |
 
@@ -306,6 +493,9 @@ Its scope checks still accept archived v1 reports only with their original
 original protocol version; the reduced runner will not relabel old results.
 Only code and final summaries are allowlisted for bundling; raw stories,
 JSONL, row scores, authorization, ledger, remote payloads, and logs are excluded.
+Run-local authorization, remote references and seals are caches; they never
+override cloud evidence. Reports label storage actuals as unreconciled instead
+of pretending the storage reserve is an actual bill.
 PR creation and presentation edits are separate actions, not part of this task.
 
 The study remains retrospective, with possible public-text pretraining exposure.
