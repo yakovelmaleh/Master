@@ -1,15 +1,12 @@
 """Persistent credit reservations; not a replacement for Azure spending limits."""
 
 from datetime import datetime, timezone
-from contextlib import contextmanager
 from decimal import Decimal, InvalidOperation
-import json
 from pathlib import Path
 import re
-import sqlite3
 from urllib.parse import urlparse
 
-from protocol import CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, cell_key, digest
+from protocol import CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, cell_key
 
 CONTROL = Path.home() / ".local/state/master-openai"
 CHECKS = (
@@ -17,7 +14,7 @@ CHECKS = (
     "data_export_approved", "sft_model_region_quota_verified",
     "developer_deployment_verified", "logprobs_supported", "rates_verified",
     "cluster_egress_verified",
-    "shared_control_storage_verified",
+    "cloud_control_verified", "storage_costs_verified",
 )
 
 
@@ -32,6 +29,10 @@ def money(value):
 
 
 def check_approval(value, study_hash, config):
+    if value.get("control_schema") != "azure-table-control-v1":
+        raise ValueError("Cloud control approval is required; use a new run and approval.")
+    if not value.get("authority_sha256"):
+        raise ValueError("Approval must bind the fixed cloud authority.")
     if value["study_sha256"] != study_hash:
         raise ValueError("Approval must name the current study hash.")
     if value["scope"] not in ("pilot", "full"):
@@ -61,6 +62,8 @@ def check_approval(value, study_hash, config):
     if money(value["rate_safety_multiplier"]) < Decimal("1.25"):
         raise ValueError("A minimum 25% token/rate accounting margin is required.")
     money(value["other_cost_reserve_usd"])
+    if money(value["storage_reserve_usd"]) <= 0:
+        raise ValueError("A verified positive storage reserve is required.")
     if money(value["remaining_credit_usd"]) <= money(config["credit_reserve_usd"]):
         raise ValueError("Insufficient credit after the protected reserve.")
 
@@ -97,138 +100,32 @@ def estimate(prepared, config, approval):
     control = min(20, control_part["rows"]) * inference_bound(control_part["max_tokens"], config, approval)
     pilot = sum(money(costs[cell_key(*cell)][stage]) for cell in PILOT for stage in ("train", "validation"))
     full = sum(money(amount) for item in costs.values() for amount in item.values())
-    extra = money(approval["other_cost_reserve_usd"]) + smoke + control
+    storage = money(approval["storage_reserve_usd"])
+    extra = money(approval["other_cost_reserve_usd"]) + smoke + control + storage
     return {"entries": costs, "smoke": str(smoke), "base_control": str(control),
-            "pilot": str(pilot + extra), "full": str(full + extra)}
+            "pilot": str(pilot + extra), "full": str(full + extra), "storage": str(storage),
+            "control_requests": {scope: control_envelope(prepared, config, scope) for scope in ("pilot", "full")}}
 
 
-class Ledger:
-    def __init__(self, directory=CONTROL):
-        self.directory = Path(directory)
-        self.path = self.directory / "ledger.sqlite3"
+def control_requests(stage, prepared, config, scope="full"):
+    """Upper envelope for table entity operations, lease calls and bounded polling."""
+    rows = 0
+    if stage == "smoke":
+        rows = 22
+    elif stage in ("validate", "test"):
+        cells = PILOT if scope == "pilot" and stage == "validate" else CELLS
+        split = "validation" if stage == "validate" else "test"
+        rows = sum(prepared["entries"][cell_key(*cell)]["partitions"][split]["rows"] for cell in cells)
+    elif stage == "report":
+        rows = sum(part["rows"] for entry in prepared["entries"].values()
+                   for split, part in entry["partitions"].items() if split != "train") // 100
+    return 1000 + rows * config["request_attempts"] * 40
 
-    @contextmanager
-    def connection(self):
-        self.directory.mkdir(parents=True, exist_ok=True)
-        database = sqlite3.connect(self.path, timeout=60)
-        try:
-            database.execute("PRAGMA synchronous=FULL")
-            database.execute("CREATE TABLE IF NOT EXISTS runs (id TEXT PRIMARY KEY, value TEXT NOT NULL)")
-            database.execute("CREATE TABLE IF NOT EXISTS operations (run TEXT, name TEXT, kind TEXT, status TEXT, value TEXT NOT NULL, PRIMARY KEY(run,name))")
-            database.execute("CREATE TABLE IF NOT EXISTS state (id INTEGER PRIMARY KEY, breached INTEGER NOT NULL)")
-            database.execute("INSERT OR IGNORE INTO state VALUES (1,0)")
-            database.commit()
-            database.execute("BEGIN IMMEDIATE")
-            with database:
-                yield database
-        finally:
-            database.close()
 
-    def read(self):
-        with self.connection() as database:
-            return self._state(database)
-
-    @staticmethod
-    def _state(database):
-        return {"runs": {key: json.loads(value) for key, value in database.execute("SELECT id,value FROM runs")},
-                "breached": bool(database.execute("SELECT breached FROM state WHERE id=1").fetchone()[0])}
-
-    def operation(self, run, name):
-        with self.connection() as database:
-            row = database.execute("SELECT value FROM operations WHERE run=? AND name=?", (run, name)).fetchone()
-            return json.loads(row[0]) if row else None
-
-    def authorize(self, run, approval, estimate_value, config):
-        amount = money(estimate_value[approval["scope"]])
-        limit = money(config["pilot_limit_usd"] if approval["scope"] == "pilot" else config["total_limit_usd"])
-        if amount > limit:
-            raise ValueError("Complete approved scope exceeds its cost limit; do not reduce data silently.")
-        with self.connection() as database:
-            state = self._state(database)
-            if state["breached"]:
-                raise ValueError("Cost bound was breached; reconcile billing before any further use.")
-            previous = state["runs"].get(run)
-            if previous:
-                for key in ("resource_id", "endpoint", "rates", "rate_safety_multiplier", "model"):
-                    if previous["approval"][key] != approval[key]:
-                        raise ValueError("Billing target or rates changed; review existing reservations.")
-                if previous["scope"] == "full" and approval["scope"] != "full":
-                    raise ValueError("Cannot shrink an active full-study reservation.")
-                amount = max(amount, money(previous["reserved"]))
-            total = sum(money(item["reserved"]) for key, item in state["runs"].items() if key != run) + amount
-            if total > money(config["total_limit_usd"]):
-                raise ValueError("Global experiment reservations exceed $80.")
-            if total + money(config["credit_reserve_usd"]) > money(approval["remaining_credit_usd"]):
-                raise ValueError("Credit cannot cover reservations plus protected reserve.")
-            value = {"reserved": str(amount), "used": previous["used"] if previous else "0",
-                     "scope": approval["scope"], "approval": approval, "estimate": estimate_value}
-            database.execute("INSERT OR REPLACE INTO runs VALUES (?,?)", (run, json.dumps(value)))
-
-    def begin(self, run, operation, amount, kind, request):
-        with self.connection() as database:
-            state = self._state(database)
-            if state["breached"] or run not in state["runs"]:
-                raise ValueError("No valid cost allocation.")
-            existing = database.execute("SELECT value FROM operations WHERE run=? AND name=?", (run, operation)).fetchone()
-            if existing:
-                prior = json.loads(existing[0])
-                if prior["request_sha256"] != digest(request):
-                    raise ValueError("Operation provenance changed.")
-                if prior["status"] in ("succeeded", "terminal"):
-                    return prior["result"]
-                raise ValueError("Unconfirmed operation; reconcile remote state before retrying.")
-            used = money(state["runs"][run]["used"])
-            if used + money(amount) > money(state["runs"][run]["reserved"]):
-                raise ValueError("Operation would exceed the reserved complete-study budget.")
-            if kind == "training" and database.execute(
-                "SELECT 1 FROM operations WHERE kind='training' AND status!='terminal' LIMIT 1"
-            ).fetchone():
-                raise ValueError("A cloud training job is still active or unconfirmed.")
-            value = {
-                "run": run, "reserved": str(amount), "kind": kind, "status": "started",
-                "request_sha256": digest(request),
-            }
-            database.execute("INSERT INTO operations VALUES (?,?,?,?,?)",
-                             (run, operation, kind, "started", json.dumps(value)))
-            state["runs"][run]["used"] = str(used + money(amount))
-            database.execute("UPDATE runs SET value=? WHERE id=?", (json.dumps(state["runs"][run]), run))
-            return None
-
-    def finish(self, run, operation, result, actual=None, terminal=False):
-        breached = False
-        with self.connection() as database:
-            state = self._state(database)
-            item = json.loads(database.execute(
-                "SELECT value FROM operations WHERE run=? AND name=?", (run, operation)).fetchone()[0])
-            item["result"] = result
-            item["status"] = "terminal" if terminal else "succeeded"
-            if actual is not None:
-                item["actual_usd"] = str(money(actual))
-                if money(actual) > money(item["reserved"]):
-                    breached = True
-                    allocation = state["runs"][run]
-                    allocation["used"] = str(money(allocation["used"]) + money(actual) - money(item["reserved"]))
-                    database.execute("UPDATE runs SET value=? WHERE id=?", (json.dumps(allocation), run))
-                    item["reserved"] = str(money(actual))
-                    state["breached"] = True
-            database.execute("UPDATE operations SET status=?,value=? WHERE run=? AND name=?",
-                             (item["status"], json.dumps(item), run, operation))
-            database.execute("UPDATE state SET breached=? WHERE id=1", (int(state["breached"]),))
-        if breached:
-            raise ValueError("Provider usage exceeded the conservative reservation; stop and review.")
-
-    def training_terminal(self, run, operation, result):
-        self.finish(run, operation, result, terminal=True)
-
-    def snapshot(self, run):
-        with self.connection() as database:
-            state = self._state(database)
-            operations = [json.loads(row[0]) for row in database.execute(
-                "SELECT value FROM operations WHERE run=?", (run,))]
-        return {
-            "reserved_usd": state["runs"][run]["reserved"],
-            "operation_bounds_usd": str(sum(money(item["reserved"]) for item in operations)),
-            "reported_actual_usd": str(sum(money(item.get("actual_usd", 0)) for item in operations)),
-            "actual_complete": all("actual_usd" in item for item in operations),
-            "breached": state["breached"],
-        }
+def control_envelope(prepared, config, scope):
+    stages = ["smoke", "validate", "report", "cleanup"]
+    stages += ["train-submit", "train-status"] * len(PILOT if scope == "pilot" else CELLS)
+    if scope == "full":
+        stages += ["seal", "test"]
+    counts = [control_requests(stage, prepared, config, scope) for stage in stages]
+    return {"requests": sum(counts), "sessions": len(counts), "max_session_requests": max(counts)}

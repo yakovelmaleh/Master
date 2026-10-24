@@ -11,7 +11,7 @@ import uuid
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from protocol import TASK, REPO, exclusive_lock, external_path, slug, write_json
 
-STAGES = ("setup", "prepare", "preflight", "smoke", "train-submit", "train-status",
+STAGES = ("setup", "check-sdk", "prepare", "preflight", "smoke", "train-submit", "train-status", "reconcile",
           "validate", "seal", "test", "report", "cancel", "cleanup")
 
 
@@ -26,6 +26,15 @@ def commands(args, output):
         return [["python", "-c", "import sys; sys.exit(0 if sys.version_info[:2] == (3, 11) else 'Use a Python 3.11 environment; do not overwrite an existing environment.')"],
                 ["python", "-m", "pip", "install", "-r", str(TASK / "requirements.txt")],
                 ["python", "-m", "pip", "check"]]
+    if args.stage == "check-sdk":
+        return [
+            ["python", "-m", "pip", "check"],
+            ["python", str(TASK / "tests/check_installed_sdk.py")],
+            ["python", "-m", "unittest", "discover", "-s", str(TASK / "tests"), "-q"],
+            ["python", "-m", "unittest", "discover",
+             "-s", str(TASK.parent / "create-task-summary-pr/tests"), "-q"],
+            ["python", "-c", "print('SDK_OFFLINE_CHECKS_PASSED')"],
+        ]
     command = ["python", "-u", str(TASK / "run_experiment.py"), args.stage,
                "--storage", str(args.storage), "--run-id", args.run_id, "--config", str(args.config)]
     if args.approval:
@@ -75,7 +84,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=STAGES, required=True)
     parser.add_argument("--storage", required=True)
-    parser.add_argument("--run-id", default="openai-qt-jira-01")
+    parser.add_argument("--run-id", default="openai-qt-jira-cloud-01")
     parser.add_argument("--partition", required=True)
     parser.add_argument("--time", default="04:00:00")
     parser.add_argument("--mem", default="8G")
