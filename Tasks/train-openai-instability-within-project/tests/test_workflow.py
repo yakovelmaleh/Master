@@ -542,6 +542,53 @@ class WorkflowTests(Fixture):
 
 
 class LauncherAndBundleTests(Fixture):
+    def test_storage_probe_waits_for_slow_holder_and_reports_missing_readiness(self):
+        root = Path(self.temporary.name)
+        shell = root / "probe-fixture.sh"
+        calls = root / "srun-calls"
+        shell.write_text("""
+ticks=0
+scontrol() { printf 'node-a\\nnode-b\\n'; }
+srun() {
+  for argument in "$@"; do
+    case "$argument" in
+      probe|lease-hold|lease-contend)
+        if [[ "$argument" == lease-contend && ! -f "$directory/holder.json" ]]; then
+          echo 'Contender started before holder readiness.' >&2
+          return 1
+        fi
+        printf '%s\\n' "$argument" >> "$FIXTURE_CALLS"
+        return 0
+        ;;
+    esac
+  done
+  return 1
+}
+sleep() {
+  ticks=$((ticks + 1))
+  if [[ "$ticks" -eq "$FIXTURE_READY_AFTER" ]]; then
+    printf '{}\\n' > "$directory/holder.json"
+  fi
+}
+""")
+        for ready_after, success in ((45, True), (-1, False)):
+            with self.subTest(ready_after=ready_after):
+                calls.write_text("")
+                result = subprocess.run(
+                    ["bash", str(TASK / "cluster/check_cloud_control.sbatch"),
+                     str(root), sys.executable],
+                    env={**os.environ, "BASH_ENV": str(shell),
+                         "SLURM_SUBMIT_DIR": str(TASK.parents[1]),
+                         "SLURM_JOB_ID": "fixture", "SLURM_JOB_NODELIST": "fixture",
+                         "FIXTURE_CALLS": str(calls), "FIXTURE_READY_AFTER": str(ready_after)},
+                    capture_output=True, text=True, timeout=10,
+                )
+                self.assertEqual(result.returncode == 0, success, result.stderr)
+                self.assertEqual("CLOUD_CONTROL_PROBE_PASSED" in result.stdout, success)
+                self.assertEqual("lease-contend" in calls.read_text().splitlines(), success)
+                if not success:
+                    self.assertIn("lease-holder readiness timed out", result.stderr)
+
     def test_setup_creates_only_absent_environment_and_stops_on_failed_inventory(self):
         directory = Path(self.temporary.name) / "bin"
         directory.mkdir()
