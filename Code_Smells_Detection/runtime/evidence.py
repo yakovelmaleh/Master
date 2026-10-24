@@ -41,8 +41,19 @@ class GitHub:
         if not path.startswith("/repos/") or "://" in path:
             raise ValueError("Only GitHub repository API paths are allowed.")
         for attempt in range(5):
-            response = self.session.get("https://api.github.com" + path, params=params,
-                                        timeout=60, allow_redirects=False)
+            try:
+                response = self.session.get("https://api.github.com" + path, params=params,
+                                            timeout=60, allow_redirects=False)
+            except requests.exceptions.SSLError:
+                raise
+            except (requests.ConnectionError, requests.Timeout) as error:
+                if attempt == 4:
+                    raise
+                delay = 2 ** attempt
+                print(f"GitHub {type(error).__name__}; retrying request "
+                      f"({attempt + 2}/5) in {delay}s.", flush=True)
+                time.sleep(delay)
+                continue
             if response.status_code in (429, 502, 503, 504) or (
                     response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0"):
                 if attempt == 4:
@@ -51,6 +62,13 @@ class GitHub:
                 continue
             if response.status_code in (404, 410):
                 raise EvidenceExcluded("repository_or_revision_unavailable")
+            if response.status_code == 409 and re.fullmatch(r"/repos/[^/]+/[^/]+/commits/[^/]+", path):
+                try:
+                    payload = response.json()
+                except ValueError:
+                    response.raise_for_status()
+                if isinstance(payload, dict) and payload.get("message") == "Git Repository is empty.":
+                    raise EvidenceExcluded("repository_empty")
             response.raise_for_status()
             if 300 <= response.status_code < 400:
                 raise EvidenceExcluded("repository_redirect_requires_review")

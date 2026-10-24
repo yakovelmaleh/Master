@@ -1,4 +1,4 @@
-"""Import the pinned pre-exclusion preparation format without changing its run."""
+"""Import supported, pinned preparation formats without changing their runs."""
 
 import hashlib
 
@@ -7,21 +7,25 @@ import pandas as pd
 from . import collection
 from .common import (
     PARTITIONS, SCHEMA, atomic_bytes, digest, external, file_hash, identifier,
-    immutable_json, read_json, source_hash, stage_state,
+    immutable_json, read_json, relative as safe_relative, source_hash, stage_state, tree_manifest,
 )
 from .prepare import audit, source_candidates
 
 
 PARENT_SOURCE_SHA256 = "67c6b55de71534f36736c3756b8ab895eb83638b7ed4a7baf6ad2adaec5f2e07"
+FROZEN_PARENT_SOURCE_SHA256 = "c0005a0d6467c4e053ccceb7d8b27b910d2131eed863650d660a1fc6153c1fb7"
 
 
 def inventory(parent):
     study = read_json(parent / "study.json")
-    if study["schema"] != SCHEMA or study["source_sha256"] != PARENT_SOURCE_SHA256:
+    frozen_import = study["source_sha256"] == FROZEN_PARENT_SOURCE_SHA256
+    if study["schema"] != SCHEMA or study["source_sha256"] not in (
+            PARENT_SOURCE_SHA256, FROZEN_PARENT_SOURCE_SHA256):
         raise ValueError("Unsupported parent code/schema; migration requires the pinned preparation implementation.")
-    if study.get("prior") or study.get("migration_sha256"):
+    if study.get("prior") or study.get("migration_sha256") and not frozen_import:
         raise ValueError("This migration supports original runs without prior imports only.")
-    if any((parent / name).exists() for name in ("evidence", "detection", "labels", "models", "reports")):
+    forbidden = ("detection", "labels", "models", "reports") + (() if frozen_import else ("evidence",))
+    if any((parent / name).exists() for name in forbidden):
         raise ValueError("Only preparation-only runs can be migrated by this operation.")
     if set(study["inputs"]) != {"candidates.csv", "sources.csv"}:
         raise ValueError("Unsupported parent cohort inputs.")
@@ -36,6 +40,27 @@ def inventory(parent):
         files[destination or relative] = {"path": relative, "sha256": file_hash(path)}
 
     add("study.json", "parent/study.json")
+    if frozen_import and study.get("migration_sha256"):
+        add("migration.json", "parent/migration.json")
+        add("migration_complete.json", "parent/migration_complete.json")
+        previous = read_json(parent / "migration.json")
+        if (file_hash(parent / "migration.json") != study["migration_sha256"] or
+                read_json(parent / "migration_complete.json") != {"migration_sha256": study["migration_sha256"]} or
+                previous.get("schema") != "code-smell-preparation-import-v1" or
+                previous.get("source_sha256") != FROZEN_PARENT_SOURCE_SHA256):
+            raise ValueError("Parent migration is incomplete or its provenance changed.")
+        for name, entry in previous["files"].items():
+            path = parent / safe_relative(name)
+            if path.is_symlink() or file_hash(path) != entry["sha256"]:
+                raise ValueError(f"Parent imported artifact changed: {name}")
+        for name in tree_manifest(parent / "parent"):
+            add("parent/" + name, "parent/parent/" + name)
+    if frozen_import and (parent / "evidence").exists():
+        for name in tree_manifest(parent / "evidence"):
+            if name.endswith(".json"):
+                add("evidence/" + name, "parent/evidence/" + name)
+            elif not name.endswith(".lock"):
+                raise ValueError(f"Unexpected parent evidence artifact: {name}")
     for name, expected in study["inputs"].items():
         add("cohort/" + name)
         if files["cohort/" + name]["sha256"] != expected:
@@ -56,6 +81,8 @@ def inventory(parent):
         raw = parent / "raw" / source
         allowed = {key + ".json" for key in keys} | {"manifest.json", "field_map.json", "collection_errors.json",
                                                    ".collection.lock"}
+        if frozen_import:
+            allowed |= {"collection_diagnostics.json", "collection_exclusions.json", "missing_records.proposed.json"}
         if raw.exists() and any(path.name not in allowed or not path.is_file() for path in raw.iterdir()):
             raise ValueError(f"Unexpected parent raw artifacts: {source}")
         records = {}
@@ -74,17 +101,28 @@ def inventory(parent):
             raise ValueError(f"Parent cached records have no field map: {source}")
         if (raw / "collection_errors.json").exists():
             add(f"raw/{source}/collection_errors.json", f"parent/errors/{source}.json")
+        if frozen_import:
+            for name in ("collection_diagnostics.json", "collection_exclusions.json", "missing_records.proposed.json"):
+                if (raw / name).exists():
+                    add(f"raw/{source}/{name}")
         complete = (raw / "manifest.json").exists()
+        approved = {}
         if complete:
             add(f"raw/{source}/manifest.json")
             saved = read_json(raw / "manifest.json")
-            if (saved != {"records": records, "field_map": file_hash(raw / "field_map.json")} or
-                    set(records) != keys):
+            if frozen_import:
+                saved, approved = collection.load_manifest(parent, source, keys)
+                consistent = saved["records"] == records
+            else:
+                consistent = saved == {"records": records, "field_map": file_hash(raw / "field_map.json")} and set(records) == keys
+            if not consistent:
                 raise ValueError(f"Parent raw manifest differs from cached bytes or cohort: {source}")
             if read_json(parent / "status" / f"enrich-{source}.json").get("status") != "succeeded":
                 raise ValueError(f"Parent complete collection has no successful status: {source}")
         split_path = parent / "splits" / f"{source}.json"
         frozen = split_path.exists()
+        if frozen_import and (not complete or not frozen):
+            raise ValueError(f"Frozen-run migration requires every source to be finalized and frozen: {source}")
         if frozen:
             if not complete or read_json(parent / "status" / f"freeze-{source}.json").get("status") != "succeeded":
                 raise ValueError(f"Parent frozen source has incomplete preparation: {source}")
@@ -106,6 +144,15 @@ def inventory(parent):
             if (len(decisions) != len(keys) or
                     {item["row_id"] for item in decisions} != {f"{source}:{key}" for key in keys}):
                 raise ValueError(f"Parent preprocessing decisions do not conserve candidate IDs: {source}")
+            if frozen_import:
+                unavailable = {item["row_id"]: item.get("collection_reason") for item in decisions
+                               if item["reason"] == "jira_unavailable"}
+                accepted = {item["row_id"] for item in decisions if item["reason"] == "accepted"}
+                if (unavailable != {f"{source}:{key}": reason for key, reason in approved.items()} or
+                        accepted != set(frame.row_id) or set(frame.issue_key) - set(records) or
+                        approved and split.get("filter_decisions_sha256") !=
+                        file_hash(parent / f"features/{source}/filter_decisions.json")):
+                    raise ValueError(f"Parent frozen eligibility differs from reviewed collection: {source}")
             for name in PARTITIONS:
                 saved_rows = pd.read_csv(parent / "splits" / source / f"{name}_rows.csv", keep_default_na=False)
                 expected = frame.loc[frame.row_id.map(split["assignment"]) == name, ["row_id", "source", "issue_key"]]
@@ -117,6 +164,8 @@ def inventory(parent):
         sources[source] = {"complete": complete, "frozen": frozen, "cached_records": len(records),
                            "candidate_count": len(keys),
                            "hash_origin": "parent_manifest" if complete else "migration_snapshot"}
+        if frozen_import:
+            sources[source]["approved_unavailable"] = len(approved)
     return study, files, sources
 
 
@@ -129,7 +178,9 @@ def migrate(root, parent):
                              for path in root.iterdir()):
         raise ValueError("Migration destination is not a preparation-only run.")
     old, files, sources = inventory(parent)
-    migration = {"schema": "code-smell-preparation-import-v1", "parent": str(parent),
+    frozen_import = old["source_sha256"] == FROZEN_PARENT_SOURCE_SHA256
+    migration = {"schema": "code-smell-frozen-import-v1" if frozen_import else "code-smell-preparation-import-v1",
+                 "parent": str(parent),
                  "parent_study_sha256": file_hash(parent / "study.json"),
                  "source_sha256": source_hash(), "files": files, "sources": sources}
     if (root / "study.json").exists() and not (root / "migration.json").exists():
@@ -162,5 +213,10 @@ def migrate(root, parent):
         if state["complete"]:
             with stage_state(root, "enrich", source, digest({"migration": migration["parent_study_sha256"], "source": source})):
                 collection.load_manifest(root, source, set(source_candidates(root, source).issue_key))
-    print("Imported verified preparation caches. Run freeze to revalidate imported feature/split parity; "
-          "diagnose incomplete sources before approving exclusions.", flush=True)
+    if frozen_import:
+        print("Imported frozen preparation and original collection approvals byte-for-byte. "
+              "Run freeze to revalidate every source before fetch-code. Parent evidence is archived only; "
+              "re-resolve links under the new code, reusing verified shared snapshots.", flush=True)
+    else:
+        print("Imported verified preparation caches. Run freeze to revalidate imported feature/split parity; "
+              "diagnose incomplete sources before approving exclusions.", flush=True)

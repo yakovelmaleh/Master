@@ -89,9 +89,16 @@ Added and renamed files retain their post-change paths; deleted files cannot
 produce post-change labels. Multiple revisions are not a consolidated latest
 state or an introduced-smell experiment.
 
-GitHub access uses `GITHUB_TOKEN` when supplied. Jira authentication follows
+GitHub access uses `GITHUB_TOKEN`, or `GH_TOKEN` if the former is unset. Jira authentication follows
 the reused `jira_pipeline.client` environment-variable contract. Do not place
 tokens in task arguments, profiles or committed files.
+
+GitHub API connection failures and timeouts have at most five attempts, with
+bounded exponential delays and explicit retry messages. TLS verification and
+authentication failures remain errors. Only a commit endpoint's HTTP 409 with
+the exact GitHub response `Git Repository is empty.` is classified as
+`repository_empty`; other conflicts still stop the stage. Empty repositories
+are recorded as unavailable code evidence, never as negative smell labels.
 
 Unavailable Jira records stop enrichment after recording failures by default;
 rerun after restoring access, or use the explicit reviewed policy below.
@@ -202,6 +209,55 @@ be selective, and observed creator-history counts may be incomplete. This is a
 disclosed change to study eligibility, not a claim of unbiased full-cohort
 inference. Never exclude all failures merely because a few sampled issues were
 inaccessible.
+
+## Recovering the frozen run after code-evidence failures
+
+The `migrate` stage also supports the finalized, fully frozen implementation
+from PR #377 (source hash
+`c0005a0d6467c4e053ccceb7d8b27b910d2131eed863650d660a1fc6153c1fb7`).
+This is the `code-smells-002` format, including a verified earlier migration
+and approved unavailable Jira records. All sources must have successful
+enrichment and freeze stages; running stages and detection, label, model, or
+report artifacts block this migration.
+
+Update the checkout to the recovery implementation once, before migration.
+Use a new run ID; never replace the old run's source hash or edit its artifacts.
+Submit the following stages separately, waiting for each to succeed:
+
+```bash
+bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-003 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-002"
+
+# After migrate succeeds: revalidate all four sources without fetching Jira.
+bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-003
+
+# After every freeze succeeds, use the shell with GITHUB_TOKEN exported.
+bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage fetch-code --source Apache \
+  --storage "$HOME/master-code-smells" --run-id code-smells-003
+```
+
+Do not add `--pull` between stages. The migration preserves raw records, field
+maps, original approvals and diagnostic evidence, preprocessing decisions,
+feature CSVs, and split files byte-for-byte. Original approvals retain their
+original study identity: the new run validates that identity through its
+hashed migration inventory and preserved parent study, rather than fabricating
+new approvals or weakening collection checks. Any mismatch is a hard failure.
+Neither Jira recollection nor repartitioning is performed.
+
+Old partial code-evidence JSON is copied only into `parent/evidence/` for
+provenance, not reused as active decisions under changed code. The next fetch
+re-resolves links; verified full snapshots in the shared storage cache are
+reused. No old fetch/detector success status is imported. Migration validates
+the copied collection before marking enrichment successful, and the separate
+`freeze` stage must reproduce all feature and partition bytes before fetching.
+
+For `code-smells-002`, the expected frozen feature counts remain Apache 758,
+IntelDAOS 235, MongoDB 5,088, and RedHat 6,905 (12,986 total), with 325 approved
+unavailable Jira candidates still excluded. Apache's 454/151/153 partition
+membership is unchanged. These are preparation counts, not final labeled counts.
 
 ## Outputs and restart
 

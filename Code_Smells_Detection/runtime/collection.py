@@ -4,7 +4,7 @@ from collections import Counter
 from datetime import datetime
 import json
 
-from .common import digest, file_hash, now, read_json
+from .common import digest, file_hash, now, read_json, verify_study
 
 
 POLICY = "reviewed-jira-unavailability-v1"
@@ -104,8 +104,30 @@ def eligible(item):
             item["reason"] == REASONS[item["http_status"]])
 
 
+def review_study_hash(root, source):
+    path = root / "migration.json"
+    if not path.exists():
+        return file_hash(root / "study.json")
+    imported = read_json(path)
+    if imported.get("schema") != "code-smell-frozen-import-v1":
+        return file_hash(root / "study.json")
+    study = verify_study(root)
+    if study.get("migration_sha256") != file_hash(path):
+        raise ValueError("Imported collection review has no verified migration binding.")
+    # Preserve the original approval, not a rewritten approval for the new run.
+    required = ["parent/study.json", f"raw/{source}/manifest.json",
+                f"raw/{source}/collection_diagnostics.json", f"raw/{source}/collection_exclusions.json"]
+    for name in required:
+        entry = imported["files"].get(name)
+        if entry is None or file_hash(root / name) != entry["sha256"]:
+            raise ValueError(f"Imported collection provenance changed: {name}")
+    if file_hash(root / "parent/study.json") != imported["parent_study_sha256"]:
+        raise ValueError("Imported collection parent study changed.")
+    return imported["parent_study_sha256"]
+
+
 def validate_review(root, source, keys, records, ledger, diagnostics):
-    expected = {"schema": POLICY, "study_sha256": file_hash(root / "study.json"),
+    expected = {"schema": POLICY, "study_sha256": review_study_hash(root, source),
                 "source": source, "candidate_ids_sha256": digest(sorted(keys))}
     if any(ledger.get(name) != value or diagnostics.get(name) != value for name, value in expected.items()):
         raise ValueError("Collection review belongs to another study, source, policy or cohort.")

@@ -3,7 +3,7 @@ from unittest import mock
 
 import pandas as pd
 
-from Code_Smells_Detection.runtime import collection, common, detectors, evidence, models, prepare
+from Code_Smells_Detection.runtime import collection, common, detectors, evidence, migration, models, prepare
 from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
@@ -14,7 +14,10 @@ class EndToEndTests(RuntimeCase):
     def test_approved_missing_candidate_never_enters_features_labels_or_models(self):
         self.run_pipeline(unavailable=True)
 
-    def run_pipeline(self, unavailable=False):
+    def test_migrated_approvals_and_empty_repository_never_become_negative_labels(self):
+        self.run_pipeline(unavailable=True, recover=True)
+
+    def run_pipeline(self, unavailable=False, recover=False):
         candidates = self.storage / "candidates.csv"
         sources = self.storage / "sources.csv"
         pd.DataFrame([{"source": "Apache", "issue_key": f"T-{index}", "issue_type": "Story",
@@ -64,6 +67,16 @@ class EndToEndTests(RuntimeCase):
         prepare.freeze(self.root, "Apache")
         self.succeeded("freeze", "Apache")
         before = common.read_json(self.root / "splits/Apache.json")
+        if recover:
+            parent = self.root
+            self.root = self.storage / "runs/recovered"
+            with mock.patch.object(prepare, "CANDIDATE_HASH", common.file_hash(candidates)), mock.patch.object(
+                    prepare, "SOURCES", {"Apache": 120}), mock.patch.object(
+                    migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+                migration.migrate(self.root, parent)
+            prepare.freeze(self.root, "Apache")
+            self.succeeded("freeze", "Apache")
+            self.assertEqual(before, common.read_json(self.root / "splits/Apache.json"))
         snapshot = self.storage / "snapshot"
         (snapshot / "source/src").mkdir(parents=True)
         for name in ("Bad", "Clean"):
@@ -75,6 +88,8 @@ class EndToEndTests(RuntimeCase):
         class GitHub:
             def resolve(self, url):
                 number = int(url.rsplit("/", 1)[1])
+                if recover and number == 119:
+                    raise evidence.EvidenceExcluded("repository_empty")
                 return {"url": url, "repository": "example/project", "revision": "a" * 40,
                         "files": [{"path": "src/" + ("Bad" if number % 2 else "Clean") + ".java",
                                    "language": "java", "status": "modified"}]}
@@ -95,11 +110,17 @@ class EndToEndTests(RuntimeCase):
         self.succeeded("labels")
         self.assertEqual(before, common.read_json(self.root / "splits/Apache.json"))
         labels = pd.read_csv(self.root / "labels/story_labels.csv")
-        self.assertEqual(119 if unavailable else 120, len(labels))
+        self.assertEqual(120 - int(unavailable) - int(recover), len(labels))
         if unavailable:
             self.assertNotIn("Apache:T-119", before["assignment"])
             self.assertNotIn("Apache:T-119", labels.row_id.tolist())
-        self.assertEqual(60, labels.any_supported_smell.sum())
+        if recover:
+            self.assertIn("Apache:T-118", before["assignment"])
+            self.assertNotIn("Apache:T-118", labels.row_id.tolist())
+            coverage = common.read_json(self.root / "labels/coverage.json")
+            excluded = next(row for row in coverage["rows"] if row["row_id"] == "Apache:T-118")
+            self.assertEqual("excluded", excluded["status"])
+        self.assertEqual(60 - int(recover), labels.any_supported_smell.sum())
         config = self.storage / "config.json"
         common.write_json(config, {"seed": 7, "bootstrap_samples": 2, "models": {
             "RF": [{"n_estimators": 2, "max_depth": 2}],
@@ -122,6 +143,8 @@ class EndToEndTests(RuntimeCase):
             self.assertIn("complete_with_approved_missing", (self.root / "reports/report.html").read_text())
             for path in (self.root / "models").rglob("test_predictions.csv"):
                 self.assertNotIn("Apache:T-119", pd.read_csv(path).row_id.tolist())
+                if recover:
+                    self.assertNotIn("Apache:T-118", pd.read_csv(path).row_id.tolist())
         self.assertEqual(18, sum(item["status"] == "succeeded" for item in report["results"]))
         self.assertEqual(45, len(report["paired_comparisons"]))
         self.assertEqual(6, len(report["multilabel"]))
