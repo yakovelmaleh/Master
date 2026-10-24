@@ -162,7 +162,9 @@ def hold_probe(ledger, output):
             raise ControlError("Run the conditional-transaction probe first.")
         host = socket.gethostname()
         write_json(output, {"owner": ledger.owner, "host": host})
-        for _ in range(30):
+        deadline = time.monotonic() + 180
+        while time.monotonic() < deadline:
+            ledger.check()
             contender, _ = ledger.store.get("probe-contender:" + ledger.owner)
             if contender is not None:
                 if contender.get("excluded") is not True or contender.get("host") == host:
@@ -173,7 +175,7 @@ def hold_probe(ledger, output):
                 ledger._write(state, etag)
                 return {"two_node_probe": "passed"}
             time.sleep(1)
-        raise ControlError("Second-node contention evidence was not received within the probe window.")
+        raise ControlError("Second-node contention evidence was not received within the 180-second probe window.")
 
 
 def contend_probe(store, holding):

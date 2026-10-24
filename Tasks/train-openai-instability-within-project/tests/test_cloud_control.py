@@ -414,7 +414,11 @@ class CloudControlTests(Fixture):
             error_code = "LeaseAlreadyPresent"
 
         contender = FakeStore(store.storage)
-        def second_node(_):
+        elapsed = [0]
+        def second_node(seconds):
+            elapsed[0] += seconds
+            if elapsed[0] < 45:
+                return
             with patch.object(contender, "acquire", side_effect=LeaseHeld), patch(
                 "control_admin.socket.gethostname", return_value="node-b"
             ), patch.dict(sys.modules, {"azure.core.exceptions": NS(HttpResponseError=LeaseHeld)}):
@@ -422,9 +426,30 @@ class CloudControlTests(Fixture):
 
         with patch("control_admin.socket.gethostname", return_value="node-a"), patch(
             "control_admin.time.sleep", side_effect=second_node
+        ), patch(
+            "control_admin.time.monotonic", side_effect=lambda: elapsed[0]
         ):
             self.assertEqual(hold_probe(holder, output), {"two_node_probe": "passed"})
         self.assertTrue(store.get(ROOT)[0]["probe_verified"])
+
+    def test_missing_contender_times_out_and_releases_lease_without_marking_ready(self):
+        store = FakeStore()
+        store.storage.rows[ROOT][0].update(probe_verified=False, probe_atomic=True)
+        holder = Ledger(store, BINDING, PLAN, remaining_credit="100")
+        output = Path(self.temporary.name) / "holder-timeout.json"
+        elapsed = [0]
+
+        def advance(_):
+            elapsed[0] += 60
+
+        with patch("control_admin.time.monotonic", side_effect=lambda: elapsed[0]), patch(
+            "control_admin.time.sleep", side_effect=advance
+        ):
+            with self.assertRaisesRegex(ControlError, "contention evidence"):
+                hold_probe(holder, output)
+        self.assertLessEqual(elapsed[0], 180)
+        self.assertFalse(store.get(ROOT)[0]["probe_verified"])
+        self.assertIsNone(store.storage.lease)
 
     def test_sdk_boundary_passes_conditional_etags_and_preserves_conflicts(self):
         class HttpError(Exception):

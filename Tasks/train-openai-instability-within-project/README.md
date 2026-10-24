@@ -235,7 +235,7 @@ Then run the bounded, synthetic **two-node storage probe**, also separately
 cost-approved. Submit from the repository, using the actual environment Python:
 
 ```bash
-sbatch --partition main \
+sbatch --partition main --time 04:00:00 \
   Tasks/train-openai-instability-within-project/cluster/check_cloud_control.sbatch \
   "$HOME/master-openai" "$(command -v python)"
 ```
@@ -245,6 +245,12 @@ compute node. Only success marks the authority ready for model preflight.
 It makes no model calls and uploads no dataset. Probe records are retained for
 audit. Offline fault tests additionally cover crashes and uncertain responses;
 the live probe is not a proof against all service outages or regional loss.
+
+Holder startup and contender evidence each have a three-minute wait bound.
+Keep the job wall time above the private approval's `session_seconds`; the
+four-hour example assumes a shorter approved session. If a probe fails, inspect
+its logs and remaining request/session allowances before retrying: reservations
+are not refunded. Never rerun bootstrap or reset the existing authority.
 
 Keep the authority until all owned cloud work is terminal and billing is
 reconciled. Storage expiry/cleanup needs explicit review; do not automatically

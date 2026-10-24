@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
-#SBATCH --time=00:05:00
+#SBATCH --time=00:10:00
 set -euo pipefail
 umask 077
 
@@ -15,18 +15,25 @@ admin="$repo/Tasks/train-openai-instability-within-project/control_admin.py"
 directory=$(mktemp -d "$storage/cloud-probe.${SLURM_JOB_ID:?}.XXXXXX")
 nodes=()
 while IFS= read -r node; do nodes+=("$node"); done < <(scontrol show hostnames "$SLURM_JOB_NODELIST")
-[[ ${#nodes[@]} -eq 2 && "${nodes[0]}" != "${nodes[1]}" ]]
+if [[ ${#nodes[@]} -ne 2 || "${nodes[0]}" == "${nodes[1]}" ]]; then
+  echo 'CLOUD_CONTROL_PROBE_FAILED: two distinct compute nodes are required.' >&2
+  exit 1
+fi
 
 srun --exclusive --nodes=1 --ntasks=1 --nodelist="${nodes[0]}" \
   "$python_bin" "$admin" probe --storage "$storage" --output "$directory/atomic.json"
 srun --exclusive --nodes=1 --ntasks=1 --nodelist="${nodes[0]}" \
   "$python_bin" "$admin" lease-hold --storage "$storage" --output "$directory/holder.json" &
 holder_pid=$!
-for ((attempt=0; attempt<20; attempt++)); do
+printf 'Waiting for lease-holder readiness (up to 180 seconds).\n'
+for ((attempt=0; attempt<180; attempt++)); do
   [[ -f "$directory/holder.json" ]] && break
   sleep 1
 done
-[[ -f "$directory/holder.json" ]]
+if [[ ! -f "$directory/holder.json" ]]; then
+  echo 'CLOUD_CONTROL_PROBE_FAILED: lease-holder readiness timed out after 180 seconds; inspect the holder step logs.' >&2
+  exit 1
+fi
 srun --exclusive --nodes=1 --ntasks=1 --nodelist="${nodes[1]}" \
   "$python_bin" "$admin" lease-contend --storage "$storage" \
   --holding "$directory/holder.json" --output "$directory/contender.json"
