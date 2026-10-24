@@ -247,6 +247,11 @@ audit. Offline fault tests additionally cover crashes and uncertain responses;
 the live probe is not a proof against all service outages or regional loss.
 
 Holder startup and contender evidence each have a three-minute wait bound.
+Each coordinator confirms a lease renewal after reserving its session and before
+starting work; expired or unconfirmed startup still fails closed. Each probe
+process is capped at 1,000 storage requests, or the smaller approved session
+allowance. The atomicity and holder sessions reserve that bounded allowance,
+not a full training-sized envelope; previous reservations remain unchanged.
 Keep the job wall time above the private approval's `session_seconds`; the
 four-hour example assumes a shorter approved session. If a probe fails, inspect
 its logs and remaining request/session allowances before retrying: reservations
