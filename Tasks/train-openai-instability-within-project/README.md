@@ -15,6 +15,7 @@ training and inference using CPU jobs; no OpenAI weights run on cluster GPUs.
 | Pilot | Both Jira/20 variants, all 944 training and 314 validation rows; no early test |
 | Cost ceilings | $9 pilot, $80 entire experiment including pilot, $20 credit reserve |
 | Default candidate | `gpt-4.1-mini-2025-04-14`, one explicit epoch; subject to actual Azure availability and approval |
+| Fine-tuned serving | `DeveloperTier`, capacity 50; verify model/region quota before approval |
 
 **No real OpenAI scores or cloud-validation claims are included.** Offline tests
 use synthetic provider responses; these are not research results.
@@ -46,6 +47,14 @@ approval after reviewing current rates and affordability. Keep the same cloud
 authority and all prior reservations; do not rerun bootstrap. This change does
 not increase approved storage request/session allowances, the storage reserve,
 or the separate storage-only bootstrap ceiling (strictly below $7).
+
+Fine-tuned deployments now request capacity 50 rather than 1. This changes
+the requested rate-limit allocation, not the model, dataset, token budget, or
+token-billed serving tier. The completed deployment must report the approved
+capacity before evaluation proceeds; missing or different capacity fails closed.
+Capacity is part of the signed protocol: prepare a new run rather than editing
+an existing manifest or reusing its approval. This does not resize the existing
+base-model deployment or authorize paid work.
 
 ## Account and cost prerequisites
 

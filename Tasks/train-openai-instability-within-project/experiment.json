@@ -6,7 +6,7 @@
   "seed": 7,
   "training_type": "GlobalStandard",
   "deployment_sku": "DeveloperTier",
-  "deployment_capacity": 1,
+  "deployment_capacity": 50,
   "text_tokens": 2048,
   "max_input_tokens": 8192,
   "top_logprobs": 20,
