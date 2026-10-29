@@ -406,7 +406,7 @@ class ScoringTests(unittest.TestCase):
         backend.arm = Mock()
         backend.deploy("name", "ft:model", "owner")
         payload = backend.arm.call_args.args[2]
-        self.assertEqual(payload["sku"]["name"], "DeveloperTier")
+        self.assertEqual(payload["sku"], {"name": "DeveloperTier", "capacity": 50})
         self.assertEqual(payload["tags"], {"master-study": "owner"})
         self.assertEqual(payload["properties"]["model"]["name"], "ft:model")
         backend.get_deployment = Mock(return_value={
@@ -414,6 +414,36 @@ class ScoringTests(unittest.TestCase):
             "tags": {"master-study": "owner"}, "sku": {"name": "DeveloperTier"}})
         with self.assertRaisesRegex(ValueError, "differs"):
             backend.ready("name", "ft:model", "owner")
+
+    def test_deployment_readiness_rejects_missing_or_mismatched_capacity(self):
+        backend = object.__new__(AzureBackend)
+        backend.config = read_json(TASK / "experiment.json")
+        deployment = {
+            "properties": {"model": {"name": "ft:model"}, "provisioningState": "Succeeded"},
+            "tags": {"master-study": "owner"}, "sku": {"name": "DeveloperTier"},
+        }
+        backend.get_deployment = Mock(return_value=deployment)
+        for capacity in (None, 1, 49, 51, "50"):
+            with self.subTest(capacity=capacity):
+                deployment["sku"] = {"name": "DeveloperTier"}
+                if capacity is not None:
+                    deployment["sku"]["capacity"] = capacity
+                with self.assertRaisesRegex(ValueError, "capacity"):
+                    backend.ready("name", "ft:model", "owner")
+
+    def test_deployment_readiness_checks_capacity_after_provisioning_completes(self):
+        backend = object.__new__(AzureBackend)
+        backend.config = read_json(TASK / "experiment.json")
+        backend.get_deployment = Mock(side_effect=[
+            {"properties": {"model": {"name": "ft:model"}, "provisioningState": "Updating"},
+             "tags": {"master-study": "owner"}, "sku": {"name": "DeveloperTier", "capacity": 1}},
+            {"properties": {"model": {"name": "ft:model"}, "provisioningState": "Succeeded"},
+             "tags": {"master-study": "owner"}, "sku": {"name": "DeveloperTier", "capacity": 50}},
+        ])
+        with patch("azure_backend.time.sleep") as sleep:
+            backend.ready("name", "ft:model", "owner")
+        self.assertEqual(backend.get_deployment.call_count, 2)
+        sleep.assert_called_once_with(15)
 
     def test_bounded_retry_does_not_retry_auth_errors(self):
         class ConnectionError(Exception):

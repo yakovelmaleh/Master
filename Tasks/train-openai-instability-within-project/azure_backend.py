@@ -163,6 +163,8 @@ class AzureBackend:
                     raise ValueError("Deployment ownership, model, or billing SKU differs.")
                 state = value["properties"]["provisioningState"]
                 if state == "Succeeded":
+                    if value["sku"].get("capacity") != self.config["deployment_capacity"]:
+                        raise ValueError("Deployment capacity differs from the approved configuration.")
                     return
                 if state in ("Failed", "Canceled"):
                     raise ValueError("Azure deployment failed.")
