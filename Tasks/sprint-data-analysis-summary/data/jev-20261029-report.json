@@ -1,0 +1,3900 @@
+{
+  "all_24_passed": false,
+  "cells": [
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8768729641693811,
+        "auc_prc": 0.19186403840642263,
+        "average_precision": 0.19445281964389127,
+        "balanced_accuracy": 0.5026315789473684,
+        "confusion_matrix": [
+          [
+            1345,
+            0
+          ],
+          [
+            189,
+            1
+          ]
+        ],
+        "f1": 0.010471204188481674,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 1.0,
+        "recall": 0.005263157894736842,
+        "roc_auc": 0.6139894345529251,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.1237785016286645,
+        "auc_prc": 0.5618892508143323,
+        "average_precision": 0.1237785016286645,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1345
+          ],
+          [
+            0,
+            190
+          ]
+        ],
+        "f1": 0.22028985507246376,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 0.1237785016286645,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Apache",
+      "selection_sha256": "caf18b8ecebd0fa2dd97bd97a79f352c38b472b2a9f0d2bb60a35ebd11fe38c4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.13094462540716612,
+        "auc_prc": 0.12003786768480532,
+        "average_precision": 0.12140533413657587,
+        "balanced_accuracy": 0.49279006065349246,
+        "confusion_matrix": [
+          [
+            16,
+            1329
+          ],
+          [
+            5,
+            185
+          ]
+        ],
+        "f1": 0.21713615023474178,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 0.12219286657859973,
+        "recall": 0.9736842105263158,
+        "roc_auc": 0.4994012913324203,
+        "row_count": 1535,
+        "threshold": 0.4599999999999999
+      },
+      "test_predictions_sha256": "de806685c0b5e7d53951724911bc422f9aca68825e49e0afeccf9d6ca245b633",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1535,
+        "state_token_limit": 256,
+        "truncated_rows": 72
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.11972004438136469,
+            -0.03216496696591286
+          ],
+          "average_precision": [
+            -0.12080435518236578,
+            -0.0339479602904137
+          ],
+          "roc_auc": [
+            -0.17873470845656156,
+            -0.04852086417274437
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.10042616634513499,
+            0.14343442547757615
+          ],
+          "average_precision": [
+            0.10220717178222924,
+            0.1464162749335529
+          ],
+          "roc_auc": [
+            0.4542706484633274,
+            0.5444908575916259
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.6892508143322476,
+        "auc_prc": 0.11673850866307559,
+        "average_precision": 0.1201999676966554,
+        "balanced_accuracy": 0.6102741528414052,
+        "confusion_matrix": [
+          [
+            997,
+            420
+          ],
+          [
+            57,
+            61
+          ]
+        ],
+        "f1": 0.20367278797996663,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.12681912681912683,
+        "recall": 0.5169491525423728,
+        "roc_auc": 0.6539358635455665,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.07687296416938111,
+        "auc_prc": 0.5384364820846905,
+        "average_precision": 0.07687296416938111,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1417
+          ],
+          [
+            0,
+            118
+          ]
+        ],
+        "f1": 0.1427707199032063,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.07687296416938111,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Apache",
+      "selection_sha256": "956a10fa6aa69d6b7f92e5544d5aaccaca6eec0ab652756024ba9eef62acf9f0",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.08469055374592833,
+        "auc_prc": 0.07569953996590646,
+        "average_precision": 0.07704236095018938,
+        "balanced_accuracy": 0.4925810078585696,
+        "confusion_matrix": [
+          [
+            15,
+            1402
+          ],
+          [
+            3,
+            115
+          ]
+        ],
+        "f1": 0.1406727828746177,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.07580751483190508,
+        "recall": 0.9745762711864406,
+        "roc_auc": 0.5000717677595301,
+        "row_count": 1535,
+        "threshold": 0.4499999999999999
+      },
+      "test_predictions_sha256": "6db47d11c43110c5eb2cc0444784442db284cbd33e2638af48a414afac3fc4f6",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1535,
+        "state_token_limit": 256,
+        "truncated_rows": 72
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.07618847597582885,
+            -0.01797207206950205
+          ],
+          "average_precision": [
+            -0.07967932611622475,
+            -0.01787425814745046
+          ],
+          "roc_auc": [
+            -0.23030579275221474,
+            -0.0833823271544381
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.05930509020869338,
+            0.09620704222806001
+          ],
+          "average_precision": [
+            0.06129386581298782,
+            0.09958760789460132
+          ],
+          "roc_auc": [
+            0.44328902660511604,
+            0.5574498878310093
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.641042345276873,
+        "auc_prc": 0.0964500311122774,
+        "average_precision": 0.09971765671814088,
+        "balanced_accuracy": 0.6764566033250123,
+        "confusion_matrix": [
+          [
+            926,
+            528
+          ],
+          [
+            23,
+            58
+          ]
+        ],
+        "f1": 0.17391304347826086,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.09897610921501707,
+        "recall": 0.7160493827160493,
+        "roc_auc": 0.7046164688301323,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.05276872964169381,
+        "auc_prc": 0.5263843648208469,
+        "average_precision": 0.05276872964169381,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1454
+          ],
+          [
+            0,
+            81
+          ]
+        ],
+        "f1": 0.10024752475247524,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.05276872964169381,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Apache",
+      "selection_sha256": "cf1fd70649bfe48566d8c74c91d99943b2786bd5ccf2e1f6ef7770b13ae97468",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.057980456026058634,
+        "auc_prc": 0.049411930936155375,
+        "average_precision": 0.05072813308457993,
+        "balanced_accuracy": 0.4852641499821692,
+        "confusion_matrix": [
+          [
+            11,
+            1443
+          ],
+          [
+            3,
+            78
+          ]
+        ],
+        "f1": 0.09737827715355805,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.05128205128205128,
+        "recall": 0.9629629629629629,
+        "roc_auc": 0.47802571025863094,
+        "row_count": 1535,
+        "threshold": 0.41999999999999993
+      },
+      "test_predictions_sha256": "18652ce48cb07680427f03215c078a8d6a0848150ea970859944129cdee0572a",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1535,
+        "state_token_limit": 256,
+        "truncated_rows": 72
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.07557629483783888,
+            -0.02484404124623658
+          ],
+          "average_precision": [
+            -0.08327408743891533,
+            -0.025246559106793222
+          ],
+          "roc_auc": [
+            -0.3104291173792777,
+            -0.14232106719828647
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.0374888079724561,
+            0.0665320249445143
+          ],
+          "average_precision": [
+            0.03943495635855001,
+            0.07016042279333015
+          ],
+          "roc_auc": [
+            0.4129296171089734,
+            0.5487203093072732
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.6859934853420195,
+        "auc_prc": 0.07660777122663817,
+        "average_precision": 0.07979742460932318,
+        "balanced_accuracy": 0.6658685866519682,
+        "confusion_matrix": [
+          [
+            1015,
+            461
+          ],
+          [
+            21,
+            38
+          ]
+        ],
+        "f1": 0.13620071684587814,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.07615230460921844,
+        "recall": 0.6440677966101694,
+        "roc_auc": 0.7377761701345827,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.038436482084690554,
+        "auc_prc": 0.5192182410423453,
+        "average_precision": 0.038436482084690554,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1476
+          ],
+          [
+            0,
+            59
+          ]
+        ],
+        "f1": 0.0740276035131744,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.038436482084690554,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Apache",
+      "selection_sha256": "496d3a53967ba8bac90f1c8642869b90d67404dbd91b6ca166fa6106faa196c4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.04429967426710098,
+        "auc_prc": 0.03603498711000822,
+        "average_precision": 0.037412790594096426,
+        "balanced_accuracy": 0.4867771347204997,
+        "confusion_matrix": [
+          [
+            11,
+            1465
+          ],
+          [
+            2,
+            57
+          ]
+        ],
+        "f1": 0.07210626185958253,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.03745072273324573,
+        "recall": 0.9661016949152542,
+        "roc_auc": 0.47090165816912405,
+        "row_count": 1535,
+        "threshold": 0.41999999999999993
+      },
+      "test_predictions_sha256": "5bcb19b612c504e8f7da138582d207ab074da92384297d4a5d128095a4bc815c",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1535,
+        "state_token_limit": 256,
+        "truncated_rows": 72
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.07009006342682249,
+            -0.01945411754215163
+          ],
+          "average_precision": [
+            -0.07905656254970721,
+            -0.019677663625661503
+          ],
+          "roc_auc": [
+            -0.3648549224333346,
+            -0.17299448684426028
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.02594607403389266,
+            0.05143636265088605
+          ],
+          "average_precision": [
+            0.027587885725428495,
+            0.05586761343034877
+          ],
+          "roc_auc": [
+            0.3879702119636281,
+            0.551568104737795
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.7240663900414938,
+        "auc_prc": 0.260598376632622,
+        "average_precision": 0.2645629912456322,
+        "balanced_accuracy": 0.5532129672358099,
+        "confusion_matrix": [
+          [
+            648,
+            140
+          ],
+          [
+            126,
+            50
+          ]
+        ],
+        "f1": 0.273224043715847,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.2631578947368421,
+        "recall": 0.2840909090909091,
+        "roc_auc": 0.6588277284263959,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.1825726141078838,
+        "auc_prc": 0.5912863070539419,
+        "average_precision": 0.1825726141078838,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            788
+          ],
+          [
+            0,
+            176
+          ]
+        ],
+        "f1": 0.30877192982456136,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.1825726141078838,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Hyperledger",
+      "selection_sha256": "3c1f891d455f3bb199f64a4c303743cf4722499c0e740300a1592011750cb2d5",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.1825726141078838,
+        "auc_prc": 0.18444664916440995,
+        "average_precision": 0.18750559724606125,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            788
+          ],
+          [
+            0,
+            176
+          ]
+        ],
+        "f1": 0.30877192982456136,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.1825726141078838,
+        "recall": 1.0,
+        "roc_auc": 0.4983019439317028,
+        "row_count": 964,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "a1d79b91f5a2535b39dd96b01906db1c942a14ccd444945823136699c69c97df",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 964,
+        "state_token_limit": 256,
+        "truncated_rows": 67
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.12493869007461081,
+            -0.029337034297870147
+          ],
+          "average_precision": [
+            -0.1273363527732972,
+            -0.02856204621842228
+          ],
+          "roc_auc": [
+            -0.22048055020155766,
+            -0.09657624397676057
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.15503756514581926,
+            0.22296982898623288
+          ],
+          "average_precision": [
+            0.15929416159838836,
+            0.22990930473754664
+          ],
+          "roc_auc": [
+            0.45244122603040987,
+            0.5434632592552268
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8423236514522822,
+        "auc_prc": 0.22517241274150118,
+        "average_precision": 0.2286345797834445,
+        "balanced_accuracy": 0.4968301291936534,
+        "confusion_matrix": [
+          [
+            811,
+            11
+          ],
+          [
+            141,
+            1
+          ]
+        ],
+        "f1": 0.012987012987012988,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.08333333333333333,
+        "recall": 0.007042253521126761,
+        "roc_auc": 0.6736917857510024,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.14730290456431536,
+        "auc_prc": 0.5736514522821576,
+        "average_precision": 0.14730290456431536,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            822
+          ],
+          [
+            0,
+            142
+          ]
+        ],
+        "f1": 0.2567811934900543,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.14730290456431536,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Hyperledger",
+      "selection_sha256": "00a398bfbe4cc7f42e2cc3d8947ab7f1185f5e3472193df5711ccd507426dda4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.7033195020746889,
+        "auc_prc": 0.1613348882236526,
+        "average_precision": 0.16491109632937057,
+        "balanced_accuracy": 0.5143586580309105,
+        "confusion_matrix": [
+          [
+            643,
+            179
+          ],
+          [
+            107,
+            35
+          ]
+        ],
+        "f1": 0.19662921348314605,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.16355140186915887,
+        "recall": 0.24647887323943662,
+        "roc_auc": 0.516560433158562,
+        "row_count": 964,
+        "threshold": 0.7
+      },
+      "test_predictions_sha256": "ae6503c2dc234de3f5cf6515a0233fcf68a14db7b203c4ae1eb8b49aba79646d",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 964,
+        "state_token_limit": 256,
+        "truncated_rows": 67
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.11108698135581956,
+            -0.014529149769034924
+          ],
+          "average_precision": [
+            -0.11477246452865907,
+            -0.011588933397856584
+          ],
+          "roc_auc": [
+            -0.22383863065029633,
+            -0.08619416410543278
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.13001828994328563,
+            0.20421956413105127
+          ],
+          "average_precision": [
+            0.1340242923595965,
+            0.21326209450472167
+          ],
+          "roc_auc": [
+            0.46555897988367057,
+            0.5667360827648598
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8713692946058091,
+        "auc_prc": 0.223368516196756,
+        "average_precision": 0.22800782997466426,
+        "balanced_accuracy": 0.498812351543943,
+        "confusion_matrix": [
+          [
+            840,
+            2
+          ],
+          [
+            122,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.7150909232506523,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.12655601659751037,
+        "auc_prc": 0.5632780082987552,
+        "average_precision": 0.12655601659751037,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            842
+          ],
+          [
+            0,
+            122
+          ]
+        ],
+        "f1": 0.22467771639042355,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.12655601659751037,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Hyperledger",
+      "selection_sha256": "fae1d983a90dd7d0cf88a3184870e347b4f4b9be6c91add696d2e277b67090b6",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.7468879668049793,
+        "auc_prc": 0.14292042703835028,
+        "average_precision": 0.1468052939149204,
+        "balanced_accuracy": 0.5291850005840893,
+        "confusion_matrix": [
+          [
+            691,
+            151
+          ],
+          [
+            93,
+            29
+          ]
+        ],
+        "f1": 0.19205298013245034,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.16111111111111112,
+        "recall": 0.23770491803278687,
+        "roc_auc": 0.5202873719870722,
+        "row_count": 964,
+        "threshold": 0.71
+      },
+      "test_predictions_sha256": "255c06970d16eeeb3d211f4a624244052471d715a94ce888468f9d918481125a",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 964,
+        "state_token_limit": 256,
+        "truncated_rows": 67
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.13535875872545242,
+            -0.02552436926652806
+          ],
+          "average_precision": [
+            -0.13951225240608078,
+            -0.02227478601440616
+          ],
+          "roc_auc": [
+            -0.2654382516363017,
+            -0.12190363895837698
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.11192381914123144,
+            0.18627466104114423
+          ],
+          "average_precision": [
+            0.11670148908947145,
+            0.196260355491381
+          ],
+          "roc_auc": [
+            0.4650131012617921,
+            0.5744658448867767
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8817427385892116,
+        "auc_prc": 0.22041267956815153,
+        "average_precision": 0.22372715809319532,
+        "balanced_accuracy": 0.5027037223340041,
+        "confusion_matrix": [
+          [
+            849,
+            3
+          ],
+          [
+            111,
+            1
+          ]
+        ],
+        "f1": 0.017241379310344824,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.25,
+        "recall": 0.008928571428571428,
+        "roc_auc": 0.7296225268276325,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.11618257261410789,
+        "auc_prc": 0.558091286307054,
+        "average_precision": 0.11618257261410789,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            852
+          ],
+          [
+            0,
+            112
+          ]
+        ],
+        "f1": 0.20817843866171004,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.11618257261410789,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Hyperledger",
+      "selection_sha256": "35431885438638e8685d1219a8744e62337a3f1dc2512ca3379dd12a895815e6",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.7800829875518672,
+        "auc_prc": 0.13349249925654305,
+        "average_precision": 0.1376080886084523,
+        "balanced_accuracy": 0.534372904091214,
+        "confusion_matrix": [
+          [
+            728,
+            124
+          ],
+          [
+            88,
+            24
+          ]
+        ],
+        "f1": 0.1846153846153846,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.16216216216216217,
+        "recall": 0.21428571428571427,
+        "roc_auc": 0.5171235747820255,
+        "row_count": 964,
+        "threshold": 0.72
+      },
+      "test_predictions_sha256": "008d6b5c6791e79730dd58c6548dc090cb015f59a4c774c90fe038ba33710683",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 964,
+        "state_token_limit": 256,
+        "truncated_rows": 67
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.1430601239166791,
+            -0.02704646994720168
+          ],
+          "average_precision": [
+            -0.14397632583887923,
+            -0.023309961733027563
+          ],
+          "roc_auc": [
+            -0.2894158339329527,
+            -0.1357405644739525
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.1024800805920004,
+            0.17815397694019316
+          ],
+          "average_precision": [
+            0.10769256322591905,
+            0.19010651940242002
+          ],
+          "roc_auc": [
+            0.45784075121984275,
+            0.5750630563574968
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.7904191616766467,
+        "auc_prc": 0.15016806535005314,
+        "average_precision": 0.16588169254737842,
+        "balanced_accuracy": 0.5907491721854304,
+        "confusion_matrix": [
+          [
+            253,
+            49
+          ],
+          [
+            21,
+            11
+          ]
+        ],
+        "f1": 0.23913043478260868,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.18333333333333332,
+        "recall": 0.34375,
+        "roc_auc": 0.6580091059602649,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.09580838323353294,
+        "auc_prc": 0.5479041916167665,
+        "average_precision": 0.09580838323353294,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            302
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "f1": 0.17486338797814208,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.09580838323353294,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "IntelDAOS",
+      "selection_sha256": "20ef8a18e25f470fd8791e2f014a71d7c0a103c1fc0ad7378add3a06b89365f2",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.09580838323353294,
+        "auc_prc": 0.06046026318588305,
+        "average_precision": 0.06364753768198407,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            302
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "f1": 0.17486338797814208,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.09580838323353294,
+        "recall": 1.0,
+        "roc_auc": 0.2644867549668874,
+        "row_count": 334,
+        "threshold": 0.20999999999999996
+      },
+      "test_predictions_sha256": "79be11fa52d147ec41086733538a01339de626caf7122a3f6e74440cc879c77a",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 334,
+        "state_token_limit": 256,
+        "truncated_rows": 21
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.19757635625981276,
+            -0.03827752552808122
+          ],
+          "average_precision": [
+            -0.21796159978623653,
+            -0.04225507761277333
+          ],
+          "roc_auc": [
+            -0.5390207484020617,
+            -0.25019881496287844
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.041292177595308246,
+            0.0874627510001032
+          ],
+          "average_precision": [
+            0.04532653491449576,
+            0.0981345732972832
+          ],
+          "roc_auc": [
+            0.1756560167386912,
+            0.36304954361275704
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.7664670658682635,
+        "auc_prc": 0.2060907279754762,
+        "average_precision": 0.21563174885998476,
+        "balanced_accuracy": 0.6224985867721877,
+        "confusion_matrix": [
+          [
+            243,
+            62
+          ],
+          [
+            16,
+            13
+          ]
+        ],
+        "f1": 0.25,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.17333333333333334,
+        "recall": 0.4482758620689655,
+        "roc_auc": 0.7213114754098361,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.08682634730538923,
+        "auc_prc": 0.5434131736526946,
+        "average_precision": 0.08682634730538923,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            305
+          ],
+          [
+            0,
+            29
+          ]
+        ],
+        "f1": 0.15977961432506887,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.08682634730538923,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "IntelDAOS",
+      "selection_sha256": "38e63e1c891ecabff7d8c6190451eb5280225de7b337536008c64d72e4111a7a",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.08982035928143713,
+        "auc_prc": 0.05647724970966195,
+        "average_precision": 0.059790604105071886,
+        "balanced_accuracy": 0.5016393442622951,
+        "confusion_matrix": [
+          [
+            1,
+            304
+          ],
+          [
+            0,
+            29
+          ]
+        ],
+        "f1": 0.16022099447513813,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.08708708708708708,
+        "recall": 1.0,
+        "roc_auc": 0.2896551724137931,
+        "row_count": 334,
+        "threshold": 0.25999999999999995
+      },
+      "test_predictions_sha256": "797bdb645e5fb858ab17230e3bcc96d4008d8da7bf06e323f1240ece5c7d93a1",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 334,
+        "state_token_limit": 256,
+        "truncated_rows": 21
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.27671971228832065,
+            -0.05964679687169041
+          ],
+          "average_precision": [
+            -0.2850202228593412,
+            -0.06578999238748708
+          ],
+          "roc_auc": [
+            -0.5729099462365591,
+            -0.28839747771141555
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.037265305210650336,
+            0.08357695489190545
+          ],
+          "average_precision": [
+            0.0413672308449119,
+            0.09590618607301596
+          ],
+          "roc_auc": [
+            0.19110745081757793,
+            0.38932644724556487
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.7485029940119761,
+        "auc_prc": 0.24364200589496596,
+        "average_precision": 0.2524883734368554,
+        "balanced_accuracy": 0.6146505376344086,
+        "confusion_matrix": [
+          [
+            239,
+            71
+          ],
+          [
+            13,
+            11
+          ]
+        ],
+        "f1": 0.20754716981132074,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.13414634146341464,
+        "recall": 0.4583333333333333,
+        "roc_auc": 0.690994623655914,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.0718562874251497,
+        "auc_prc": 0.5359281437125748,
+        "average_precision": 0.0718562874251497,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            310
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "f1": 0.1340782122905028,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.0718562874251497,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "IntelDAOS",
+      "selection_sha256": "df61aea9ce8e2eb836641573fcc465f7121b635d57f0c66bcb1ca5a1dbd33a06",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.0748502994011976,
+        "auc_prc": 0.04391688228312646,
+        "average_precision": 0.04621492548233585,
+        "balanced_accuracy": 0.5016129032258064,
+        "confusion_matrix": [
+          [
+            1,
+            309
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "f1": 0.13445378151260504,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.07207207207207207,
+        "recall": 1.0,
+        "roc_auc": 0.24744623655913978,
+        "row_count": 334,
+        "threshold": 0.3499999999999999
+      },
+      "test_predictions_sha256": "91e96745260621f5c0bbecaaa6abe59603e0f6d9cb089b5d5d6dd48d101e9e29",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 334,
+        "state_token_limit": 256,
+        "truncated_rows": 21
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.3697193790251819,
+            -0.0621985457553284
+          ],
+          "average_precision": [
+            -0.37822509403998417,
+            -0.07777504078589385
+          ],
+          "roc_auc": [
+            -0.5909380260674564,
+            -0.2927363145743857
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.02798310435335467,
+            0.06431325215015343
+          ],
+          "average_precision": [
+            0.03113988285979104,
+            0.06998447970952072
+          ],
+          "roc_auc": [
+            0.16257309941520467,
+            0.3420250995134896
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.9341317365269461,
+        "auc_prc": 0.10267715858007523,
+        "average_precision": 0.12024835361654783,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            312,
+            0
+          ],
+          [
+            22,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6401515151515151,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.0658682634730539,
+        "auc_prc": 0.5329341317365269,
+        "average_precision": 0.0658682634730539,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            312
+          ],
+          [
+            0,
+            22
+          ]
+        ],
+        "f1": 0.12359550561797754,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.0658682634730539,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "IntelDAOS",
+      "selection_sha256": "40f777331ebf6ceab16fefe70b2244298a0b18ed37eeab300ee298fa3c527a2e",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.0688622754491018,
+        "auc_prc": 0.038876296826924256,
+        "average_precision": 0.040892791478311374,
+        "balanced_accuracy": 0.5016025641025641,
+        "confusion_matrix": [
+          [
+            1,
+            311
+          ],
+          [
+            0,
+            22
+          ]
+        ],
+        "f1": 0.12394366197183097,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.06606606606606606,
+        "recall": 1.0,
+        "roc_auc": 0.20964452214452214,
+        "row_count": 334,
+        "threshold": 0.3499999999999999
+      },
+      "test_predictions_sha256": "cc2e1d42d1d7995adec31548131d3f680b22f2fe7160e8ae25e7a886d8d7a548",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 334,
+        "state_token_limit": 256,
+        "truncated_rows": 21
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.18128476174576053,
+            -0.024243577009883763
+          ],
+          "average_precision": [
+            -0.20258719900671826,
+            -0.028626052816915916
+          ],
+          "roc_auc": [
+            -0.5794625264062492,
+            -0.28103703755921505
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.024080644241954188,
+            0.056982131761468276
+          ],
+          "average_precision": [
+            0.026934990350645338,
+            0.06151601889396601
+          ],
+          "roc_auc": [
+            0.1364457084515257,
+            0.2895117227125177
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.5221518987341772,
+        "auc_prc": 0.5753418831841499,
+        "average_precision": 0.5790822636139572,
+        "balanced_accuracy": 0.5326752618855761,
+        "confusion_matrix": [
+          [
+            98,
+            48
+          ],
+          [
+            103,
+            67
+          ]
+        ],
+        "f1": 0.47017543859649125,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.5826086956521739,
+        "recall": 0.3941176470588235,
+        "roc_auc": 0.6402095084609186,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.5379746835443038,
+        "auc_prc": 0.7689873417721519,
+        "average_precision": 0.5379746835443038,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            146
+          ],
+          [
+            0,
+            170
+          ]
+        ],
+        "f1": 0.6995884773662552,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.5379746835443038,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Jira",
+      "selection_sha256": "01aa2cb900d91cecaca8290179635508273d82204216bf84040cd30a9fbe19b3",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5379746835443038,
+        "auc_prc": 0.458049610834202,
+        "average_precision": 0.4616950937815898,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            146
+          ],
+          [
+            0,
+            170
+          ]
+        ],
+        "f1": 0.6995884773662552,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.5379746835443038,
+        "recall": 1.0,
+        "roc_auc": 0.3581788879935536,
+        "row_count": 316,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "6c4a4ea50a73d7aeb6ac0a307eb0d985b9df5475c4cc33dad58bc5965ccfa194",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 316,
+        "state_token_limit": 256,
+        "truncated_rows": 62
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.18952601645655276,
+            -0.04247122128122564
+          ],
+          "average_precision": [
+            -0.19049717983204412,
+            -0.042412712771572506
+          ],
+          "roc_auc": [
+            -0.3831608785276918,
+            -0.1781371353438544
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.3940911226355355,
+            0.5352096909686239
+          ],
+          "average_precision": [
+            0.4006737249984589,
+            0.5418652341030666
+          ],
+          "roc_auc": [
+            0.29771926166518214,
+            0.42310241009126054
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.5158227848101266,
+        "auc_prc": 0.5661166448407884,
+        "average_precision": 0.5759045306249805,
+        "balanced_accuracy": 0.52102053915276,
+        "confusion_matrix": [
+          [
+            100,
+            52
+          ],
+          [
+            101,
+            63
+          ]
+        ],
+        "f1": 0.45161290322580644,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.5478260869565217,
+        "recall": 0.38414634146341464,
+        "roc_auc": 0.6604621309370988,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.5189873417721519,
+        "auc_prc": 0.759493670886076,
+        "average_precision": 0.5189873417721519,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            152
+          ],
+          [
+            0,
+            164
+          ]
+        ],
+        "f1": 0.6833333333333332,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.5189873417721519,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Jira",
+      "selection_sha256": "7e3c3fb036de56b89459003cce7565e5373c1ab79b059346f896df79e7695651",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5189873417721519,
+        "auc_prc": 0.4291190926200664,
+        "average_precision": 0.4327914492197392,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            152
+          ],
+          [
+            0,
+            164
+          ]
+        ],
+        "f1": 0.6833333333333332,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.5189873417721519,
+        "recall": 1.0,
+        "roc_auc": 0.34038029525032093,
+        "row_count": 316,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "d81c926b0393e8ef7c3b9bd34354ae4ae1d56caf14e167b676fee36a5a6bb2b1",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 316,
+        "state_token_limit": 256,
+        "truncated_rows": 62
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.20714531416439358,
+            -0.06359127468815488
+          ],
+          "average_precision": [
+            -0.21290646966739832,
+            -0.0692241853861763
+          ],
+          "roc_auc": [
+            -0.41976538268518165,
+            -0.21942778631144244
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.36544989168746095,
+            0.5026420468393411
+          ],
+          "average_precision": [
+            0.37142144563302226,
+            0.5097042414380611
+          ],
+          "roc_auc": [
+            0.28172772849919736,
+            0.40462709733543056
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.5,
+        "auc_prc": 0.5472892979370305,
+        "average_precision": 0.5521474289143389,
+        "balanced_accuracy": 0.5022435897435897,
+        "confusion_matrix": [
+          [
+            106,
+            50
+          ],
+          [
+            108,
+            52
+          ]
+        ],
+        "f1": 0.39694656488549623,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.5098039215686274,
+        "recall": 0.325,
+        "roc_auc": 0.6557892628205129,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.5063291139240507,
+        "auc_prc": 0.7531645569620253,
+        "average_precision": 0.5063291139240507,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            156
+          ],
+          [
+            0,
+            160
+          ]
+        ],
+        "f1": 0.6722689075630253,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.5063291139240507,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": false,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Jira",
+      "selection_sha256": "95a54c56925d39ea09551e127381afeb651269aaa342b38658fe09a9cad8f25b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5063291139240507,
+        "auc_prc": 0.41747310104816704,
+        "average_precision": 0.4212000122222804,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            156
+          ],
+          [
+            0,
+            160
+          ]
+        ],
+        "f1": 0.6722689075630253,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.5063291139240507,
+        "recall": 1.0,
+        "roc_auc": 0.3392227564102564,
+        "row_count": 316,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "4efbe55ff2b5d497f2d5664b5a389072d9fdaaac3c689ba2547a0b03a2701fb9",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 316,
+        "state_token_limit": 256,
+        "truncated_rows": 62
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.2007523520477848,
+            -0.06150403566103918
+          ],
+          "average_precision": [
+            -0.20399776306539685,
+            -0.061226395843586606
+          ],
+          "roc_auc": [
+            -0.4123378236297281,
+            -0.21173717162485392
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.3544897196291571,
+            0.4898948215257463
+          ],
+          "average_precision": [
+            0.36129043962740687,
+            0.4972080662774675
+          ],
+          "roc_auc": [
+            0.2797580089481235,
+            0.4043915183739504
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.870253164556962,
+        "auc_prc": 0.19499981723367565,
+        "average_precision": 0.2075819328647004,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            275,
+            0
+          ],
+          [
+            41,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.5887361419068736,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.12974683544303797,
+        "auc_prc": 0.564873417721519,
+        "average_precision": 0.12974683544303797,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            275
+          ],
+          [
+            0,
+            41
+          ]
+        ],
+        "f1": 0.22969187675070027,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.12974683544303797,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Jira",
+      "selection_sha256": "9e75e71cc31e74644346c8653cf479af7efb6394299c4ae3aed84e73622d61f4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8607594936708861,
+        "auc_prc": 0.18974994546924107,
+        "average_precision": 0.1971837769741158,
+        "balanced_accuracy": 0.5152993348115299,
+        "confusion_matrix": [
+          [
+            270,
+            5
+          ],
+          [
+            39,
+            2
+          ]
+        ],
+        "f1": 0.08333333333333334,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.2857142857142857,
+        "recall": 0.04878048780487805,
+        "roc_auc": 0.5462527716186253,
+        "row_count": 316,
+        "threshold": 0.7599999999999999
+      },
+      "test_predictions_sha256": "4185b1bd1c1906bd133acf88400e6e132f0e501643cc184e68d2bbf4f244f5e1",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 316,
+        "state_token_limit": 256,
+        "truncated_rows": 62
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.1501552163394158,
+            0.11764285910160055
+          ],
+          "average_precision": [
+            -0.16625702449103463,
+            0.11530986485205845
+          ],
+          "roc_auc": [
+            -0.1989379547762396,
+            0.11047081210421601
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.11019665573652566,
+            0.2983827202077339
+          ],
+          "average_precision": [
+            0.1214004362746409,
+            0.3099923596988593
+          ],
+          "roc_auc": [
+            0.4407925444931624,
+            0.6503159353964634
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8467336683417085,
+        "auc_prc": 0.19484574838475716,
+        "average_precision": 0.20505354435535234,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            337,
+            0
+          ],
+          [
+            61,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.5828914724911223,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.15326633165829145,
+        "auc_prc": 0.5766331658291457,
+        "average_precision": 0.15326633165829145,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            337
+          ],
+          [
+            0,
+            61
+          ]
+        ],
+        "f1": 0.2657952069716776,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.15326633165829145,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "MariaDB",
+      "selection_sha256": "81a4f6e30a227d7b06f2e3d1d2316048941f1d1132f96f8356c5be034af94ae8",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.7864321608040201,
+        "auc_prc": 0.21156378503910642,
+        "average_precision": 0.21787566804194683,
+        "balanced_accuracy": 0.5113829838984287,
+        "confusion_matrix": [
+          [
+            306,
+            31
+          ],
+          [
+            54,
+            7
+          ]
+        ],
+        "f1": 0.1414141414141414,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.18421052631578946,
+        "recall": 0.11475409836065574,
+        "roc_auc": 0.5267548766843411,
+        "row_count": 398,
+        "threshold": 0.74
+      },
+      "test_predictions_sha256": "b0a3d2988ffb1deeeb9691d5b1c8e5ceb01f82a9d330a7160210b8c88074de39",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 398,
+        "state_token_limit": 256,
+        "truncated_rows": 23
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.09296128157639812,
+            0.11625390804689872
+          ],
+          "average_precision": [
+            -0.09465194754482359,
+            0.11355533405877807
+          ],
+          "roc_auc": [
+            -0.1666711683901837,
+            0.05222354846113106
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.13876575447762265,
+            0.3036381505885807
+          ],
+          "average_precision": [
+            0.1480811926397954,
+            0.31518485629586124
+          ],
+          "roc_auc": [
+            0.4397556236132868,
+            0.6127837988563004
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8894472361809045,
+        "auc_prc": 0.155084524931062,
+        "average_precision": 0.16548126800780694,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            354,
+            0
+          ],
+          [
+            44,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6271828454031844,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.11055276381909548,
+        "auc_prc": 0.5552763819095478,
+        "average_precision": 0.11055276381909548,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            354
+          ],
+          [
+            0,
+            44
+          ]
+        ],
+        "f1": 0.1990950226244344,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.11055276381909548,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "MariaDB",
+      "selection_sha256": "0f4179b8c9860cd7f71764070dda6ccd3336366e313e008fe53e478c77a3956b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.6834170854271356,
+        "auc_prc": 0.13886344964419028,
+        "average_precision": 0.1430750851895887,
+        "balanced_accuracy": 0.5533513097072419,
+        "confusion_matrix": [
+          [
+            255,
+            99
+          ],
+          [
+            27,
+            17
+          ]
+        ],
+        "f1": 0.2125,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.14655172413793102,
+        "recall": 0.38636363636363635,
+        "roc_auc": 0.5112994350282486,
+        "row_count": 398,
+        "threshold": 0.69
+      },
+      "test_predictions_sha256": "9dc39d8bb56c54d57a615f195463e29561a272fbf350654ee3abc21935a1a2fc",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 398,
+        "state_token_limit": 256,
+        "truncated_rows": 23
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.10570889170504048,
+            0.06646492384750441
+          ],
+          "average_precision": [
+            -0.12759168688059602,
+            0.060642540573929066
+          ],
+          "roc_auc": [
+            -0.23698819005083988,
+            0.0033106342463141494
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.08331105806350513,
+            0.21516535648487223
+          ],
+          "average_precision": [
+            0.0903997295928612,
+            0.22415573783576284
+          ],
+          "roc_auc": [
+            0.41382960060815155,
+            0.6078172958870472
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.8442211055276382,
+        "auc_prc": 0.10881496705402251,
+        "average_precision": 0.11289825475418147,
+        "balanced_accuracy": 0.5154005811540059,
+        "confusion_matrix": [
+          [
+            332,
+            33
+          ],
+          [
+            29,
+            4
+          ]
+        ],
+        "f1": 0.11428571428571428,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.10810810810810811,
+        "recall": 0.12121212121212122,
+        "roc_auc": 0.4899128268991283,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "NN",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.0829145728643216,
+        "auc_prc": 0.5414572864321608,
+        "average_precision": 0.0829145728643216,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            365
+          ],
+          [
+            0,
+            33
+          ]
+        ],
+        "f1": 0.1531322505800464,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.0829145728643216,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "MariaDB",
+      "selection_sha256": "38e7cc587152d6d66d58a08faa97fd0e0b99ac33fd52ee33539838e52a5115f8",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.12814070351758794,
+        "auc_prc": 0.09945798364392973,
+        "average_precision": 0.11154237278799807,
+        "balanced_accuracy": 0.45574927355749273,
+        "confusion_matrix": [
+          [
+            23,
+            342
+          ],
+          [
+            5,
+            28
+          ]
+        ],
+        "f1": 0.13895781637717122,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.07567567567567568,
+        "recall": 0.8484848484848485,
+        "roc_auc": 0.5206309672063096,
+        "row_count": 398,
+        "threshold": 0.5499999999999999
+      },
+      "test_predictions_sha256": "01fed8f1a767efbbe3cd2df0d8f0f1e60cb00bb5cfaa390599524419e2b1ad23",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 398,
+        "state_token_limit": 256,
+        "truncated_rows": 23
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.09927499249913316,
+            0.09378477304538992
+          ],
+          "average_precision": [
+            -0.09554775800152013,
+            0.1055165468550837
+          ],
+          "roc_auc": [
+            -0.12246480116862461,
+            0.17802996936039825
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.06083325505743951,
+            0.18706439477726616
+          ],
+          "average_precision": [
+            0.06856901031869705,
+            0.20712398777276753
+          ],
+          "roc_auc": [
+            0.3953565750624574,
+            0.6321296411293826
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.9296482412060302,
+        "auc_prc": 0.12182267085738707,
+        "average_precision": 0.133107696306499,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            370,
+            0
+          ],
+          [
+            28,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6720559845559846,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.07035175879396985,
+        "auc_prc": 0.535175879396985,
+        "average_precision": 0.07035175879396985,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            370
+          ],
+          [
+            0,
+            28
+          ]
+        ],
+        "f1": 0.13145539906103285,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.07035175879396985,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "MariaDB",
+      "selection_sha256": "7e2ab9a75da842ddc83c9e999d2fd84ea06c2b0cd88b7f7d910c3275069b0449",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.12311557788944724,
+        "auc_prc": 0.11910423238136872,
+        "average_precision": 0.12383001801219107,
+        "balanced_accuracy": 0.4953667953667954,
+        "confusion_matrix": [
+          [
+            23,
+            347
+          ],
+          [
+            2,
+            26
+          ]
+        ],
+        "f1": 0.12967581047381546,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.06970509383378017,
+        "recall": 0.9285714285714286,
+        "roc_auc": 0.5557915057915058,
+        "row_count": 398,
+        "threshold": 0.5399999999999999
+      },
+      "test_predictions_sha256": "4b8355ce0ac6e57e90d3da5ffba2f98d334190907870ecedb5aeb006320d64de",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 398,
+        "state_token_limit": 256,
+        "truncated_rows": 23
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.11324302708254398,
+            0.10244624386612625
+          ],
+          "average_precision": [
+            -0.13923107975314117,
+            0.0987622221133063
+          ],
+          "roc_auc": [
+            -0.26948082010582003,
+            0.035252742889614073
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.05381706269407438,
+            0.21333272625150673
+          ],
+          "average_precision": [
+            0.061041796863463976,
+            0.22291881135759328
+          ],
+          "roc_auc": [
+            0.4289520880992061,
+            0.6759244455479891
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.9035159443990188,
+        "auc_prc": 0.18974342862675092,
+        "average_precision": 0.1949165780791524,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            1105,
+            0
+          ],
+          [
+            118,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.689911036122402,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.0964840556009812,
+        "auc_prc": 0.5482420278004906,
+        "average_precision": 0.0964840556009812,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1105
+          ],
+          [
+            0,
+            118
+          ]
+        ],
+        "f1": 0.17598806860551827,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.0964840556009812,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Qt",
+      "selection_sha256": "627fd73fcf9e760a6f5361eca857d7c590e94b69d202cca3e360df0f523478ef",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5437448896156991,
+        "auc_prc": 0.10000997433645634,
+        "average_precision": 0.10287793791234684,
+        "balanced_accuracy": 0.49392974921389676,
+        "confusion_matrix": [
+          [
+            614,
+            491
+          ],
+          [
+            67,
+            51
+          ]
+        ],
+        "f1": 0.15454545454545457,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.0940959409594096,
+        "recall": 0.4322033898305085,
+        "roc_auc": 0.5048815093181992,
+        "row_count": 1223,
+        "threshold": 0.6599999999999999
+      },
+      "test_predictions_sha256": "03f81a0a3918ea970773000bcc4ef79e46787b2e756083c24edf6ed60150d8b9",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1223,
+        "state_token_limit": 256,
+        "truncated_rows": 32
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.14969955914179545,
+            -0.04435152883261054
+          ],
+          "average_precision": [
+            -0.1554284450180746,
+            -0.045049958735079026
+          ],
+          "roc_auc": [
+            -0.2576654430643631,
+            -0.11452727230282365
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.07750768659414263,
+            0.13088485566476935
+          ],
+          "average_precision": [
+            0.08094075522921883,
+            0.13851205006944092
+          ],
+          "roc_auc": [
+            0.44915192320058417,
+            0.5578160218803249
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.7931316434995912,
+        "auc_prc": 0.17394196940901607,
+        "average_precision": 0.1784419161306906,
+        "balanced_accuracy": 0.5988033820578963,
+        "confusion_matrix": [
+          [
+            947,
+            216
+          ],
+          [
+            37,
+            23
+          ]
+        ],
+        "f1": 0.15384615384615383,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.09623430962343096,
+        "recall": 0.38333333333333336,
+        "roc_auc": 0.7276153625680711,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.04905968928863451,
+        "auc_prc": 0.5245298446443173,
+        "average_precision": 0.04905968928863451,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1163
+          ],
+          [
+            0,
+            60
+          ]
+        ],
+        "f1": 0.09353078721745908,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.04905968928863451,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 10,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Qt",
+      "selection_sha256": "16691e74ea0acfbdf311815e5c8e2ef6e73db79273d4526d9280034de6d857dc",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5813573180703189,
+        "auc_prc": 0.05269515140897159,
+        "average_precision": 0.05673176685876176,
+        "balanced_accuracy": 0.49535683576956147,
+        "confusion_matrix": [
+          [
+            687,
+            476
+          ],
+          [
+            36,
+            24
+          ]
+        ],
+        "f1": 0.08571428571428572,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.048,
+        "recall": 0.4,
+        "roc_auc": 0.4613857838922327,
+        "row_count": 1223,
+        "threshold": 0.6599999999999999
+      },
+      "test_predictions_sha256": "3c85aa06d63d9723490bd496c47272eb3bffae881ba47efb3e4d0f7c37cb4dee",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1223,
+        "state_token_limit": 256,
+        "truncated_rows": 32
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.21398043955182586,
+            -0.04633579901329993
+          ],
+          "average_precision": [
+            -0.21496394822176212,
+            -0.047077698306952534
+          ],
+          "roc_auc": [
+            -0.36005938204037785,
+            -0.1700798792416396
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.03462473392798951,
+            0.08762152495498951
+          ],
+          "average_precision": [
+            0.03793301206331778,
+            0.10210687927373081
+          ],
+          "roc_auc": [
+            0.3818288835835793,
+            0.5427486772233221
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.964022894521668,
+        "auc_prc": 0.13670706740744334,
+        "average_precision": 0.1493418412262666,
+        "balanced_accuracy": 0.5107804493496255,
+        "confusion_matrix": [
+          [
+            1178,
+            2
+          ],
+          [
+            42,
+            1
+          ]
+        ],
+        "f1": 0.04347826086956522,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.3333333333333333,
+        "recall": 0.023255813953488372,
+        "roc_auc": 0.7926487977926685,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.03515944399018806,
+        "auc_prc": 0.517579721995094,
+        "average_precision": 0.03515944399018806,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1180
+          ],
+          [
+            0,
+            43
+          ]
+        ],
+        "f1": 0.0679304897314376,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.03515944399018806,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 15,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Qt",
+      "selection_sha256": "99770c1e511a843b7f9fdd881448edee1757d647def18f9239af4af03cb4d1e3",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.6328699918233851,
+        "auc_prc": 0.039172872322974464,
+        "average_precision": 0.04387646803362727,
+        "balanced_accuracy": 0.48482459597950334,
+        "confusion_matrix": [
+          [
+            760,
+            420
+          ],
+          [
+            29,
+            14
+          ]
+        ],
+        "f1": 0.05870020964360587,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.03225806451612903,
+        "recall": 0.32558139534883723,
+        "roc_auc": 0.45837603468663773,
+        "row_count": 1223,
+        "threshold": 0.6699999999999999
+      },
+      "test_predictions_sha256": "56aa2c7219aba2fc5e268dfbd36a48d136c9fbf03fa7d0b3c0f9f4afa8944b04",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1223,
+        "state_token_limit": 256,
+        "truncated_rows": 32
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.20418406444578374,
+            -0.03238552439332873
+          ],
+          "average_precision": [
+            -0.2180382915759217,
+            -0.028993021420178813
+          ],
+          "roc_auc": [
+            -0.4455626669085868,
+            -0.2236980916799582
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.023117223368800555,
+            0.07465817609668289
+          ],
+          "average_precision": [
+            0.026124532293407873,
+            0.0954933540781705
+          ],
+          "roc_auc": [
+            0.36033593091828137,
+            0.5509428751097802
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "id": "com-kotobalabs/open-jev-deberta-v3-large",
+        "identity": "Independent community Jev-style model, not TypeSafe Jev",
+        "license": "apache-2.0",
+        "max_len": 512,
+        "max_state_tokens": 256,
+        "reviewed_files": {
+          "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+          "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+          "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+          "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+        },
+        "revision": "188ee67a5c93122b916e5acd5bdb0cb3623e380a"
+      },
+      "baseline": {
+        "accuracy": 0.9721995094031071,
+        "auc_prc": 0.11893583301874244,
+        "average_precision": 0.1251974969883866,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            1189,
+            0
+          ],
+          [
+            34,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.7569880769801612,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "added_tokens.json": "e81a7ccf7047df51f32ccbbef0e31478ec353d5dfa3bcd879fff34a210b3647b",
+        "config.json": "e1bf1abe70dc5a76092d2f72d986cf113e9331f4d9c61610ebe8ef6a03d1a44f",
+        "head.safetensors": "f101be67c5808a810abbcede9ebe702f7e4af4aa6f7298bb243842ce9e3a295a",
+        "model.safetensors": "3f1d5bc3b6d3dc412ea2c499446fcbd212242d79baf16bc0eda155b4ebbac806",
+        "open_jev_config.json": "128c6b453bda8f477a186c6e13a303f2665c75330daab4ced322f84767bb5799",
+        "special_tokens_map.json": "e8011491ba6d7a28785c2a1f99142615792b99409003965d8092608b49aed3c0",
+        "spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "tokenizer.json": "cd119378b0160677b7a1e561ba29ada83918c1d420b326516a585382e83d9d39",
+        "tokenizer_config.json": "52e0421535dd20e51dd25f4ce965cf2689a7392956f84ca4867667efab600340",
+        "typed_decisions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "typed_decisions/encoder.py": "59ae43a157575cd09ae31afd691156ee4a66ad8929d317970404dd9fe6bbfc53",
+        "typed_decisions/open_jev.py": "15759988c5eb99a41347b4b3f948c0b5ef19dfc6630cc9158bcd4ae80bb2df0d",
+        "typed_decisions/schema.py": "976eca07aceae8e3c1b2ee9911c614359a1b1e04b590837491816cc93e469c3a"
+      },
+      "constant_score": {
+        "accuracy": 0.027800490596892886,
+        "auc_prc": 0.5139002452984465,
+        "average_precision": 0.027800490596892886,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1189
+          ],
+          [
+            0,
+            34
+          ]
+        ],
+        "f1": 0.05409705648369133,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.027800490596892886,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": false,
+        "valid": true
+      },
+      "level": 20,
+      "mode": "zero_shot_with_validation_threshold",
+      "model": "community_jev_deberta",
+      "project": "Qt",
+      "selection_sha256": "a2c2fca0bd46a683a2c9d5d14858d1a798b1f7ffa32123b63ae8fe0a71ac2175",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9247751430907605,
+        "auc_prc": 0.025806989428326987,
+        "average_precision": 0.027994320212786708,
+        "balanced_accuracy": 0.48989511700390836,
+        "confusion_matrix": [
+          [
+            1130,
+            59
+          ],
+          [
+            33,
+            1
+          ]
+        ],
+        "f1": 0.02127659574468085,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.016666666666666666,
+        "recall": 0.029411764705882353,
+        "roc_auc": 0.45500420521446594,
+        "row_count": 1223,
+        "threshold": 0.7499999999999999
+      },
+      "test_predictions_sha256": "110562f5cf1bce5ec03949f726d26f6d74daaf3663476303a05561e24af4284c",
+      "token_coverage": {
+        "policy": "native right truncation of concatenated historical text",
+        "rows": 1223,
+        "state_token_limit": 256,
+        "truncated_rows": 32
+      },
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.19994258887803354,
+            -0.02300787116098277
+          ],
+          "average_precision": [
+            -0.20502370270233622,
+            -0.024721152450448453
+          ],
+          "roc_auc": [
+            -0.4327913592147799,
+            -0.17543865642299206
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.016189362505814583,
+            0.042118433314767584
+          ],
+          "average_precision": [
+            0.018069207599030225,
+            0.05300128845891253
+          ],
+          "roc_auc": [
+            0.3517133194207752,
+            0.5603779180119424
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    }
+  ],
+  "mode": "zero_shot_with_validation_threshold",
+  "model_identity": "Independent community Jev-style model, not TypeSafe Jev",
+  "prompt_tuned_on_test": false,
+  "retrospective_holdout": true,
+  "schema": "hf-instability-report-v1",
+  "stage": "final-test",
+  "study_sha256": "af791067994d62249bda4587c33bd4a9782d66c52531aadd98c3198ae1ac6e17"
+}

@@ -3,12 +3,125 @@
 This folder keeps the sprint PowerPoint in the repository. Maintain this copy
 when adding more experiments; a copy in Downloads is only for convenience.
 
-## October 8 presentation: code-smell preparation update
+## October 8 presentation: completed model studies
 
 `results/Master-Sprint-Summary-2026-10-08.pptx`
 
-This 18-slide deck preserves the 14 existing local HF-results slides and adds
-four code-smell dataset-preparation slides recorded on October 24, 2026:
+The 48-slide deck records all three completed local model studies and their
+comparison with the historical RF, boosting and NN candidates. The 18 slides
+already published with the code-smell preparation update are preserved.
+
+| Slides | Content |
+|---|---|
+| 1-14 | ModernBERT / Qwen-embedding study and its historical data contract |
+| 15-18 | Code-smell dataset preparation, unchanged |
+| 19-31 | Phi / Gemma / Qwen3.5 study and comparison with the first study |
+| 32 | Plain-language Jev introduction: text + question -> yes/no score |
+| 33-46 | Local community Jev zero-shot protocol, results and limitations |
+| 47 | Both SLM studies versus two definitions of the best classical model |
+| 48 | Local Jev versus those same classical comparators |
+
+The example issue and 0.70 score on slide 32 are explicitly illustrative,
+not measured predictions. The Jev benchmark uses
+`com-kotobalabs/open-jev-deberta-v3-large`, not official TypeSafe Jev or JEV-9B.
+
+### Results and interpretation
+
+All studies have 24 valid repository/threshold results: six repositories and
+four absolute changed-word thresholds (5/10/15/20), not percentages. Model
+selection in the two supervised HF studies and decision thresholds in all
+three studies use validation data. Final decisions were sealed before testing.
+Jev has no local model training and retains its native head and fixed prompt;
+the supervised and zero-shot protocols are not an architecture-only comparison.
+
+| Measure | ModernBERT / Qwen embeddings | Phi / Gemma / Qwen3.5 | Local Jev |
+|---|---:|---:|---:|
+| All agreed gates passed | 0/24 | 0/24 | 0/24 |
+| AUC-PRC > 0.5 | 3/24 | 3/24 | 0/24 |
+| AP above validation-selected classical baseline | 10/24 | 12/24 | 1/24 |
+| AP above prevalence | 24/24 | 24/24 | 14/24 |
+| ROC AUC > 0.5 | 24/24 | 24/24 | 10/24 |
+| Descriptive mean AUC-PRC | 0.2155 | 0.2315 | 0.1410 |
+| Descriptive mean AP | 0.2220 | 0.2384 | 0.1448 |
+| Descriptive mean ROC AUC | 0.6620 | 0.6721 | 0.4413 |
+
+Means weight each of the 24 cells equally; they are not pooled-prediction
+metrics. No study meets the combined scientific target. None of the individual
+95% AP-gain intervals against the validation-selected classical baseline is
+wholly positive. In the Jev study, 19 such intervals are wholly negative and
+five include zero. The paired issue bootstrap does not model temporal
+dependence or adjust for multiple comparisons.
+
+Jev's 256-state-token limit truncates 277 of 4,770 unique test issues (5.8%);
+the four levels reuse these issues. At validation-selected thresholds, 14/24
+cells predict yes for at least 90% of test issues. These findings do not prove
+the cause of weak ranking and do not justify test-driven score reversal.
+
+### What "best classical model" means
+
+Slides 47-48 show both definitions requested for the comparison:
+
+- **Validation-selected:** choose the old model by validation AUC-PRC and
+  evaluate its test performance.
+- **Best observed test PR:** choose the highest old test AUC-PRC per
+  repository/threshold, explicitly as a retrospective comparison, not a
+  deployable model-selection rule.
+
+Both use the same six old candidates per cell: RF, legacy boosting (the
+`XGboost` artifact label) and NN, each with baseline/refactored variants.
+AP and ROC AUC accompany that same PR-selected model; they are not separate
+per-metric maxima. The SLM studies remain separate validation-selected results,
+without selecting a new cross-study winner using test scores.
+
+| Method | Mean AUC-PRC | Mean AP | Mean ROC AUC |
+|---|---:|---:|---:|
+| Classical, validation-selected | 0.2166 | 0.2239 | 0.6701 |
+| Classical, best observed test PR | 0.2509 | 0.2577 | 0.6848 |
+| ModernBERT / Qwen embeddings | 0.2155 | 0.2220 | 0.6620 |
+| Phi / Gemma / Qwen3.5 | 0.2315 | 0.2384 | 0.6721 |
+| Local community Jev | 0.1410 | 0.1448 | 0.4413 |
+
+PR-area wins versus validation-selected / best-observed old models are
+11/24 and 4/24 for the first SLM study, 11/24 and 7/24 for the second, and
+1/24 and 0/24 for Jev. The second study's seven best-observed PR wins are
+MariaDB 10/15/20 and Qt 5/10/15/20. These are point-estimate wins, not a
+statistical-significance claim or evidence of a consistent replacement.
+
+Only ranking metrics are compared here. The HF reports recompute classical
+thresholded metrics at 0.5, whereas the archived metrics retain their
+validation-selected thresholds; accuracy/F1 are not interchangeable between
+these sources. No paired intervals were computed between the three new
+studies or against the retrospectively test-selected classical models.
+
+### Published evidence
+
+| File under `data/` | Provenance |
+|---|---|
+| `hf-20261008-report.json` | Study `hf-20261008-modernbert-qwen`, received October 19 |
+| `hf-20261019-report.json` | Study `hf-20261019-phi-gemma-qwen`, received October 29 |
+| `jev-20261029-report.json` | Study `jev-20261029-deberta`, received October 29 |
+| `classical-best-comparison-20261029.json` | 144 immutable classical candidates, 24 matched comparisons, selection rules, means and wins |
+| `code-smells-002-retention.json` | Previously published preparation counts described below |
+
+The classical source is PR #357 commit
+`028b4e40f81ce29f00ae561f795a6df8a52adb7b`. Candidate paths and hashes,
+report hashes and detailed per-cell metrics are retained in the evidence and
+speaker notes. Counts, positives and ranking metrics match the archived
+validation-selected comparators; raw predictions were not independently
+rescored for this presentation.
+
+All comparisons use the historical retrospective holdout, with possible
+public-Jira pretraining exposure. Preserve the sealed studies rather than
+tuning to their observed test results.
+
+This publication includes the presentation, guide and aggregate evidence only:
+no model weights, raw Jira records, caches, training-code changes or local
+authoring tools. The September 24 presentation is unchanged.
+
+### October 24 update: code-smell preparation
+
+The October 24 update contained 18 slides: 14 existing HF-results slides and
+four code-smell dataset-preparation slides, preserved in the current deck:
 
 | Slides | Content |
 |---|---|
@@ -31,9 +144,9 @@ are still pending; these are not final model-ready counts.
 
 `data/code-smells-002-retention.json` preserves the source-level counts,
 definitions, and provenance transcribed from user-supplied cluster outputs.
-The same evidence is included in the added slides' speaker notes. The October
-8 deck was previously local-only, so this PR versions the whole deck; its
-original 14 slides are unchanged. Local authoring tools are not included.
+The same evidence is included in those slides' speaker notes. That update
+first published the October 8 deck, preserving its original 14 HF slides.
+Local authoring tools are not included.
 The September 24 presentation below is unchanged.
 
 ## September 24 presentation

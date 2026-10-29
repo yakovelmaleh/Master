@@ -1,0 +1,3710 @@
+{
+  "all_24_passed": false,
+  "cells": [
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Apache/phi/5/8bd6563dc53d12f9/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8768729641693811,
+        "auc_prc": 0.19186403840642263,
+        "average_precision": 0.19445281964389127,
+        "balanced_accuracy": 0.5026315789473684,
+        "confusion_matrix": [
+          [
+            1345,
+            0
+          ],
+          [
+            189,
+            1
+          ]
+        ],
+        "f1": 0.010471204188481674,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 1.0,
+        "recall": 0.005263157894736842,
+        "roc_auc": 0.6139894345529251,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "58207b829b05a874051c670b255e5e304b8fd9e585e5d59eacfb503377c2793b",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "e2a90fbfe1953e6c743e9991988560abae1c3cb1924607c5b7db60237930675d",
+        "head.safetensors": "f6963a36d98d9103b75a0e4bccd7f4da4a6b3951092dc5f04a5301f4c3ac3840",
+        "inference.json": "81845f903993865c2569bb8bbdbcb625b539fb3900a39bec1d91dbdac0953020"
+      },
+      "constant_score": {
+        "accuracy": 0.1237785016286645,
+        "auc_prc": 0.5618892508143323,
+        "average_precision": 0.1237785016286645,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1345
+          ],
+          [
+            0,
+            190
+          ]
+        ],
+        "f1": 0.22028985507246376,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 0.1237785016286645,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "phi",
+      "project": "Apache",
+      "selection_sha256": "fbff8e102b072b9468e609130fbb4e1beaced21424107f5634cbce256371994c",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8710097719869707,
+        "auc_prc": 0.1370363450756126,
+        "average_precision": 0.13871884240991056,
+        "balanced_accuracy": 0.5015456857757777,
+        "confusion_matrix": [
+          [
+            1335,
+            10
+          ],
+          [
+            188,
+            2
+          ]
+        ],
+        "f1": 0.0198019801980198,
+        "positive_count": 190,
+        "positive_rate": 0.1237785016286645,
+        "precision": 0.16666666666666666,
+        "recall": 0.010526315789473684,
+        "roc_auc": 0.5354451183721385,
+        "row_count": 1535,
+        "threshold": 0.06
+      },
+      "test_predictions_sha256": "0c7202265b68acf69d500def689f74252b63aaacb87e38a3d0b87265725ef657",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.09836597914419246,
+            -0.022490846312768053
+          ],
+          "average_precision": [
+            -0.10005263499211293,
+            -0.022624400887845172
+          ],
+          "roc_auc": [
+            -0.11654942889500515,
+            -0.03934903939068048
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.11168292326683436,
+            0.16989594254198714
+          ],
+          "average_precision": [
+            0.11495025073626212,
+            0.17393163366336753
+          ],
+          "roc_auc": [
+            0.491598419618353,
+            0.5785840051906881
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Apache/phi/10/8bd6563dc53d12f9/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.6892508143322476,
+        "auc_prc": 0.11673850866307559,
+        "average_precision": 0.1201999676966554,
+        "balanced_accuracy": 0.6102741528414052,
+        "confusion_matrix": [
+          [
+            997,
+            420
+          ],
+          [
+            57,
+            61
+          ]
+        ],
+        "f1": 0.20367278797996663,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.12681912681912683,
+        "recall": 0.5169491525423728,
+        "roc_auc": 0.6539358635455665,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "5fb84f7807c55265cf5ccf1555f3aff7366ec0860ba76fe64db810d4fb5d0bed",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "38d32d6b563fc18cccbc5ea6054a4fd308d854d31d321431c2a83bb4c2a624a7",
+        "head.safetensors": "5d5d728356f81e27824535cb486da886003ce93f49687855ccae0adf60d8c5aa",
+        "inference.json": "0d5c092645e5a186a994de86b3a86f1eda0c34def07401a2a940c87074cdf530"
+      },
+      "constant_score": {
+        "accuracy": 0.07687296416938111,
+        "auc_prc": 0.5384364820846905,
+        "average_precision": 0.07687296416938111,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1417
+          ],
+          [
+            0,
+            118
+          ]
+        ],
+        "f1": 0.1427707199032063,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.07687296416938111,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "phi",
+      "project": "Apache",
+      "selection_sha256": "b34e54368bc28435415baba97756828aaadb9ae7f43c10ad2f80da143743bef1",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.923127035830619,
+        "auc_prc": 0.09038681148359222,
+        "average_precision": 0.09210136697310442,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            1417,
+            0
+          ],
+          [
+            118,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 118,
+        "positive_rate": 0.07687296416938111,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.5837469947250696,
+        "row_count": 1535,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "470d943d056acbd80abaffe0eb6068eb6deef72f1f379cbd04d9bef3722339b3",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.06001699376334515,
+            -0.004802183294396747
+          ],
+          "average_precision": [
+            -0.06375936571266598,
+            -0.0033074818217696915
+          ],
+          "roc_auc": [
+            -0.11942191136717482,
+            -0.025343624313219043
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.0706877882463856,
+            0.11471030917705588
+          ],
+          "average_precision": [
+            0.07306190823854651,
+            0.11902897107605931
+          ],
+          "roc_auc": [
+            0.5342870724037091,
+            0.6309236446694789
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Apache/phi/15/e3658a360fe21738/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.641042345276873,
+        "auc_prc": 0.0964500311122774,
+        "average_precision": 0.09971765671814088,
+        "balanced_accuracy": 0.6764566033250123,
+        "confusion_matrix": [
+          [
+            926,
+            528
+          ],
+          [
+            23,
+            58
+          ]
+        ],
+        "f1": 0.17391304347826086,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.09897610921501707,
+        "recall": 0.7160493827160493,
+        "roc_auc": 0.7046164688301323,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "57a4d3813ec11697b1d5f4c8e184f09df58599f1ca63c15b971443b7bd78bd5c",
+        "head.safetensors": "32701193a7eeda497cbecb610d144e67cc1180b72790bd762ab7d9815e09cee5",
+        "inference.json": "c31833a7161626f1f03d06b9d2cbda1410b71f827411952ff5d9f0ed5dbd61f4"
+      },
+      "constant_score": {
+        "accuracy": 0.05276872964169381,
+        "auc_prc": 0.5263843648208469,
+        "average_precision": 0.05276872964169381,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1454
+          ],
+          [
+            0,
+            81
+          ]
+        ],
+        "f1": 0.10024752475247524,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.05276872964169381,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "phi",
+      "project": "Apache",
+      "selection_sha256": "d9d83b2ea1be4fc501ef2b162a2197a0bfe9809537464736dea6bafd380db657",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9433224755700326,
+        "auc_prc": 0.08247331442498747,
+        "average_precision": 0.0847255890616574,
+        "balanced_accuracy": 0.49793672627235214,
+        "confusion_matrix": [
+          [
+            1448,
+            6
+          ],
+          [
+            81,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 81,
+        "positive_rate": 0.05276872964169381,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6681016183537962,
+        "row_count": 1535,
+        "threshold": 0.12
+      },
+      "test_predictions_sha256": "f6ec098aae0b8b5e76803c843ec79eaf8f3322649479c5dfc602c474a40a6b1d",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03470055969161047,
+            0.005220908361123321
+          ],
+          "average_precision": [
+            -0.03982296679020667,
+            0.006566269706121774
+          ],
+          "roc_auc": [
+            -0.07352292593901695,
+            0.0008674768169673838
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.060122524400114605,
+            0.11053408964776684
+          ],
+          "average_precision": [
+            0.06318637668397034,
+            0.11784249375101724
+          ],
+          "roc_auc": [
+            0.6137910761911619,
+            0.7229719131567917
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Apache/qwen/20/e3658a360fe21738/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.6859934853420195,
+        "auc_prc": 0.07660777122663817,
+        "average_precision": 0.07979742460932318,
+        "balanced_accuracy": 0.6658685866519682,
+        "confusion_matrix": [
+          [
+            1015,
+            461
+          ],
+          [
+            21,
+            38
+          ]
+        ],
+        "f1": 0.13620071684587814,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.07615230460921844,
+        "recall": 0.6440677966101694,
+        "roc_auc": 0.7377761701345827,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "d3a650f5d38176e5877f144b109d2c088bca095df8126be86e0117a2aa3fdabb",
+        "head.safetensors": "0617835bdc20b1ae8b0b4695ab63a988319a524c52fa7a81bdc3ec7a06c732f6",
+        "inference.json": "5fe277bd2e57e41af955d1c87ec09daa10f65fa52ff67ecbd005b376e9267333"
+      },
+      "constant_score": {
+        "accuracy": 0.038436482084690554,
+        "auc_prc": 0.5192182410423453,
+        "average_precision": 0.038436482084690554,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1476
+          ],
+          [
+            0,
+            59
+          ]
+        ],
+        "f1": 0.0740276035131744,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.038436482084690554,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1535,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "qwen",
+      "project": "Apache",
+      "selection_sha256": "2a118cd2938cf66e6799bb049f1a8dd520e5b8970b42a000c7c6e9114f9c9ef4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9583061889250815,
+        "auc_prc": 0.06228949850870753,
+        "average_precision": 0.06478682900152835,
+        "balanced_accuracy": 0.49830623306233063,
+        "confusion_matrix": [
+          [
+            1471,
+            5
+          ],
+          [
+            59,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 59,
+        "positive_rate": 0.038436482084690554,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6896559643562538,
+        "row_count": 1535,
+        "threshold": 0.09999999999999999
+      },
+      "test_predictions_sha256": "d89b43ba7b3975ddcb06c0d21c8c2a0264104f183e29d62434eb19e529221dab",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03568632176156808,
+            0.00448376455519532
+          ],
+          "average_precision": [
+            -0.04188348976310984,
+            0.006404303863589719
+          ],
+          "roc_auc": [
+            -0.0947619284658087,
+            -0.002985249398590911
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.04342528234357863,
+            0.08755462723866689
+          ],
+          "average_precision": [
+            0.0464795083318728,
+            0.09529155421776833
+          ],
+          "roc_auc": [
+            0.6359838239869484,
+            0.7396931246433943
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Hyperledger/qwen/5/3fcda3a886efcc78/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.7240663900414938,
+        "auc_prc": 0.260598376632622,
+        "average_precision": 0.2645629912456322,
+        "balanced_accuracy": 0.5532129672358099,
+        "confusion_matrix": [
+          [
+            648,
+            140
+          ],
+          [
+            126,
+            50
+          ]
+        ],
+        "f1": 0.273224043715847,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.2631578947368421,
+        "recall": 0.2840909090909091,
+        "roc_auc": 0.6588277284263959,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "dab9fbfa80e08670ab92fcd35b051bd45dea23d5482c0f7a461581b2f22b28db",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "b52269500b7a324500d8b6179cd2a5283ca30ad62527ef1035b95fd0632af572",
+        "adapter/adapter_model.safetensors": "3af41242145ec8166367e7ef2ed4479ee302c8b884e82685c8eeec76173357ba",
+        "head.safetensors": "83b782918b1a11658c4ae4640fe5a835d172e6a961de2c725de6b919ea3f36c9",
+        "inference.json": "e98ddcc48a5c13782d0868241d483383c8de2c7119f063d07774b9de4c8d6410"
+      },
+      "constant_score": {
+        "accuracy": 0.1825726141078838,
+        "auc_prc": 0.5912863070539419,
+        "average_precision": 0.1825726141078838,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            788
+          ],
+          [
+            0,
+            176
+          ]
+        ],
+        "f1": 0.30877192982456136,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.1825726141078838,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "qwen",
+      "project": "Hyperledger",
+      "selection_sha256": "0c76c7e473ea39b20f474dd83ddb7da85427ca7718631fb598663c64ab2ed22b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5591286307053942,
+        "auc_prc": 0.2554715431248812,
+        "average_precision": 0.2598397802051955,
+        "balanced_accuracy": 0.6288359483156438,
+        "confusion_matrix": [
+          [
+            409,
+            379
+          ],
+          [
+            46,
+            130
+          ]
+        ],
+        "f1": 0.3795620437956204,
+        "positive_count": 176,
+        "positive_rate": 0.1825726141078838,
+        "precision": 0.2554027504911591,
+        "recall": 0.7386363636363636,
+        "roc_auc": 0.6560517131979695,
+        "row_count": 964,
+        "threshold": 0.07
+      },
+      "test_predictions_sha256": "facdb44a185c4c3cf11720c00a8a88aa79a3477c9e54d467c649169037c9ea40",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.05062040685519789,
+            0.044661139665194194
+          ],
+          "average_precision": [
+            -0.05304291297328135,
+            0.0459611729454887
+          ],
+          "roc_auc": [
+            -0.04539010595220504,
+            0.04147289317801849
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.21291050537985748,
+            0.3103325636070891
+          ],
+          "average_precision": [
+            0.21843895869787042,
+            0.3181219413278543
+          ],
+          "roc_auc": [
+            0.6139784120772132,
+            0.693743447147291
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Hyperledger/qwen/10/b5af59d61b59b2b7/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8423236514522822,
+        "auc_prc": 0.22517241274150118,
+        "average_precision": 0.2286345797834445,
+        "balanced_accuracy": 0.4968301291936534,
+        "confusion_matrix": [
+          [
+            811,
+            11
+          ],
+          [
+            141,
+            1
+          ]
+        ],
+        "f1": 0.012987012987012988,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.08333333333333333,
+        "recall": 0.007042253521126761,
+        "roc_auc": 0.6736917857510024,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "7bfcb82f24ad97d6a1acd59511693a913b755671ff6fc1bd93223571d889e851",
+        "head.safetensors": "ad41757c38f18b0491713ab4b0e8efba1c25a11405364b8990a6ec72fa6b5d1b",
+        "inference.json": "6ffd9cca9d069f82cc63beb196284eca5bb01092b57bbe2b50def1d3897551a2"
+      },
+      "constant_score": {
+        "accuracy": 0.14730290456431536,
+        "auc_prc": 0.5736514522821576,
+        "average_precision": 0.14730290456431536,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            822
+          ],
+          [
+            0,
+            142
+          ]
+        ],
+        "f1": 0.2567811934900543,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.14730290456431536,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "qwen",
+      "project": "Hyperledger",
+      "selection_sha256": "e72a67cae58fd01a3f4d09e9bdb95a00fedbb438c39cc280181a6c6b6e1a7f49",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.696058091286307,
+        "auc_prc": 0.25128699570632546,
+        "average_precision": 0.2555684578147287,
+        "balanced_accuracy": 0.614963503649635,
+        "confusion_matrix": [
+          [
+            600,
+            222
+          ],
+          [
+            71,
+            71
+          ]
+        ],
+        "f1": 0.32643678160919537,
+        "positive_count": 142,
+        "positive_rate": 0.14730290456431536,
+        "precision": 0.24232081911262798,
+        "recall": 0.5,
+        "roc_auc": 0.6996333230526712,
+        "row_count": 964,
+        "threshold": 0.15999999999999998
+      },
+      "test_predictions_sha256": "74aea438d8fd45d91c994cedbf26c4e8f3d1287da3e23a844abb4c9cbbc218c9",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.02358350806007755,
+            0.07338119659112707
+          ],
+          "average_precision": [
+            -0.02574819515570995,
+            0.07719089326868196
+          ],
+          "roc_auc": [
+            -0.019508797957327743,
+            0.07054223051800475
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.20259250264280215,
+            0.3107094164593368
+          ],
+          "average_precision": [
+            0.20921420334886245,
+            0.3211089269033713
+          ],
+          "roc_auc": [
+            0.6569209369207245,
+            0.7397574144138557
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Hyperledger/phi/15/11da968cf4352788/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8713692946058091,
+        "auc_prc": 0.223368516196756,
+        "average_precision": 0.22800782997466426,
+        "balanced_accuracy": 0.498812351543943,
+        "confusion_matrix": [
+          [
+            840,
+            2
+          ],
+          [
+            122,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.7150909232506523,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "ec2ee3b147b071a5762edcd37083448e41c2892e778c85dc8b8c8e5ce4b58a65",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "24081ff92b39e289187be9b36240d8aaa8b5f96b52ed08c6416f859e5061293a",
+        "head.safetensors": "fdf9f83bbec72c74aa063ccb96d6addcf2c7b37eb58abd1f522268836831c4ff",
+        "inference.json": "c011c2a44a03fdd3fa1e9f1e6512636f26ed2a517674a17082bef4f6b227a618"
+      },
+      "constant_score": {
+        "accuracy": 0.12655601659751037,
+        "auc_prc": 0.5632780082987552,
+        "average_precision": 0.12655601659751037,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            842
+          ],
+          [
+            0,
+            122
+          ]
+        ],
+        "f1": 0.22467771639042355,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.12655601659751037,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "phi",
+      "project": "Hyperledger",
+      "selection_sha256": "91141c92ca754f8ab7d3061fe6c2d3605281825e2874221cf754fd98c6a99cb2",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.5020746887966805,
+        "auc_prc": 0.20604910500793833,
+        "average_precision": 0.21152763793464918,
+        "balanced_accuracy": 0.6553872512752619,
+        "confusion_matrix": [
+          [
+            379,
+            463
+          ],
+          [
+            17,
+            105
+          ]
+        ],
+        "f1": 0.30434782608695654,
+        "positive_count": 122,
+        "positive_rate": 0.12655601659751037,
+        "precision": 0.18485915492957747,
+        "recall": 0.860655737704918,
+        "roc_auc": 0.6979284295782875,
+        "row_count": 964,
+        "threshold": 0.07
+      },
+      "test_predictions_sha256": "b5f2507647be7d8e50210369ca5deca319a2fb56a348fbe0317b206bffe7e25a",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.07012784907257723,
+            0.03764256214500655
+          ],
+          "average_precision": [
+            -0.07338129447637202,
+            0.038789529281443934
+          ],
+          "roc_auc": [
+            -0.060763403982345934,
+            0.028360566414516
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.1647162474792613,
+            0.2633981848471591
+          ],
+          "average_precision": [
+            0.17096676984989498,
+            0.272974537999407
+          ],
+          "roc_auc": [
+            0.6553513014130848,
+            0.7366549647006501
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Hyperledger/phi/20/3fcda3a886efcc78/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8817427385892116,
+        "auc_prc": 0.22041267956815153,
+        "average_precision": 0.22372715809319532,
+        "balanced_accuracy": 0.5027037223340041,
+        "confusion_matrix": [
+          [
+            849,
+            3
+          ],
+          [
+            111,
+            1
+          ]
+        ],
+        "f1": 0.017241379310344824,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.25,
+        "recall": 0.008928571428571428,
+        "roc_auc": 0.7296225268276325,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "88cd9c0246afc4b16b3f904784249fa5f8bd23c8dc0a6139b0911ab1b97530f3",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "d17c3e4c2af40956ae449ee7e2d404aae23cf6a4c24f6f0e9a777b6b3133203c",
+        "head.safetensors": "85b8eda0c665e9416bc0dce1132c492a988e79cf3a0124c3f6d6adb6ab8d0a96",
+        "inference.json": "7162b36eeb740d0d256b9e6f88cbb260833f88ef8ad7d4b39153eb538021c0e7"
+      },
+      "constant_score": {
+        "accuracy": 0.11618257261410789,
+        "auc_prc": 0.558091286307054,
+        "average_precision": 0.11618257261410789,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            852
+          ],
+          [
+            0,
+            112
+          ]
+        ],
+        "f1": 0.20817843866171004,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.11618257261410789,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 964,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "phi",
+      "project": "Hyperledger",
+      "selection_sha256": "5da96e8b1f5b4eb1fe8344e8370b41bfb9f70b325132a1278fd2e947f390bba4",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.766597510373444,
+        "auc_prc": 0.194133104340717,
+        "average_precision": 0.1988163987952452,
+        "balanced_accuracy": 0.5771504024144869,
+        "confusion_matrix": [
+          [
+            702,
+            150
+          ],
+          [
+            75,
+            37
+          ]
+        ],
+        "f1": 0.24749163879598662,
+        "positive_count": 112,
+        "positive_rate": 0.11618257261410789,
+        "precision": 0.19786096256684493,
+        "recall": 0.33035714285714285,
+        "roc_auc": 0.6956216465459423,
+        "row_count": 964,
+        "threshold": 0.09
+      },
+      "test_predictions_sha256": "43d15c95992082236ce85b6a5e92395cabe79bde7c0c1850cb96ba1ae55d7abb",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.08169257735318786,
+            0.027552638156340722
+          ],
+          "average_precision": [
+            -0.08180778745360752,
+            0.032892944045394966
+          ],
+          "roc_auc": [
+            -0.08392757267209769,
+            0.016101459734079046
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.14984198143535385,
+            0.24813220757732737
+          ],
+          "average_precision": [
+            0.156528190130889,
+            0.25959707438701934
+          ],
+          "roc_auc": [
+            0.6507311520159583,
+            0.7375998088215513
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/IntelDAOS/phi/5/41b2a1a2ebdbe083/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.7904191616766467,
+        "auc_prc": 0.15016806535005314,
+        "average_precision": 0.16588169254737842,
+        "balanced_accuracy": 0.5907491721854304,
+        "confusion_matrix": [
+          [
+            253,
+            49
+          ],
+          [
+            21,
+            11
+          ]
+        ],
+        "f1": 0.23913043478260868,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.18333333333333332,
+        "recall": 0.34375,
+        "roc_auc": 0.6580091059602649,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "1dca66afba62964c46d56882cc826ca8f51ac28667e0f61fc2ed4db6defd869b",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "e41824c6646854f840f82247406133882b18ef60dcaafe96b86863a63570d8cd",
+        "head.safetensors": "f9742454a1d5867a84d9532988afbdeae2bde3f6a7654c183f432f30674f0027",
+        "inference.json": "d36b5f9ce66ad130ae74ddc6656e89bfba84899ecfeccadfb5df287440f455e1"
+      },
+      "constant_score": {
+        "accuracy": 0.09580838323353294,
+        "auc_prc": 0.5479041916167665,
+        "average_precision": 0.09580838323353294,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            302
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "f1": 0.17486338797814208,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.09580838323353294,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "phi",
+      "project": "IntelDAOS",
+      "selection_sha256": "03f201ca7b7cfcec4d63ed943574163554d657abfb367ec5f33b3101a29504ce",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.09580838323353294,
+        "auc_prc": 0.2845466757177093,
+        "average_precision": 0.29515032811853575,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            302
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "f1": 0.17486338797814208,
+        "positive_count": 32,
+        "positive_rate": 0.09580838323353294,
+        "precision": 0.09580838323353294,
+        "recall": 1.0,
+        "roc_auc": 0.7195778145695364,
+        "row_count": 334,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "f9052620cfac5d47660a3e77b7db07e26e7ec76b0520f445363015f77d416424",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            0.004588940503623832,
+            0.2767080153061709
+          ],
+          "average_precision": [
+            -0.00569223441446052,
+            0.26652318692525145
+          ],
+          "roc_auc": [
+            -0.033846730930429274,
+            0.1521986210336469
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.14407200178577326,
+            0.45083143470284903
+          ],
+          "average_precision": [
+            0.1676224270987833,
+            0.46622300946365813
+          ],
+          "roc_auc": [
+            0.6285075219946848,
+            0.8079188282735602
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/IntelDAOS/qwen/10/4472aaa46dad1ea1/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.7664670658682635,
+        "auc_prc": 0.2060907279754762,
+        "average_precision": 0.21563174885998476,
+        "balanced_accuracy": 0.6224985867721877,
+        "confusion_matrix": [
+          [
+            243,
+            62
+          ],
+          [
+            16,
+            13
+          ]
+        ],
+        "f1": 0.25,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.17333333333333334,
+        "recall": 0.4482758620689655,
+        "roc_auc": 0.7213114754098361,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "0fcd2ae54724f5b0a18ece71b1fe25a716304a4aaba064018e02c3fbfbead719",
+        "head.safetensors": "68c4170f113b813fe100bac8a3f5519e5e3ff4b76ac42600ea56431122d12378",
+        "inference.json": "5e80ff6dab569e904f7805d762d226eefaa0a4d81e375a2c08bd05476b058264"
+      },
+      "constant_score": {
+        "accuracy": 0.08682634730538923,
+        "auc_prc": 0.5434131736526946,
+        "average_precision": 0.08682634730538923,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            305
+          ],
+          [
+            0,
+            29
+          ]
+        ],
+        "f1": 0.15977961432506887,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.08682634730538923,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "qwen",
+      "project": "IntelDAOS",
+      "selection_sha256": "b83f0bdb05b997cac9f686d7b4fae40e2f366f60de4282aea57b24059ab3ee41",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.6976047904191617,
+        "auc_prc": 0.17412466406904953,
+        "average_precision": 0.18792580520733687,
+        "balanced_accuracy": 0.5847936687394009,
+        "confusion_matrix": [
+          [
+            220,
+            85
+          ],
+          [
+            16,
+            13
+          ]
+        ],
+        "f1": 0.2047244094488189,
+        "positive_count": 29,
+        "positive_rate": 0.08682634730538923,
+        "precision": 0.1326530612244898,
+        "recall": 0.4482758620689655,
+        "roc_auc": 0.6088185415488977,
+        "row_count": 334,
+        "threshold": 0.62
+      },
+      "test_predictions_sha256": "9a15dc8b8965cce95735392f2ecb04ddf57174a4eb0112cf5873b68941c7674f",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.14825185931541557,
+            0.09030860772649942
+          ],
+          "average_precision": [
+            -0.14280166333668703,
+            0.10560404922071098
+          ],
+          "roc_auc": [
+            -0.26457111247985665,
+            0.030428509572108204
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.091472715870799,
+            0.3030764004265942
+          ],
+          "average_precision": [
+            0.10752050382294993,
+            0.3379478247856373
+          ],
+          "roc_auc": [
+            0.4803831901449979,
+            0.7291073110793584
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/IntelDAOS/qwen/15/11da968cf4352788/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.7485029940119761,
+        "auc_prc": 0.24364200589496596,
+        "average_precision": 0.2524883734368554,
+        "balanced_accuracy": 0.6146505376344086,
+        "confusion_matrix": [
+          [
+            239,
+            71
+          ],
+          [
+            13,
+            11
+          ]
+        ],
+        "f1": 0.20754716981132074,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.13414634146341464,
+        "recall": 0.4583333333333333,
+        "roc_auc": 0.690994623655914,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "48c79fd4ca6abd30ef2ce756e6d0ccbcab1316af1c1c62147d6cbc15a3aeabbd",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "21d2f55c760cfc0607a13ddce527d48829f1ee6ec05450e3a0bb4b9e01ef1317",
+        "adapter/adapter_model.safetensors": "3083efd929d8fafdd058054a86687f85abe199c6414f53bdbf3414eabbd8fa06",
+        "head.safetensors": "4e1497ab7559146594c9de8b11db45dc811b0710f26cbd72f8725f01a51899c0",
+        "inference.json": "2899c585468c602b0a2db0a120e13a4d2e00d107d87bfde154ff943837b53398"
+      },
+      "constant_score": {
+        "accuracy": 0.0718562874251497,
+        "auc_prc": 0.5359281437125748,
+        "average_precision": 0.0718562874251497,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            310
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "f1": 0.1340782122905028,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.0718562874251497,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "qwen",
+      "project": "IntelDAOS",
+      "selection_sha256": "1b9bc7ffbc3922a140657e23869dd7372546ae85f498fccceb135099d9885af5",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.47604790419161674,
+        "auc_prc": 0.24085473423536816,
+        "average_precision": 0.2535460629929718,
+        "balanced_accuracy": 0.6216397849462365,
+        "confusion_matrix": [
+          [
+            140,
+            170
+          ],
+          [
+            5,
+            19
+          ]
+        ],
+        "f1": 0.17840375586854457,
+        "positive_count": 24,
+        "positive_rate": 0.0718562874251497,
+        "precision": 0.10052910052910052,
+        "recall": 0.7916666666666666,
+        "roc_auc": 0.7353494623655914,
+        "row_count": 334,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "705035c526ab9a3717b88a504a8238058a4f13aaa1b0fd78afce49e95fe9b5b4",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.18510862131705558,
+            0.17624571355197868
+          ],
+          "average_precision": [
+            -0.16765223461912754,
+            0.1829655091986581
+          ],
+          "roc_auc": [
+            -0.11340164846278321,
+            0.19907881674957037
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.10304827780352664,
+            0.4226583049236331
+          ],
+          "average_precision": [
+            0.1207804666106167,
+            0.4461320447963717
+          ],
+          "roc_auc": [
+            0.6324139933243761,
+            0.8318511104966341
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/IntelDAOS/phi/20/4472aaa46dad1ea1/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.9341317365269461,
+        "auc_prc": 0.10267715858007523,
+        "average_precision": 0.12024835361654783,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            312,
+            0
+          ],
+          [
+            22,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6401515151515151,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "6d4426411ab25e1999a8498138b4fd7d2cbb4bf5c06af1793752745caed9255a",
+        "head.safetensors": "ed8f7c2ae6f585bff0d315b458f0c03b2afbeab28a893a4fd1bb7cb6b7017ead",
+        "inference.json": "ab978a87f372083b979984f513b70d274e1987b8644c8940fb74c3c1120fc8ff"
+      },
+      "constant_score": {
+        "accuracy": 0.0658682634730539,
+        "auc_prc": 0.5329341317365269,
+        "average_precision": 0.0658682634730539,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            312
+          ],
+          [
+            0,
+            22
+          ]
+        ],
+        "f1": 0.12359550561797754,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.0658682634730539,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 334,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "phi",
+      "project": "IntelDAOS",
+      "selection_sha256": "d813e616c46f578aaa45b9779e2978a10056f3c549bdafa39c4c2dbd25bcf46b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8473053892215568,
+        "auc_prc": 0.09170655130308569,
+        "average_precision": 0.10029835145415074,
+        "balanced_accuracy": 0.5380244755244755,
+        "confusion_matrix": [
+          [
+            279,
+            33
+          ],
+          [
+            18,
+            4
+          ]
+        ],
+        "f1": 0.13559322033898308,
+        "positive_count": 22,
+        "positive_rate": 0.0658682634730539,
+        "precision": 0.10810810810810811,
+        "recall": 0.18181818181818182,
+        "roc_auc": 0.6212121212121212,
+        "row_count": 334,
+        "threshold": 0.6599999999999999
+      },
+      "test_predictions_sha256": "e5afeaf2cd8d790ca09839bd795d854cfa1cbcffe09585498a78e0eca854ee6f",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.1371723007538452,
+            0.05814159896299011
+          ],
+          "average_precision": [
+            -0.1536422502678724,
+            0.07573612016918091
+          ],
+          "roc_auc": [
+            -0.1975229741019215,
+            0.14874591832621134
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.05026715228415976,
+            0.1586281190211233
+          ],
+          "average_precision": [
+            0.05957652628971393,
+            0.19404766515428137
+          ],
+          "roc_auc": [
+            0.5064952716060311,
+            0.7323935006600806
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Jira/qwen/5/960e0f5859a4a3fd/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.5221518987341772,
+        "auc_prc": 0.5753418831841499,
+        "average_precision": 0.5790822636139572,
+        "balanced_accuracy": 0.5326752618855761,
+        "confusion_matrix": [
+          [
+            98,
+            48
+          ],
+          [
+            103,
+            67
+          ]
+        ],
+        "f1": 0.47017543859649125,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.5826086956521739,
+        "recall": 0.3941176470588235,
+        "roc_auc": 0.6402095084609186,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "6d1480daf082ab4100370001b2ee4d9a419657b0c67ac465b4fe45e8bf4a98e3",
+        "head.safetensors": "4f82102e662360653193961e6add756884806a828cc96f8c50dae573a1d9e2fa",
+        "inference.json": "43c2644b0d73c02168fd3a8211206d32844623dea29de75537b3771164cb528e"
+      },
+      "constant_score": {
+        "accuracy": 0.5379746835443038,
+        "auc_prc": 0.7689873417721519,
+        "average_precision": 0.5379746835443038,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            146
+          ],
+          [
+            0,
+            170
+          ]
+        ],
+        "f1": 0.6995884773662552,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.5379746835443038,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": true,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "qwen",
+      "project": "Jira",
+      "selection_sha256": "b21531d8f5fd9e04a5b63162246093ab1fa2ee468b2179a07bbc302d4726a681",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.4525316455696203,
+        "auc_prc": 0.5642034792673198,
+        "average_precision": 0.5676999374237698,
+        "balanced_accuracy": 0.4742546333601934,
+        "confusion_matrix": [
+          [
+            111,
+            35
+          ],
+          [
+            138,
+            32
+          ]
+        ],
+        "f1": 0.270042194092827,
+        "positive_count": 170,
+        "positive_rate": 0.5379746835443038,
+        "precision": 0.47761194029850745,
+        "recall": 0.18823529411764706,
+        "roc_auc": 0.6155922643029814,
+        "row_count": 316,
+        "threshold": 0.33999999999999997
+      },
+      "test_predictions_sha256": "d54f50a26ac25722da7503ff6b8f3232cb9de92ca4d28439e7c92e474a9f5a18",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.04056994952491105,
+            0.018457081317000995
+          ],
+          "average_precision": [
+            -0.03987686253723433,
+            0.017272251754108688
+          ],
+          "roc_auc": [
+            -0.05942953791283756,
+            0.009996494391025618
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.49446316071283175,
+            0.6452776202687377
+          ],
+          "average_precision": [
+            0.5009806134604202,
+            0.6517523632122252
+          ],
+          "roc_auc": [
+            0.5457353579320121,
+            0.6840167366363522
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Jira/qwen/10/38814b7cd5ea6942/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.5158227848101266,
+        "auc_prc": 0.5661166448407884,
+        "average_precision": 0.5759045306249805,
+        "balanced_accuracy": 0.52102053915276,
+        "confusion_matrix": [
+          [
+            100,
+            52
+          ],
+          [
+            101,
+            63
+          ]
+        ],
+        "f1": 0.45161290322580644,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.5478260869565217,
+        "recall": 0.38414634146341464,
+        "roc_auc": 0.6604621309370988,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "d23ddac1e72d2ae3a3a719f6e97889f39b18358c27faee5594410e21c214b863",
+        "head.safetensors": "e45b79dba46d0ac55ca5761baaafdf6d0c4278cad84fc68be4f5cac541e49a00",
+        "inference.json": "3f758f79814863fa339d8f2714d2bd9ca16f192932fbe2935b9b068022c8f18a"
+      },
+      "constant_score": {
+        "accuracy": 0.5189873417721519,
+        "auc_prc": 0.759493670886076,
+        "average_precision": 0.5189873417721519,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            152
+          ],
+          [
+            0,
+            164
+          ]
+        ],
+        "f1": 0.6833333333333332,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.5189873417721519,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": true,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "qwen",
+      "project": "Jira",
+      "selection_sha256": "3192b48ad94211806792baab70842e01aa71c069b7cedd025ce042f4460b6a07",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.6139240506329114,
+        "auc_prc": 0.5636069096405443,
+        "average_precision": 0.5672895566813578,
+        "balanced_accuracy": 0.6138478818998716,
+        "confusion_matrix": [
+          [
+            93,
+            59
+          ],
+          [
+            63,
+            101
+          ]
+        ],
+        "f1": 0.6234567901234568,
+        "positive_count": 164,
+        "positive_rate": 0.5189873417721519,
+        "precision": 0.63125,
+        "recall": 0.6158536585365854,
+        "roc_auc": 0.6417281771501926,
+        "row_count": 316,
+        "threshold": 0.22999999999999998
+      },
+      "test_predictions_sha256": "fffec577c1cf20d8ecda787f1f6ea015ac7fab9702536f92ed6fe5284a393169",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.02733040020357936,
+            0.02542954989034859
+          ],
+          "average_precision": [
+            -0.03214698150343279,
+            0.018930951814363814
+          ],
+          "roc_auc": [
+            -0.04635744848283556,
+            0.008579704082114446
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.49091901083053874,
+            0.6477551079142854
+          ],
+          "average_precision": [
+            0.49707595280037764,
+            0.6548452065020742
+          ],
+          "roc_auc": [
+            0.5727959844534495,
+            0.7088514756171154
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Jira/qwen/15/38814b7cd5ea6942/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.5,
+        "auc_prc": 0.5472892979370305,
+        "average_precision": 0.5521474289143389,
+        "balanced_accuracy": 0.5022435897435897,
+        "confusion_matrix": [
+          [
+            106,
+            50
+          ],
+          [
+            108,
+            52
+          ]
+        ],
+        "f1": 0.39694656488549623,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.5098039215686274,
+        "recall": 0.325,
+        "roc_auc": 0.6557892628205129,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "179e74735eca86b804860b94d1827bca702e4e75269ffc786819f650a9b04c23",
+        "head.safetensors": "06b81c3ccbd49dcf871a100ec20439223149d50b9f715350830f748d5fe577cb",
+        "inference.json": "74833d158f4fd95365411b238fc2b3d6d676da901231bafdc41b846d589d29fc"
+      },
+      "constant_score": {
+        "accuracy": 0.5063291139240507,
+        "auc_prc": 0.7531645569620253,
+        "average_precision": 0.5063291139240507,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            156
+          ],
+          [
+            0,
+            160
+          ]
+        ],
+        "f1": 0.6722689075630253,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.5063291139240507,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": false,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": true,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "qwen",
+      "project": "Jira",
+      "selection_sha256": "50532beb8f016fb9662dfd95263b6ca853fe03925c06e663efcdf74cd571399a",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.4620253164556962,
+        "auc_prc": 0.5385807099594677,
+        "average_precision": 0.5422738831057338,
+        "balanced_accuracy": 0.4657051282051282,
+        "confusion_matrix": [
+          [
+            118,
+            38
+          ],
+          [
+            132,
+            28
+          ]
+        ],
+        "f1": 0.247787610619469,
+        "positive_count": 160,
+        "positive_rate": 0.5063291139240507,
+        "precision": 0.42424242424242425,
+        "recall": 0.175,
+        "roc_auc": 0.6212339743589743,
+        "row_count": 316,
+        "threshold": 0.6599999999999999
+      },
+      "test_predictions_sha256": "7b27228e250d830cbc31eef86a8844d7894095c1fe9fbd6fb4fa05409ced6e5e",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03956131067114249,
+            0.022235257292915287
+          ],
+          "average_precision": [
+            -0.040130756997870956,
+            0.020310979548163362
+          ],
+          "roc_auc": [
+            -0.07097122082745314,
+            0.002302736182178685
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.46548632241883225,
+            0.6190827645996486
+          ],
+          "average_precision": [
+            0.4729072010551388,
+            0.6262406709773132
+          ],
+          "roc_auc": [
+            0.551330558490393,
+            0.6870427440073535
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/Jira/qwen/20/e9dfa96dd64fd63b/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.870253164556962,
+        "auc_prc": 0.19499981723367565,
+        "average_precision": 0.2075819328647004,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            275,
+            0
+          ],
+          [
+            41,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.5887361419068736,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "de11f884c2cf74597e2b9c6b310552247b97a31950d9bcfcc6e79fbb37524256",
+        "head.safetensors": "b7a160c1fc50e8298cd3381b1162018d7d5fcb65d002ed1d4c6d7542b83739e3",
+        "inference.json": "b54ae03f5938318dede6695cc301aa2e5bd6fecdb0682b3c8ccfda1ef07c37dc"
+      },
+      "constant_score": {
+        "accuracy": 0.12974683544303797,
+        "auc_prc": 0.564873417721519,
+        "average_precision": 0.12974683544303797,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            275
+          ],
+          [
+            0,
+            41
+          ]
+        ],
+        "f1": 0.22969187675070027,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.12974683544303797,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 316,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "qwen",
+      "project": "Jira",
+      "selection_sha256": "2f9190ff7d73d5c3e87a17369f47f222f9242d7cdecd66ff4c62841e6a6b1176",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8575949367088608,
+        "auc_prc": 0.24489448032560635,
+        "average_precision": 0.2519276328644493,
+        "balanced_accuracy": 0.5446119733924613,
+        "confusion_matrix": [
+          [
+            266,
+            9
+          ],
+          [
+            36,
+            5
+          ]
+        ],
+        "f1": 0.18181818181818182,
+        "positive_count": 41,
+        "positive_rate": 0.12974683544303797,
+        "precision": 0.35714285714285715,
+        "recall": 0.12195121951219512,
+        "roc_auc": 0.5848337028824834,
+        "row_count": 316,
+        "threshold": 0.6699999999999999
+      },
+      "test_predictions_sha256": "e2a5e83bed3a9da7e496903ae274a943921a5fe1ef9c3f68ad3ec492c0246164",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03381425681234807,
+            0.12090852163537717
+          ],
+          "average_precision": [
+            -0.04317946874944359,
+            0.1145205508791594
+          ],
+          "roc_auc": [
+            -0.06021234045935969,
+            0.047643213088615105
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.13496715690116845,
+            0.3707803319271391
+          ],
+          "average_precision": [
+            0.14696553836119955,
+            0.3831824761722064
+          ],
+          "roc_auc": [
+            0.4845250382114084,
+            0.6879284272760746
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "E2B is effective size, not stored size. Profile complete multimodal loading and language-only adapters.",
+          "id": "google/gemma-4-E2B-it",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 5.1,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/MariaDB/gemma/5/4472aaa46dad1ea1/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8467336683417085,
+        "auc_prc": 0.19484574838475716,
+        "average_precision": 0.20505354435535234,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            337,
+            0
+          ],
+          [
+            61,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.5828914724911223,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "182947e829eff10f70e9252b9afaa8bd90fb17715b154396f2a562524a8683df",
+        "head.safetensors": "adca344c92a2e686686add8ceb8dff82eef7851a3b89dc9a882560faeeca0cde",
+        "inference.json": "27cf3e69876b3be082ed44c8fb4fcb8cff57f6a2044fee60befe982b029480cf"
+      },
+      "constant_score": {
+        "accuracy": 0.15326633165829145,
+        "auc_prc": 0.5766331658291457,
+        "average_precision": 0.15326633165829145,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            337
+          ],
+          [
+            0,
+            61
+          ]
+        ],
+        "f1": 0.2657952069716776,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.15326633165829145,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "gemma",
+      "project": "MariaDB",
+      "selection_sha256": "6e2240de7b718235d5cb8306665a98135b1470f0100b9f6f27fd1058bc9bc31b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8140703517587939,
+        "auc_prc": 0.20475874873738037,
+        "average_precision": 0.2147691094589405,
+        "balanced_accuracy": 0.520990416889624,
+        "confusion_matrix": [
+          [
+            318,
+            19
+          ],
+          [
+            55,
+            6
+          ]
+        ],
+        "f1": 0.13953488372093023,
+        "positive_count": 61,
+        "positive_rate": 0.15326633165829145,
+        "precision": 0.24,
+        "recall": 0.09836065573770492,
+        "roc_auc": 0.6164810040375541,
+        "row_count": 398,
+        "threshold": 0.6
+      },
+      "test_predictions_sha256": "e9372bd0bf0051578a740a50ea3c542f874ebfcc4a86f8da325f6b8ff11ccf28",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.07121843569865285,
+            0.08113144398417581
+          ],
+          "average_precision": [
+            -0.07135053408477177,
+            0.08377270565992744
+          ],
+          "roc_auc": [
+            -0.05297271794943342,
+            0.1194861516750199
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.14671825970265068,
+            0.2926445420547158
+          ],
+          "average_precision": [
+            0.15754212171984783,
+            0.30867930397791976
+          ],
+          "roc_auc": [
+            0.5458697140017105,
+            0.684938368257382
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/MariaDB/phi/10/b5af59d61b59b2b7/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8894472361809045,
+        "auc_prc": 0.155084524931062,
+        "average_precision": 0.16548126800780694,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            354,
+            0
+          ],
+          [
+            44,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6271828454031844,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "a4dba8387fad8704458636157a8b497beb438b27d7fa39f105609cde3fe212ea",
+        "head.safetensors": "ebc06d59298372a243dcf20e49cd5c818564453019dce34c6b675c18605bb2a1",
+        "inference.json": "c1a89d39d105438148c721277ddce190902564a932a6fe96b1d7caef8fd87286"
+      },
+      "constant_score": {
+        "accuracy": 0.11055276381909548,
+        "auc_prc": 0.5552763819095478,
+        "average_precision": 0.11055276381909548,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            354
+          ],
+          [
+            0,
+            44
+          ]
+        ],
+        "f1": 0.1990950226244344,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.11055276381909548,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "phi",
+      "project": "MariaDB",
+      "selection_sha256": "9573bf2cdd094ddece6e60f6c29f9b1b30c2ddb9425ccb590f1694f1a1dce33a",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.871859296482412,
+        "auc_prc": 0.18392399131539444,
+        "average_precision": 0.19508599983535763,
+        "balanced_accuracy": 0.5199666153055984,
+        "confusion_matrix": [
+          [
+            344,
+            10
+          ],
+          [
+            41,
+            3
+          ]
+        ],
+        "f1": 0.10526315789473682,
+        "positive_count": 44,
+        "positive_rate": 0.11055276381909548,
+        "precision": 0.23076923076923078,
+        "recall": 0.06818181818181818,
+        "roc_auc": 0.667116076014381,
+        "row_count": 398,
+        "threshold": 0.13999999999999999
+      },
+      "test_predictions_sha256": "a3c2807c36b4e1c72df74054aebe4a5cad574ae2a33840722fbdf17aaadb6f0b",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.06281399748593933,
+            0.12702847098388279
+          ],
+          "average_precision": [
+            -0.07793172574361977,
+            0.13806857154097724
+          ],
+          "roc_auc": [
+            -0.07120121962180039,
+            0.13844656866596528
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.11941017034392197,
+            0.2862956807899424
+          ],
+          "average_precision": [
+            0.13143587857708686,
+            0.3103998653007235
+          ],
+          "roc_auc": [
+            0.585830865333947,
+            0.7430260223434993
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "id": "microsoft/Phi-4-mini-instruct",
+          "license": "mit",
+          "lora_targets": [
+            "qkv_proj",
+            "o_proj"
+          ],
+          "parameters_billions": 3.8,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "cfbefacb99257ffa30c83adab238a50856ac3083"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/MariaDB/phi/15/466584f839d07889/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.8442211055276382,
+        "auc_prc": 0.10881496705402251,
+        "average_precision": 0.11289825475418147,
+        "balanced_accuracy": 0.5154005811540059,
+        "confusion_matrix": [
+          [
+            332,
+            33
+          ],
+          [
+            29,
+            4
+          ]
+        ],
+        "f1": 0.11428571428571428,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.10810810810810811,
+        "recall": 0.12121212121212122,
+        "roc_auc": 0.4899128268991283,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "NN",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "8557f69902402f647b01e4c0c55a5c61ebd0ff3a160548b3e8e27c60c4234e38",
+        "adapter/README.md": "5e790f340065c0c5c2b21df0a7e9ed72412548a895e90be709c4fdded4767516",
+        "adapter/adapter_config.json": "f08a75768893d31c98207205ed2df8d5a40077bf0be92b8fdee6470d4c662784",
+        "adapter/adapter_model.safetensors": "7904cfc8db896d515e7c9270291b78ee92d1247d531ee2837e2e8f952be2a9d0",
+        "head.safetensors": "f23490b5d28b3e7eff777712d8a745151d095fafdd5ac88282972a8db16088d8",
+        "inference.json": "f8408b53c166cc8e7474a73bf2d108d09c31ec65ee0b919bd83eecef2412802f"
+      },
+      "constant_score": {
+        "accuracy": 0.0829145728643216,
+        "auc_prc": 0.5414572864321608,
+        "average_precision": 0.0829145728643216,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            365
+          ],
+          [
+            0,
+            33
+          ]
+        ],
+        "f1": 0.1531322505800464,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.0829145728643216,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "phi",
+      "project": "MariaDB",
+      "selection_sha256": "1ada4be67887738dc33636ac09eef9726ca39905496037a2ef143545e844e80c",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.914572864321608,
+        "auc_prc": 0.16397397811568482,
+        "average_precision": 0.1755219110322162,
+        "balanced_accuracy": 0.4986301369863014,
+        "confusion_matrix": [
+          [
+            364,
+            1
+          ],
+          [
+            33,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 33,
+        "positive_rate": 0.0829145728643216,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.733582399335824,
+        "row_count": 398,
+        "threshold": 0.09999999999999999
+      },
+      "test_predictions_sha256": "28d69bd3d718d6a585264efb4849b2f5302e6d346484dd1fe7a41fb7abdfc2fb",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.04241171240482184,
+            0.1568824134788002
+          ],
+          "average_precision": [
+            -0.03326566283433103,
+            0.17856326685033552
+          ],
+          "roc_auc": [
+            0.1385612416550643,
+            0.3450949224643683
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.09951381663833411,
+            0.26072892773545286
+          ],
+          "average_precision": [
+            0.11228250868016511,
+            0.29449868434811866
+          ],
+          "roc_auc": [
+            0.6629679544773884,
+            0.8010615035610441
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "E2B is effective size, not stored size. Profile complete multimodal loading and language-only adapters.",
+          "id": "google/gemma-4-E2B-it",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 5.1,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "frozen/MariaDB/gemma/20/960e0f5859a4a3fd/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.9296482412060302,
+        "auc_prc": 0.12182267085738707,
+        "average_precision": 0.133107696306499,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            370,
+            0
+          ],
+          [
+            28,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.6720559845559846,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "82d8f1190a33e06d7ad8d25a5974115f029cf133df8f06a591c4ac317ed8c500",
+        "head.safetensors": "f262f9f86c90c141769eef262eda6d113ec82a43680d63b29c96f72448e5459a",
+        "inference.json": "5ec80062babe1385422d7e72e2935a777fc3a1f0f79a02e9c8a328de5a871c3f"
+      },
+      "constant_score": {
+        "accuracy": 0.07035175879396985,
+        "auc_prc": 0.535175879396985,
+        "average_precision": 0.07035175879396985,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            370
+          ],
+          [
+            0,
+            28
+          ]
+        ],
+        "f1": 0.13145539906103285,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.07035175879396985,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 398,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "gemma",
+      "project": "MariaDB",
+      "selection_sha256": "7d2fd12c797bf892c1d1247c77c90b4566717112aab91dca54b06d6a69cecf87",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.8065326633165829,
+        "auc_prc": 0.17551260575664268,
+        "average_precision": 0.19476409426439395,
+        "balanced_accuracy": 0.5823359073359073,
+        "confusion_matrix": [
+          [
+            312,
+            58
+          ],
+          [
+            19,
+            9
+          ]
+        ],
+        "f1": 0.18947368421052632,
+        "positive_count": 28,
+        "positive_rate": 0.07035175879396985,
+        "precision": 0.13432835820895522,
+        "recall": 0.32142857142857145,
+        "roc_auc": 0.7206563706563707,
+        "row_count": 398,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "33343b229446022c1e9cc6e94eb08dbf062c85b015a5699c3aa6751c54d42a1f",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03217743257092842,
+            0.1881610029118641
+          ],
+          "average_precision": [
+            -0.04602978851529797,
+            0.1840995702543285
+          ],
+          "roc_auc": [
+            -0.042051899874238755,
+            0.1358760942295083
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.08900833602723783,
+            0.3321201084632732
+          ],
+          "average_precision": [
+            0.10525174910050654,
+            0.3532964352478104
+          ],
+          "roc_auc": [
+            0.6356650233824095,
+            0.798411837806763
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Qt/qwen/5/2e1295572d1afaca/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.9035159443990188,
+        "auc_prc": 0.18974342862675092,
+        "average_precision": 0.1949165780791524,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            1105,
+            0
+          ],
+          [
+            118,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.689911036122402,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "c9927482a80491a1a87568acc01ffa882ed89bac60f1875d611d993fc1bf8f70",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "8a70d019d1ecbf850c26f4c089c712f8bead7083a859595b150fb212e69462a9",
+        "adapter/adapter_model.safetensors": "6a5eedf64690af08b93dfa632ac49e1edf456cf0114738cee7980a5234c9abd7",
+        "head.safetensors": "14cde49ccbea94e6ea16edac95a2a96b9e4a3cc81fe26d390cd0e1655c19197c",
+        "inference.json": "a407ee77bd055fb7d787c639b9a6c4da330dc1db35d07153e598965534c5af12"
+      },
+      "constant_score": {
+        "accuracy": 0.0964840556009812,
+        "auc_prc": 0.5482420278004906,
+        "average_precision": 0.0964840556009812,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1105
+          ],
+          [
+            0,
+            118
+          ]
+        ],
+        "f1": 0.17598806860551827,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.0964840556009812,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 5,
+      "model": "qwen",
+      "project": "Qt",
+      "selection_sha256": "250f25a08dd4564c773f4b025b9dbc661712d03805d6dfeb08f0d796f84eea5b",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9043336058871627,
+        "auc_prc": 0.24149256439731454,
+        "average_precision": 0.24447724069381285,
+        "balanced_accuracy": 0.5420852826136974,
+        "confusion_matrix": [
+          [
+            1095,
+            10
+          ],
+          [
+            107,
+            11
+          ]
+        ],
+        "f1": 0.15827338129496404,
+        "positive_count": 118,
+        "positive_rate": 0.0964840556009812,
+        "precision": 0.5238095238095238,
+        "recall": 0.09322033898305085,
+        "roc_auc": 0.6946621673441215,
+        "row_count": 1223,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "6583e67ef0ba6c365baeb86fe2c3ff57fbd5b580a7d343d22bf495f95fe6967e",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.011045452627057048,
+            0.11428650626468688
+          ],
+          "average_precision": [
+            -0.013877411380504103,
+            0.10941767908850536
+          ],
+          "roc_auc": [
+            -0.03575310077250491,
+            0.04590961521720196
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.17116200272352092,
+            0.31697321497896613
+          ],
+          "average_precision": [
+            0.17700233337128332,
+            0.32202946600356824
+          ],
+          "roc_auc": [
+            0.6485191052156231,
+            0.7406258947559538
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Qt/qwen/10/8bd6563dc53d12f9/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.7931316434995912,
+        "auc_prc": 0.17394196940901607,
+        "average_precision": 0.1784419161306906,
+        "balanced_accuracy": 0.5988033820578963,
+        "confusion_matrix": [
+          [
+            947,
+            216
+          ],
+          [
+            37,
+            23
+          ]
+        ],
+        "f1": 0.15384615384615383,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.09623430962343096,
+        "recall": 0.38333333333333336,
+        "roc_auc": 0.7276153625680711,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "refactored"
+      },
+      "checkpoint_files": {
+        "README.md": "7eda369c45abdb07b93f6af67a3f517d19e316aa48ddbe3556d22f0c4c027a3d",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "8a70d019d1ecbf850c26f4c089c712f8bead7083a859595b150fb212e69462a9",
+        "adapter/adapter_model.safetensors": "7068cbd0b01ac1ac54ccef6f07800fac56e2c95e37617b7bf5cb67efe2171cc2",
+        "head.safetensors": "0378920162fb5615440dc3a0b6cba0cca9e1c60edf47635be62e9e6a798bd0b7",
+        "inference.json": "d9590a9c6d21149c44d7eecf7dfab3ec29afecdaa92f523749cf178ba308c900"
+      },
+      "constant_score": {
+        "accuracy": 0.04905968928863451,
+        "auc_prc": 0.5245298446443173,
+        "average_precision": 0.04905968928863451,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1163
+          ],
+          [
+            0,
+            60
+          ]
+        ],
+        "f1": 0.09353078721745908,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.04905968928863451,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 10,
+      "model": "qwen",
+      "project": "Qt",
+      "selection_sha256": "91f2dfc931447bdf609f8c485ea86128fd1e37322614aa41c79a6430d1686396",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.901880621422731,
+        "auc_prc": 0.2199520118047271,
+        "average_precision": 0.223768772197747,
+        "balanced_accuracy": 0.6322728575523072,
+        "confusion_matrix": [
+          [
+            1083,
+            80
+          ],
+          [
+            40,
+            20
+          ]
+        ],
+        "f1": 0.25,
+        "positive_count": 60,
+        "positive_rate": 0.04905968928863451,
+        "precision": 0.2,
+        "recall": 0.3333333333333333,
+        "roc_auc": 0.7205503009458297,
+        "row_count": 1223,
+        "threshold": 0.06
+      },
+      "test_predictions_sha256": "3f7a9ecc91c5143202da08fa621005e3fccfeabd3d6b0ac279e9090076f5b9f5",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03629723484493316,
+            0.1361629837628492
+          ],
+          "average_precision": [
+            -0.038702445642021306,
+            0.1343489692553304
+          ],
+          "roc_auc": [
+            -0.06830367066942214,
+            0.055673866051953486
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.12655034465962822,
+            0.33199682230082866
+          ],
+          "average_precision": [
+            0.1340076967105744,
+            0.3399433048200964
+          ],
+          "roc_auc": [
+            0.6531314917202745,
+            0.7862239023082984
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Qt/qwen/15/8bd6563dc53d12f9/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.964022894521668,
+        "auc_prc": 0.13670706740744334,
+        "average_precision": 0.1493418412262666,
+        "balanced_accuracy": 0.5107804493496255,
+        "confusion_matrix": [
+          [
+            1178,
+            2
+          ],
+          [
+            42,
+            1
+          ]
+        ],
+        "f1": 0.04347826086956522,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.3333333333333333,
+        "recall": 0.023255813953488372,
+        "roc_auc": 0.7926487977926685,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "XGboost",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "746139f513c3e20bfa092ba6e76984da78d5b8e96893cbe84eb87e84f533e4f4",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "8a70d019d1ecbf850c26f4c089c712f8bead7083a859595b150fb212e69462a9",
+        "adapter/adapter_model.safetensors": "65872437f0caa8aceddafa3e828e28d70e836f09c5db89423347d7324cd3db66",
+        "head.safetensors": "945a74a9411947b5e908418d0ba1836209c09d7e5b8827668debd63708eab53b",
+        "inference.json": "d1fd81e9cd68e6e2501b6139ab59edc04e00bd10dbe6623adfa36bb3157d96fc"
+      },
+      "constant_score": {
+        "accuracy": 0.03515944399018806,
+        "auc_prc": 0.517579721995094,
+        "average_precision": 0.03515944399018806,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1180
+          ],
+          [
+            0,
+            43
+          ]
+        ],
+        "f1": 0.0679304897314376,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.03515944399018806,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 15,
+      "model": "qwen",
+      "project": "Qt",
+      "selection_sha256": "4ad5264aa2321412e7adc0b0893727763850ddff6cf9d9de2761f18afac72d74",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9574816026165167,
+        "auc_prc": 0.22429201481724245,
+        "average_precision": 0.2320298271492524,
+        "balanced_accuracy": 0.585819865983445,
+        "confusion_matrix": [
+          [
+            1163,
+            17
+          ],
+          [
+            35,
+            8
+          ]
+        ],
+        "f1": 0.23529411764705885,
+        "positive_count": 43,
+        "positive_rate": 0.03515944399018806,
+        "precision": 0.32,
+        "recall": 0.18604651162790697,
+        "roc_auc": 0.769925108395743,
+        "row_count": 1223,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "49b3e328cac610ecf3471b40ce13594a5405a633fc1f9cbdc95bd24e1e70159f",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03482105581736665,
+            0.20472396824540312
+          ],
+          "average_precision": [
+            -0.03344140813821011,
+            0.20151166090148132
+          ],
+          "roc_auc": [
+            -0.09399265443415349,
+            0.049658737574691816
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.11257217614880421,
+            0.3684353236151957
+          ],
+          "average_precision": [
+            0.1276525130892927,
+            0.37719839677312195
+          ],
+          "roc_auc": [
+            0.6940289291087163,
+            0.8422344135154604
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    },
+    {
+      "artifact_reference": {
+        "base": {
+          "compatibility_gate": "Multimodal AutoModel text forward and language-only adapter targets must pass the GPU profile.",
+          "id": "Qwen/Qwen3.5-4B",
+          "license": "apache-2.0",
+          "lora_targets": [
+            "q_proj",
+            "v_proj"
+          ],
+          "parameters_billions": 4.0,
+          "pooling": "last",
+          "profile_vram_gib": [
+            24,
+            48
+          ],
+          "quantize": true,
+          "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a"
+        },
+        "config_sha256": "2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440",
+        "source_sha256": "974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe",
+        "study_relative_checkpoint": "finetune/Qt/qwen/20/11da968cf4352788/checkpoint"
+      },
+      "baseline": {
+        "accuracy": 0.9721995094031071,
+        "auc_prc": 0.11893583301874244,
+        "average_precision": 0.1251974969883866,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            1189,
+            0
+          ],
+          [
+            34,
+            0
+          ]
+        ],
+        "f1": 0.0,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.0,
+        "recall": 0.0,
+        "roc_auc": 0.7569880769801612,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "baseline_identity": {
+        "model": "RF",
+        "variant": "baseline"
+      },
+      "checkpoint_files": {
+        "README.md": "00ab4d8d4136735ef21165ed5cafe9a326a14f2ad693dd133ea1f1f63b15cb5b",
+        "adapter/README.md": "546522acc2ac6797808e40eb133785c32db5833f0915a183a6a9bcd099cd7d07",
+        "adapter/adapter_config.json": "8a70d019d1ecbf850c26f4c089c712f8bead7083a859595b150fb212e69462a9",
+        "adapter/adapter_model.safetensors": "b6ba56b63bb5ecca39cc18b259ab97a88e784fe06d43a7d1111890337b1ef0f8",
+        "head.safetensors": "852d7b6e8c1a1aa4c05ad21aab35d0772a552a67e0ac9080f45019ec07cbf5c0",
+        "inference.json": "9c88a0f642e96ecb88d402643125fad130835dd2b1b8b3d2330be820dfdd3577"
+      },
+      "constant_score": {
+        "accuracy": 0.027800490596892886,
+        "auc_prc": 0.5139002452984465,
+        "average_precision": 0.027800490596892886,
+        "balanced_accuracy": 0.5,
+        "confusion_matrix": [
+          [
+            0,
+            1189
+          ],
+          [
+            0,
+            34
+          ]
+        ],
+        "f1": 0.05409705648369133,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.027800490596892886,
+        "recall": 1.0,
+        "roc_auc": 0.5,
+        "row_count": 1223,
+        "threshold": 0.5
+      },
+      "gates": {
+        "ap_above_baseline": true,
+        "ap_above_prevalence": true,
+        "auc_prc_above_half": false,
+        "passed": false,
+        "roc_above_half": true,
+        "valid": true
+      },
+      "level": 20,
+      "model": "qwen",
+      "project": "Qt",
+      "selection_sha256": "05f048a1697f5d92e3fa441240870e49dcd35e4710b2722d2b2a10a4a70c2d9a",
+      "stage": "final-test",
+      "test": {
+        "accuracy": 0.9681112019623875,
+        "auc_prc": 0.16058969752057914,
+        "average_precision": 0.16811497198337996,
+        "balanced_accuracy": 0.5264681145797259,
+        "confusion_matrix": [
+          [
+            1182,
+            7
+          ],
+          [
+            32,
+            2
+          ]
+        ],
+        "f1": 0.09302325581395347,
+        "positive_count": 34,
+        "positive_rate": 0.027800490596892886,
+        "precision": 0.2222222222222222,
+        "recall": 0.058823529411764705,
+        "roc_auc": 0.8328427249789739,
+        "row_count": 1223,
+        "threshold": 0.05
+      },
+      "test_predictions_sha256": "9bc4676fd6d0d4fceed5270228332d0fb6dc62823aee9363221b07c0edabf928",
+      "uncertainty": {
+        "difference_95": {
+          "auc_prc": [
+            -0.03370929884487791,
+            0.11924684237512526
+          ],
+          "average_precision": [
+            -0.03424471159258723,
+            0.1287692159732729
+          ],
+          "roc_auc": [
+            0.0009107594809349815,
+            0.15733987615614514
+          ]
+        },
+        "method": "paired issue bootstrap; does not model temporal dependence",
+        "metrics_95": {
+          "auc_prc": [
+            0.07438589833737856,
+            0.2813383855991755
+          ],
+          "average_precision": [
+            0.08498865461113761,
+            0.29551447573392065
+          ],
+          "roc_auc": [
+            0.7781687448657667,
+            0.8844902960657067
+          ]
+        },
+        "requested_samples": 2000,
+        "valid_samples": 2000
+      }
+    }
+  ],
+  "macro_by_level_secondary": {
+    "10": {
+      "auc_prc": 0.24721356400327218,
+      "average_precision": 0.2536233264516054,
+      "completed_projects": 6,
+      "roc_auc": 0.6535989022395069
+    },
+    "15": {
+      "auc_prc": 0.24270397609344815,
+      "average_precision": 0.2499374852127468,
+      "completed_projects": 6,
+      "roc_auc": 0.7043534987313693
+    },
+    "20": {
+      "auc_prc": 0.15485432295922308,
+      "average_precision": 0.16311804639385794,
+      "completed_projects": 6,
+      "roc_auc": 0.6908037551053576
+    },
+    "5": {
+      "auc_prc": 0.28125155938670293,
+      "average_precision": 0.28677587305169416,
+      "completed_projects": 6,
+      "roc_auc": 0.6396350136373835
+    }
+  },
+  "retrospective_holdout": true,
+  "schema": "hf-instability-report-v1",
+  "stage": "final-test",
+  "study_sha256": "977eda81de5875fca2730c710d220fa47e7f8b8cfcdfa30e27d6f099341d52c0"
+}
