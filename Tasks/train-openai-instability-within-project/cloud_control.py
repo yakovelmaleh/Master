@@ -284,6 +284,7 @@ class Ledger:
         self.stop = threading.Event()
         self.renew_lock = threading.Lock()
         self.active = None
+        self.failed_dispatch = None
         self.access_expires = access_expires or plan["retention_until"]
         self.remaining_credit = money(remaining_credit)
 
@@ -574,6 +575,7 @@ class Ledger:
         previous = self.begin(run, name, amount, kind, request, recovery)
         if previous is not None:
             return previous
+        request_sha256 = digest(request)
         while True:
             tail_seconds = 900 if kind == "delete" else 120
             if self.clock() + tail_seconds >= self.session_deadline:
@@ -589,6 +591,12 @@ class Ledger:
                     raise ControlError("Inference retry allowance exhausted; reservation retained.") from None
                 time.sleep(error.delay)
                 continue
+            except Exception as error:
+                self.failed_dispatch = (error, {
+                    "run": run, "operation": name, "kind": kind, "attempt": number,
+                    "request_sha256": request_sha256,
+                })
+                raise
             finally:
                 self.active = None
             if kind == "inference":

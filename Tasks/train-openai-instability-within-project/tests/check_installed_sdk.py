@@ -21,6 +21,7 @@ TASK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TASK))
 from cloud_control import AzureStore, RequestBudget
 from fake_control import BINDING
+from failure_evidence import error_details
 
 
 class OfflineCredential:
@@ -141,6 +142,33 @@ class InstalledSdkTests(unittest.TestCase):
                          ["acquire", "renew", "release"])
         for request in self.transport.requests[1:]:
             self.assertEqual(request.headers["x-ms-lease-id"], lease_id)
+
+    def test_openai_rejection_preserves_only_safe_metadata_without_retry(self):
+        import httpx
+        from openai import BadRequestError, OpenAI
+
+        requests = []
+        request_id = "00000000-0000-0000-0000-000000000123"
+
+        def reject(request):
+            requests.append(request)
+            return httpx.Response(400, headers={"apim-request-id": request_id}, json={
+                "error": {"code": "InvalidPayload", "type": "invalid_request_error",
+                          "param": "model", "message": "SECRET-STORY"},
+            })
+
+        with OpenAI(base_url="https://fixture.invalid/openai/v1/", api_key="fixture",
+                    max_retries=0, http_client=httpx.Client(transport=httpx.MockTransport(reject))) as client:
+            with self.assertRaises(BadRequestError) as raised:
+                client.fine_tuning.jobs.create(model="fixture", training_file="file-fixture")
+        details = error_details(raised.exception)
+        self.assertEqual(details["http_status"], 400)
+        self.assertEqual(details["provider"], {
+            "code": "InvalidPayload", "type": "invalid_request_error", "param": "model",
+            "apim_request_id": request_id,
+        })
+        self.assertEqual(len(requests), 1)
+        self.assertNotIn("SECRET", json.dumps(details))
 
 
 if __name__ == "__main__":
