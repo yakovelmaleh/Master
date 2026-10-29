@@ -83,7 +83,30 @@ membership cause an error, not a silently substituted split.
 
 Concrete GitHub merged PRs and commits reachable from default-branch history
 are supported. PRs use their pinned merged head and changed-file inventory;
-commits use the first-parent diff. Full snapshots preserve project context,
+commits use the first-parent diff. A closed PR with `merged=false` is **not**
+assumed merged. The collector also recognizes explicit squash delivery: the
+current closure event must name a commit in the canonical repository, that
+commit must explicitly say `Closes #N from ... and squashes the following commits:`,
+and the commit must be the merge base of its comparison with pinned
+default-branch history. Missing or ambiguous proof is excluded. For this
+fallback, the snapshot and complete changed-file inventory come from the
+**landed commit**, never the unmerged PR head or its test-merge SHA.
+
+Repository renames/transfers are resolved only through bounded, permanent
+GitHub API metadata redirects. Redirect targets must stay on
+`https://api.github.com` and identify a repository, not another API operation.
+Numeric repository IDs and canonical metadata must agree. Evidence retains the
+original link, requested repository, lookup paths, canonical name and ID;
+snapshots and overlap audits use the canonical repository.
+
+Links are extracted from actual Jira string values, including ADF link
+attributes, rather than serialized JSON escapes. Jira markup, newlines and
+concatenated URLs are separated before classifying evidence. Codecov report
+hosts (`codecov.io` and `app.codecov.io`) are ancillary and do not count as code
+delivery or unresolved code links. Genuine unsupported code hosts and
+non-concrete commit-history links remain explicit exclusions.
+
+Full snapshots preserve project context,
 but labels apply only to associated changed `.java`, `.py` and `.cs` files.
 Added and renamed files retain their post-change paths; deleted files cannot
 produce post-change labels. Multiple revisions are not a consolidated latest
@@ -216,7 +239,10 @@ The `migrate` stage also supports the finalized, fully frozen implementation
 from PR #377 (source hash
 `c0005a0d6467c4e053ccceb7d8b27b910d2131eed863650d660a1fc6153c1fb7`).
 This is the `code-smells-002` format, including a verified earlier migration
-and approved unavailable Jira records. All sources must have successful
+and approved unavailable Jira records. It also supports the `code-smells-003`
+runtime from PR #384 (source hash
+`a8776a676eea4425b8f8332e2cecca3def8bf38afd53b1fd0f0fa84e9594d335`),
+including its verified frozen import from `002`. All sources must have successful
 enrichment and freeze stages; running stages and detection, label, model, or
 report artifacts block this migration.
 
@@ -226,26 +252,30 @@ Submit the following stages separately, waiting for each to succeed:
 
 ```bash
 bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-003 \
-  --from-run "$HOME/master-code-smells/runs/code-smells-002"
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-004 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-003"
 
 # After migrate succeeds: revalidate all four sources without fetching Jira.
 bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-003
+  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-004
 
 # After every freeze succeeds, use the shell with GITHUB_TOKEN exported.
 bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
   --stage fetch-code --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-003
+  --storage "$HOME/master-code-smells" --run-id code-smells-004
 ```
 
 Do not add `--pull` between stages. The migration preserves raw records, field
 maps, original approvals and diagnostic evidence, preprocessing decisions,
 feature CSVs, and split files byte-for-byte. Original approvals retain their
 original study identity: the new run validates that identity through its
-hashed migration inventory and preserved parent study, rather than fabricating
+hashed migration inventories and preserved parent-study chain, rather than fabricating
 new approvals or weakening collection checks. Any mismatch is a hard failure.
 Neither Jira recollection nor repartitioning is performed.
+For `003` to `004`, approvals still belong to their original `002` study, not
+to the immediate `003` parent. Every intervening frozen import must bind the
+same raw manifest, diagnostics and approval bytes. Earlier parent artifacts
+are retained under nested `parent/` directories.
 
 Old partial code-evidence JSON is copied only into `parent/evidence/` for
 provenance, not reused as active decisions under changed code. The next fetch
@@ -258,6 +288,11 @@ For `code-smells-002`, the expected frozen feature counts remain Apache 758,
 IntelDAOS 235, MongoDB 5,088, and RedHat 6,905 (12,986 total), with 325 approved
 unavailable Jira candidates still excluded. Apache's 454/151/153 partition
 membership is unchanged. These are preparation counts, not final labeled counts.
+The same counts and membership must hold in `004`. The earlier Apache
+`003` fetch found 68 complete-evidence stories, not 68 detector-labeled stories.
+The corrected collector does not guarantee recovery to 100; a new fetch and
+complete detector coverage are still required before the unchanged training
+minimum can be evaluated.
 
 ## Outputs and restart
 

@@ -423,3 +423,67 @@ class CollectionTests(RuntimeCase):
             with self.assertRaisesRegex(ValueError, "destination changed"):
                 migration.migrate(target, parent)
         self.assertEqual(before, common.tree_manifest(parent))
+
+    def test_chained_frozen_migration_preserves_original_approval_and_rejects_ancestor_tampering(self):
+        original = self.reviewed_frozen_parent(migrated=True)
+        original_before = common.tree_manifest(original)
+        parent = self.storage / "runs/child-003"
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(parent, original)
+        with common.stage_state(parent, "freeze", "Apache", "fixture"):
+            prepare.freeze(parent, "Apache")
+        common.write_json(parent / "evidence/Apache/audit.json", {"counts": {"excluded": 119}})
+        parent_before = common.tree_manifest(parent)
+        target = self.storage / "runs/child-004"
+        with mock.patch.object(migration, "RECOVERY_PARENT_SOURCE_SHA256", common.source_hash()):
+            original_copy = migration.atomic_bytes
+            def interrupted_copy(path, content):
+                if path.name == "T-20.json":
+                    raise OSError("interrupted chained import")
+                return original_copy(path, content)
+            with mock.patch.object(migration, "atomic_bytes", side_effect=interrupted_copy):
+                with self.assertRaisesRegex(OSError, "interrupted chained import"):
+                    migration.migrate(target, parent)
+            with self.assertRaisesRegex(ValueError, "migration is incomplete"):
+                common.verify_study(target)
+            migration.migrate(target, parent)
+            migration.migrate(target, parent)
+            self.assertFalse((target / "evidence").exists())
+            self.assertFalse((target / "status/freeze-Apache.json").exists())
+            prepare.enrich(target, "Apache", lambda _: self.fail("No Jira recollection"))
+            prepare.freeze(target, "Apache")
+            self.assertEqual(common.file_hash(original / "study.json"), collection.review_study_hash(target, "Apache"))
+            self.assertNotEqual(common.file_hash(parent / "study.json"), collection.review_study_hash(target, "Apache"))
+            for name, expected in original_before.items():
+                if name.startswith(("raw/", "features/", "splits/")) and not name.endswith(
+                        (".lock", "collection_errors.json")):
+                    self.assertEqual(expected, common.file_hash(target / name), name)
+            keys = {f"T-{i}" for i in range(120)}
+            saved, approved = collection.load_manifest(target, "Apache", keys)
+            self.assertEqual(119, len(saved["records"]))
+            self.assertEqual({"T-119": "not_found_or_not_visible"}, approved)
+            for name in ("parent/study.json", "parent/migration.json", "parent/migration_complete.json",
+                         "parent/parent/study.json", "parent/parent/migration.json",
+                         "parent/parent/migration_complete.json", "raw/Apache/collection_exclusions.json"):
+                with self.subTest(name=name):
+                    path = target / name
+                    content = path.read_bytes()
+                    path.write_text("{}")
+                    try:
+                        with self.assertRaises(ValueError):
+                            collection.load_manifest(target, "Apache", keys)
+                    finally:
+                        path.write_bytes(content)
+            for name in ("parent/study.json", "parent/migration.json", "parent/migration_complete.json"):
+                with self.subTest(parent_name=name):
+                    path = parent / name
+                    content = path.read_bytes()
+                    path.write_text("{}")
+                    try:
+                        with self.assertRaises(ValueError):
+                            migration.migrate(self.storage / "runs/rejected-chain", parent)
+                        self.assertFalse((self.storage / "runs/rejected-chain/study.json").exists())
+                    finally:
+                        path.write_bytes(content)
+        self.assertEqual(original_before, common.tree_manifest(original))
+        self.assertEqual(parent_before, common.tree_manifest(parent))

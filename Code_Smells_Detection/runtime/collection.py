@@ -4,7 +4,7 @@ from collections import Counter
 from datetime import datetime
 import json
 
-from .common import digest, file_hash, now, read_json, verify_study
+from .common import digest, file_hash, now, read_json
 
 
 POLICY = "reviewed-jira-unavailability-v1"
@@ -105,25 +105,37 @@ def eligible(item):
 
 
 def review_study_hash(root, source):
-    path = root / "migration.json"
-    if not path.exists():
-        return file_hash(root / "study.json")
-    imported = read_json(path)
-    if imported.get("schema") != "code-smell-frozen-import-v1":
-        return file_hash(root / "study.json")
-    study = verify_study(root)
-    if study.get("migration_sha256") != file_hash(path):
-        raise ValueError("Imported collection review has no verified migration binding.")
-    # Preserve the original approval, not a rewritten approval for the new run.
-    required = ["parent/study.json", f"raw/{source}/manifest.json",
-                f"raw/{source}/collection_diagnostics.json", f"raw/{source}/collection_exclusions.json"]
-    for name in required:
-        entry = imported["files"].get(name)
-        if entry is None or file_hash(root / name) != entry["sha256"]:
-            raise ValueError(f"Imported collection provenance changed: {name}")
-    if file_hash(root / "parent/study.json") != imported["parent_study_sha256"]:
-        raise ValueError("Imported collection parent study changed.")
-    return imported["parent_study_sha256"]
+    current = root
+    while True:
+        study = read_json(current / "study.json")
+        path = current / "migration.json"
+        if not study.get("migration_sha256"):
+            if path.exists():
+                raise ValueError("Imported collection review has no verified migration binding.")
+            return file_hash(current / "study.json")
+        if (not path.is_file() or file_hash(path) != study["migration_sha256"] or
+                not (current / "migration_complete.json").is_file() or
+                read_json(current / "migration_complete.json") !=
+                {"migration_sha256": study["migration_sha256"]}):
+            raise ValueError("Imported collection review has no verified migration binding.")
+        imported = read_json(path)
+        if imported.get("source_sha256") != study["source_sha256"]:
+            raise ValueError("Imported collection runtime binding changed.")
+        if imported.get("schema") == "code-smell-preparation-import-v1":
+            return file_hash(current / "study.json")
+        if imported.get("schema") != "code-smell-frozen-import-v1":
+            raise ValueError("Unsupported imported collection provenance.")
+        # Raw approvals stay at the run root; each historical binding is archived one level deeper.
+        required = {"parent/study.json": current / "parent/study.json"}
+        required.update({f"raw/{source}/{name}": root / "raw" / source / name for name in
+                         ("manifest.json", "collection_diagnostics.json", "collection_exclusions.json")})
+        for name, artifact in required.items():
+            entry = imported["files"].get(name)
+            if entry is None or file_hash(artifact) != entry["sha256"]:
+                raise ValueError(f"Imported collection provenance changed: {name}")
+        if file_hash(current / "parent/study.json") != imported["parent_study_sha256"]:
+            raise ValueError("Imported collection parent study changed.")
+        current = current / "parent"
 
 
 def validate_review(root, source, keys, records, ledger, diagnostics):
