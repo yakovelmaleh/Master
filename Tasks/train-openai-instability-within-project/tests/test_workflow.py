@@ -1,5 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext, redirect_stderr
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -21,6 +23,7 @@ from azure_backend import AzureBackend, positive_score
 from cost_control import CHECKS, check_approval, estimate, money
 from cloud_control import Ledger, RetryableRejection
 from fake_control import BINDING, PLAN, FakeStore, authority_fields
+from failure_evidence import error_details, record_failure
 from prepare_data import messages, partition, prepare
 import run_experiment as runner
 from bundle_artifacts import copy_tree
@@ -203,6 +206,121 @@ class Fixture(unittest.TestCase):
             runner.train_submit(self.root, self.config, self.ledger, self.backend)
             runner.train_status(self.root, self.config, self.ledger, self.backend)
         runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+
+
+class FailureEvidenceTests(Fixture):
+    @staticmethod
+    def rejection():
+        error = RuntimeError("SECRET-STORY and SECRET-TOKEN in a provider response")
+        error.status_code = 400
+        error.body = {"error": {
+            "code": "InvalidPayload", "type": "invalid_request_error",
+            "param": "method.supervised.hyperparameters.n_epochs",
+            "message": "SECRET-STORY", "inner_error": {"message": "SECRET-TOKEN"},
+        }}
+        error.response = NS(headers={
+            "Apim-Request-Id": "00000000-0000-0000-0000-000000000123",
+            "authorization": "Bearer SECRET-TOKEN", "other-header": "SECRET-STORY",
+        })
+        return error
+
+    def test_known_metadata_is_retained_without_messages_or_other_headers(self):
+        details = error_details(self.rejection())
+        self.assertEqual(details, {
+            "error_type": "RuntimeError", "http_status": 400,
+            "provider": {
+                "code": "InvalidPayload", "type": "invalid_request_error",
+                "param": "method.supervised.hyperparameters.n_epochs",
+                "apim_request_id": "00000000-0000-0000-0000-000000000123",
+            },
+        })
+        self.assertNotIn("SECRET", json.dumps(details))
+
+    def test_unknown_fields_are_fingerprinted_and_invalid_request_ids_are_omitted(self):
+        error = self.rejection()
+        error.code, error.param, error.type = "SECRET-STORY", "SECRET_FIELD", "\ud800"
+        error.request_id = "SECRET-TOKEN"
+        error.response.headers["Apim-Request-Id"] = "SECRET-STORY\ninjected"
+        details = error_details(error)
+        self.assertEqual(set(details["provider"]), {"code_sha256", "param_sha256", "type_sha256"})
+        self.assertNotIn("SECRET", json.dumps(details))
+        error.body, error.response.headers, error.status_code = [], [], True
+        self.assertIsNone(error_details(error)["http_status"])
+
+    def test_failure_history_is_private_bound_to_dispatch_and_cannot_recover_it(self):
+        self.prepared()
+        self.authorize()
+        run = protocol.study_id(self.root)
+        request = {"file": "file-fixture", "model": self.config["model"], "epochs": 1}
+        error = self.rejection()
+        call = Mock(side_effect=error)
+        with self.assertRaises(RuntimeError) as raised:
+            self.ledger.perform(run, "train-fixture", ".01", "training", request, call)
+        self.assertIs(raised.exception, error)
+        before = self.ledger._root()[0]
+        allocation = self.ledger.allocation(run)
+        used = self.ledger.store.budget.used
+        first = record_failure(self.root, "train-submit", error, self.ledger.failed_dispatch)
+        # Even a cleanup failure must not discard the original dispatch error.
+        second = record_failure(self.root, "train-submit", TimeoutError(), self.ledger.failed_dispatch)
+        self.assertEqual(self.ledger.store.budget.used, used)
+        self.assertNotEqual(first["path"], second["path"])
+        self.assertEqual(protocol.file_hash(self.root / first["path"]), first["sha256"])
+        for reference in (first, second):
+            path = self.root / reference["path"]
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            evidence = read_json(path)
+            self.assertEqual(evidence["study_sha256"], digest(read_json(self.root / "study.json")))
+            self.assertEqual(evidence["dispatch"], {
+                "run": run, "operation": "train-fixture", "kind": "training", "attempt": 1,
+                "request_sha256": digest(request), "error": error_details(error),
+            })
+            self.assertNotIn("SECRET", path.read_text())
+        self.assertEqual(self.ledger._root()[0], before)
+        self.assertEqual(self.ledger.allocation(run), allocation)
+        self.assertEqual(before["pending"], [run, "train-fixture"])
+        self.assertEqual(before["training"], before["pending"])
+        with self.assertRaisesRegex(ValueError, "no matching receipt"):
+            self.ledger.recover_receipt(run, "train-fixture")
+        with self.assertRaisesRegex(ValueError, "Unconfirmed"):
+            self.ledger.perform(run, "train-fixture", ".01", "training", request, call)
+        self.assertEqual(call.call_count, 1)
+        self.assertEqual(self.ledger.operation(run, "train-fixture")["status"], "dispatched")
+
+    def run_failure(self):
+        stderr = io.StringIO()
+        with patch.object(runner, "config_at", return_value=self.config), patch.object(
+            runner, "study", return_value=self.root
+        ), patch.object(runner.Ledger, "configured", return_value=self.ledger), patch.object(
+            self.ledger, "session", return_value=nullcontext()
+        ), patch("azure_backend.AzureBackend"), patch.object(
+            runner, "authorized", return_value={"approval": self.approval()}
+        ), patch.object(runner, "train_submit", side_effect=self.rejection()), patch.object(
+            sys, "argv", ["runner", "train-submit", "--storage", self.temporary.name, "--run-id", "offline"]
+        ), redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+            runner.main()
+        self.assertEqual(raised.exception.code, 1)
+        return stderr.getvalue()
+
+    def test_runner_failure_status_links_to_redacted_evidence_without_dumping_body(self):
+        stderr = self.run_failure()
+        status = read_json(self.root / "status/train-submit.json")
+        self.assertEqual(status["status"], "failed")
+        self.assertEqual(status["http_status"], 400)
+        path = self.root / status["failure_evidence"]["path"]
+        self.assertEqual(status["failure_evidence"]["sha256"], protocol.file_hash(path))
+        self.assertEqual(read_json(path)["error"]["provider"], status["provider"])
+        self.assertNotIn("SECRET", stderr + json.dumps(status) + path.read_text())
+
+    def test_diagnostic_write_failure_stays_failed_and_is_explicit_without_raw_error(self):
+        with patch.object(runner, "record_failure", side_effect=OSError("SECRET-PATH")):
+            stderr = self.run_failure()
+        status = read_json(self.root / "status/train-submit.json")
+        self.assertEqual(status["status"], "failed")
+        self.assertEqual(status["http_status"], 400)
+        self.assertNotIn("failure_evidence", status)
+        self.assertIn("Failure evidence could not be persisted (OSError)", stderr)
+        self.assertNotIn("SECRET", stderr)
 
 
 class DataTests(Fixture):
@@ -709,9 +827,11 @@ sleep() {
 
     def test_bundle_excludes_payloads_logs_credentials_and_symlinks(self):
         source = Path(self.temporary.name) / "source"
-        for directory in ("prepared", "remote", "logs"):
+        for directory in ("prepared", "remote", "logs", "failures"):
             (source / directory).mkdir(parents=True)
             (source / directory / "secret.jsonl").write_text("private payload")
+        write_json(source / "failures/llm_report.json",
+                   {"schema": "openai-instability-report-v2", "private": "diagnostics"})
         (source / "approval.json").write_text("private config")
         (source / "train.jsonl").write_text("training data")
         (source / "linked").symlink_to(source / "prepared", target_is_directory=True)

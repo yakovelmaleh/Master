@@ -484,6 +484,25 @@ or an absent job listing is not evidence that a request was never accepted.
 Reservations remain conservative; an actual overrun permanently latches a stop.
 There is no exactly-once guarantee across Azure Storage and Azure OpenAI.
 
+Failed stages write an owner-only diagnostic record under `failures/`. The
+stage's status JSON links to that record and its SHA-256; later failures use
+different files rather than overwriting earlier evidence. Records include the
+study identity, allowlisted provider error codes/parameters, validated request
+IDs, and the dispatched operation/attempt/request hash when available. Unknown
+error fields are fingerprinted; response bodies, messages, arbitrary headers and
+request payloads are not saved. If cleanup also fails, the original dispatch
+error is retained separately. A diagnostic-write failure is reported explicitly.
+These records are excluded from artifact bundles.
+
+Failure diagnostics are **not** completion receipts or permission to retry.
+They do not change cloud reservations, clear pending intent, or prove that an
+absent provider job was never accepted. A historical HTTP 400 recorded without
+provider details cannot be reconstructed by installing this change. Obtain
+provider rejection/billing evidence before reviewing any explicit recovery;
+do not replay a create request merely to recover its error message. Changing
+the diagnostics source changes the study signature, just like other source
+changes: do not resume paid stages of an existing study under a new signature.
+
 `cancel` requests Azure job cancellation. A killed SLURM job is not a cancelled
 Azure job. Confirm terminal provider status using `train-status`, then run
 `cleanup`. These recovery stages remain usable after approval expiry or code/
@@ -511,6 +530,7 @@ successful. No resource group or subscription is deleted.
 | Authoritative reservations, remote intents, receipts, selections and results | Fixed Azure Table partition |
 | Private storage approval | `$HOME/.local/state/master-openai/cloud-approval.json` |
 | SLURM logs and job mapping | `Tasks/<task>/cluster_runs/<submission>/logs/` and `llm_job_plan.json` |
+| Private failure evidence | Same run's `failures/`, referenced by `status/<stage>.json` |
 | Summary | Report submission's `results/llm_report.json` |
 
 `llm_report.json` uses a distinct `openai-instability-report-v2` schema with eight

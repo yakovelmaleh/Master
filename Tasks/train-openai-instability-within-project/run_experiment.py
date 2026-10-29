@@ -13,6 +13,7 @@ from protocol import (
 )
 from cost_control import check_approval, control_requests, estimate, inference_bound, money
 from cloud_control import Ledger, SCHEMA
+from failure_evidence import error_details, record_failure
 from prepare_data import Tokenizer, messages, partition, prepare
 
 TERMINAL = {"succeeded", "failed", "cancelled"}
@@ -548,6 +549,7 @@ def main():
         root = study(args.storage, args.run_id, config)
     status = root / "status" / f"{args.stage}.json"
     backend = None
+    ledger = None
     write_json(status, {"status": "running", "stage": args.stage})
     try:
         with ExitStack() as stack:
@@ -612,12 +614,22 @@ def main():
     except Exception as error:
         from azure_backend import ProviderError
 
-        write_json(status, {"status": "failed", "stage": args.stage, "error_type": type(error).__name__,
-                            "http_status": getattr(error, "status_code", None)})
         # SDK exceptions can contain raw story text. Never emit their body.
         detail = str(error) if isinstance(error, (ValueError, FileNotFoundError, ProviderError)) else type(error).__name__
         print(f"FAILED {args.stage}: {detail}. See {status}; reconcile remote state before retrying.",
               file=sys.stderr)
+        details = error_details(error)
+        try:
+            write_json(status, {"status": "failed", "stage": args.stage, **details})
+            evidence = record_failure(root, args.stage, error,
+                                      ledger.failed_dispatch if ledger is not None else None)
+            write_json(status, {"status": "failed", "stage": args.stage, **details,
+                                "failure_evidence": evidence})
+        except (OSError, ValueError) as diagnostic_error:
+            print(f"Failure evidence could not be persisted ({type(diagnostic_error).__name__}); "
+                  "reservations remain unchanged.", file=sys.stderr)
+            raise SystemExit(1) from None
+        print(f"Private failure evidence: {root / evidence['path']}", file=sys.stderr)
         raise SystemExit(1) from None
     finally:
         if backend is not None:

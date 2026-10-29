@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-BLOCKED = {"data", "prepared", "remote", "validation", "final", "logs", "status",
+BLOCKED = {"data", "prepared", "remote", "validation", "final", "logs", "status", "failures",
            ".git", "__pycache__", "cache", ".cache"}
 MAX_BYTES = 10 * 1024 * 1024
 
