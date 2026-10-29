@@ -1,7 +1,6 @@
 """Resolve delivered GitHub evidence and safely cache immutable source snapshots."""
 
 from collections import Counter, defaultdict
-import json
 import os
 from pathlib import Path
 import re
@@ -22,6 +21,8 @@ from .prepare import frozen_frame
 
 LINK = re.compile(r"https://github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/(pull/\d+|commit/[0-9a-fA-F]{7,40})(?![A-Za-z0-9])")
 SHA = re.compile(r"[0-9a-f]{40}")
+REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
+URL = re.compile(r"""https?://(?:(?!https?://)[^\s"'<>|[\](){}\\])+""")
 
 
 class EvidenceExcluded(ValueError):
@@ -37,8 +38,8 @@ class GitHub:
         if token:
             self.session.headers["Authorization"] = f"Bearer {token}"
 
-    def get(self, path, params=None):
-        if not path.startswith("/repos/") or "://" in path:
+    def _request(self, path, params=None):
+        if not (path.startswith("/repos/") or re.fullmatch(r"/repositories/[1-9]\d*", path)) or "://" in path:
             raise ValueError("Only GitHub repository API paths are allowed.")
         for attempt in range(5):
             try:
@@ -70,10 +71,51 @@ class GitHub:
                 if isinstance(payload, dict) and payload.get("message") == "Git Repository is empty.":
                     raise EvidenceExcluded("repository_empty")
             response.raise_for_status()
-            if 300 <= response.status_code < 400:
-                raise EvidenceExcluded("repository_redirect_requires_review")
-            return response.json()
+            return response
         raise RuntimeError("GitHub retry loop exhausted")
+
+    def get(self, path, params=None):
+        response = self._request(path, params)
+        if 300 <= response.status_code < 400:
+            raise EvidenceExcluded("repository_redirect_requires_review")
+        return response.json()
+
+    def repository_info(self, repository):
+        if not REPOSITORY.fullmatch(repository) or any(part in (".", "..") for part in repository.split("/")):
+            raise EvidenceExcluded("unsupported_evidence_url")
+        path, visited, repository_ids = f"/repos/{repository}", [], set()
+        for _ in range(6):
+            if path in visited:
+                raise EvidenceExcluded("repository_redirect_loop")
+            visited.append(path)
+            if path.startswith("/repositories/"):
+                repository_ids.add(int(path.rsplit("/", 1)[1]))
+            response = self._request(path)
+            if response.status_code in (301, 308):
+                target = urlparse(response.headers.get("Location", ""))
+                if (target.scheme != "https" or target.netloc != "api.github.com" or
+                        target.query or target.fragment or any(part in (".", "..") for part in target.path.split("/")) or
+                        not re.fullmatch(
+                            r"/(?:repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+|repositories/[1-9]\d*)", target.path)):
+                    raise EvidenceExcluded("unsafe_repository_redirect")
+                path = target.path
+                continue
+            if response.status_code != 200:
+                raise EvidenceExcluded("repository_redirect_requires_review")
+            info = response.json()
+            canonical, repo_id = info.get("full_name", ""), info.get("id")
+            if (not REPOSITORY.fullmatch(canonical) or any(part in (".", "..") for part in canonical.split("/")) or
+                    type(repo_id) is not int or repo_id <= 0 or
+                    repository_ids - {repo_id}):
+                raise EvidenceExcluded("repository_identity_mismatch")
+            if visited != [f"/repos/{canonical}"]:
+                confirmed = self.get(f"/repos/{canonical}")
+                if (confirmed.get("id") != repo_id or confirmed.get("full_name") != canonical or
+                        confirmed.get("default_branch") != info.get("default_branch")):
+                    raise EvidenceExcluded("repository_identity_mismatch")
+            return info, {"requested_repository": repository, "repository_id": repo_id,
+                          "lookup_paths": visited, "canonical_repository": canonical}
+        raise EvidenceExcluded("repository_redirect_limit")
 
     def files(self, repository, kind, number, expected=None):
         results = []
@@ -95,40 +137,97 @@ class GitHub:
             raise EvidenceExcluded("duplicate_changed_file_pages")
         return results
 
+    def on_default_history(self, repository, revision, default):
+        comparison = self.get(f"/repos/{repository}/compare/{revision}...{default}")
+        if (comparison["status"] not in ("ahead", "identical") or
+                comparison.get("merge_base_commit", {}).get("sha") != revision):
+            raise EvidenceExcluded("commit_not_on_default_history")
+
+    def commit_files(self, repository, info):
+        revision = info["sha"]
+        if len(info.get("parents", [])) > 1:
+            parent = info["parents"][0]["sha"]
+            compared = self.get(f"/repos/{repository}/compare/{parent}...{revision}")
+            files = compared.get("files")
+            if not isinstance(files, list):
+                raise ValueError("Invalid changed-file response.")
+            # Compare endpoints cap files; refusing is safer than inventing a complete negative.
+            if len(files) >= 300:
+                raise EvidenceExcluded("merge_diff_api_limit")
+            return files
+        return self.files(repository, "commits", revision)
+
+    def landed_pr(self, repository, number, info, default):
+        if info.get("state") != "closed" or not info.get("closed_at"):
+            raise EvidenceExcluded("pr_not_merged")
+        closures = []
+        for page in range(1, 31):
+            events = self.get(f"/repos/{repository}/issues/{number}/events",
+                              {"per_page": 100, "page": page})
+            if not isinstance(events, list):
+                raise ValueError("Invalid PR event response.")
+            closures.extend(event for event in events if event.get("event") == "closed" and
+                            event.get("created_at") == info["closed_at"] and event.get("commit_id"))
+            if len(events) < 100:
+                break
+        else:
+            raise EvidenceExcluded("pr_event_api_limit")
+        if not closures:
+            raise EvidenceExcluded("pr_not_merged")
+        if len(closures) != 1:
+            raise EvidenceExcluded("ambiguous_pr_closure")
+        event = closures[0]
+        revision = event["commit_id"]
+        if (not SHA.fullmatch(revision) or type(event.get("id")) is not int or
+                event.get("commit_url") != f"https://api.github.com/repos/{repository}/commits/{revision}"):
+            raise EvidenceExcluded("unverified_pr_closure")
+        commit = self.get(f"/repos/{repository}/commits/{revision}")
+        if commit["sha"] != revision:
+            raise EvidenceExcluded("unverified_pr_closure")
+        # Recognize explicit squash-delivery records, not an arbitrary mention of the PR.
+        references = re.findall(r"^Closes #(\d+) from \S+ and squashes the following commits:\s*$",
+                                commit["commit"]["message"], re.MULTILINE)
+        if references != [number]:
+            raise EvidenceExcluded("unverified_pr_closure")
+        self.on_default_history(repository, revision, default)
+        return commit, {"resolution": "closed_pr_landed_commit", "github_merged": False,
+                        "closure_event_id": event["id"], "closed_at": event["created_at"],
+                        "closure_commit_url": event["commit_url"],
+                        "association": "explicit_squash_message_and_closure_event"}
+
     def resolve(self, url):
         match = LINK.fullmatch(url)
         if match is None:
             raise EvidenceExcluded("unsupported_evidence_url")
         owner, name, reference = match.groups()
         repository = owner + "/" + name
-        repository_info = self.get(f"/repos/{repository}")
+        repository_info, identity = self.repository_info(repository)
+        repository = repository_info["full_name"]
         default = self.get(f"/repos/{repository}/commits/" +
                            quote(repository_info["default_branch"], safe=""))["sha"]
+        if not SHA.fullmatch(default):
+            raise ValueError("Expected full immutable Git commit IDs.")
         if reference.startswith("pull/"):
             number = reference.split("/")[1]
             info = self.get(f"/repos/{repository}/pulls/{number}")
-            if not info.get("merged") or not info.get("merged_at"):
-                raise EvidenceExcluded("pr_not_merged")
-            revision = info["head"]["sha"]
-            merge_sha = info["merge_commit_sha"]
-            files = self.files(repository, "pulls", number, info["changed_files"])
-            provenance = {"merged_at": info["merged_at"], "merge_sha": merge_sha,
-                          "pr_base_sha": info["base"]["sha"]}
+            if info.get("merged") and info.get("merged_at"):
+                revision = info["head"]["sha"]
+                merge_sha = info["merge_commit_sha"]
+                files = self.files(repository, "pulls", number, info["changed_files"])
+                provenance = {"merged_at": info["merged_at"], "merge_sha": merge_sha,
+                              "pr_base_sha": info["base"]["sha"]}
+            else:
+                commit, provenance = self.landed_pr(repository, number, info, default)
+                revision = commit["sha"]
+                files = self.commit_files(repository, commit)
+                provenance.update(committed_at=commit["commit"]["committer"]["date"],
+                                  parents=[item["sha"] for item in commit.get("parents", [])],
+                                  diff_policy="first_parent")
         else:
             info = self.get(f"/repos/{repository}/commits/{reference.split('/')[1]}")
             revision = info["sha"]
-            comparison = self.get(f"/repos/{repository}/compare/{revision}...{default}")
-            if comparison["status"] not in ("ahead", "identical"):
-                raise EvidenceExcluded("commit_not_on_default_history")
-            if len(info.get("parents", [])) > 1:
-                parent = info["parents"][0]["sha"]
-                compared = self.get(f"/repos/{repository}/compare/{parent}...{revision}")
-                files = compared.get("files", [])
-                # Compare endpoints cap files; refusing is safer than inventing a complete negative.
-                if len(files) >= 300:
-                    raise EvidenceExcluded("merge_diff_api_limit")
-            else:
-                files = self.files(repository, "commits", revision)
+            self.on_default_history(repository, revision, default)
+            files = self.commit_files(repository, info)
             provenance = {"committed_at": info["commit"]["committer"]["date"],
                           "parents": [item["sha"] for item in info.get("parents", [])],
                           "diff_policy": "first_parent"}
@@ -147,20 +246,37 @@ class GitHub:
             changed.append({"path": path, "previous_path": previous, "status": status,
                             "language": language, "blob_sha": item.get("sha")})
         return {"url": url, "repository": repository, "revision": revision,
-                "default_branch_sha": default, "provenance": provenance, "files": changed,
+                "repository_identity": identity, "default_branch_sha": default,
+                "provenance": provenance, "files": changed,
                 "resolved_at": now()}
 
 
 def links(record):
-    # Serialized ADF preserves link-mark attributes that plain-text conversion drops.
-    serialized = json.dumps({"fields": record["issue"].get("fields", {}),
-                             "comments": record.get("comments", [])})
-    found = {match.group(0) for match in LINK.finditer(serialized)}
-    for url in re.findall(r"https?://[^\s\"<>]+", serialized):
-        if re.search(r"/(?:pulls?|pull-requests|merge_requests|commits?)/", url) and not LINK.match(url):
-            found.add(url.rstrip(".,);"))
-    found = sorted(found)
-    return found
+    def strings(value):
+        if isinstance(value, str):
+            yield value
+        elif isinstance(value, dict):
+            for item in value.values():
+                yield from strings(item)
+        elif isinstance(value, list):
+            for item in value:
+                yield from strings(item)
+
+    found = set()
+    for text in strings([record["issue"].get("fields", {}), record.get("comments", [])]):
+        for match in URL.finditer(text):
+            url = match.group().rstrip(".,;:")
+            parsed = urlparse(url)
+            # Coverage reports are ancillary, not delivery evidence or unknown code hosts.
+            if parsed.netloc.lower() in ("codecov.io", "app.codecov.io"):
+                continue
+            concrete = LINK.match(url)
+            if concrete and re.fullmatch(r"(?:\.(?:diff|patch)|/(?:files|commits|checks)?/?)?(?:[?#].*)?",
+                                         url[concrete.end():]):
+                found.add(concrete.group())
+            elif re.search(r"/(?:pulls?|pull-requests|merge_requests|commits?)/", parsed.path):
+                found.add(url)
+    return sorted(found)
 
 
 def extract_archive(archive, destination, max_bytes=20 * 1024**3):

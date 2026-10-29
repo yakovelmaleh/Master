@@ -14,13 +14,14 @@ from .prepare import audit, source_candidates
 
 PARENT_SOURCE_SHA256 = "67c6b55de71534f36736c3756b8ab895eb83638b7ed4a7baf6ad2adaec5f2e07"
 FROZEN_PARENT_SOURCE_SHA256 = "c0005a0d6467c4e053ccceb7d8b27b910d2131eed863650d660a1fc6153c1fb7"
+RECOVERY_PARENT_SOURCE_SHA256 = "a8776a676eea4425b8f8332e2cecca3def8bf38afd53b1fd0f0fa84e9594d335"
 
 
 def inventory(parent):
     study = read_json(parent / "study.json")
-    frozen_import = study["source_sha256"] == FROZEN_PARENT_SOURCE_SHA256
+    frozen_import = study["source_sha256"] in (FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256)
     if study["schema"] != SCHEMA or study["source_sha256"] not in (
-            PARENT_SOURCE_SHA256, FROZEN_PARENT_SOURCE_SHA256):
+            PARENT_SOURCE_SHA256, FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256):
         raise ValueError("Unsupported parent code/schema; migration requires the pinned preparation implementation.")
     if study.get("prior") or study.get("migration_sha256") and not frozen_import:
         raise ValueError("This migration supports original runs without prior imports only.")
@@ -44,10 +45,13 @@ def inventory(parent):
         add("migration.json", "parent/migration.json")
         add("migration_complete.json", "parent/migration_complete.json")
         previous = read_json(parent / "migration.json")
+        expected_schema = ("code-smell-frozen-import-v1" if study["source_sha256"] == RECOVERY_PARENT_SOURCE_SHA256
+                           else "code-smell-preparation-import-v1")
         if (file_hash(parent / "migration.json") != study["migration_sha256"] or
                 read_json(parent / "migration_complete.json") != {"migration_sha256": study["migration_sha256"]} or
-                previous.get("schema") != "code-smell-preparation-import-v1" or
-                previous.get("source_sha256") != FROZEN_PARENT_SOURCE_SHA256):
+                previous.get("schema") != expected_schema or
+                previous.get("source_sha256") != study["source_sha256"] or
+                previous.get("parent_study_sha256") != file_hash(parent / "parent/study.json")):
             raise ValueError("Parent migration is incomplete or its provenance changed.")
         for name, entry in previous["files"].items():
             path = parent / safe_relative(name)
@@ -178,7 +182,7 @@ def migrate(root, parent):
                              for path in root.iterdir()):
         raise ValueError("Migration destination is not a preparation-only run.")
     old, files, sources = inventory(parent)
-    frozen_import = old["source_sha256"] == FROZEN_PARENT_SOURCE_SHA256
+    frozen_import = old["source_sha256"] in (FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256)
     migration = {"schema": "code-smell-frozen-import-v1" if frozen_import else "code-smell-preparation-import-v1",
                  "parent": str(parent),
                  "parent_study_sha256": file_hash(parent / "study.json"),
