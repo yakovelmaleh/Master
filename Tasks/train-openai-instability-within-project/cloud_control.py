@@ -9,9 +9,10 @@ import time
 import uuid
 
 from cost_control import CONTROL, money
-from protocol import TASK, digest, read_json
+from protocol import BASE_METHOD, BASE_SCHEMA, TASK, digest, read_json
 
 SCHEMA = "azure-table-control-v1"
+QUARANTINE_SCHEMA = "azure-table-control-quarantine-v2"
 ROOT = "root"
 LEASE_SECONDS = 60
 MAX_VALUE_BYTES = 60000
@@ -298,8 +299,13 @@ class Ledger:
 
     def _root(self):
         value, etag = self.store.get(ROOT)
-        if value is None or value.get("schema") != SCHEMA or value.get("authority") != digest(self.binding):
+        if (value is None or value.get("schema") not in (SCHEMA, QUARANTINE_SCHEMA)
+                or value.get("authority") != digest(self.binding)):
             raise ControlError("Missing or mismatched cloud authority; explicit bootstrap is required.")
+        if (value["schema"] == QUARANTINE_SCHEMA) != bool(value.get("quarantine")):
+            raise ControlError("Quarantine schema/evidence mismatch; do not reset the authority.")
+        if value.get("quarantine") and value["training"] != value["quarantine"]["operation"]:
+            raise ControlError("Quarantined training ownership changed.")
         if value["storage"] != self.plan:
             raise ControlError("Storage allowance differs from the bootstrapped authority.")
         return value, etag
@@ -389,6 +395,7 @@ class Ledger:
         if state["epoch"] != self.owner or self.active is None or state["pending"] != list(self.active):
             raise ControlError("External mutation lacks a current durable dispatch intent.")
         operation = self.operation(*self.active)
+        self._allow_operation(state, self.active[0], operation["kind"], operation["request"])
         if operation["kind"] not in ("cancel", "delete"):
             if state["breached"]:
                 raise ControlError("Global cost bound breached; paid work is stopped.")
@@ -434,8 +441,89 @@ class Ledger:
                 or envelope["max_session_requests"] > self.plan["session_requests"]):
             raise ControlError("Storage allowance cannot cover the complete scope's command envelopes.")
 
+    @staticmethod
+    def _base_approval(approval):
+        return (approval.get("protocol_schema") == BASE_SCHEMA
+                and approval.get("method") == BASE_METHOD
+                and approval.get("checks", {}).get("prompt_only_inference_approved") is True
+                and bool(approval.get("base_deployment")))
+
+    def _allow_operation(self, state, run, kind, request=None):
+        allocation = self.allocation(run)
+        base = allocation is not None and self._base_approval(allocation["approval"])
+        if base and kind != "inference":
+            raise ControlError("Prompt-only allocations permit inference only.")
+        if base and request is not None:
+            approval = allocation["approval"]
+            if any(request.get(key) != value for key, value in {
+                "model": approval["model"], "resource_id": approval["resource_id"],
+                "deployment": approval["base_deployment"], "method": BASE_METHOD,
+            }.items()):
+                raise ControlError("Inference request differs from the prompt-only allocation.")
+        if state.get("quarantine") and (
+            not base or kind != "inference" or run == state["quarantine"]["operation"][0]
+        ):
+            raise ControlError("Quarantined training permits only separately approved new base inference.")
+
+    @staticmethod
+    def quarantine_state(state):
+        return {key: state[key] for key in (
+            "authority", "schema", "pending", "training", "deployment",
+            "total", "pilot_total", "breached", "storage",
+        )}
+
+    def quarantine_training(self, review):
+        """Archive ambiguity explicitly; never resolve, refund or replay the old request."""
+        unexpired(review["expires_at"])
+        if (review.get("schema") != "training-quarantine-review-v1"
+                or review.get("authority_sha256") != digest(self.binding)
+                or any(review.get("checks", {}).get(key) is not True for key in (
+                    "old_workers_stopped", "private_evidence_reviewed",
+                    "full_reservation_risk_accepted", "base_only_continuation_approved",
+                ))
+                or not re.fullmatch(r"[a-f0-9]{64}", review.get("evidence_sha256", ""))):
+            raise ControlError("Explicit private quarantine review is incomplete.")
+        state, etag = self._root()
+        if state.get("quarantine"):
+            if state["quarantine"]["review_sha256"] == digest(review):
+                return state["quarantine"]
+            raise ControlError("Training quarantine is immutable; separate recovery review is required.")
+        run, name = review["run"], review["operation"]
+        operation = self.operation(run, name)
+        allocation = self.allocation(run)
+        attempt, _ = self.store.get(self._key(run, f"{name}:{review['attempt']}", "attempt"))
+        receipt, _ = self.store.get(self._key(run, f"{name}:{review['attempt']}", "receipt"))
+        if (state["pending"] != [run, name] or state["training"] != [run, name]
+                or state["deployment"] is not None or state["breached"]
+                or allocation is None or receipt is not None
+                or operation is None or operation["kind"] != "training"
+                or operation["status"] != "dispatched" or operation.get("result") is not None
+                or operation["attempts"] != review["attempt"]
+                or operation["request_sha256"] != review["request_sha256"]
+                or attempt is None or attempt["status"] != "dispatched"
+                or attempt["request_sha256"] != review["request_sha256"]
+                or review["state_sha256"] != digest(self.quarantine_state(state))
+                or review["allocation_sha256"] != digest(allocation)
+                or review["operation_sha256"] != digest(operation)):
+            raise ControlError("Quarantine must match the exact unresolved training and full financial evidence.")
+        value = {"operation": [run, name], "outcome": "UNKNOWN",
+                 "request_sha256": operation["request_sha256"], "attempt": operation["attempts"],
+                 "review_sha256": digest(review), "evidence_sha256": review["evidence_sha256"],
+                 "allocation_sha256": digest(allocation),
+                 "state_sha256": review["state_sha256"]}
+        # Old clients reject this schema before writing or dispatching. The authority
+        # binding, operation/attempt records, training pointer and all money stay intact.
+        state.update(schema=QUARANTINE_SCHEMA, quarantine=value, pending=None)
+        self._write(state, etag, [("quarantine:" + digest(value), {"review": review, "value": value}, None)])
+        return value
+
     def authorize(self, run, approval, estimate_value, config, evidence=None):
         state, etag = self._root()
+        if state.get("quarantine") and (
+            not self._base_approval(approval) or config.get("schema") != BASE_SCHEMA
+            or run == state["quarantine"]["operation"][0]
+        ):
+            raise ControlError("Quarantine blocks SFT authorization and changes to the old allocation.")
         if not state["probe_verified"]:
             raise ControlError("The separately approved two-node Storage probe has not completed.")
         storage = money(state["storage"]["reserve_usd"])
@@ -454,8 +542,9 @@ class Ledger:
         key = "run:" + run
         previous, previous_etag = self.store.get(key)
         if previous:
-            for field in ("study_sha256", "resource_id", "endpoint", "rates", "rate_safety_multiplier", "model"):
-                if previous["approval"][field] != approval[field]:
+            for field in ("study_sha256", "resource_id", "endpoint", "rates", "rate_safety_multiplier",
+                          "model", "protocol_schema", "method", "base_deployment", "deployment_sku"):
+                if previous["approval"].get(field) != approval.get(field):
                     raise ControlError("Billing target or rates changed; review existing reservations.")
             if previous["authorization"] is not None and (
                 evidence is None or previous["authorization"]["prepared_sha256"] != evidence["prepared_sha256"]
@@ -486,6 +575,7 @@ class Ledger:
 
     def begin(self, run, name, amount, kind, request, recovery=False):
         state, etag = self._root()
+        self._allow_operation(state, run, kind, request)
         key = self._key(run, name)
         previous, _ = self.store.get(key)
         if previous:
@@ -523,6 +613,7 @@ class Ledger:
         state, etag = self._root()
         key = self._key(run, name)
         operation, op_etag = self.store.get(key)
+        self._allow_operation(state, run, operation["kind"], operation["request"])
         if state["pending"] or operation["status"] != "prepared":
             raise ControlError("Unconfirmed dispatch; do not repeat the request.")
         if operation["attempts"] >= attempts:
@@ -608,6 +699,8 @@ class Ledger:
 
     def finish(self, run, name, result, actual=None, terminal=False):
         state, etag = self._root()
+        if state.get("quarantine") and state["quarantine"]["operation"] == [run, name]:
+            raise ControlError("Quarantined training remains UNKNOWN; explicit recovery review is required.")
         key = self._key(run, name)
         operation, op_etag = self.store.get(key)
         if operation is None or operation["status"] not in ("dispatched", "succeeded", "terminal"):
@@ -659,6 +752,7 @@ class Ledger:
 
     def claim_deployment(self, run, key, model, sku):
         state, etag = self._root()
+        self._allow_operation(state, run, "deploy")
         old = state["deployment"]
         if old:
             if (old["run"], old["key"], old["model"], old["sku"]) != (run, key, model, sku):
@@ -696,4 +790,7 @@ class Ledger:
             "actual_complete": False,
             "storage_actual_reconciled": False,
             "breached": state["breached"],
+            "global_model_reserved_usd": state["total"],
+            "unresolved_training_quarantined": bool(state.get("quarantine")),
+            "quarantined_reservations_retained": bool(state.get("quarantine")),
         }

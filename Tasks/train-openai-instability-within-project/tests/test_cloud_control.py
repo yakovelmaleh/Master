@@ -6,16 +6,178 @@ from types import SimpleNamespace as NS
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
-from test_workflow import Fixture
+from test_workflow import Fixture, TASK
 import run_experiment as runner
 import control_admin
 from cloud_control import (
     AzureStore, Conflict, ControlError, Ledger, RequestBudget, RetryableRejection, ROOT,
-    binding_at, encoded, storage_plan,
+    QUARANTINE_SCHEMA, SCHEMA, binding_at, encoded, storage_plan,
 )
 from control_admin import audit, bootstrap, contend_probe, extend_storage, hold_probe, probe
 from fake_control import BINDING, PLAN, FakeStore
-from protocol import digest, read_json, study_id, write_json
+from protocol import BASE_METHOD, BASE_SCHEMA, digest, read_json, study_id, write_json
+
+
+class QuarantineTests(Fixture):
+    def pending_training(self):
+        self.prepared()
+        self.authorize()
+        run = study_id(self.root)
+        self.ledger.begin(run, "train-unknown", ".01", "training", {"file": "fixture-file"})
+        self.ledger.dispatch(run, "train-unknown", 1)
+        state = self.ledger._root()[0]
+        operation = self.ledger.operation(run, "train-unknown")
+        return {
+            "schema": "training-quarantine-review-v1", "authority_sha256": digest(BINDING),
+            "run": run, "operation": "train-unknown", "attempt": 1,
+            "request_sha256": operation["request_sha256"],
+            "state_sha256": digest(self.ledger.quarantine_state(state)),
+            "allocation_sha256": digest(self.ledger.allocation(run)),
+            "operation_sha256": digest(operation),
+            "evidence_sha256": digest("private fixture review"), "expires_at": "2099-01-01T00:00:00Z",
+            "checks": {key: True for key in ("old_workers_stopped", "private_evidence_reviewed",
+                                            "full_reservation_risk_accepted", "base_only_continuation_approved")},
+        }
+
+    def base_approval(self):
+        from cost_control import approval_checks
+
+        config = read_json(TASK / "prompt_only.json")
+        approval = {**self.approval(), "protocol_schema": BASE_SCHEMA, "method": BASE_METHOD,
+                    "deployment_sku": config["deployment_sku"],
+                    "checks": {key: True for key in approval_checks(config)}}
+        return config, approval
+
+    def test_quarantine_plan_defaults_prohibit_action_and_preserve_pending(self):
+        self.pending_training()
+        before = deepcopy(self.ledger.store.storage.rows)
+        template = control_admin.quarantine_template(self.ledger)
+        self.assertFalse(any(template["checks"].values()))
+        self.assertEqual(template["observed_costs"]["training_outcome"], "UNKNOWN")
+        self.assertEqual(template["observed_costs"]["old_run_reserved_usd"],
+                         self.ledger.allocation(template["run"])["reserved"])
+        self.assertEqual(self.ledger.store.storage.rows, before)
+        with self.assertRaises((ValueError, ControlError)):
+            self.ledger.quarantine_training(template)
+        self.assertEqual(self.ledger.store.storage.rows, before)
+
+    def test_explicit_quarantine_preserves_every_reservation_and_original_dispatch(self):
+        review = self.pending_training()
+        before = deepcopy(self.ledger.store.storage.rows)
+        with patch.object(self.ledger.store, "transaction", wraps=self.ledger.store.transaction) as transaction:
+            result = self.ledger.quarantine_training(review)
+        self.assertEqual(transaction.call_count, 1)
+        after = self.ledger.store.storage.rows
+        for key in before:
+            if key != ROOT:
+                self.assertEqual(after[key], before[key])
+        old, new = before[ROOT][0], after[ROOT][0]
+        for key in old:
+            if key not in ("schema", "pending"):
+                self.assertEqual(new[key], old[key], key)
+        self.assertIsNone(new["pending"])
+        self.assertEqual(new["schema"], QUARANTINE_SCHEMA)
+        self.assertNotEqual(new["schema"], SCHEMA)  # Legacy clients cannot accept the new root.
+        self.assertEqual(result["outcome"], "UNKNOWN")
+        self.assertEqual(self.ledger.quarantine_training(review), result)
+        with self.assertRaisesRegex(ControlError, "immutable"):
+            self.ledger.quarantine_training({**review, "evidence_sha256": digest("other")})
+        with self.assertRaisesRegex(ControlError, "UNKNOWN"):
+            self.ledger.finish(review["run"], review["operation"], {"status": "succeeded"}, terminal=True)
+        self.assertEqual(self.ledger._root()[0]["training"], [review["run"], review["operation"]])
+
+    def test_mismatched_review_expiry_and_stale_coordinator_cannot_quarantine(self):
+        review = self.pending_training()
+        before = deepcopy(self.ledger.store.storage.rows)
+        for delta in (
+            {"expires_at": "2000-01-01T00:00:00Z"}, {"authority_sha256": "wrong"},
+            {"attempt": 2}, {"request_sha256": "wrong"}, {"state_sha256": "wrong"},
+            {"allocation_sha256": "wrong"}, {"operation_sha256": "wrong"},
+            {"checks": {}}, {"evidence_sha256": ""},
+        ):
+            with self.subTest(delta=delta), self.assertRaises(ControlError):
+                self.ledger.quarantine_training({**review, **delta})
+            self.assertEqual(self.ledger.store.storage.rows, before)
+        state, etag = self.ledger._root()
+        state["epoch"] = "replacement"
+        self.ledger.store.transaction([(ROOT, state, etag)])
+        with self.assertRaisesRegex(ControlError, "Stale"):
+            self.ledger.quarantine_training(review)
+        self.assertEqual(self.ledger._root()[0]["pending"], [review["run"], review["operation"]])
+
+    def test_quarantine_allows_only_separate_base_inference_with_additive_costs(self):
+        review = self.pending_training()
+        state = self.ledger._root()[0]
+        allocation = self.ledger.allocation(review["run"])
+        config, approval = self.base_approval()
+        with self.assertRaisesRegex(ControlError, "Unconfirmed"):
+            self.ledger.authorize("base-run", approval, {"pilot": ".10"}, config)
+        self.ledger.quarantine_training(review)
+        for run in (review["run"], "new-sft"):
+            with self.assertRaisesRegex(ControlError, "Quarantine"):
+                self.ledger.authorize(run, self.approval(), {"pilot": ".10"}, self.config)
+        with self.assertRaisesRegex(ControlError, "old allocation"):
+            self.ledger.authorize(review["run"], approval, {"pilot": ".10"}, config)
+        self.ledger.authorize("base-run", approval, {"pilot": ".10"}, config)
+        self.assertEqual(self.ledger.allocation(review["run"]), allocation)
+        from cost_control import money
+        self.assertEqual(money(self.ledger._root()[0]["total"]),
+                         money(state["total"]) + money(".10") - money(PLAN["reserve_usd"]))
+        for run in (review["run"], "base-run"):
+            for kind in ("upload", "training", "deploy", "cancel", "delete"):
+                with self.subTest(run=run, kind=kind), self.assertRaises(ControlError):
+                    self.ledger.begin(run, "blocked-" + kind, 0, kind, {}, recovery=True)
+        request = {"model": approval["model"], "resource_id": approval["resource_id"],
+                   "deployment": approval["base_deployment"], "method": BASE_METHOD}
+        with self.assertRaisesRegex(ControlError, "differs"):
+            self.ledger.begin("base-run", "bad-model", ".01", "inference", {**request, "model": "other"})
+        self.ledger.perform("base-run", "one", ".01", "inference", request, lambda: {"score": .5})
+        self.assertEqual(self.ledger._root()[0]["training"], [review["run"], review["operation"]])
+        with self.assertRaisesRegex(ControlError, "pilot reservations"):
+            self.ledger.authorize("too-much", approval, {"pilot": "9"}, config)
+        self.assertIsNone(self.ledger.allocation("too-much"))
+        with self.assertRaisesRegex(ControlError, "Quarantined"):
+            self.ledger.dispatch(review["run"], review["operation"], 2)
+
+    def test_unknown_quarantine_commit_is_recovered_idempotently_without_refund(self):
+        review = self.pending_training()
+        def lose_response():
+            raise TimeoutError
+        self.ledger.store.storage.after_commit = lose_response
+        with self.assertRaises(TimeoutError):
+            self.ledger.quarantine_training(review)
+        state = self.ledger._root()[0]
+        result = self.ledger.quarantine_training(review)
+        self.assertEqual(state, self.ledger._root()[0])
+        self.assertEqual(result["outcome"], "UNKNOWN")
+
+    def test_existing_completion_receipt_requires_recovery_not_quarantine(self):
+        review = self.pending_training()
+        self.ledger.receipt(review["run"], review["operation"], {"id": "known-job"})
+        with self.assertRaisesRegex(ControlError, "exact unresolved"):
+            self.ledger.quarantine_training(review)
+        self.assertIsNone(self.ledger._root()[0].get("quarantine"))
+        self.assertEqual(self.ledger.recover_receipt(review["run"], review["operation"]), {"id": "known-job"})
+
+    def test_reviewed_pilot_storage_extension_does_not_clear_quarantine_or_money(self):
+        review = self.pending_training()
+        self.ledger.quarantine_training(review)
+        # Admin extension acquires its own lease, so release this fixture's coordinator.
+        self.session.__exit__(None, None, None)
+        state = self.ledger._root()[0]
+        approval = {
+            "scope": "pilot", "storage_extension_approved": True,
+            "prompt_only_extension_approved": True, "storage": {**PLAN, "max_sessions": 101},
+            "previous_storage_sha256": digest(PLAN), "run": review["run"],
+            "study_sha256": self.approval()["study_sha256"], "remaining_credit_usd": "100",
+        }
+        with self.assertRaisesRegex(ControlError, "Pilot extension"):
+            extend_storage(self.ledger.store, BINDING, {**approval, "prompt_only_extension_approved": False})
+        result = extend_storage(self.ledger.store, BINDING, approval)
+        after = self.ledger.store.get(ROOT)[0]
+        for field in ("quarantine", "pending", "training", "total", "pilot_total"):
+            self.assertEqual(after[field], state[field])
+        self.assertTrue(result["storage_extended"])
 
 
 class AccountVerificationTests(unittest.TestCase):

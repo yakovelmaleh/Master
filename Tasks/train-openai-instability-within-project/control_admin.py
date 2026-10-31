@@ -13,7 +13,7 @@ import time
 import uuid
 
 from cloud_control import (
-    AzureStore, Conflict, ControlError, Ledger, RequestBudget, ROOT,
+    AzureStore, Conflict, ControlError, Ledger, QUARANTINE_SCHEMA, RequestBudget, ROOT,
     access_at, binding_at, initial_state,
 )
 from cost_control import CONTROL, money
@@ -79,11 +79,11 @@ def bootstrap(store, binding, approval, inventory):
 
 
 def extend_storage(store, binding, approval):
-    """Explicit full-scope review; no reservation, pending operation or breach is reset."""
+    """Explicit storage review; no reservation, pending operation or breach is reset."""
     from cloud_control import storage_plan
 
-    if approval.get("scope") != "full" or approval.get("storage_extension_approved") is not True:
-        raise ControlError("A separate full-scope storage extension approval is required.")
+    if approval.get("scope") not in ("pilot", "full") or approval.get("storage_extension_approved") is not True:
+        raise ControlError("A separate storage extension approval is required.")
     new = storage_plan(approval["storage"])
     store.verify_account()
     lease = store.acquire()
@@ -91,7 +91,7 @@ def extend_storage(store, binding, approval):
     try:
         state, etag = store.get(ROOT)
         if (state is None or state.get("authority") != digest(binding)
-                or state.get("schema") != binding["schema"]):
+                or state.get("schema") not in (binding["schema"], QUARANTINE_SCHEMA)):
             raise ControlError("Cannot extend a missing or different authority.")
         review_key = "storage-review:" + digest(approval)
         review, _ = store.get(review_key)
@@ -113,17 +113,24 @@ def extend_storage(store, binding, approval):
         allocation, _ = store.get("run:" + run)
         if allocation is None or approval.get("study_sha256") != allocation["approval"]["study_sha256"]:
             raise ControlError("Storage expansion must name an authorized study.")
-        for cell in PILOT:
-            selection, _ = store.get(Ledger._key(run, "validation-" + cell_key(*cell), "artifact"))
-            if selection is None:
-                raise ControlError("Complete both pilot validations before full-scope storage expansion.")
+        if approval["scope"] == "pilot":
+            if (state["schema"] != QUARANTINE_SCHEMA or state["storage_scope"] != "pilot"
+                    or state.get("quarantine", {}).get("operation", [None])[0] != run
+                    or approval.get("prompt_only_extension_approved") is not True
+                    or money(state["pilot_total"]) + money(new["reserve_usd"]) > money("9")):
+                raise ControlError("Pilot extension requires reviewed base-only quarantine and the unchanged pilot cap.")
+        else:
+            for cell in PILOT:
+                selection, _ = store.get(Ledger._key(run, "validation-" + cell_key(*cell), "artifact"))
+                if selection is None:
+                    raise ControlError("Complete both pilot validations before full-scope storage expansion.")
         total = money(state["total"]) + money(new["reserve_usd"])
         if total > money("80") or total + money("20") > money(approval["remaining_credit_usd"]):
             raise ControlError("Storage extension exceeds the global cap or protected credit.")
         if (state["io_reserved"] + 100 > new["max_requests"]
                 or state["sessions"] + 1 > new["max_sessions"]):
             raise ControlError("New allowance does not cover this extension's bounded I/O.")
-        state.update(storage=new, storage_scope="full", epoch=uuid.uuid4().hex,
+        state.update(storage=new, storage_scope=approval["scope"], epoch=uuid.uuid4().hex,
                      io_reserved=state["io_reserved"] + 100, sessions=state["sessions"] + 1)
         result = {"storage_extended": True, "storage_sha256": digest(new),
                   "previous_storage_sha256": digest(old), "run": run}
@@ -201,22 +208,53 @@ def contend_probe(store, holding):
         raise ControlError("Expected a lease holder on the other node; exclusion not demonstrated.")
 
 
+def quarantine_template(ledger):
+    state, _ = ledger._root()
+    if state.get("quarantine") or not state["pending"] or state["pending"] != state["training"]:
+        raise ControlError("A single unresolved training dispatch is required for a quarantine review.")
+    run, name = state["pending"]
+    operation = ledger.operation(run, name)
+    if (operation["kind"] != "training" or operation["status"] != "dispatched"
+            or operation.get("result") is not None):
+        raise ControlError("Quarantine is only for an unresolved dispatched training request.")
+    allocation = ledger.allocation(run)
+    return {
+        "schema": "training-quarantine-review-v1", "authority_sha256": digest(ledger.binding),
+        "run": run, "operation": name, "attempt": operation["attempts"],
+        "request_sha256": operation["request_sha256"],
+        "operation_sha256": digest(operation), "allocation_sha256": digest(allocation),
+        "state_sha256": digest(ledger.quarantine_state(state)),
+        "evidence_sha256": "", "expires_at": "",
+        "checks": {key: False for key in ("old_workers_stopped", "private_evidence_reviewed",
+                                         "full_reservation_risk_accepted", "base_only_continuation_approved")},
+        "observed_costs": {
+            "old_run_reserved_usd": allocation["reserved"], "old_run_used_bounds_usd": allocation["used"],
+            "global_model_reserved_usd": state["total"], "pilot_model_reserved_usd": state["pilot_total"],
+            "storage_reserved_usd": state["storage"]["reserve_usd"],
+            "training_outcome": "UNKNOWN", "refund": False,
+        },
+    }
+
+
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=("template", "cost-plan", "audit", "bootstrap", "extend",
+                                         "quarantine-plan", "quarantine",
                                          "probe", "lease-hold", "lease-contend"))
     parser.add_argument("--storage", required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--holding", type=Path)
     parser.add_argument("--prepared", type=Path)
+    parser.add_argument("--config", type=Path, default=TASK / "experiment.json")
+    parser.add_argument("--review", type=Path)
     args = parser.parse_args()
     storage, output = external_path(args.storage), external_path(args.output)
     if args.stage == "cost-plan":
         if args.prepared is None:
             parser.error("cost-plan requires --prepared for the exact eight-cell manifest")
         from protocol import config_at
-        prepared, config = read_json(args.prepared), config_at(TASK / "experiment.json")
+        prepared, config = read_json(args.prepared), config_at(args.config)
         commands = {f"{scope}-{stage}": control_requests(stage, prepared, config, scope)
                     for scope in ("pilot", "full") for stage in ("smoke", "validate", "test", "report")}
         result = {"command_request_envelopes": commands,
@@ -254,6 +292,22 @@ def main():
         return
     binding = binding_at()
     approval = access_at(binding)
+    if args.stage in ("quarantine-plan", "quarantine"):
+        if args.stage == "quarantine" and args.review is None:
+            parser.error("quarantine requires a separately reviewed private --review")
+        if output.exists():
+            raise ControlError("Refusing to overwrite private quarantine evidence.")
+        ledger = Ledger.configured()
+        try:
+            with ledger.session(requests=lambda: 1000):
+                result = (quarantine_template(ledger) if args.stage == "quarantine-plan" else
+                          ledger.quarantine_training(read_json(external_path(args.review))))
+                write_json(output, result)
+            print("Private quarantine plan written; no quarantine performed." if args.stage == "quarantine-plan"
+                  else "Training quarantined as UNKNOWN; all reservations and training block retained.")
+        finally:
+            ledger.close()
+        return
     if args.stage != "extend" and approval.get("live_storage_test_approved") is not True:
         raise ControlError("Explicit billable bootstrap/probe approval is required.")
     limit = (100 if args.stage in ("bootstrap", "extend")

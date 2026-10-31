@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-BLOCKED = {"data", "prepared", "remote", "validation", "final", "logs", "status", "failures",
+BLOCKED = {"data", "prepared", "remote", "validation", "final", "batches", "logs", "status", "failures",
            ".git", "__pycache__", "cache", ".cache"}
 MAX_BYTES = 10 * 1024 * 1024
 
@@ -26,7 +26,8 @@ def copy_tree(source, destination, definition=False):
             path = Path(directory) / name
             if definition:
                 allowed = path.suffix in (".py", ".sh") or name in (
-                    "README.md", "requirements.txt", "experiment.json", "reference_contract.json", "model_config.json")
+                    "README.md", "requirements.txt", "experiment.json", "prompt_only.json",
+                    "reference_contract.json", "model_config.json")
             else:
                 allowed = name == "llm_report.json"
             if path.is_symlink() or not allowed or path.stat().st_size > MAX_BYTES:
@@ -34,7 +35,8 @@ def copy_tree(source, destination, definition=False):
                 continue
             if not definition:
                 value = json.loads(path.read_text())
-                if value.get("schema") not in ("openai-instability-report-v1", "openai-instability-report-v2"):
+                if value.get("schema") not in ("openai-instability-report-v1", "openai-instability-report-v2",
+                                              "openai-instability-prompt-report-v1"):
                     raise ValueError("Only the explicit LLM report schema may be bundled.")
             with path.open("rb") as stream:
                 content = stream.read(MAX_BYTES + 1)

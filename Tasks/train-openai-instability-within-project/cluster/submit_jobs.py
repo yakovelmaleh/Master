@@ -9,7 +9,7 @@ import sys
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from protocol import TASK, REPO, exclusive_lock, external_path, slug, write_json
+from protocol import TASK, REPO, config_at, exclusive_lock, external_path, require_sft, slug, write_json
 
 STAGES = ("setup", "check-sdk", "prepare", "preflight", "smoke", "train-submit", "train-status", "reconcile",
           "validate", "seal", "test", "report", "cancel", "cleanup")
@@ -98,6 +98,8 @@ def main():
     args.storage, args.run_id = external_path(args.storage), slug(args.run_id)
     args.conda_env = slug(args.conda_env)
     args.config = args.config.expanduser().resolve()
+    if args.stage in ("train-submit", "train-status", "cancel", "cleanup"):
+        require_sft(config_at(args.config))
     if args.approval:
         if args.stage != "preflight":
             parser.error("--approval is valid only for preflight")

@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 from urllib.parse import urlparse
 
-from protocol import CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, cell_key
+from protocol import BASE_METHOD, CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, cell_key, prompt_only
 
 CONTROL = Path.home() / ".local/state/master-openai"
 CHECKS = (
@@ -16,6 +16,14 @@ CHECKS = (
     "cluster_egress_verified",
     "cloud_control_verified", "storage_costs_verified",
 )
+
+
+def approval_checks(config):
+    if prompt_only(config):
+        return tuple(name for name in CHECKS if name not in (
+            "sft_model_region_quota_verified", "developer_deployment_verified",
+        )) + ("base_deployment_verified", "prompt_only_inference_approved")
+    return CHECKS
 
 
 def money(value):
@@ -37,7 +45,7 @@ def check_approval(value, study_hash, config):
         raise ValueError("Approval must name the current study hash.")
     if value["scope"] not in ("pilot", "full"):
         raise ValueError("Approval scope must be pilot or full.")
-    if any(value["checks"].get(name) is not True for name in CHECKS):
+    if any(value["checks"].get(name) is not True for name in approval_checks(config)):
         raise ValueError("Azure eligibility and no-overage evidence is incomplete.")
     expiry = datetime.fromisoformat(value["expires_at"].replace("Z", "+00:00"))
     if expiry.tzinfo is None or expiry <= datetime.now(timezone.utc):
@@ -56,7 +64,12 @@ def check_approval(value, study_hash, config):
         raise ValueError("Use the exact approved Azure resource ID.")
     if value["model"] != config["model"] or value["deployment_sku"] != config["deployment_sku"]:
         raise ValueError("Approval model/deployment differs from experiment.")
-    for name in ("training_per_million", "input_per_million", "output_per_million"):
+    base = prompt_only(config)
+    if base and (value.get("method") != BASE_METHOD or not value.get("base_deployment")
+                 or value.get("protocol_schema") != config["schema"]):
+        raise ValueError("A separate prompt-only approval must bind the method and existing deployment.")
+    for name in (("input_per_million", "output_per_million") if base else
+                 ("training_per_million", "input_per_million", "output_per_million")):
         if money(value["rates"][name]) <= 0:
             raise ValueError("Verified positive token rates are required.")
     if money(value["rate_safety_multiplier"]) < Decimal("1.25"):
@@ -85,9 +98,11 @@ def estimate(prepared, config, approval):
     for cell in CELLS:
         key = cell_key(*cell)
         parts = prepared["entries"][key]["partitions"]
-        train = token_cost(parts["train"]["tokens"] * config["epochs"],
-                           approval["rates"]["training_per_million"], approval)
-        values = {"train": str(train)}
+        values = {}
+        if not prompt_only(config):
+            train = token_cost(parts["train"]["tokens"] * config["epochs"],
+                               approval["rates"]["training_per_million"], approval)
+            values["train"] = str(train)
         for split in ("validation", "test"):
             part = parts[split]
             values[split] = str(config["request_attempts"] * (
@@ -98,7 +113,8 @@ def estimate(prepared, config, approval):
     smoke = 2 * inference_bound(config["max_input_tokens"], config, approval)
     control_part = prepared["entries"][cell_key(PILOT_PROJECT, PILOT_LEVEL, "text")]["partitions"]["validation"]
     control = min(20, control_part["rows"]) * inference_bound(control_part["max_tokens"], config, approval)
-    pilot = sum(money(costs[cell_key(*cell)][stage]) for cell in PILOT for stage in ("train", "validation"))
+    pilot_stages = ("validation",) if prompt_only(config) else ("train", "validation")
+    pilot = sum(money(costs[cell_key(*cell)][stage]) for cell in PILOT for stage in pilot_stages)
     full = sum(money(amount) for item in costs.values() for amount in item.values())
     storage = money(approval["storage_reserve_usd"])
     extra = money(approval["other_cost_reserve_usd"]) + smoke + control + storage
@@ -109,6 +125,20 @@ def estimate(prepared, config, approval):
 
 def control_requests(stage, prepared, config, scope="full"):
     """Upper envelope for table entity operations, lease calls and bounded polling."""
+    if prompt_only(config):
+        # Include cache reconstruction, selection/seal reads and final metric assembly.
+        total_rows = sum(part["rows"] for entry in prepared["entries"].values()
+                         for split, part in entry["partitions"].items() if split != "train")
+        batches = sum((part["rows"] + config["batch_rows"] - 1) // config["batch_rows"]
+                      for entry in prepared["entries"].values()
+                      for split, part in entry["partitions"].items() if split != "train")
+        if stage in ("validate", "test"):
+            return 1000 + config["batch_rows"] * config["request_attempts"] * 40 + 2 * total_rows + 4 * batches
+        if stage in ("seal", "report"):
+            return 1000 + 2 * total_rows + 4 * batches
+        if stage == "smoke":
+            return 1000 + 22 * config["request_attempts"] * 40
+        return 1000
     rows = 0
     if stage == "smoke":
         rows = 22
@@ -123,6 +153,19 @@ def control_requests(stage, prepared, config, scope="full"):
 
 
 def control_envelope(prepared, config, scope):
+    if prompt_only(config):
+        stages = ["smoke", "report"]
+        for split, stage, cells in (
+            ("validation", "validate", PILOT if scope == "pilot" else CELLS),
+            ("test", "test", CELLS if scope == "full" else ()),
+        ):
+            for cell in cells:
+                rows = prepared["entries"][cell_key(*cell)]["partitions"][split]["rows"]
+                stages += [stage] * ((rows + config["batch_rows"] - 1) // config["batch_rows"])
+        if scope == "full":
+            stages += ["seal"]
+        counts = [control_requests(stage, prepared, config, scope) for stage in stages]
+        return {"requests": sum(counts), "sessions": len(counts), "max_session_requests": max(counts)}
     stages = ["smoke", "validate", "report", "cleanup"]
     stages += ["train-submit", "train-status"] * len(PILOT if scope == "pilot" else CELLS)
     if scope == "full":

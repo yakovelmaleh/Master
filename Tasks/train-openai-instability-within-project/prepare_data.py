@@ -5,7 +5,7 @@ from pathlib import Path
 
 from protocol import (
     CELLS, PROJECTS, PROMPT, cell_key, file_hash, read_json,
-    require_unsealed, write_json,
+    prompt_only, require_unsealed, write_json,
 )
 
 
@@ -91,7 +91,7 @@ def prepare(root, config, tokenizer=None, loader=None):
             for item, features in zip(frame.to_dict("records"), feature_rows):
                 prompt, tokens, cut = messages(item["model_text"], level, features, tokenizer, config)
                 label = int(item[label_column(level)])
-                if split == "train":
+                if split == "train" and not prompt_only(config):
                     prompt = prompt + [{"role": "assistant", "content": str(label)}]
                     tokens += 17
                 rows.append({"messages": prompt})
