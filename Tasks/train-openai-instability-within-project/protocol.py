@@ -20,6 +20,8 @@ VARIANTS = ("text", "structured")
 CELLS = tuple(itertools.product(PROJECTS, LEVELS, VARIANTS))
 PILOT_PROJECT, PILOT_LEVEL = "Jira", 20
 PILOT = tuple((PILOT_PROJECT, PILOT_LEVEL, variant) for variant in VARIANTS)
+BASE_SCHEMA = "openai-instability-prompt-v1"
+BASE_METHOD = "zero-shot-system-user"
 PACKAGES = ("numpy", "pandas", "scikit-learn", "joblib", "openai",
             "tiktoken", "azure-identity", "httpx", "azure-core", "azure-data-tables", "azure-storage-blob")
 PROMPT = (
@@ -37,24 +39,37 @@ def cell_key(project, level, variant):
     return f"{project}-{level}-{variant}"
 
 
+def prompt_only(config):
+    return config.get("schema") == BASE_SCHEMA
+
+
+def require_sft(config):
+    if prompt_only(config):
+        raise ValueError("Prompt-only studies cannot upload, train, manage or delete model assets.")
+
+
 def config_at(path):
     config = read_json(path)
-    expected = read_json(TASK / "experiment.json")
+    base = prompt_only(config)
+    expected = read_json(TASK / ("prompt_only.json" if base else "experiment.json"))
     if set(config) != set(expected):
         raise ValueError("Configuration keys differ; use the current experiment.json and a new run ID.")
-    if config["schema"] != "openai-instability-v2":
+    if config["schema"] not in ("openai-instability-v2", BASE_SCHEMA):
         raise ValueError("Unsupported configuration schema; use the current experiment.json and a new run ID.")
     if config["model"] not in ("gpt-4.1-nano-2025-04-14", "gpt-4.1-mini-2025-04-14"):
         raise ValueError("Use a reviewed, versioned SFT model.")
     for name, lower, upper in (
-        ("epochs", 1, 3), ("text_tokens", 128, 8192),
+        ("text_tokens", 128, 8192),
         ("max_input_tokens", 512, 16384), ("bootstrap_samples", 100, 10000),
         ("top_logprobs", 2, 20), ("request_attempts", 1, 3),
     ):
         if type(config[name]) is not int or not lower <= config[name] <= upper:
             raise ValueError(f"Invalid bounded configuration: {name}")
-    for name in ("control_schema", "seed", "training_type", "deployment_sku", "deployment_capacity",
-                 "pilot_limit_usd", "total_limit_usd", "credit_reserve_usd"):
+    if not base and (type(config["epochs"]) is not int or not 1 <= config["epochs"] <= 3):
+        raise ValueError("Invalid bounded configuration: epochs")
+    frozen = ("method", "batch_rows", "model") if base else ("training_type", "deployment_capacity")
+    for name in ("control_schema", "seed", "deployment_sku",
+                 "pilot_limit_usd", "total_limit_usd", "credit_reserve_usd", *frozen):
         if config[name] != expected[name]:
             raise ValueError(f"Changing the approved protocol requires review: {name}")
     if config["text_tokens"] >= config["max_input_tokens"]:

@@ -596,6 +596,219 @@ class ScoringTests(unittest.TestCase):
             self.assertEqual(client.call_count, 1)
 
 
+class PromptOnlyTests(Fixture):
+    def setUp(self):
+        super().setUp()
+        self.config = {**protocol.config_at(TASK / "prompt_only.json"),
+                       "bootstrap_samples": 100, "batch_rows": 2}
+        write_json(self.root / "study.json", {"config": self.config, "fixture": True})
+        self.backend.config = self.config
+        for name in ("upload", "train", "deploy", "remove_deployment", "delete_file", "delete_model", "cancel"):
+            setattr(self.backend, name, Mock(side_effect=AssertionError("Prompt-only called " + name)))
+
+    def approval(self, scope="pilot"):
+        from cost_control import approval_checks
+
+        value = super().approval(scope)
+        value.update(protocol_schema=protocol.BASE_SCHEMA, method=protocol.BASE_METHOD,
+                     deployment_sku=self.config["deployment_sku"],
+                     checks={key: True for key in approval_checks(self.config)})
+        del value["rates"]["training_per_million"]
+        return value
+
+    def start(self):
+        self.prepared()
+        self.authorize()
+        with patch.object(runner, "Tokenizer", FakeTokenizer):
+            runner.smoke(self.root, self.config, self.ledger, self.backend)
+
+    def finish_split(self, split):
+        for _ in range(32):
+            before = self.backend.predict_calls
+            result = runner.evaluate(self.root, self.config, self.ledger, self.backend, split)
+            self.assertLessEqual(self.backend.predict_calls - before, self.config["batch_rows"])
+            if result.get("scope_complete"):
+                return
+        self.fail("Batch iteration did not complete")
+
+    def test_prompt_only_approvals_and_costs_do_not_require_training(self):
+        prepared = self.prepared()
+        approval = self.approval()
+        check_approval(approval, approval["study_sha256"], self.config)
+        costs = estimate(prepared, self.config, approval)
+        self.assertTrue(all(set(value) == {"validation", "test"} for value in costs["entries"].values()))
+        legacy = {**read_json(TASK / "experiment.json"), "bootstrap_samples": 100}
+        sft_approval = {**approval, "rates": {**approval["rates"], "training_per_million": "1"}}
+        old = estimate(prepared, legacy, sft_approval)
+        training = sum(money(entry["train"]) for entry in old["entries"].values())
+        self.assertEqual(money(old["full"]) - money(costs["full"]), training)
+        for delta in ({"method": "sft"}, {"protocol_schema": "openai-instability-v2"},
+                      {"base_deployment": ""}, {"checks": {}},
+                      {"expires_at": "2000-01-01T00:00:00Z"},
+                      {"rates": {"input_per_million": None, "output_per_million": ".4"}}):
+            with self.subTest(delta=delta), self.assertRaises(ValueError):
+                check_approval({**approval, **delta}, approval["study_sha256"], self.config)
+        template = runner.approval_template(self.root, self.config)
+        self.assertNotIn("training_per_million", template["rates"])
+        self.assertFalse(any(template["checks"].values()))
+
+    def test_no_assistant_examples_and_all_partition_rows_are_preserved(self):
+        self.prepared()
+        for cell in CELLS:
+            for split in ("train", "validation", "test"):
+                records, rows = partition(self.root, cell_key(*cell), split)
+                expected = frame(cell[0], ("train", "validation", "test").index(split))
+                self.assertEqual([row["row_id"] for row in rows], expected.row_id.tolist())
+                for record in records:
+                    self.assertEqual([m["role"] for m in record["messages"]], ["system", "user"])
+                    self.assertEqual(record["messages"][0]["content"], protocol.PROMPT)
+
+    def test_eight_cell_batched_workflow_seal_restoration_and_summary(self):
+        self.start()
+        with self.assertRaisesRegex(ValueError, "full-study"):
+            runner.evaluate(self.root, self.config, self.ledger, self.backend, "test")
+        self.finish_split("validation")
+        with self.assertRaises(FileNotFoundError):
+            runner.seal(self.root, self.ledger)
+        self.authorize("full")
+        with self.assertRaisesRegex(ValueError, "selection seal"):
+            runner.evaluate(self.root, self.config, self.ledger, self.backend, "test")
+        self.finish_split("validation")
+        runner.seal(self.root, self.ledger)
+        with self.assertRaisesRegex(ValueError, "sealing"):
+            runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        with patch("data_contract.load_project", loader), patch(
+            "data_contract.baseline_predictions", return_value=(np.full(4, .5), {"fixture": True})
+        ):
+            self.finish_split("test")
+        self.assertEqual(self.backend.predict_calls, 6 + 32 + 32)
+        self.assertTrue(all(op["kind"] == "inference" for op in self.ledger.operations(protocol.study_id(self.root))))
+        output = Path(self.temporary.name) / "bundle/artifacts/results/llm_report.json"
+        result = runner.report(self.root, self.ledger, output)
+        self.assertTrue(result["complete"])
+        self.assertEqual(result["schema"], "openai-instability-prompt-report-v1")
+        self.assertEqual(len(result["cells"]), 8)
+        for cell in result["cells"]:
+            self.assertNotIn("job_id", cell["model_reference"])
+            self.assertEqual(cell["model_reference"]["method"], protocol.BASE_METHOD)
+            key = cell_key(cell["project"], cell["level"], cell["variant"])
+            self.assertEqual(read_json(self.root / "final" / key / "metrics.json")["threshold"],
+                             read_json(self.root / "validation" / key / "validation.json")["threshold"])
+            for relative in (f"validation/{key}/scores.json", f"final/{key}/scores.json",
+                             f"final/{key}/metrics.json"):
+                (self.root / relative).unlink()
+        restored = runner.report(self.root, self.ledger, output)
+        self.assertEqual(result["cells"], restored["cells"])
+        self.assertEqual(self.backend.predict_calls, 70)
+        summary.summarize(output.parents[2])
+        text = (output.parents[2] / "RESULTS.csv").read_text()
+        self.assertIn("openai_prompt_text", text)
+        self.assertEqual(len(text.splitlines()), 9)
+        bundled = Path(self.temporary.name) / "export"
+        copy_tree(self.root, bundled)
+        self.assertFalse((bundled / "batches").exists())
+
+    def test_partial_batch_receipt_recovery_never_replays_a_completed_request(self):
+        self.start()
+        run = protocol.study_id(self.root)
+        before = self.backend.predict_calls
+        with patch.object(self.ledger, "finish", side_effect=TimeoutError):
+            with self.assertRaises(TimeoutError):
+                runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        self.assertEqual(self.backend.predict_calls, before + 1)
+        with self.assertRaisesRegex(ValueError, "Unconfirmed"):
+            runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        runner.reconcile(self.root, self.config, self.ledger, self.backend)
+        runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        self.assertEqual(self.backend.predict_calls, before + 2)
+        key = cell_key(*PILOT[0])
+        (self.root / "batches/validation" / key / "0.json").unlink()
+        runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        self.assertEqual(self.backend.predict_calls, before + 4)
+        saved = self.ledger.artifact(run, "validation-" + key)
+        self.assertEqual(len(read_json(self.root / "validation" / key / "scores.json")), 4)
+        self.assertTrue(saved)
+
+    def test_unknown_prediction_is_not_replayed_or_skipped(self):
+        self.start()
+        before = self.backend.predict_calls
+        with patch.object(self.backend, "predict", side_effect=TimeoutError):
+            with self.assertRaises(TimeoutError):
+                runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        with self.assertRaisesRegex(ValueError, "no matching receipt"):
+            runner.reconcile(self.root, self.config, self.ledger, self.backend)
+        with self.assertRaisesRegex(ValueError, "Unconfirmed"):
+            runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        self.assertEqual(self.backend.predict_calls, before)
+
+    def test_control_envelope_covers_batches_and_reconstruction(self):
+        from cost_control import control_envelope, control_requests
+
+        prepared = self.prepared()
+        for scope in ("pilot", "full"):
+            envelope = control_envelope(prepared, self.config, scope)
+            expected_batches = 4 if scope == "pilot" else 32
+            self.assertEqual(envelope["sessions"], expected_batches + (2 if scope == "pilot" else 3))
+        self.start()
+        before = self.ledger.store.budget.used
+        runner.evaluate(self.root, self.config, self.ledger, self.backend, "validation")
+        self.assertLess(self.ledger.store.budget.used - before,
+                        control_requests("validate", prepared, self.config, "pilot"))
+        with patch.dict(self.ledger.plan, {"session_requests": 100}):
+            with self.assertRaisesRegex(ValueError, "Storage allowance"):
+                self.ledger.require_capacity(control_envelope(prepared, self.config, "pilot"))
+
+    def test_training_stages_and_model_mutations_fail_before_remote_access(self):
+        for call in (
+            lambda: runner.train_submit(self.root, self.config, self.ledger, self.backend),
+            lambda: runner.train_status(self.root, self.config, self.ledger, self.backend),
+            lambda: runner.cleanup(self.root, self.config, self.ledger, self.backend),
+            lambda: runner.deploy(self.root, self.config, self.ledger, self.backend, "cell", "model"),
+        ):
+            with self.assertRaisesRegex(ValueError, "Prompt-only"):
+                call()
+        backend = object.__new__(AzureBackend)
+        backend.config = self.config
+        backend.guard = Mock()
+        backend.client = Mock()
+        backend.http = Mock()
+        for call in (
+            lambda: backend.upload(Path("not-opened"), "file"), lambda: backend.train("file", "suffix"),
+            lambda: backend.cancel("job"), lambda: backend.delete_file("file"),
+            lambda: backend.delete_model("model"), lambda: backend.deploy("base", "model", "run"),
+            lambda: backend.remove_deployment("base"),
+        ):
+            with self.assertRaisesRegex(ValueError, "Prompt-only"):
+                call()
+        self.assertFalse(backend.guard.called)
+        self.assertFalse(backend.client.mock_calls)
+        self.assertFalse(backend.http.mock_calls)
+
+    def test_backend_requires_exact_base_and_system_user_messages(self):
+        backend = object.__new__(AzureBackend)
+        backend.config, backend.approval = self.config, self.approval()
+        backend.guard, backend.client = Mock(), Mock()
+        prompt, _, _ = messages("text", 20, None, FakeTokenizer(), self.config)
+        result = response()
+        result.model = self.config["model"]
+        backend.client.chat.completions.create.return_value = result
+        fake_sdk = NS(APIConnectionError=type("ConnectionError", (Exception,), {}),
+                      APIStatusError=type("StatusError", (Exception,), {}))
+        with patch.dict(sys.modules, {"openai": fake_sdk}):
+            backend.predict("base-fixture", prompt)
+            payload = backend.client.chat.completions.create.call_args.kwargs
+            self.assertEqual(payload["messages"], prompt)
+            self.assertTrue(payload["logprobs"])
+            self.assertEqual(payload["max_tokens"], 1)
+            for deployment, bad in (("other", prompt), ("base-fixture", prompt[1:]),
+                                    ("base-fixture", prompt + [{"role": "assistant", "content": "1"}])):
+                with self.assertRaisesRegex(ValueError, "Prompt-only"):
+                    backend.predict(deployment, bad)
+            result.model = "different-snapshot"
+            with self.assertRaisesRegex(ValueError, "different base model"):
+                backend.predict("base-fixture", prompt)
+
+
 class WorkflowTests(Fixture):
     def test_mocked_eight_entry_workflow_and_summary(self):
         self.run_pilot()

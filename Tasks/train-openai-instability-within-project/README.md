@@ -1,9 +1,139 @@
 # Azure OpenAI within-project instability experiment
 
 **Objective: maximize trapezoidal AUC-PRC on the unchanged historical test rows,
-using validation for decisions, not test results.** This is supervised fine-tuning,
-not a replacement of training with prompting. The cluster orchestrates Azure
-training and inference using CPU jobs; no OpenAI weights run on cluster GPUs.
+using validation for decisions, not test results.** Two explicitly separate
+protocols are available: legacy supervised fine-tuning (`experiment.json`) and
+zero-shot **System + User prompting without LLM training** (`prompt_only.json`).
+The cluster orchestrates Azure using CPU jobs; no OpenAI weights run on cluster GPUs.
+
+## Prompt-only workflow
+
+Select `--config Tasks/train-openai-instability-within-project/prompt_only.json`
+and a **new run ID** for every prompt-only command. The default configuration
+remains the legacy SFT protocol for compatibility; do not use its training commands
+for this experiment. Changing source/configuration invalidates old study signatures,
+not old costs. Keep the existing authority, old runs, reservations and failure evidence.
+
+The prompt-only protocol pins the existing GPT-4.1-mini snapshot and its
+`GlobalStandard` deployment. It sends exactly the frozen system instruction and
+one user message containing original issue text, the instability threshold, and
+optional train-fitted structured features. There are no assistant examples,
+training uploads, fine-tuning jobs, deployment creation, or model deletion.
+Structured preprocessing is fitted only on historical training rows; it does not
+train the LLM. All Jira/Qt rows, chronological splits, labels at 5/20, and both
+variants are retained (eight evaluation entries using one existing base model).
+The existing frozen input-token truncation policy is unchanged.
+
+Scores are normalized probabilities from the two class-token log probabilities,
+not generated confidence or hard labels. Each cell's threshold is selected using
+all validation rows. All eight selections must be sealed before any test scoring.
+Final metrics, matched historical baseline comparison and paired bootstrap remain
+unchanged. Prompt-only reports use `openai-instability-prompt-report-v1` and real
+base-model/deployment references, never fabricated fine-tuning job IDs.
+
+### Offline preparation first
+
+After merging, run the existing `check-sdk` stage. Then prepare a new run:
+
+```bash
+./Tasks/run_cluster_task.sh train-openai-instability-within-project \
+  --stage prepare --partition main --conda-env master-openai \
+  --storage "$HOME/master-openai" --run-id openai-prompt-01 \
+  --config Tasks/train-openai-instability-within-project/prompt_only.json
+```
+
+Preparation performs no Azure calls. It writes the exact partitions and a
+private `approval.template.json`. Template checks are false and rates unknown:
+**do not treat preparation, a merged PR, or an old approval as execution consent.**
+Prompt approval requires explicit `protocol_schema`/`method`, verified existing
+deployment and logprobs, current input/output rates, data-export permission,
+credit eligibility/expiry, spending protection, and storage costs. Training rates
+and SFT/developer-deployment checks are not used in this mode.
+
+Generate the offline storage worksheet for this exact prepared manifest:
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py cost-plan \
+  --storage "$HOME/master-openai" \
+  --prepared "$HOME/master-openai/openai-runs/openai-prompt-01/prepared.json" \
+  --config Tasks/train-openai-instability-within-project/prompt_only.json \
+  --output "$HOME/master-openai/prompt-storage-plan.json"
+```
+
+The worksheet includes batch commands, completion-marker reads and score-cache
+reconstruction. Add every preflight, quarantine review/action, status/recovery and
+restart separately; failed/partial commands do not refund storage allowances.
+Model cost estimation excludes all training charges for the **new** study but
+does not subtract any prior reservations. The cumulative $9 pilot/$80 experiment
+caps and protected $20 credit still apply across all runs. A new pilot may be
+unaffordable after prior reservations; stop rather than raise caps or omit rows.
+
+### Separately approved execution
+
+Only after reviewing finances and obtaining fresh private model and storage
+approvals, use `preflight`, then `smoke`, then `validate` with the same run/config.
+`validate` processes **at most one 400-row batch per invocation**, including all
+rows in the final partial batch. Explicitly invoke the stage again for each next
+batch; there is no scheduler loop or automatic continuation. After both Jira/20
+pilot variants are complete, review results and affordability before a full-scope
+preflight. Finish validation for the remaining six entries, `seal`, then run
+one `test` batch per invocation. `report` accounts for all eight entries and
+labels unfinished entries as missing. A successful batch status is not a
+complete-study result; check `cell_complete`/`scope_complete` and the final report.
+
+Completion markers let later commands skip completed batches without scanning
+every prior row. Missing local caches can be rebuilt from matching durable
+per-row operations without paid replay. An uncertain inference response stops
+the workflow; `reconcile` requires its exact persisted receipt. A missing receipt
+never authorizes a retry. Base assets are not owned by this study, so `cleanup`,
+`cancel`, `train-submit`, and `train-status` are prohibited in prompt-only mode.
+
+### Explicit unresolved-training quarantine
+
+Quarantine is **not automatic**, a refund, proof of rejection/cancellation, or
+authorization to run inference. Use only after stopping all old workers and
+reviewing private provider evidence and the full financial exposure. It preserves
+the old dispatched operation, request hash, attempt, allocation, all monetary
+totals, and training pointer. The outcome remains **UNKNOWN** and further training
+stays blocked. The exact pending pointer is archived atomically into immutable
+quarantine evidence; only a separately approved **new base-inference allocation**
+can subsequently dispatch. Root schema fencing makes old clients fail closed.
+Do not downgrade the schema or reset the ledger to resume an old worker.
+
+With separately approved storage access (these commands consume storage):
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py quarantine-plan \
+  --storage "$HOME/master-openai" --output "$HOME/master-openai/quarantine-review.json"
+```
+
+Review the exact authority/run/operation/attempt, request/operation/allocation/state
+hashes and observed reservation totals in that private template. Supply an
+expiry, SHA-256 of the privately reviewed evidence, and explicitly approve all
+four checks only when verified. The plan itself does not change pending training.
+After separate authorization to perform the quarantine:
+
+```bash
+python Tasks/train-openai-instability-within-project/control_admin.py quarantine \
+  --storage "$HOME/master-openai" --review "$HOME/master-openai/quarantine-review.json" \
+  --output "$HOME/master-openai/quarantine-result.json"
+```
+
+Any changed financial/dispatch evidence fails closed. Keep those files private;
+they are excluded from report bundles. No automatic quarantine removal is
+implemented, even if a provider job later appears: reconcile that separately.
+Existing receipt-based recovery remains available for new base inference.
+
+If existing storage bounds cannot cover the new batch envelopes, stop for a
+separate storage extension review. The `extend` admin action supports a
+pilot-scope extension only for the quarantined old run with
+`prompt_only_extension_approved: true`, exact prior storage hash and all existing
+storage checks. It may only increase bounds, keeps the same authority and all
+reservations, and must fit the unchanged pilot/global/credit caps. Full extensions
+still require both completed pilot validations. Neither an expired approval nor
+insufficient storage is automatically renewed or extended.
+
+## Legacy SFT protocol
 
 | Contract | Experiment |
 | --- | --- |

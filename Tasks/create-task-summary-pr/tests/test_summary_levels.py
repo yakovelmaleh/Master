@@ -38,6 +38,37 @@ def make_run(run, level, succeeded=True):
 
 
 class SummaryTests(unittest.TestCase):
+    def test_prompt_report_uses_base_identity_and_rejects_fabricated_job_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "artifacts/results/llm_report.json"
+            path.parent.mkdir(parents=True)
+            cells = [{"project": project, "level": level, "variant": variant, "status": "missing"}
+                     for project in ("Jira", "Qt") for level in (5, 20)
+                     for variant in ("text", "structured")]
+            cells[0].update(status="complete", test={"auc_prc": .7}, scores_sha256="fixture",
+                            model_reference={"model_id": "base-snapshot", "deployment": "base",
+                                             "method": "zero-shot-system-user"})
+            report = {"schema": "openai-instability-prompt-report-v1", "stage": "final-test",
+                      "method": "zero-shot-system-user", "cells": cells}
+            path.write_text(json.dumps(report))
+            module.summarize(root)
+            with (root / "RESULTS.csv").open() as stream:
+                results = list(csv.DictReader(stream))
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]["variant"], "openai_prompt_text")
+            for reference in ({"model_id": "base-snapshot", "job_id": "fake"},
+                              {**cells[0]["model_reference"], "job_id": "fake"}):
+                cells[0]["model_reference"] = reference
+                path.write_text(json.dumps(report))
+                module.summarize(root)
+                with (root / "RESULTS.csv").open() as stream:
+                    self.assertEqual(list(csv.DictReader(stream)), [])
+            del report["method"]
+            path.write_text(json.dumps(report))
+            with self.assertRaisesRegex(ValueError, "system/user"):
+                module.summarize(root)
+
     def test_llm_report_accounts_for_both_variants_without_fake_checkpoints(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

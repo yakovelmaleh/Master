@@ -9,7 +9,8 @@ from contextlib import ExitStack
 
 from protocol import (
     CELLS, PILOT, PILOT_LEVEL, PILOT_PROJECT, TASK, cell_key, checked_json, config_at, digest,
-    file_hash, read_json, require_unsealed, study, study_id, write_json,
+    BASE_METHOD, BASE_SCHEMA, file_hash, prompt_only, read_json, require_sft,
+    require_unsealed, study, study_id, write_json,
 )
 from cost_control import check_approval, control_requests, estimate, inference_bound, money
 from cloud_control import Ledger, SCHEMA
@@ -20,18 +21,22 @@ TERMINAL = {"succeeded", "failed", "cancelled"}
 
 
 def approval_template(root, config):
-    from cost_control import CHECKS
+    from cost_control import approval_checks
 
-    return {
+    value = {
         "study_sha256": digest(read_json(root / "study.json")), "scope": "pilot",
         "endpoint": "", "resource_id": "", "base_deployment": "",
         "model": config["model"], "deployment_sku": config["deployment_sku"],
         "credit_offer": "", "remaining_credit_usd": "0", "expires_at": "",
-        "evidence": "", "checks": {name: False for name in CHECKS},
+        "evidence": "", "checks": {name: False for name in approval_checks(config)},
         "rates": {"training_per_million": None, "input_per_million": None, "output_per_million": None},
         "rate_safety_multiplier": "1.25", "other_cost_reserve_usd": "0",
         "control_schema": SCHEMA, "authority_sha256": "", "storage_reserve_usd": "0",
     }
+    if prompt_only(config):
+        value.update(protocol_schema=BASE_SCHEMA, method=BASE_METHOD)
+        del value["rates"]["training_per_million"]
+    return value
 
 
 def authorized(root, config, ledger):
@@ -81,13 +86,22 @@ def preflight(root, config, approval, ledger, backend):
     return evidence
 
 
+def score_request(auth, config, prompt, model):
+    request = {"resource_id": auth["resource_id"], "model": model or auth["model"],
+               "messages_sha256": digest(prompt), "config_sha256": digest(config)}
+    if prompt_only(config):
+        request.update(deployment=auth["base_deployment"], method=BASE_METHOD)
+    return request
+
+
 def score_once(root, config, ledger, backend, deployment, operation, prompt, tokens, model=None):
     auth = authorized(root, config, ledger)["approval"]
     run = study_id(root)
     if model is None and deployment != auth["base_deployment"]:
         raise ValueError("Scoring requires the approved base deployment or an exact fine-tuned model identity.")
-    request = {"resource_id": auth["resource_id"], "model": model or auth["model"],
-               "messages_sha256": digest(prompt), "config_sha256": digest(config)}
+    if prompt_only(config) and (deployment != auth["base_deployment"] or model not in (None, auth["model"])):
+        raise ValueError("Prompt-only scoring cannot use a different model or deployment.")
+    request = score_request(auth, config, prompt, model)
 
     def actual(result):
         usage = result["usage"]
@@ -131,6 +145,7 @@ def allowed_cells(evidence):
 
 
 def train_submit(root, config, ledger, backend):
+    require_sft(config)
     require_open(root, ledger)
     evidence = authorized(root, config, ledger)
     smoke_value = ledger.artifact(study_id(root), "smoke")
@@ -164,6 +179,7 @@ def train_submit(root, config, ledger, backend):
 
 
 def train_status(root, config, ledger, backend, cancel=False):
+    require_sft(config)
     run = study_id(root)
     results = {}
     for cell in CELLS:
@@ -215,6 +231,7 @@ def train_status(root, config, ledger, backend, cancel=False):
 
 
 def deploy(root, config, ledger, backend, key, model):
+    require_sft(config)
     run = study_id(root)
     record = ledger.claim_deployment(run, key, model, config["deployment_sku"])
     operation_name = "deploy-" + str(record["generation"])
@@ -280,9 +297,8 @@ def restore_scores(root, ledger, split, key, selection, operations=None):
         scores = []
         for index, (record, row) in enumerate(zip(records, rows)):
             saved = operations.get(f"{split}-{key}-{index}")
-            request = {"resource_id": allocation["approval"]["resource_id"],
-                       "model": selection["model_reference"]["model_id"],
-                       "messages_sha256": digest(record["messages"]), "config_sha256": digest(config)}
+            request = score_request(allocation["approval"], config, record["messages"],
+                                    selection["model_reference"]["model_id"])
             if (saved is None or saved["status"] != "succeeded"
                     or saved["request_sha256"] != digest(request)):
                 raise ValueError("Missing or mismatched cloud score; never reconstruct it by a paid replay.")
@@ -344,6 +360,10 @@ def evaluate(root, config, ledger, backend, split):
     from evaluate import final_metrics
     from unstable_model.evaluation import calculate_metrics, select_threshold
 
+    if prompt_only(config):
+        from prompt_inference import evaluate_batch
+
+        return evaluate_batch(root, config, ledger, backend, split)
     evidence = authorized(root, config, ledger)
     if split == "validation":
         require_open(root, ledger)
@@ -410,7 +430,8 @@ def evaluate(root, config, ledger, backend, split):
 
 
 def report(root, ledger, output):
-    if read_json(root / "study.json")["config"]["schema"] != "openai-instability-v2":
+    config = read_json(root / "study.json")["config"]
+    if config["schema"] not in ("openai-instability-v2", BASE_SCHEMA):
         raise ValueError("Reporting an older study requires its original protocol version.")
     entries = []
     selections = sealed_cells(root, ledger) if ledger.artifact(study_id(root), "seal") is not None else None
@@ -439,7 +460,8 @@ def report(root, ledger, output):
         entries.append(cell)
     complete = all(cell["status"] == "complete" for cell in entries)
     result = {
-        "schema": "openai-instability-report-v2", "stage": "final-test", "cells": entries,
+        "schema": "openai-instability-prompt-report-v1" if prompt_only(config) else "openai-instability-report-v2",
+        "stage": "final-test", "cells": entries,
         "complete": complete, "passed": complete and all(c["gates"]["passed"] for c in entries),
         "study_sha256": digest(read_json(root / "study.json")),
         "costs": ledger.snapshot(study_id(root)) if ledger.allocation(study_id(root)) else {"authorized": False},
@@ -449,11 +471,15 @@ def report(root, ledger, output):
                         "Issue bootstrap does not model temporal dependence.",
                         "Missing comparators are not estimated; hosted weights are not exported."],
     }
+    if prompt_only(config):
+        result["method"] = BASE_METHOD
+        result["limitations"].append("Zero-shot system/user prompting; no LLM training or fine-tuning.")
     write_json(output, result)
     return result
 
 
 def cleanup(root, config, ledger, backend, delete_models=False):
+    require_sft(config)
     statuses = train_status(root, config, ledger, backend)
     if any(status not in TERMINAL for status in statuses.values()):
         raise ValueError("Cancel active Azure training first; SLURM exit is not cancellation.")
@@ -485,11 +511,16 @@ def reconcile(root, config, ledger, backend):
     run = study_id(root)
     pending = ledger._root()[0]["pending"]
     if pending is None:
-        return train_status(root, config, ledger, backend)
+        return {"reconciled": None} if prompt_only(config) else train_status(root, config, ledger, backend)
     if pending[0] != run:
         raise ValueError("Pending dispatch belongs to another study; use its recovery command.")
     name = pending[1]
     operation = ledger.operation(run, name)
+    if prompt_only(config):
+        if operation["kind"] != "inference":
+            raise ValueError("Prompt-only recovery can only consume an exact inference receipt.")
+        ledger.recover_receipt(run, name)
+        return {"reconciled": name}
     if operation["kind"] in ("training", "upload"):
         return train_status(root, config, ledger, backend)
     if operation["kind"] == "cancel":
@@ -547,6 +578,8 @@ def main():
     else:
         config = config_at(args.config)
         root = study(args.storage, args.run_id, config)
+    if args.stage in ("train-submit", "train-status", "cancel", "cleanup"):
+        require_sft(config)
     status = root / "status" / f"{args.stage}.json"
     backend = None
     ledger = None
@@ -604,8 +637,10 @@ def main():
                 elif args.stage == "reconcile":
                     result = reconcile(root, config, ledger, backend)
                 elif args.stage in ("validate", "test"):
-                    evaluate(root, config, ledger, backend, "validation" if args.stage == "validate" else "test")
-                    result = {"evaluated": args.stage}
+                    result = evaluate(root, config, ledger, backend,
+                                      "validation" if args.stage == "validate" else "test")
+                    if result is None:
+                        result = {"evaluated": args.stage}
                 else:
                     cleanup(root, config, ledger, backend, args.delete_models)
                     result = {"cleanup": "succeeded"}

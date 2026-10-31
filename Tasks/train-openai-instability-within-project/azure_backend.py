@@ -4,6 +4,8 @@ import math
 import time
 from urllib.parse import quote
 
+from protocol import PROMPT, prompt_only, require_sft
+
 
 class ProviderError(RuntimeError):
     """A sanitized provider failure safe to display in cluster logs."""
@@ -66,6 +68,8 @@ class AzureBackend:
         self.guard()
 
     def arm(self, method, suffix="", body=None, missing_ok=False):
+        if method != "GET":
+            require_sft(self.config)
         url = "https://management.azure.com" + self.approval["resource_id"] + suffix
         token = self.credential.get_token("https://management.azure.com/.default").token
         if method != "GET":
@@ -90,12 +94,15 @@ class AzureBackend:
             raise ValueError("Existing base deployment must match the exact model snapshot.")
         if base["properties"]["provisioningState"] != "Succeeded":
             raise ValueError("Base deployment is not ready.")
+        if prompt_only(self.config) and base["sku"]["name"] != self.config["deployment_sku"]:
+            raise ValueError("Base deployment billing SKU differs from the prompt-only approval.")
         # Also exercise data-plane authorization without inference charges.
         self.client.models.list()
         return {"account_verified": True, "base_model_verified": expected,
                 "data_plane_access": True, "location": account["location"]}
 
     def upload(self, path, filename):
+        require_sft(self.config)
         with path.open("rb") as stream:
             self.before_mutation()
             item = self.client.files.create(file=(filename, stream), purpose="fine-tune")
@@ -111,6 +118,7 @@ class AzureBackend:
         self.client.files.wait_for_processing(training_file)
 
     def train(self, training_file, suffix):
+        require_sft(self.config)
         self.before_mutation()
         result = self.client.fine_tuning.jobs.create(
             model=self.config["model"], training_file=training_file, suffix=suffix,
@@ -139,6 +147,7 @@ class AzureBackend:
         return self.job_value(self.client.fine_tuning.jobs.retrieve(job_id))
 
     def cancel(self, job_id):
+        require_sft(self.config)
         self.before_mutation()
         return self.job_value(self.client.fine_tuning.jobs.cancel(job_id))
 
@@ -146,6 +155,7 @@ class AzureBackend:
         return self.arm("GET", "/deployments/" + quote(name, safe=""), missing_ok=True)
 
     def deploy(self, name, model, owner):
+        require_sft(self.config)
         self.arm("PUT", "/deployments/" + quote(name, safe=""), {
             "sku": {"name": self.config["deployment_sku"], "capacity": self.config["deployment_capacity"]},
             "tags": {"master-study": owner},
@@ -172,6 +182,7 @@ class AzureBackend:
         raise TimeoutError("Deployment not ready; resume rather than creating a different model.")
 
     def remove_deployment(self, name):
+        require_sft(self.config)
         self.arm("DELETE", "/deployments/" + quote(name, safe=""), missing_ok=True)
         for _ in range(40):
             if self.get_deployment(name) is None:
@@ -183,13 +194,22 @@ class AzureBackend:
         from openai import APIConnectionError, APIStatusError
         from cloud_control import RetryableRejection
 
+        if prompt_only(self.config) and (
+            deployment != self.approval["base_deployment"]
+            or [item.get("role") for item in messages] != ["system", "user"]
+            or messages[0].get("content") != PROMPT
+        ):
+            raise ValueError("Prompt-only inference requires the approved base and exact system/user prompt.")
         self.before_mutation()
         try:
             response = self.client.chat.completions.create(
                 model=deployment, messages=messages, temperature=1, seed=self.config["seed"],
                 max_tokens=1, logprobs=True, top_logprobs=self.config["top_logprobs"],
             )
-            return positive_score(response)
+            result = positive_score(response)
+            if prompt_only(self.config) and result["response_model"] != self.config["model"]:
+                raise ValueError("Inference returned a different base model snapshot; retain the dispatch.")
+            return result
         except (APIConnectionError, APIStatusError) as error:
             status = getattr(error, "status_code", None)
             if status == 429:
@@ -203,6 +223,7 @@ class AzureBackend:
             ) from None
 
     def delete_file(self, file_id):
+        require_sft(self.config)
         from openai import NotFoundError
 
         try:
@@ -212,6 +233,7 @@ class AzureBackend:
             pass  # An already absent, manifest-owned file is cleaned up.
 
     def delete_model(self, model):
+        require_sft(self.config)
         from openai import NotFoundError
 
         try:

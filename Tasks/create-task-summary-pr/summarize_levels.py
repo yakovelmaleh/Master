@@ -144,11 +144,15 @@ def summarize(bundle):
             "openai-instability-report-v1": (
                 ("Apache", "Hyperledger", "IntelDAOS", "Jira", "MariaDB", "Qt"), (5, 10, 15, 20)),
             "openai-instability-report-v2": (("Jira", "Qt"), (5, 20)),
+            "openai-instability-prompt-report-v1": (("Jira", "Qt"), (5, 20)),
         }
         if report.get("schema") not in schemas or report.get("stage") != "final-test":
             raise ValueError("LLM report must identify the final-test protocol.")
         projects, levels = schemas[report["schema"]]
-        reduced_openai |= report["schema"] == "openai-instability-report-v2"
+        base = report["schema"] == "openai-instability-prompt-report-v1"
+        if base and report.get("method") != "zero-shot-system-user":
+            raise ValueError("Prompt-only reports must identify the zero-shot system/user method.")
+        reduced_openai |= report["schema"] in ("openai-instability-report-v2", "openai-instability-prompt-report-v1")
         expected = {(project, level, variant)
                     for project in projects
                     for level in levels for variant in ("text", "structured")}
@@ -157,12 +161,16 @@ def summarize(bundle):
             raise ValueError(f"LLM report must account for exactly all {len(expected)} model/variant entries.")
         for cell in cells:
             reference = cell.get("model_reference", {})
+            model_evidence = (
+                bool(reference.get("deployment")) and reference.get("method") == "zero-shot-system-user"
+                and "job_id" not in reference
+            ) if base else bool(reference.get("job_id"))
             complete = (cell.get("status") == "complete" and "test" in cell
-                        and bool(reference.get("model_id")) and bool(reference.get("job_id"))
+                        and bool(reference.get("model_id")) and model_evidence
                         and bool(cell.get("scores_sha256")))
             identity = {"run": str(path.parent.relative_to(artifacts)), "project": cell["project"],
                         "level": cell["level"], "model": reference.get("model_id", "untrained"),
-                        "variant": "openai_" + cell["variant"]}
+                        "variant": ("openai_prompt_" if base else "openai_") + cell["variant"]}
             coverage.append({**identity, "job_status": cell.get("status", "missing"),
                              "coverage": "complete" if complete else "incomplete",
                              "missing_files": "" if complete else "final_test_artifact_reference"})
@@ -206,7 +214,7 @@ def summarize(bundle):
         "- AUC-PRC is trapezoidal PR area; average precision is a separate metric. Blank means not recorded.\n"
     )
     if reduced_openai:
-        text += "- OpenAI v2 covers only Jira and Qt at levels 5 and 20, both variants; levels 10 and 15 are outside that protocol.\n"
+        text += "- OpenAI v2/prompt-only covers only Jira and Qt at levels 5 and 20, both variants; levels 10 and 15 are outside that protocol.\n"
     (bundle / "LEVEL_SUMMARY.md").write_text(text)
     print(text)
 
