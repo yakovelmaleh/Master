@@ -254,10 +254,15 @@ runtime from PR #384 (source hash
 including its verified frozen import from `002`, and the `code-smells-004`
 runtime from PR #389 (source hash
 `4bfc7081a576c69d7fec9d179a5a00add07f73f5b85df1bbd53a3bf2ee9d4acd`).
-Use `004` to `005` after a snapshot filename failure; do not modify the old
-study's source hash or remove the offending fixture. All sources must have successful
-enrichment and freeze stages; running stages and detection, label, model, or
-report artifacts block this migration.
+The `code-smells-005` runtime from PR #392 is also supported (source hash
+`075a48ab04792e520d0efdac9229e50512b02d545ca0cc7d7a87c31d54ccb356`).
+Use `005` to `006` for the Java report-attribution fix; do not modify the old
+study's source hash or delete its failed reports. All sources must have successful
+enrichment and freeze stages. Running stages and label, model, or report-stage
+artifacts block migration. Only the pinned `005` format additionally permits
+pre-label detector artifacts: these are checksummed and archived in
+`parent/detection/`, never reused as active results. Earlier parent formats
+remain preparation-only.
 
 Update the checkout to the recovery implementation once, before migration.
 Use a new run ID; never replace the old run's source hash or edit its artifacts.
@@ -265,17 +270,17 @@ Submit the following stages separately, waiting for each to succeed:
 
 ```bash
 "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-005 \
-  --from-run "$HOME/master-code-smells/runs/code-smells-004"
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-006 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-005"
 
 # After migrate succeeds: revalidate all four sources without fetching Jira.
 "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-005
+  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-006
 
 # After every freeze succeeds, use the shell with GITHUB_TOKEN exported.
 "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
   --stage fetch-code --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-005
+  --storage "$HOME/master-code-smells" --run-id code-smells-006
 ```
 
 Do not add `--pull` between stages. The migration preserves raw records, field
@@ -285,7 +290,7 @@ original study identity: the new run validates that identity through its
 hashed migration inventories and preserved parent-study chain, rather than fabricating
 new approvals or weakening collection checks. Any mismatch is a hard failure.
 Neither Jira recollection nor repartitioning is performed.
-For both `003` to `004` and `004` to `005`, approvals still belong to their
+Across frozen imports through `006`, approvals still belong to their
 original `002` study, not to the immediate parent. Every intervening frozen import must bind the
 same raw manifest, diagnostics and approval bytes. Earlier parent artifacts
 are retained under nested `parent/` directories.
@@ -301,7 +306,7 @@ For `code-smells-002`, the expected frozen feature counts remain Apache 758,
 IntelDAOS 235, MongoDB 5,088, and RedHat 6,905 (12,986 total), with 325 approved
 unavailable Jira candidates still excluded. Apache's 454/151/153 partition
 membership is unchanged. These are preparation counts, not final labeled counts.
-The same counts and membership must hold in `004` and `005`. The earlier Apache
+The same counts and membership must hold in `004`, `005`, and `006`. The earlier Apache
 `003` fetch found 68 complete-evidence stories, not 68 detector-labeled stories.
 The corrected collector does not guarantee recovery to 100; a new fetch and
 complete detector coverage are still required before the unchanged training

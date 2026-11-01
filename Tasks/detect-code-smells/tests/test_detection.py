@@ -12,6 +12,117 @@ from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
 class DetectionTests(RuntimeCase):
+    def ambiguous_java_fixture(self):
+        source = self.storage / "snapshot/source"
+        files = {
+            "one/BucketService.java": "package demo; interface BucketService {} class OtherOne {}",
+            "two/BucketService.java": "package demo; interface BucketService {} class OtherTwo {}",
+            "src/Changed.java": "package demo; class Changed {}",
+        }
+        for name, content in files.items():
+            path = source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content)
+        profile = self.profile()
+        profile["platform"] = platform.system()
+        profile["command"] = [sys.executable, "{input}", "{output}"]
+        profile["coverage"] = [{"file": "coverage.csv", "qualified_columns": ["Package", "Type"]}]
+        for category in profile["reports"]:
+            profile["reports"][category] = {
+                "file": category + ".csv", "smell_column": "Smell",
+                "qualified_columns": ["Package", "Type"], "entity_columns": ["Type"],
+            }
+        return source, profile
+
+    def ambiguous_java_reports(self, output, ambiguous_coverage=True):
+        output.mkdir(parents=True, exist_ok=True)
+        types = ["OtherOne", "OtherTwo", "Changed"]
+        if ambiguous_coverage:
+            types += ["BucketService", "BucketService"]
+        pd.DataFrame([{"Package": "demo", "Type": name} for name in types]).to_csv(
+            output / "coverage.csv", index=False)
+        pd.DataFrame([{"Package": "demo", "Type": name, "Smell": "Long Method"}
+                      for name in ("OtherOne", "Changed")]).to_csv(output / "implementation.csv", index=False)
+        pd.DataFrame([{"Package": "demo", "Type": "BucketService", "Smell": "Deficient Encapsulation"}]).to_csv(
+            output / "design.csv", index=False)
+
+    def test_ambiguous_entities_remove_all_candidate_files_not_just_the_ambiguous_rows(self):
+        source, profile = self.ambiguous_java_fixture()
+        output = self.storage / "output"
+        for coverage in (True, False):
+            with self.subTest(ambiguous_coverage=coverage):
+                self.ambiguous_java_reports(output, ambiguous_coverage=coverage)
+                result = detectors.parse_reports(output, source, profile)
+                self.assertEqual(["src/Changed.java"], result["coverage"])
+                self.assertEqual(["src/Changed.java"], [item["path"] for item in result["findings"]])
+                self.assertEqual([{"entity": "demo.BucketService", "candidate_paths": [
+                    "one/BucketService.java", "two/BucketService.java"]}], result["ambiguous_entities"])
+
+    def test_unresolved_entities_unknown_smells_and_uncovered_unique_findings_still_fail(self):
+        source, profile = self.ambiguous_java_fixture()
+        output = self.storage / "output"
+        for category in ("coverage", "implementation", "design"):
+            with self.subTest(category=category):
+                self.ambiguous_java_reports(output)
+                path = output / f"{category}.csv"
+                rows = pd.read_csv(path)
+                rows.loc[0, "Type"] = "Missing"
+                rows.to_csv(path, index=False)
+                with self.assertRaisesRegex(ValueError, "Ambiguous/unresolved"):
+                    detectors.parse_reports(output, source, profile)
+        self.ambiguous_java_reports(output)
+        path = output / "design.csv"
+        rows = pd.read_csv(path)
+        rows.loc[0, "Smell"] = "Unknown smell"
+        rows.to_csv(path, index=False)
+        with self.assertRaisesRegex(ValueError, "Unregistered native smell"):
+            detectors.parse_reports(output, source, profile)
+        self.ambiguous_java_reports(output)
+        pd.DataFrame([{"Package": "demo", "Type": "OtherOne"}]).to_csv(output / "coverage.csv", index=False)
+        with self.assertRaisesRegex(ValueError, "outside reported"):
+            detectors.parse_reports(output, source, profile)
+        self.ambiguous_java_reports(output)
+        pd.DataFrame(columns=["Package", "Type", "Smell"]).to_csv(output / "implementation.csv", index=False)
+        pd.DataFrame([{"Package": "demo", "Type": "BucketService"}]).to_csv(output / "coverage.csv", index=False)
+        with self.assertRaisesRegex(ValueError, "no unambiguously analyzed"):
+            detectors.parse_reports(output, source, profile)
+
+    def test_detection_accepts_unrelated_ambiguity_but_never_covers_affected_changed_files(self):
+        source, profile = self.ambiguous_java_fixture()
+        files = common.tree_manifest(source)
+        common.write_json(source.parent / "manifest.json", {"files": files})
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+        for required in ("src/Changed.java", "one/BucketService.java", "two/BucketService.java"):
+            with self.subTest(required=required):
+                self.root = self.storage / "runs" / required.split("/")[0]
+                self.frozen_study(1)
+                item = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                        "snapshot_manifest_sha256": common.file_hash(source.parent / "manifest.json"),
+                        "files": [{"path": required, "language": "java", "status": "modified"}]}
+                def execute_native(*args, **kwargs):
+                    self.ambiguous_java_reports(Path(kwargs["cwd"]) / "output")
+                with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                        detectors, "evidence_records", return_value=[
+                            {"status": "complete", "evidence": [item]}]), mock.patch.object(
+                        detectors.subprocess, "run", side_effect=execute_native):
+                    if required == "src/Changed.java":
+                        detectors.detect(self.root, self.storage, "Apache", profile_path)
+                    else:
+                        with self.assertRaisesRegex(ValueError, "every associated changed file"):
+                            detectors.detect(self.root, self.storage, "Apache", profile_path)
+                directory = self.root / "detection/results" / detectors.detection_key(item, profile)
+                attribution = list(directory.glob("attempts/*/output/attribution.json"))
+                self.assertEqual(1, len(attribution), "Ambiguity diagnostics survive successful and failed attempts")
+                self.assertEqual("demo.BucketService", common.read_json(attribution[0])["ambiguous_entities"][0]["entity"])
+                if required == "src/Changed.java":
+                    result = common.read_json(directory / "result.json")
+                    self.assertEqual(["src/Changed.java"], result["coverage"])
+                    self.assertIn("attribution.json", result["reports"])
+                else:
+                    self.assertFalse((directory / "result.json").exists(), "No successful or negative label artifact")
+                self.assertEqual(files, common.tree_manifest(source))
+
     def test_posix_names_survive_native_analysis_and_integrity_verification(self):
         if os.name == "nt":
             self.skipTest("POSIX-only source filenames")

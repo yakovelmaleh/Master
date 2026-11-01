@@ -150,7 +150,7 @@ def source_index(source, language):
     return index
 
 
-def report_path(row, spec, source, index):
+def report_path(row, spec, source, index, ambiguous=None):
     if spec.get("path_column"):
         value = row[spec["path_column"]].strip().replace("\\", "/")
         base = source.as_posix().rstrip("/") + "/"
@@ -164,6 +164,9 @@ def report_path(row, spec, source, index):
             raise ValueError("Report requires a path column or qualified entity columns.")
         value = ".".join(row[column].strip() for column in columns if row[column].strip())
         matches = index.get(value, set())
+    if len(matches) > 1 and ambiguous is not None:
+        ambiguous[value] = sorted(matches)
+        return None
     if len(matches) != 1:
         raise ValueError(f"Ambiguous/unresolved detector entity: {value!r}")
     return next(iter(matches))
@@ -171,12 +174,12 @@ def report_path(row, spec, source, index):
 
 def parse_reports(output, source, profile):
     index = source_index(source, profile["language"])
-    coverage = set()
+    coverage, ambiguous = set(), {}
     for spec in profile["coverage"]:
         for row in csv_report(output, spec):
-            coverage.add(report_path(row, spec, source, index))
-    if not coverage:
-        raise ValueError("Detector reported no analyzed source files.")
+            path = report_path(row, spec, source, index, ambiguous)
+            if path is not None:
+                coverage.add(path)
     findings = {}
     for category, spec in profile["reports"].items():
         allowed = set(profile["catalog"][category])
@@ -184,15 +187,28 @@ def parse_reports(output, source, profile):
             smell = row[spec["smell_column"]].strip()
             if smell not in allowed:
                 raise ValueError(f"Unregistered native smell: {category}/{smell}")
-            path = report_path(row, spec, source, index)
-            if path not in coverage:
-                raise ValueError("Finding is outside reported analyzed-file coverage.")
+            path = report_path(row, spec, source, index, ambiguous)
+            if path is None:
+                continue
             columns = spec.get("entity_columns") or sorted(set(row) - {spec["smell_column"], spec.get("path_column")})
             entity = "|".join(row[column].strip() for column in columns)
             finding = {"language": profile["language"], "category": category,
                        "smell": smell, "path": path, "entity": entity}
             findings[digest(finding)] = finding
-    return {"coverage": sorted(coverage), "findings": list(findings.values())}
+    # A file may contain both unique and ambiguous types. No result for that file
+    # is complete if any of its reported entities cannot be attributed uniquely.
+    blocked = {path for paths in ambiguous.values() for path in paths}
+    coverage -= blocked
+    findings = [value for value in findings.values() if value["path"] not in blocked]
+    if any(value["path"] not in coverage for value in findings):
+        raise ValueError("Finding is outside reported analyzed-file coverage.")
+    if not coverage:
+        raise ValueError("Detector reported no unambiguously analyzed source files.")
+    result = {"coverage": sorted(coverage), "findings": findings}
+    if ambiguous:
+        result["ambiguous_entities"] = [
+            {"entity": value, "candidate_paths": paths} for value, paths in sorted(ambiguous.items())]
+    return result
 
 
 def execute(tool_root, profile, source, output):
@@ -224,7 +240,13 @@ def execute(tool_root, profile, source, output):
             r"(?i)failed to (?:parse|analy[sz]e|load)", r"(?i)exception"]):
         if re.search(pattern, messages):
             raise ValueError("Detector reports incomplete/restricted analysis; inspect its logs.")
-    return parse_reports(output, source, profile)
+    result = parse_reports(output, source, profile)
+    if result.get("ambiguous_entities"):
+        write_json(output / "attribution.json", {
+            "ambiguous_entities": result["ambiguous_entities"],
+            "policy": "All candidate files are excluded from usable coverage and findings.",
+        })
+    return result
 
 
 def qualify(storage, profile_path, fixture, expected_path):

@@ -503,3 +503,55 @@ class CollectionTests(RuntimeCase):
             if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
                 self.assertEqual(expected, common.file_hash(next_run / name), name)
         self.assertEqual(coverage_before, common.tree_manifest(target))
+        with common.stage_state(next_run, "freeze", "Apache", "fixture"):
+            prepare.freeze(next_run, "Apache")
+        common.write_json(next_run / "detection/profiles/java.json", {"fixture": True})
+        report_name = "detection/results/one/attempts/failed/output/coverage.csv"
+        common.atomic_bytes(next_run / report_name, b"Package,Type\ndemo,Duplicate\n")
+        common.atomic_bytes(next_run / "detection/results/one/attempts/failed/output.err", b"fixture log\n")
+        common.write_json(next_run / "status/detect-Apache-java.json", {"status": "failed"})
+        detector_before = common.tree_manifest(next_run)
+        latest = self.storage / "runs/child-006"
+        with mock.patch.object(migration, "SOURCE_PATH_PARENT_SOURCE_SHA256", common.source_hash()):
+            original_copy = migration.atomic_bytes
+            def interrupted_report_copy(path, content):
+                if path.name == "coverage.csv":
+                    raise OSError("interrupted detector archive")
+                return original_copy(path, content)
+            with mock.patch.object(migration, "atomic_bytes", side_effect=interrupted_report_copy):
+                with self.assertRaisesRegex(OSError, "interrupted detector archive"):
+                    migration.migrate(latest, next_run)
+            with self.assertRaisesRegex(ValueError, "migration is incomplete"):
+                common.verify_study(latest)
+            migration.migrate(latest, next_run)
+            migration.migrate(latest, next_run)
+            self.assertFalse((latest / "detection").exists())
+            self.assertFalse((latest / "evidence").exists())
+            self.assertFalse((latest / "status/detect-Apache-java.json").exists())
+            self.assertEqual(common.file_hash(next_run / report_name),
+                             common.file_hash(latest / "parent" / report_name))
+            prepare.freeze(latest, "Apache")
+            self.assertEqual(common.file_hash(original / "study.json"), collection.review_study_hash(latest, "Apache"))
+            for name, expected in detector_before.items():
+                if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
+                    self.assertEqual(expected, common.file_hash(latest / name), name)
+            for forbidden in ("labels", "models", "reports"):
+                path = next_run / forbidden
+                path.mkdir()
+                try:
+                    with self.assertRaisesRegex(ValueError, "pre-label"):
+                        migration.migrate(self.storage / "runs/forbidden-label-state", next_run)
+                finally:
+                    path.rmdir()
+            archived = latest / "parent" / report_name
+            contents = archived.read_bytes()
+            archived.write_text("changed")
+            try:
+                with self.assertRaisesRegex(ValueError, "destination changed"):
+                    migration.migrate(latest, next_run)
+            finally:
+                archived.write_bytes(contents)
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            with self.assertRaisesRegex(ValueError, "preparation-only"):
+                migration.migrate(self.storage / "runs/unsupported-detector-parent", next_run)
+        self.assertEqual(detector_before, common.tree_manifest(next_run))
