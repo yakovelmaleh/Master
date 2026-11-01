@@ -1,4 +1,5 @@
 import copy
+import os
 from pathlib import Path
 import platform
 import sys
@@ -11,6 +12,65 @@ from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
 class DetectionTests(RuntimeCase):
+    def test_posix_names_survive_native_analysis_and_integrity_verification(self):
+        if os.name == "nt":
+            self.skipTest("POSIX-only source filenames")
+        self.frozen_study(1)
+        source = self.storage / "snapshot/source"
+        (source / "src").mkdir(parents=True)
+        name = "src/time:module.py"
+        fixture = "applications?maxDate=2015-02-03T10:42:40.000CST"
+        (source / name).write_text("pass\n")
+        (source / fixture).write_text("[]\n")
+        files = common.tree_manifest(source)
+        manifest = source.parent / "manifest.json"
+        common.write_json(manifest, {"files": files})
+        item = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                "snapshot_manifest_sha256": common.file_hash(manifest),
+                "files": [{"path": name, "language": "python", "status": "modified"}]}
+        profile = self.profile("python")
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+
+        def execute(tool, spec, copied, output):
+            self.assertEqual(files, common.tree_manifest(copied))
+            output.mkdir(parents=True)
+            pd.DataFrame([{"Path": name}]).to_csv(output / "coverage.csv", index=False)
+            for category, smell in (("implementation", "Long Method"), ("design", "Deficient Encapsulation")):
+                pd.DataFrame([{"Path": name, "Smell": smell, "Entity": "module"}]).to_csv(
+                    output / f"{category}.csv", index=False)
+            return detectors.parse_reports(output, copied, spec)
+
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors, "evidence_records", return_value=[{"status": "complete", "evidence": [item]}]), mock.patch.object(
+                detectors, "execute", side_effect=execute):
+            detectors.detect(self.root, self.storage, "Apache", profile_path)
+        key = detectors.detection_key(item, profile)
+        result = common.read_json(self.root / "detection/results" / key / "result.json")
+        self.assertEqual("succeeded", result["status"])
+        self.assertEqual([name], result["coverage"])
+        self.assertEqual(files, common.tree_manifest(source))
+
+    def test_windows_export_rejects_incompatible_context_before_copying(self):
+        profile = self.profile("csharp")
+        profile["platform"] = "Windows"
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+        cache = self.storage / "snapshot"
+        for index, name in enumerate(("fixtures/query?date=1", "fixtures/time:12")):
+            with self.subTest(name=name):
+                manifest = cache / "manifest.json"
+                common.write_json(manifest, {"files": {"src/A.cs": "a" * 64, name: "b" * 64}})
+                item = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(cache),
+                        "snapshot_manifest_sha256": common.file_hash(manifest),
+                        "files": [{"path": "src/A.cs", "language": "csharp"}]}
+                with mock.patch.object(windows, "evidence_records", return_value=[
+                        {"status": "complete", "evidence": [item]}]), mock.patch.object(windows.shutil, "copytree") as copytree:
+                    with self.assertRaisesRegex(ValueError, "not representable on Windows"):
+                        windows.export_work(self.root, "Apache", profile_path, self.storage / f"export-{index}")
+                    copytree.assert_not_called()
+                self.assertFalse((self.root / "detection").exists())
+
     def test_dpy_178_native_csv_schema_and_absolute_file_paths(self):
         source = self.storage / "python"
         source.mkdir()

@@ -1,5 +1,6 @@
 import io
 import json
+import os
 from pathlib import Path
 import tarfile
 from unittest import mock
@@ -65,6 +66,58 @@ class PreparationTests(RuntimeCase):
             stream.addfile(entry, io.BytesIO(b"class A"))
         evidence.extract_archive(archive, self.storage / "extract")
         self.assertEqual("class A", (self.storage / "extract/src/A.java").read_text())
+
+    def test_snapshot_preserves_literal_posix_fixture_names_and_checks_their_bytes(self):
+        if os.name == "nt":
+            self.skipTest("POSIX-only source filenames")
+        directory = "core/src/test/resources/HistoryServerExpectations/applications?maxDate=2015-02-03T10:42:40.000CST"
+        name = directory + "/json_expectation"
+        archive = self.storage / "spark.tar.gz"
+        files = {name: b'{"applications": []}\n', "src/A.java": b"class A {}\n"}
+        with tarfile.open(archive, "w:gz") as stream:
+            entry = tarfile.TarInfo("spark-735bc3d/" + directory)
+            entry.type = tarfile.DIRTYPE
+            stream.addfile(entry)
+            for path, content in files.items():
+                entry = tarfile.TarInfo("spark-735bc3d/" + path)
+                entry.size = len(content)
+                stream.addfile(entry, io.BytesIO(content))
+        source = self.storage / "source"
+        evidence.extract_archive(archive, source)
+        manifest = common.tree_manifest(source)
+        self.assertEqual(set(files), set(manifest), "No files may be omitted or renamed")
+        for path, content in files.items():
+            self.assertEqual(content, (source / path).read_bytes())
+        common.verify_original_files(source, manifest)
+        with self.assertRaisesRegex(ValueError, "Unsafe relative path"):
+            common.relative(name)
+        (source / name).write_bytes(b"changed")
+        with self.assertRaisesRegex(ValueError, "Analyzer modified original source"):
+            common.verify_original_files(source, manifest)
+
+    def test_source_paths_still_reject_traversal_drives_and_windows_incompatibility(self):
+        for name in ("", "/escape", "../escape", "a/../escape", "a/./b", "a//b",
+                     "a\\b", "a/\x00b", "a/\nb", "C:/escape", "C:escape", "//host/share"):
+            with self.subTest(name=name):
+                with self.assertRaises(ValueError):
+                    common.source_relative(name)
+        for name in ("fixtures/time:12", "fixtures/query?date=1", "fixtures/file.txt:stream",
+                     "src/A*.cs", "fixtures/NUL.txt", "fixtures/COM1", "fixtures/trailing."):
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(ValueError, "not representable on Windows"):
+                    common.source_relative(name, windows=True)
+        self.assertEqual("src/A.cs", common.source_relative("src/A.cs", windows=True).as_posix())
+        for name, kind in (("repo/../escape", tarfile.REGTYPE), ("repo/C:escape", tarfile.REGTYPE),
+                           ("repo/link", tarfile.SYMTYPE), ("repo/hard", tarfile.LNKTYPE)):
+            with self.subTest(archive_path=name, kind=kind):
+                archive = self.storage / "unsafe.tar.gz"
+                with tarfile.open(archive, "w:gz") as stream:
+                    entry = tarfile.TarInfo(name)
+                    entry.type = kind
+                    entry.linkname = "../escape"
+                    stream.addfile(entry)
+                with self.assertRaises(ValueError):
+                    evidence.extract_archive(archive, self.storage / "unsafe-output")
 
     def test_github_pagination_and_unmerged_pr(self):
         github = object.__new__(evidence.GitHub)
@@ -285,6 +338,21 @@ class PreparationTests(RuntimeCase):
         self.assertEqual(event["id"], result["provenance"]["closure_event_id"])
         self.assertEqual(f"/repos/a/b/commits/{commit['sha']}", github.get.call_args_list[-1].args[0])
         self.assertFalse(any("/pulls/12/files" in call.args[0] for call in github.get.call_args_list))
+
+    def test_changed_file_inventory_preserves_posix_names_including_previous_paths(self):
+        if os.name == "nt":
+            self.skipTest("POSIX-only source filenames")
+        github, info, event, commit, comparison = self.landed_fixture()
+        name = "fixtures/applications?maxDate=2015-02-03T10:42:40.000CST"
+        github.get.side_effect = [{"sha": "d" * 40}, info, [event], commit, comparison, {"files": [
+            {"filename": name, "status": "modified"},
+            {"filename": "src/new:module.py", "previous_filename": "src/old:module.py", "status": "renamed"},
+        ]}]
+        files = github.resolve("https://github.com/a/b/pull/12")["files"]
+        self.assertEqual(name, files[0]["path"])
+        self.assertIsNone(files[0]["language"])
+        self.assertEqual("python", files[1]["language"])
+        self.assertEqual("src/old:module.py", files[1]["previous_path"])
 
     def test_corrected_links_fetch_landed_snapshot_but_unknown_code_still_blocks_completeness(self):
         self.frozen_study(2)

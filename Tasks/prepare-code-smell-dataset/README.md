@@ -108,6 +108,15 @@ non-concrete commit-history links remain explicit exclusions.
 
 Full snapshots preserve project context,
 but labels apply only to associated changed `.java`, `.py` and `.cs` files.
+Source paths use native filename rules: on POSIX workers, literal `:` and `?`
+in repository filenames (such as Spark's timestamped test fixtures) are kept
+unchanged through extraction, changed-file resolution, analysis and integrity
+checks. They are not URLs and are never decoded, renamed or silently omitted.
+Traversal, absolute/drive paths, backslashes, control characters, links and
+special archive members remain rejected. Artifact/tool paths retain their
+stricter validation. Windows export preflights every snapshot filename,
+including non-C# context files, and fails on incompatible names rather than
+producing a partial snapshot or a clean label.
 Added and renamed files retain their post-change paths; deleted files cannot
 produce post-change labels. Multiple revisions are not a consolidated latest
 state or an introduced-smell experiment.
@@ -242,7 +251,11 @@ This is the `code-smells-002` format, including a verified earlier migration
 and approved unavailable Jira records. It also supports the `code-smells-003`
 runtime from PR #384 (source hash
 `a8776a676eea4425b8f8332e2cecca3def8bf38afd53b1fd0f0fa84e9594d335`),
-including its verified frozen import from `002`. All sources must have successful
+including its verified frozen import from `002`, and the `code-smells-004`
+runtime from PR #389 (source hash
+`4bfc7081a576c69d7fec9d179a5a00add07f73f5b85df1bbd53a3bf2ee9d4acd`).
+Use `004` to `005` after a snapshot filename failure; do not modify the old
+study's source hash or remove the offending fixture. All sources must have successful
 enrichment and freeze stages; running stages and detection, label, model, or
 report artifacts block this migration.
 
@@ -251,18 +264,18 @@ Use a new run ID; never replace the old run's source hash or edit its artifacts.
 Submit the following stages separately, waiting for each to succeed:
 
 ```bash
-bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-004 \
-  --from-run "$HOME/master-code-smells/runs/code-smells-003"
+"$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-005 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-004"
 
 # After migrate succeeds: revalidate all four sources without fetching Jira.
-bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-004
+"$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage freeze --storage "$HOME/master-code-smells" --run-id code-smells-005
 
 # After every freeze succeeds, use the shell with GITHUB_TOKEN exported.
-bash "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+"$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
   --stage fetch-code --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-004
+  --storage "$HOME/master-code-smells" --run-id code-smells-005
 ```
 
 Do not add `--pull` between stages. The migration preserves raw records, field
@@ -272,8 +285,8 @@ original study identity: the new run validates that identity through its
 hashed migration inventories and preserved parent-study chain, rather than fabricating
 new approvals or weakening collection checks. Any mismatch is a hard failure.
 Neither Jira recollection nor repartitioning is performed.
-For `003` to `004`, approvals still belong to their original `002` study, not
-to the immediate `003` parent. Every intervening frozen import must bind the
+For both `003` to `004` and `004` to `005`, approvals still belong to their
+original `002` study, not to the immediate parent. Every intervening frozen import must bind the
 same raw manifest, diagnostics and approval bytes. Earlier parent artifacts
 are retained under nested `parent/` directories.
 
@@ -288,7 +301,7 @@ For `code-smells-002`, the expected frozen feature counts remain Apache 758,
 IntelDAOS 235, MongoDB 5,088, and RedHat 6,905 (12,986 total), with 325 approved
 unavailable Jira candidates still excluded. Apache's 454/151/153 partition
 membership is unchanged. These are preparation counts, not final labeled counts.
-The same counts and membership must hold in `004`. The earlier Apache
+The same counts and membership must hold in `004` and `005`. The earlier Apache
 `003` fetch found 68 complete-evidence stories, not 68 detector-labeled stories.
 The corrected collector does not guarantee recovery to 100; a new fetch and
 complete detector coverage are still required before the unchanged training

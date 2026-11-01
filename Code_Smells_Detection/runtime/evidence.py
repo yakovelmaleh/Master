@@ -14,7 +14,7 @@ import requests
 
 from .common import (
     LANGUAGES, digest, external, file_hash, immutable_json, lock, now, read_json,
-    relative, tree_manifest, verify_study, verify_tree, write_json,
+    source_relative, tree_manifest, verify_study, verify_tree, write_json,
 )
 from .prepare import frozen_frame
 
@@ -235,13 +235,13 @@ class GitHub:
             raise ValueError("Expected full immutable Git commit IDs.")
         changed = []
         for item in files:
-            path = relative(item["filename"]).as_posix()
+            path = source_relative(item["filename"]).as_posix()
             status = item["status"]
             if status not in ("added", "modified", "removed", "renamed", "changed", "copied", "unchanged"):
                 raise EvidenceExcluded("unsupported_file_status")
             previous = item.get("previous_filename")
             if previous:
-                relative(previous)
+                source_relative(previous)
             language = LANGUAGES.get(Path(path).suffix.lower())
             changed.append({"path": path, "previous_path": previous, "status": status,
                             "language": language, "blob_sha": item.get("sha")})
@@ -283,7 +283,7 @@ def extract_archive(archive, destination, max_bytes=20 * 1024**3):
     total, seen, prefix = 0, set(), None
     with tarfile.open(archive, "r:gz") as stream:
         for item in stream:
-            original = relative(item.name.rstrip("/"))
+            original = source_relative(item.name.rstrip("/"))
             if prefix is None:
                 prefix = original.parts[0]
             if original.parts[0] != prefix:
@@ -291,7 +291,7 @@ def extract_archive(archive, destination, max_bytes=20 * 1024**3):
             if len(original.parts) == 1:
                 continue
             name = "/".join(original.parts[1:])
-            path = destination / relative(name)
+            path = destination / source_relative(name)
             if item.isdir():
                 path.mkdir(parents=True, exist_ok=True)
                 continue
