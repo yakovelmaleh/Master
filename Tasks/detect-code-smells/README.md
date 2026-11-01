@@ -77,8 +77,23 @@ arguments and an explicit `--source` for detection.
 
 Native logs and reports remain under the installed tool's `qualification/`
 and the study's `detection/results/<key>/attempts/`, including failed attempts.
-Missing reports, unknown catalog entries, unresolved/ambiguous source paths,
-modified input files and uncovered changed files fail the stage.
+Missing reports, unknown catalog entries, unresolved entities, modified input
+files and uncovered changed files fail the stage.
+
+Qualified-name-only reports can contain the same Java type name in multiple
+modules. A known ambiguity is recorded in `attribution.json` and the normalized
+result's `ambiguous_entities`. All candidate files are removed from usable
+coverage and findings, including otherwise uniquely named types in those
+files. The full snapshot is still analyzed: files are not removed, renamed,
+assigned by CSV order, or analyzed as separate module-only snapshots.
+
+Unrelated ambiguous files no longer block an otherwise completely covered
+story. If any associated changed file is a candidate, the existing required-file
+coverage gate still fails; that story cannot receive a clean label. An entity
+with no source match remains a hard error because its scope is unknown.
+Unknown smells and uniquely resolved findings outside reported coverage also
+remain errors. The qualification fixture's positives and clean controls must
+still be unambiguously covered.
 
 **Isolation is an operator prerequisite, not a sandbox implemented here.**
 Detector subprocesses omit Jira/GitHub credential environment variables, but
