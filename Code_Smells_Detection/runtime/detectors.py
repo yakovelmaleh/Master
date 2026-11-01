@@ -17,7 +17,7 @@ import requests
 
 from .common import (
     LANGUAGES, SCHEMA, digest, external, file_hash, identifier, immutable_json,
-    lock, now, read_json, relative, require_stage, tree_manifest, verify_study,
+    lock, now, read_json, relative, require_stage, source_relative, tree_manifest, verify_study,
     verify_original_files, verify_tree, write_csv, write_json,
 )
 from .prepare import frozen_frame
@@ -156,7 +156,7 @@ def report_path(row, spec, source, index):
         base = source.as_posix().rstrip("/") + "/"
         if value.startswith(base):
             value = value[len(base):]
-        relative(value)
+        source_relative(value)
         matches = index.get(value, set())
     else:
         columns = spec.get("qualified_columns", [])

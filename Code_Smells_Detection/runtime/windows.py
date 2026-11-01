@@ -7,7 +7,8 @@ import tempfile
 import uuid
 
 from .common import (
-    digest, file_hash, immutable_json, lock, read_json, relative, tree_manifest, verify_original_files, verify_tree,
+    digest, file_hash, immutable_json, lock, read_json, relative, source_relative,
+    tree_manifest, verify_original_files, verify_tree,
 )
 from .detectors import (
     detection_key, evidence_records, execute, install_profile, load_profile,
@@ -37,6 +38,8 @@ def export_work(root, source, profile_path, destination):
             if file_hash(cache / "manifest.json") != evidence["snapshot_manifest_sha256"]:
                 raise ValueError("Snapshot manifest changed.")
             files = read_json(cache / "manifest.json")["files"]
+            for name in files:
+                source_relative(name, windows=True)
             verify_tree(cache / "source", files)
             shutil.copytree(cache / "source", destination / "snapshots" / key)
             jobs[key] = {"required": required, "files": files}
@@ -60,6 +63,8 @@ def run_locked_work(bundle, storage):
     tool = qualified(storage, profile)
     results = {}
     for key, job in work["jobs"].items():
+        for name in job["files"]:
+            source_relative(name, windows=True)
         source = bundle / "snapshots" / key
         verify_tree(source, job["files"])
         destination = bundle / "results" / key

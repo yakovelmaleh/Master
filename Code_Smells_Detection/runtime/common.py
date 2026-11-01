@@ -4,7 +4,7 @@ import contextlib
 import hashlib
 import json
 import os
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import sys
 import tempfile
@@ -39,11 +39,23 @@ def identifier(value):
 
 
 def relative(value):
-    path = PurePosixPath(value)
-    if (not value or "\\" in value or path.is_absolute() or
-            any(part in ("", ".", "..") for part in value.split("/")) or
-            any(ord(char) < 32 for char in value) or ":" in value):
+    path = source_relative(value)
+    if ":" in value:
         raise ValueError(f"Unsafe relative path: {value!r}")
+    return path
+
+
+def source_relative(value, *, windows=False):
+    path = PurePosixPath(value)
+    if (not value or "\\" in value or path.is_absolute() or PureWindowsPath(value).drive or
+            any(part in ("", ".", "..") for part in value.split("/")) or
+            any(ord(char) < 32 for char in value)):
+        raise ValueError(f"Unsafe relative path: {value!r}")
+    # Source names are literal POSIX names, not URLs or portable artifact identifiers.
+    if windows or os.name == "nt":
+        if any(re.search(r'[<>:"|?*]', part) or part.endswith((".", " ")) or
+               PureWindowsPath(part).is_reserved() for part in path.parts):
+            raise ValueError(f"Source path is not representable on Windows: {value!r}")
     return path
 
 
@@ -181,7 +193,7 @@ def verify_tree(root, manifest):
 
 def verify_original_files(root, manifest):
     for name, expected in manifest.items():
-        path = Path(root) / relative(name)
+        path = Path(root) / source_relative(name)
         if path.is_symlink() or not path.is_file() or file_hash(path) != expected:
             raise ValueError(f"Analyzer modified original source: {name}")
 

@@ -487,3 +487,19 @@ class CollectionTests(RuntimeCase):
                         path.write_bytes(content)
         self.assertEqual(original_before, common.tree_manifest(original))
         self.assertEqual(parent_before, common.tree_manifest(parent))
+        with common.stage_state(target, "freeze", "Apache", "fixture"):
+            prepare.freeze(target, "Apache")
+        common.write_json(target / "evidence/resolved/fixture.json", {"status": "resolved", "value": {}})
+        common.write_json(target / "status/fetch-code-Apache.json", {"status": "failed", "error_type": "ValueError"})
+        coverage_before = common.tree_manifest(target)
+        next_run = self.storage / "runs/child-005"
+        with mock.patch.object(migration, "COVERAGE_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(next_run, target)
+            migration.migrate(next_run, target)
+        prepare.freeze(next_run, "Apache")
+        self.assertFalse((next_run / "evidence").exists())
+        self.assertEqual(common.file_hash(original / "study.json"), collection.review_study_hash(next_run, "Apache"))
+        for name, expected in coverage_before.items():
+            if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
+                self.assertEqual(expected, common.file_hash(next_run / name), name)
+        self.assertEqual(coverage_before, common.tree_manifest(target))
