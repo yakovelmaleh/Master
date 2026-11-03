@@ -120,6 +120,8 @@ def csv_report(output, specification):
         reader = csv.DictReader(stream)
         headers = set(reader.fieldnames or [])
         required = set(specification.get("required_columns", []))
+        required.update(specification.get("qualified_columns", []))
+        required.update(specification.get("entity_columns", []))
         required.update(specification[name] for name in ("path_column", "smell_column")
                         if specification.get(name))
         if not headers or required - headers:
@@ -202,8 +204,6 @@ def parse_reports(output, source, profile):
     findings = [value for value in findings.values() if value["path"] not in blocked]
     if any(value["path"] not in coverage for value in findings):
         raise ValueError("Finding is outside reported analyzed-file coverage.")
-    if not coverage:
-        raise ValueError("Detector reported no unambiguously analyzed source files.")
     result = {"coverage": sorted(coverage), "findings": findings}
     if ambiguous:
         result["ambiguous_entities"] = [
@@ -325,11 +325,35 @@ def register_profile(root, profile):
     immutable_json(root / "detection/profiles" / (profile["language"] + ".json"), profile)
 
 
+def load_result(directory, key, profile):
+    value = read_json(directory / "result.json")
+    if (value["status"] not in ("analyzed", "succeeded") or value["key"] != key or
+            value["profile_sha256"] != digest(profile)):
+        raise ValueError("Detector manifest is invalid.")
+    verify_tree(directory / "reports", value["reports"])
+    return value
+
+
 def detect(root, storage, source, profile_path):
     verify_study(root)
     profile = load_profile(profile_path)
     tool = qualified(storage, profile)
     register_profile(root, profile)
+    coverage_path = root / "detection/coverage" / f"{source}-{profile['language']}.json"
+    items = []
+
+    def save_coverage(scan_complete=False):
+        incomplete = sorted({item["row_id"] for item in items if item["missing_files"]})
+        write_json(coverage_path, {
+            "source": source, "language": profile["language"],
+            "study_sha256": file_hash(root / "study.json"),
+            "split_sha256": file_hash(root / "splits" / f"{source}.json"),
+            "profile_sha256": digest(profile), "scan_complete": scan_complete,
+            "items": items, "incomplete_stories": incomplete,
+        })
+        return incomplete
+
+    save_coverage()
     for record in evidence_records(root, source):
         if record["status"] != "complete":
             continue
@@ -341,34 +365,39 @@ def detect(root, storage, source, profile_path):
             destination = root / "detection/results" / key
             with lock(destination.with_suffix(".lock"), wait=True):
                 if (destination / "result.json").exists():
-                    value = read_json(destination / "result.json")
-                    if value["key"] != key or not required <= set(value["coverage"]):
-                        raise ValueError("Cached detector result is incomplete.")
-                    verify_tree(destination / "reports", value["reports"])
-                    continue
-                cache = Path(evidence["snapshot"])
-                if file_hash(cache / "manifest.json") != evidence["snapshot_manifest_sha256"]:
-                    raise ValueError("Snapshot manifest changed.")
-                snapshot = read_json(cache / "manifest.json")
-                verify_tree(cache / "source", snapshot["files"])
-                destination.mkdir(parents=True, exist_ok=True)
-                with tempfile.TemporaryDirectory(prefix="analysis-", dir=destination) as scratch:
-                    workspace = Path(scratch) / "source"
-                    shutil.copytree(cache / "source", workspace)
-                    output = destination / "attempts" / uuid.uuid4().hex / "output"
-                    result = execute(tool, profile, workspace, output)
-                    verify_original_files(workspace, snapshot["files"])
-                    if not required <= set(result["coverage"]):
-                        raise ValueError("Detector did not analyze every associated changed file.")
-                    raw_output = destination / "reports"
-                    if raw_output.exists():
-                        verify_tree(raw_output, tree_manifest(output))
-                    else:
-                        shutil.copytree(output, raw_output)
-                immutable_json(destination / "result.json", {
-                    "key": key, "profile_sha256": digest(profile), **result,
-                    "reports": tree_manifest(raw_output), "status": "succeeded",
+                    result = load_result(destination, key, profile)
+                else:
+                    cache = Path(evidence["snapshot"])
+                    if file_hash(cache / "manifest.json") != evidence["snapshot_manifest_sha256"]:
+                        raise ValueError("Snapshot manifest changed.")
+                    snapshot = read_json(cache / "manifest.json")
+                    verify_tree(cache / "source", snapshot["files"])
+                    destination.mkdir(parents=True, exist_ok=True)
+                    with tempfile.TemporaryDirectory(prefix="analysis-", dir=destination) as scratch:
+                        workspace = Path(scratch) / "source"
+                        shutil.copytree(cache / "source", workspace)
+                        output = destination / "attempts" / uuid.uuid4().hex / "output"
+                        result = execute(tool, profile, workspace, output)
+                        verify_original_files(workspace, snapshot["files"])
+                        raw_output = destination / "reports"
+                        if raw_output.exists():
+                            verify_tree(raw_output, tree_manifest(output))
+                        else:
+                            shutil.copytree(output, raw_output)
+                    immutable_json(destination / "result.json", {
+                        "key": key, "profile_sha256": digest(profile), **result,
+                        "reports": tree_manifest(raw_output), "status": "analyzed",
+                    })
+                missing = sorted(required - set(result["coverage"]))
+                items.append({
+                    "row_id": record["row_id"], "key": key, "required_files": sorted(required),
+                    "missing_files": missing, "status": "incomplete" if missing else "complete",
                 })
+            save_coverage()
+    incomplete = save_coverage(scan_complete=True)
+    if incomplete:
+        raise ValueError(f"Detector coverage incomplete for {len(incomplete)} stories after processing "
+                         f"remaining snapshots; inspect {coverage_path}")
 
 
 def labels(root, exclusions_path=None):
@@ -411,11 +440,7 @@ def labels(root, exclusions_path=None):
                     if not (directory / "result.json").exists():
                         missing.append(key)
                         continue
-                    result = read_json(directory / "result.json")
-                    if (result["status"] != "succeeded" or result["key"] != key or
-                            result["profile_sha256"] != digest(profile)):
-                        raise ValueError("Detector manifest is invalid.")
-                    verify_tree(directory / "reports", result["reports"])
+                    result = load_result(directory, key, profile)
                     required = {item["path"] for item in evidence["files"] if item["language"] == language}
                     if not required <= set(result["coverage"]):
                         missing.append(key)

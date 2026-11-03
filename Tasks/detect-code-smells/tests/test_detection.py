@@ -84,7 +84,12 @@ class DetectionTests(RuntimeCase):
         self.ambiguous_java_reports(output)
         pd.DataFrame(columns=["Package", "Type", "Smell"]).to_csv(output / "implementation.csv", index=False)
         pd.DataFrame([{"Package": "demo", "Type": "BucketService"}]).to_csv(output / "coverage.csv", index=False)
-        with self.assertRaisesRegex(ValueError, "no unambiguously analyzed"):
+        result = detectors.parse_reports(output, source, profile)
+        self.assertEqual([], result["coverage"])
+        self.assertEqual([], result["findings"])
+        self.assertTrue(result["ambiguous_entities"])
+        (output / "coverage.csv").write_text("Wrong,Headers\n")
+        with self.assertRaisesRegex(ValueError, "Unexpected .* schema"):
             detectors.parse_reports(output, source, profile)
 
     def test_detection_accepts_unrelated_ambiguity_but_never_covers_affected_changed_files(self):
@@ -104,24 +109,152 @@ class DetectionTests(RuntimeCase):
                     self.ambiguous_java_reports(Path(kwargs["cwd"]) / "output")
                 with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
                         detectors, "evidence_records", return_value=[
-                            {"status": "complete", "evidence": [item]}]), mock.patch.object(
+                            {"row_id": "Apache:TEST-0", "status": "complete", "evidence": [item]}]), mock.patch.object(
                         detectors.subprocess, "run", side_effect=execute_native):
                     if required == "src/Changed.java":
                         detectors.detect(self.root, self.storage, "Apache", profile_path)
                     else:
-                        with self.assertRaisesRegex(ValueError, "every associated changed file"):
+                        with self.assertRaisesRegex(ValueError, "coverage incomplete"):
                             detectors.detect(self.root, self.storage, "Apache", profile_path)
                 directory = self.root / "detection/results" / detectors.detection_key(item, profile)
                 attribution = list(directory.glob("attempts/*/output/attribution.json"))
                 self.assertEqual(1, len(attribution), "Ambiguity diagnostics survive successful and failed attempts")
                 self.assertEqual("demo.BucketService", common.read_json(attribution[0])["ambiguous_entities"][0]["entity"])
-                if required == "src/Changed.java":
-                    result = common.read_json(directory / "result.json")
-                    self.assertEqual(["src/Changed.java"], result["coverage"])
-                    self.assertIn("attribution.json", result["reports"])
-                else:
-                    self.assertFalse((directory / "result.json").exists(), "No successful or negative label artifact")
+                result = common.read_json(directory / "result.json")
+                self.assertEqual("analyzed", result["status"])
+                self.assertEqual(["src/Changed.java"], result["coverage"])
+                self.assertIn("attribution.json", result["reports"])
+                coverage = common.read_json(self.root / "detection/coverage/Apache-java.json")
+                self.assertTrue(coverage["scan_complete"])
+                self.assertEqual([] if required == "src/Changed.java" else [required],
+                                 coverage["items"][0]["missing_files"])
+                self.assertFalse((self.root / "labels/story_labels.csv").exists())
                 self.assertEqual(files, common.tree_manifest(source))
+
+    def test_coverage_gaps_continue_resume_and_require_review_before_whole_story_exclusion(self):
+        _, assignment = self.frozen_study(4)
+        split_before = (self.root / "splits/Apache.json").read_bytes()
+        source, profile = self.ambiguous_java_fixture()
+        (source / "src/Action.java").write_text("package demo; enum Action { CREATE }")
+        common.write_json(source.parent / "manifest.json", {"files": common.tree_manifest(source)})
+        first = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                 "snapshot_manifest_sha256": common.file_hash(source.parent / "manifest.json")}
+        records = []
+        requests = [
+            (first, ["one/BucketService.java", "src/Action.java", "src/Changed.java"]),
+            (first, ["src/Changed.java"]),
+        ]
+        for repository, name, content in (
+                ("a/clean", "Control.java", "package demo; class Control {}"),
+                ("a/enum", "Action.java", "package demo; enum Action { CREATE }")):
+            snapshot = self.storage / repository / "snapshot"
+            (snapshot / "source/src").mkdir(parents=True)
+            (snapshot / "source/src" / name).write_text(content)
+            common.write_json(snapshot / "manifest.json", {"files": common.tree_manifest(snapshot / "source")})
+            requests.append(({
+                "repository": repository, "revision": "b" * 40, "snapshot": str(snapshot),
+                "snapshot_manifest_sha256": common.file_hash(snapshot / "manifest.json"),
+            }, ["src/" + name]))
+        for index, (snapshot, paths) in enumerate(requests):
+            item = {**snapshot, "files": [
+                {"path": path, "language": "java", "status": "modified"} for path in paths]}
+            row_id = f"Apache:TEST-{index}"
+            records.append({"row_id": row_id, "source": "Apache", "partition": assignment[row_id],
+                            "status": "complete", "evidence": [item]})
+        manifest = {}
+        for record in records:
+            path = self.root / "evidence/Apache" / (record["row_id"].split(":")[1] + ".json")
+            common.write_json(path, record)
+            manifest[record["row_id"]] = common.file_hash(path)
+        common.write_json(self.root / "evidence/Apache/manifest.json", {
+            "records": manifest, "split_sha256": common.file_hash(self.root / "splits/Apache.json")})
+        self.succeeded("fetch-code", "Apache")
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+
+        def execute_native(*args, **kwargs):
+            output = Path(kwargs["cwd"]) / "output"
+            if (Path(args[0][1]) / "one").exists():
+                self.ambiguous_java_reports(output)
+            else:
+                types = ["Control"] if (Path(args[0][1]) / "src/Control.java").exists() else []
+                pd.DataFrame([{"Package": "demo", "Type": name} for name in types],
+                             columns=["Package", "Type"]).to_csv(output / "coverage.csv", index=False)
+                for category in ("implementation", "design"):
+                    pd.DataFrame(columns=["Package", "Type", "Smell"]).to_csv(
+                        output / f"{category}.csv", index=False)
+
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=execute_native) as runner:
+            with self.assertRaisesRegex(ValueError, "coverage incomplete for 2 stories"):
+                with common.stage_state(self.root, "detect", "Apache-java", "fixture"):
+                    detectors.detect(self.root, self.storage, "Apache", profile_path)
+            self.assertEqual(3, runner.call_count, "Continue after gaps; shared snapshots run only once.")
+            self.assertEqual("failed", common.read_json(self.root / "status/detect-Apache-java.json")["status"])
+            runner.reset_mock()
+            with self.assertRaisesRegex(ValueError, "coverage incomplete for 2 stories"):
+                detectors.detect(self.root, self.storage, "Apache", profile_path)
+            runner.assert_not_called()
+        coverage = common.read_json(self.root / "detection/coverage/Apache-java.json")
+        self.assertTrue(coverage["scan_complete"])
+        self.assertEqual(["Apache:TEST-0", "Apache:TEST-3"], coverage["incomplete_stories"])
+        self.assertEqual(["one/BucketService.java", "src/Action.java"], coverage["items"][0]["missing_files"])
+        self.assertEqual(["incomplete", "complete", "complete", "incomplete"],
+                         [item["status"] for item in coverage["items"]])
+        self.assertEqual([], common.read_json(
+            self.root / "detection/results" / coverage["items"][3]["key"] / "result.json")["coverage"])
+        with self.assertRaisesRegex(ValueError, "missing/incomplete"):
+            detectors.labels(self.root)
+        self.assertFalse((self.root / "labels/story_labels.csv").exists())
+        self.assertEqual({"complete": 2, "incomplete": 2},
+                         common.read_json(self.root / "labels/coverage.json")["status_counts"])
+        exclusions = self.storage / "exclusions.json"
+        for review in ({"Apache:TEST-0": "Reviewed ambiguity and missing enum coverage"},
+                       {"Apache:TEST-1": "Cannot exclude this completely covered story"}):
+            common.write_json(exclusions, review)
+            with self.assertRaises(ValueError):
+                detectors.labels(self.root, exclusions)
+            self.assertFalse((self.root / "labels/story_labels.csv").exists())
+        common.write_json(exclusions, {
+            "Apache:TEST-0": "Reviewed ambiguity and missing enum coverage",
+            "Apache:TEST-3": "Reviewed empty native enum coverage",
+        })
+        detectors.labels(self.root, exclusions)
+        labels = pd.read_csv(self.root / "labels/story_labels.csv")
+        self.assertEqual(["Apache:TEST-1", "Apache:TEST-2"], labels.row_id.tolist())
+        self.assertEqual([1, 0], labels.any_supported_smell.tolist())
+        self.assertEqual(split_before, (self.root / "splits/Apache.json").read_bytes())
+        self.assertEqual(100, common.read_json(self.root / "study.json")["min_rows"])
+        incomplete_report = (self.root / "detection/results" / coverage["items"][0]["key"]
+                             / "reports/coverage.csv")
+        incomplete_report.write_text("changed")
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run") as runner:
+            with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+                detectors.detect(self.root, self.storage, "Apache", profile_path)
+            runner.assert_not_called()
+        with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+            detectors.labels(self.root, exclusions)
+
+    def test_native_execution_errors_still_abort_without_claiming_completed_scan(self):
+        self.frozen_study(2)
+        source, profile = self.ambiguous_java_fixture()
+        common.write_json(source.parent / "manifest.json", {"files": common.tree_manifest(source)})
+        item = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                "snapshot_manifest_sha256": common.file_hash(source.parent / "manifest.json"),
+                "files": [{"path": "src/Changed.java", "language": "java", "status": "modified"}]}
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+        records = [{"row_id": f"Apache:TEST-{index}", "status": "complete", "evidence": [item]}
+                   for index in range(2)]
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors, "evidence_records", return_value=records), mock.patch.object(
+                detectors.subprocess, "run", side_effect=RuntimeError("Native execution failed")) as runner:
+            with self.assertRaisesRegex(RuntimeError, "Native execution failed"):
+                detectors.detect(self.root, self.storage, "Apache", profile_path)
+            self.assertEqual(1, runner.call_count)
+        self.assertFalse(common.read_json(self.root / "detection/coverage/Apache-java.json")["scan_complete"])
+        self.assertEqual([], list((self.root / "detection/results").glob("*/result.json")))
 
     def test_posix_names_survive_native_analysis_and_integrity_verification(self):
         if os.name == "nt":
@@ -153,12 +286,13 @@ class DetectionTests(RuntimeCase):
             return detectors.parse_reports(output, copied, spec)
 
         with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
-                detectors, "evidence_records", return_value=[{"status": "complete", "evidence": [item]}]), mock.patch.object(
+                detectors, "evidence_records", return_value=[
+                    {"row_id": "Apache:TEST-0", "status": "complete", "evidence": [item]}]), mock.patch.object(
                 detectors, "execute", side_effect=execute):
             detectors.detect(self.root, self.storage, "Apache", profile_path)
         key = detectors.detection_key(item, profile)
         result = common.read_json(self.root / "detection/results" / key / "result.json")
-        self.assertEqual("succeeded", result["status"])
+        self.assertEqual("analyzed", result["status"])
         self.assertEqual([name], result["coverage"])
         self.assertEqual(files, common.tree_manifest(source))
 
@@ -244,12 +378,18 @@ class DetectionTests(RuntimeCase):
         self.assertEqual(result, detectors.qualify(self.storage, profile_path, fixture, expected_path))
         self.assertEqual(1, len(list((installed / "qualification").glob("*/attempts/*/output.out"))))
 
+        (fixture / "src/Action.java").write_text("enum Action { CREATE }")
+        expected["clean_files"].append("src/Action.java")
+        common.write_json(expected_path, expected)
+        with self.assertRaisesRegex(ValueError, "Known-clean controls were not analyzed"):
+            detectors.qualify(self.storage, profile_path, fixture, expected_path)
+        expected["clean_files"].remove("src/Action.java")
         expected["positive"][0]["smell"] = "Missing expected smell"
         common.write_json(expected_path, expected)
         with self.assertRaisesRegex(ValueError, "misses expected"):
             detectors.qualify(self.storage, profile_path, fixture, expected_path)
         logs = list((installed / "qualification").glob("*/attempts/*/output.out"))
-        self.assertEqual(2, len(logs), "Failed qualification must preserve raw logs.")
+        self.assertEqual(3, len(logs), "Failed qualification must preserve raw logs.")
         self.assertTrue(all("fixture analyzer complete" in path.read_text() for path in logs))
         qualified = common.read_json(installed / "qualified.json")
         report = installed / "qualification" / qualified["qualification"] / "reports/design.csv"

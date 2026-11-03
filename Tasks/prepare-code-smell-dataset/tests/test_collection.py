@@ -555,3 +555,41 @@ class CollectionTests(RuntimeCase):
             with self.assertRaisesRegex(ValueError, "preparation-only"):
                 migration.migrate(self.storage / "runs/unsupported-detector-parent", next_run)
         self.assertEqual(detector_before, common.tree_manifest(next_run))
+        with common.stage_state(latest, "freeze", "Apache", "fixture"):
+            prepare.freeze(latest, "Apache")
+        common.atomic_bytes(latest / report_name, b"Package,Type\ndemo,Changed\n")
+        common.write_json(latest / "detection/results/one/attempts/failed/output/attribution.json", {
+            "ambiguous_entities": [{"entity": "demo.Duplicate", "candidate_paths": ["a/A.java", "b/A.java"]}]})
+        common.write_json(latest / "status/detect-Apache-java.json", {"status": "failed"})
+        attribution_before = common.tree_manifest(latest)
+        child = self.storage / "runs/child-007"
+        with mock.patch.object(migration, "ATTRIBUTION_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(child, latest)
+            migration.migrate(child, latest)
+            prepare.freeze(child, "Apache")
+            self.assertEqual(common.file_hash(original / "study.json"), collection.review_study_hash(child, "Apache"))
+            self.assertFalse((child / "evidence").exists())
+            self.assertFalse((child / "detection").exists())
+            self.assertFalse((child / "status/detect-Apache-java.json").exists())
+            for name, expected in attribution_before.items():
+                if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
+                    self.assertEqual(expected, common.file_hash(child / name), name)
+                elif name.startswith("detection/"):
+                    self.assertEqual(expected, common.file_hash(child / "parent" / name), name)
+            for forbidden in ("labels", "models", "reports"):
+                path = latest / forbidden
+                path.mkdir()
+                try:
+                    with self.assertRaisesRegex(ValueError, "pre-label"):
+                        migration.migrate(self.storage / "runs/rejected-007", latest)
+                finally:
+                    path.rmdir()
+            status_path = latest / "status/detect-Apache-java.json"
+            status = status_path.read_bytes()
+            common.write_json(status_path, {"status": "running"})
+            try:
+                with self.assertRaisesRegex(ValueError, "running stage"):
+                    migration.migrate(self.storage / "runs/rejected-007", latest)
+            finally:
+                status_path.write_bytes(status)
+        self.assertEqual(attribution_before, common.tree_manifest(latest))

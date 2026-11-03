@@ -78,7 +78,7 @@ arguments and an explicit `--source` for detection.
 Native logs and reports remain under the installed tool's `qualification/`
 and the study's `detection/results/<key>/attempts/`, including failed attempts.
 Missing reports, unknown catalog entries, unresolved entities, modified input
-files and uncovered changed files fail the stage.
+files and native execution/license errors still stop the stage immediately.
 
 Qualified-name-only reports can contain the same Java type name in multiple
 modules. A known ambiguity is recorded in `attribution.json` and the normalized
@@ -88,12 +88,44 @@ files. The full snapshot is still analyzed: files are not removed, renamed,
 assigned by CSV order, or analyzed as separate module-only snapshots.
 
 Unrelated ambiguous files no longer block an otherwise completely covered
-story. If any associated changed file is a candidate, the existing required-file
-coverage gate still fails; that story cannot receive a clean label. An entity
+story. If any associated changed file is a candidate, the required-file
+coverage gate still fails; that story cannot receive any label. An entity
 with no source match remains a hard error because its scope is unknown.
 Unknown smells and uniquely resolved findings outside reported coverage also
 remain errors. The qualification fixture's positives and clean controls must
 still be unambiguously covered.
+
+### Incomplete coverage accounting
+
+Valid native reports are saved once per pinned snapshot/profile with
+`result.json` status `analyzed`. This means the reports were parsed and checked,
+**not** that every changed file was covered. Existing successful Windows results
+remain supported. Each story is checked independently against the result's usable
+coverage, even when other stories share the same snapshot.
+
+Coverage gaps do not stop the remaining native snapshot analyses.
+`detection/coverage/<source>-<language>.json` records each story/snapshot's
+required and missing files, its complete/incomplete status, and the affected
+story IDs. `scan_complete: true` means every applicable item was checked, not
+that coverage is complete. A hard error leaves `scan_complete: false`.
+After the scan, any incomplete story still makes the detection stage **fail**,
+with an error pointing to that report. A retry verifies and reuses the saved
+native reports, including coverage-limited results; it does not blindly rerun
+unchanged snapshots or turn a cached coverage gap into success.
+
+Header-valid empty reports also provide no coverage, not negative labels.
+Qualification still requires both known positives and covered clean controls.
+A controlled macOS probe of the pinned Java Community JAR
+(`92b17ae9d286a6d932d3bc67a5b1763e876ea4776275619a18fb3ede48765dc4`)
+reported an ordinary class but omitted two standalone enums, one with methods.
+This is a demonstrated coverage limitation of that artifact on that fixture,
+not evidence that enum files are clean or a claim about all Java detector editions.
+Required enum files are not dropped or automatically excluded.
+
+Review the coverage report and native attempts before proposing any exclusions.
+Final labels still require complete coverage of every supported language for
+each retained story. A source scan may finish with recorded gaps, but neither
+it nor an `analyzed` result authorizes automatic whole-story exclusions.
 
 **Isolation is an operator prerequisite, not a sandbox implemented here.**
 Detector subprocesses omit Jira/GitHub credential environment variables, but
@@ -148,7 +180,8 @@ attestation of an untrusted worker.
 
 ## Final labels
 
-After every required language/source has completed:
+After every required language/source has been processed and any remaining
+coverage gaps have been explicitly reviewed:
 
 ```bash
 bash Tasks/run_cluster_task.sh detect-code-smells \
