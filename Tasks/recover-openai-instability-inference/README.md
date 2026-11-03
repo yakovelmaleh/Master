@@ -149,6 +149,50 @@ cd "$HOME/Master/Tasks/recover-openai-instability-inference"
    `openai-runs/<run-id>/recovery/llm_report.json`. A complete report and its
    performance gates are separate outcomes.
 
+### One-command cluster launcher after activation
+
+From the repository root, no long pasted job script is needed:
+
+```bash
+bash Tasks/recover-openai-instability-inference/cluster/submit_jobs.sh
+```
+
+Defaults match the existing `openai-prompt-01` study and `master-openai`
+environment: main partition, two CPUs, 8 GB RAM, 48-hour walltime, no requeue,
+and **MailType=ALL** to the existing configured university email address.
+Use `--mail-user ADDRESS` to override the recipient or `--dry-run` to inspect
+the generated script without querying the scheduler or submitting.
+
+The launcher finds the private `recovery-approved*.json` file whose exact hash
+matches the successful local activation record; it never chooses by date.
+If multiple copies match, supply the exact `--review PATH`. `--storage` and
+`--run-id` override the default study location explicitly.
+
+It submits only the activated remaining test batches, followed by the annotated
+report. Each batch still uses the approved recovery CLI and its cloud authority;
+the launcher performs no new inspection, authorization, activation, or model
+call on the login node.
+
+An empty queue alone is not proof that a pasted script never ran. The launcher
+also rejects an existing recovery `*.started` marker, including the previous
+hand-pasted script's marker, and retains a submission journal before calling
+`sbatch`. A failed or ambiguous submission is never retried automatically.
+Keep all markers and journals if an error occurs.
+
+The generated job script, submission journal, per-job progress, and SLURM logs
+are stored privately under `recovery/jobs/<review-hash>/`. The worker rejects
+changed launch files, source/review mismatches, and duplicate starts. It stops
+at the first command failure without scheduling further batches.
+
+Only the new `cluster/` directory and launcher tests/documentation are involved.
+They are outside the already-approved recovery implementation fingerprint;
+installing the launcher does not require changing or regenerating the active
+recovery approval. Do not overwrite the task-root Python files or frozen study.
+For an already-activated checkout, fetch the reviewed merge revision and extract
+only `Tasks/recover-openai-instability-inference/cluster/` from it with
+`git archive`, rather than pulling the whole repository. Then use the short
+launcher command above; do not repeat inspection or activation.
+
 ## Evidence and reporting
 
 Stage status is written under `recovery/status/`, leaving original failure/status
