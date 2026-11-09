@@ -23,6 +23,47 @@ from .common import (
 from .prepare import frozen_frame
 
 
+JAVA_COMMUNITY_SHA256 = "92b17ae9d286a6d932d3bc67a5b1763e876ea4776275619a18fb3ede48765dc4"
+NATIVE_GAPS = {
+    "magic_number_literal": r'Exception while parsing literal number \(during Magic Number detection\)\. '
+                            r'For input string: "[^\r\n"]*"',
+    "ancestor_memory_overflow": r"Ancestors analysis skipped due to memory overflow\.",
+    "cyclic_dependency_memory_overflow": r"Cyclic dependency analysis skipped due to memory overflow\.",
+}
+
+
+class NativeAnalysisIncomplete(ValueError):
+    def __init__(self, reasons):
+        self.reasons = sorted(reasons)
+        super().__init__("Incomplete native analysis: " + ", ".join(self.reasons))
+
+
+def check_native_messages(messages, profile):
+    # Licensing and unknown errors must never be swallowed by the bounded policy.
+    if re.search(r"(?i)trial|licen[cs]e.*(?:invalid|expired|restrict|missing|fail|not found|not valid|required)",
+                 messages):
+        raise ValueError("Detector reports a license/trial message; inspect its logs.")
+    reasons = []
+    remaining = messages
+    if profile["language"] == "java" and any(
+            item["name"] == "DesigniteJavaCommunity.jar" and item["sha256"] == JAVA_COMMUNITY_SHA256
+            for item in profile["artifacts"]):
+        for reason, pattern in NATIVE_GAPS.items():
+            if re.search(pattern, messages):
+                reasons.append(reason)
+                remaining = re.sub(pattern, "", remaining)
+    patterns = [
+        r"(?i)parse error", r"(?i)failed to (?:parse|analy[sz]e|load)", r"(?i)exception",
+        r"(?i)analysis skipped|memory overflow",
+        r"\b[A-Za-z_$][\w.$]*Error\b", r"(?im)^\s*(?:fatal|error)\b",
+    ]
+    for pattern in patterns + profile.get("failure_patterns", []):
+        if re.search(pattern, remaining):
+            raise ValueError("Detector reports incomplete/restricted analysis; inspect its logs.")
+    if reasons:
+        raise NativeAnalysisIncomplete(reasons)
+
+
 def load_profile(path):
     profile = read_json(path)
     required = {"language", "edition", "version", "origin", "platform", "artifacts",
@@ -235,11 +276,7 @@ def execute(tool_root, profile, source, output):
                        env=environment, timeout=profile.get("timeout_seconds", 14400))
     messages = "\n".join((output.parent / (output.name + suffix)).read_text(errors="replace")
                          for suffix in (".out", ".err"))
-    for pattern in profile.get("failure_patterns", [
-            r"(?i)trial", r"(?i)license.*(?:invalid|expired|restrict)", r"(?i)parse error",
-            r"(?i)failed to (?:parse|analy[sz]e|load)", r"(?i)exception"]):
-        if re.search(pattern, messages):
-            raise ValueError("Detector reports incomplete/restricted analysis; inspect its logs.")
+    check_native_messages(messages, profile)
     result = parse_reports(output, source, profile)
     if result.get("ambiguous_entities"):
         write_json(output / "attribution.json", {
@@ -334,11 +371,98 @@ def load_result(directory, key, profile):
     return value
 
 
-def detect(root, storage, source, profile_path):
+def load_failure(directory, key, profile):
+    value = read_json(directory / "failure.json")
+    if (value["status"] != "incomplete" or value["key"] != key or
+            value["profile_sha256"] != digest(profile) or not value["reasons"] or
+            set(value["reasons"]) - set(NATIVE_GAPS)):
+        raise ValueError("Native failure manifest is invalid.")
+    attempt = directory / relative(value["attempt"])
+    verify_tree(attempt, value["reports"])
+    messages = "\n".join((attempt / name).read_text(errors="replace") for name in ("output.out", "output.err"))
+    try:
+        check_native_messages(messages, profile)
+    except NativeAnalysisIncomplete as error:
+        if error.reasons == value["reasons"]:
+            return value
+    raise ValueError("Native failure reasons differ from preserved logs.")
+
+
+def exclusion_policy(root, source, limit=None):
+    path = root / "detection/policies" / f"{identifier(source)}.json"
+    if limit is None:
+        if not path.exists():
+            return None
+        limit = read_json(path)["max_incomplete_stories"]
+    if type(limit) is not int or not 0 <= limit <= 10 or limit and source != "Apache":
+        raise ValueError("Bounded exclusions require Apache and a cap from 1 to 10 (0 disables).")
+    policy = {
+        "source": source, "max_incomplete_stories": limit,
+        "study_sha256": file_hash(root / "study.json"),
+        "split_sha256": file_hash(root / "splits" / f"{source}.json"),
+    }
+    immutable_json(path, policy)
+    return policy
+
+
+def bounded_exclusions(root, source, records, profiles, policy):
+    if not policy or not policy["max_incomplete_stories"]:
+        return {}
+    reasons, cached = {}, {}
+    for record in records:
+        if record["status"] != "complete":
+            continue
+        gaps = []
+        for evidence in record["evidence"]:
+            for language, profile in profiles.items():
+                required = {f["path"] for f in evidence["files"] if f["language"] == language}
+                if not required:
+                    continue
+                key = detection_key(evidence, profile)
+                if key not in cached:
+                    directory = root / "detection/results" / key
+                    if (directory / "failure.json").exists():
+                        if (directory / "result.json").exists():
+                            raise ValueError("Conflicting native result and failure.")
+                        cached[key] = load_failure(directory, key, profile)
+                    elif (directory / "result.json").exists():
+                        cached[key] = load_result(directory, key, profile)
+                    else:
+                        cached[key] = None
+                value = cached[key]
+                if value is None:
+                    continue
+                if value["status"] == "incomplete":
+                    gaps.append(f"{language}/{key}: " + ", ".join(value["reasons"]))
+                elif not required <= set(value["coverage"]):
+                    gaps.append(f"{language}/{key}: uncovered files " +
+                                ", ".join(sorted(required - set(value["coverage"]))))
+        if gaps:
+            reasons[record["row_id"]] = "; ".join(sorted(set(gaps)))
+    limit = policy["max_incomplete_stories"]
+    write_json(root / "detection/exclusions" / f"{source}.json", {
+        "policy_sha256": digest(policy), "limit": limit, "count": len(reasons),
+        "status": "cap_exceeded" if len(reasons) > limit else "within_cap",
+        "stories": reasons,
+    })
+    if len(reasons) > limit:
+        raise ValueError(f"{source} exclusion cap exceeded: {len(reasons)} stories, limit {limit}.")
+    return reasons
+
+
+def detect(root, storage, source, profile_path, max_incomplete_stories=0):
+    with lock(root / "detection/policies" / f"{identifier(source)}.lock", wait=True):
+        return detect_source(root, storage, source, profile_path, max_incomplete_stories)
+
+
+def detect_source(root, storage, source, profile_path, max_incomplete_stories):
     verify_study(root)
     profile = load_profile(profile_path)
     tool = qualified(storage, profile)
+    policy = exclusion_policy(root, source, max_incomplete_stories)
     register_profile(root, profile)
+    records = list(evidence_records(root, source))
+    profiles = {p.stem: read_json(p) for p in (root / "detection/profiles").glob("*.json")}
     coverage_path = root / "detection/coverage" / f"{source}-{profile['language']}.json"
     items = []
 
@@ -354,7 +478,8 @@ def detect(root, storage, source, profile_path):
         return incomplete
 
     save_coverage()
-    for record in evidence_records(root, source):
+    bounded_exclusions(root, source, records, profiles, policy)
+    for record in records:
         if record["status"] != "complete":
             continue
         for evidence in record["evidence"]:
@@ -364,7 +489,13 @@ def detect(root, storage, source, profile_path):
             key = detection_key(evidence, profile)
             destination = root / "detection/results" / key
             with lock(destination.with_suffix(".lock"), wait=True):
-                if (destination / "result.json").exists():
+                if (destination / "failure.json").exists():
+                    if (destination / "result.json").exists():
+                        raise ValueError("Conflicting native result and failure.")
+                    result = load_failure(destination, key, profile)
+                    if not max_incomplete_stories:
+                        raise NativeAnalysisIncomplete(result["reasons"])
+                elif (destination / "result.json").exists():
                     result = load_result(destination, key, profile)
                 else:
                     cache = Path(evidence["snapshot"])
@@ -377,25 +508,42 @@ def detect(root, storage, source, profile_path):
                         workspace = Path(scratch) / "source"
                         shutil.copytree(cache / "source", workspace)
                         output = destination / "attempts" / uuid.uuid4().hex / "output"
-                        result = execute(tool, profile, workspace, output)
+                        try:
+                            result = execute(tool, profile, workspace, output)
+                        except NativeAnalysisIncomplete as error:
+                            verify_original_files(workspace, snapshot["files"])
+                            if not max_incomplete_stories:
+                                raise
+                            result = {
+                                "key": key, "profile_sha256": digest(profile), "status": "incomplete",
+                                "reasons": error.reasons,
+                                "attempt": output.parent.relative_to(destination).as_posix(),
+                                "reports": tree_manifest(output.parent),
+                            }
+                            immutable_json(destination / "failure.json", result)
                         verify_original_files(workspace, snapshot["files"])
-                        raw_output = destination / "reports"
-                        if raw_output.exists():
-                            verify_tree(raw_output, tree_manifest(output))
-                        else:
-                            shutil.copytree(output, raw_output)
-                    immutable_json(destination / "result.json", {
-                        "key": key, "profile_sha256": digest(profile), **result,
-                        "reports": tree_manifest(raw_output), "status": "analyzed",
-                    })
-                missing = sorted(required - set(result["coverage"]))
+                        if result.get("status") != "incomplete":
+                            raw_output = destination / "reports"
+                            if raw_output.exists():
+                                verify_tree(raw_output, tree_manifest(output))
+                            else:
+                                shutil.copytree(output, raw_output)
+                    if result.get("status") != "incomplete":
+                        immutable_json(destination / "result.json", {
+                            "key": key, "profile_sha256": digest(profile), **result,
+                            "reports": tree_manifest(raw_output), "status": "analyzed",
+                        })
+                missing = sorted(required - set(result.get("coverage", [])))
                 items.append({
                     "row_id": record["row_id"], "key": key, "required_files": sorted(required),
                     "missing_files": missing, "status": "incomplete" if missing else "complete",
                 })
             save_coverage()
+            if missing:
+                bounded_exclusions(root, source, records, profiles, policy)
+    excluded = bounded_exclusions(root, source, records, profiles, policy)
     incomplete = save_coverage(scan_complete=True)
-    if incomplete:
+    if set(incomplete) - set(excluded):
         raise ValueError(f"Detector coverage incomplete for {len(incomplete)} stories after processing "
                          f"remaining snapshots; inspect {coverage_path}")
 
@@ -406,9 +554,6 @@ def labels(root, exclusions_path=None):
     if not isinstance(exclusions, dict) or any(
             not isinstance(reason, str) or not reason.strip() for reason in exclusions.values()):
         raise ValueError("Reviewed exclusions must map row IDs to nonempty reasons.")
-    if (root / "labels/manifest.json").exists():
-        if read_json(root / "labels/exclusions.json") != exclusions:
-            raise ValueError("Reviewed exclusions are frozen; use a new study to change them.")
     acknowledged = set()
     profiles = {path.stem: read_json(path) for path in (root / "detection/profiles").glob("*.json")}
     if not profiles:
@@ -419,9 +564,29 @@ def labels(root, exclusions_path=None):
             for smell in names:
                 target = language + "." + category + "." + digest(smell)[:16]
                 catalog[target] = {"language": language, "category": category, "smell": smell}
-    rows, statuses = [], []
+    rows, statuses, automatic, policies = [], [], {}, {}
     for source in manifest["sources"]:
-        for record in evidence_records(root, source):
+        records = list(evidence_records(root, source))
+        policy = exclusion_policy(root, source)
+        if policy:
+            policies[source] = digest(policy)
+        selected = bounded_exclusions(root, source, records, profiles, policy)
+        automatic.update(selected)
+        if policy and policy["max_incomplete_stories"]:
+            reviewed_ids = {row for row in exclusions if row.startswith(source + ":")}
+            if len(set(selected) | reviewed_ids) > policy["max_incomplete_stories"]:
+                raise ValueError(f"{source} exclusion cap exceeded including reviewed exclusions.")
+            for language, profile in profiles.items():
+                if not any(f["language"] == language for record in records if record["status"] == "complete"
+                           for evidence in record["evidence"] for f in evidence["files"]):
+                    continue
+                path = root / "detection/coverage" / f"{source}-{language}.json"
+                scan = read_json(path) if path.exists() else {}
+                if (not scan.get("scan_complete") or scan.get("profile_sha256") != digest(profile) or
+                        scan.get("study_sha256") != policy["study_sha256"] or
+                        scan.get("split_sha256") != policy["split_sha256"]):
+                    raise ValueError("Bounded exclusions require a completed detector scan for every configured language.")
+        for record in records:
             languages, found, missing = set(), set(), []
             if record["status"] != "complete":
                 statuses.append({"row_id": record["row_id"], "status": "excluded",
@@ -437,6 +602,12 @@ def labels(root, exclusions_path=None):
                     profile = profiles[language]
                     key = detection_key(evidence, profile)
                     directory = root / "detection/results" / key
+                    if (directory / "failure.json").exists():
+                        if (directory / "result.json").exists():
+                            raise ValueError("Conflicting native result and failure.")
+                        load_failure(directory, key, profile)
+                        missing.append(key)
+                        continue
                     if not (directory / "result.json").exists():
                         missing.append(key)
                         continue
@@ -455,6 +626,9 @@ def labels(root, exclusions_path=None):
                     acknowledged.add(record["row_id"])
                     status.update(status="excluded", reason="reviewed_incomplete_detection",
                                   review_reason=exclusions[record["row_id"]])
+                elif record["row_id"] in selected:
+                    status.update(status="excluded", reason="bounded_incomplete_detection",
+                                  review_reason=selected[record["row_id"]])
                 statuses.append(status)
                 continue
             values = {}
@@ -473,6 +647,10 @@ def labels(root, exclusions_path=None):
                              "languages": sorted(languages), "distinct_findings": len(found)})
     if set(exclusions) != acknowledged:
         raise ValueError("Reviewed exclusions contain unknown or already complete/excluded row IDs.")
+    exclusions = {**automatic, **exclusions}
+    if (root / "labels/manifest.json").exists():
+        if read_json(root / "labels/exclusions.json") != exclusions:
+            raise ValueError("Reviewed exclusions are frozen; use a new study to change them.")
     coverage = {
         "rows": statuses, "status_counts": dict(Counter(row["status"] for row in statuses)),
         "source_labeled_counts": dict(Counter(row["source"] for row in rows)),
@@ -499,6 +677,7 @@ def labels(root, exclusions_path=None):
         "schema": SCHEMA, "labels_sha256": file_hash(destination), "catalog_sha256": digest(catalog),
         "coverage_sha256": digest(coverage), "exclusions_sha256": digest(exclusions),
         "profiles": {name: digest(value) for name, value in profiles.items()},
+        "exclusion_policies": policies,
         "source_counts": dict(Counter(frame.source)), "min_source_rows": manifest["min_rows"],
         "splits": {name: file_hash(root / "splits" / f"{name}.json") for name in manifest["sources"]},
     })
