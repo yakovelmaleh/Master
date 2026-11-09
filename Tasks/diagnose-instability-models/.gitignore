@@ -1,0 +1,17 @@
+__pycache__/
+.pytest_cache/
+cluster_runs/
+cache/
+checkpoint/
+checkpoints/
+manifest/
+data-characterization/
+error-analysis/
+*.csv
+*.jsonl
+*.joblib
+*.safetensors
+*.bin
+*.pt
+*.npy
+*.npz
