@@ -363,6 +363,26 @@ class LauncherTests(unittest.TestCase):
         self.assertNotIn("--gres", text)
         subprocess.run(["bash", "-n"], input=text, text=True, check=True)
 
+    def test_launcher_without_analysis_dependencies(self):
+        command = [
+            sys.executable, "-S", str(TASK / "cluster/submit_jobs.py"),
+            "--stage", "inventory", "--run-id", "minimal-python-test",
+            "--partition", "work", "--dry-run",
+        ]
+        result = subprocess.run(command, text=True, capture_output=True, check=True)
+        self.assertIn("source activate master-hf", result.stdout)
+        self.assertIn("--stage inventory", result.stdout)
+        subprocess.run(["bash", "-n"], input=result.stdout, text=True, check=True)
+        with tempfile.TemporaryDirectory() as d:
+            config = Path(d) / "invalid.json"
+            write_json(config, {**CONFIG, "bootstrap_samples": 0})
+            rejected = subprocess.run(
+                [*command, "--config", str(config)], text=True, capture_output=True
+            )
+        self.assertEqual(rejected.returncode, 2)
+        self.assertIn("Invalid analysis setting: bootstrap_samples", rejected.stderr)
+        self.assertNotIn("ModuleNotFoundError", rejected.stderr)
+
     def test_global_active_hf_guard_and_stage_mapping(self):
         args = self.args()
         with tempfile.TemporaryDirectory() as d:
