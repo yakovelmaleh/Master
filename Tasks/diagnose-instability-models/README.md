@@ -342,6 +342,7 @@ Tasks/diagnose-instability-models/
   configuration/milestone1.json
   scripts/
     support.py              # Shared frozen contracts and external-only outputs
+    diagnostic_config.py    # Dependency-free submission/runtime validation
     evidence.py             # T1 inventory, provenance, exact alignment, metrics
     data_profile.py         # T2 population profiles and blinded review packets
     token_coverage.py       # Optional pinned offline tokenizer-only coverage
@@ -465,8 +466,11 @@ Run on the cluster only after the user/coordinator synchronizes this task
 directory to `$HOME/Master/Tasks/diagnose-instability-models/`. The investigation
 phase did not publish code or submit jobs; the user subsequently authorized PR
 publication (see `HANDOFF.md`). Cluster synchronization/submission remains
-user-operated. The
-existing `master-hf` environment supplies NumPy and pandas; inventory and
+user-operated. The submission launcher uses only the Python standard library:
+NumPy/pandas need not be installed in the login-node Python, and configuration
+is validated before submission without importing the analysis runner.
+The generated SLURM script activates the existing `master-hf` environment,
+which supplies NumPy and pandas for analysis; inventory and
 matched-score analysis do not require scikit-learn, torch, model inference or
 network access. Optional tokenizer coverage uses the already installed
 Transformers and an existing pinned local cache. No dependency installation,

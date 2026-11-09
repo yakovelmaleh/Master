@@ -8,8 +8,12 @@ import subprocess
 import sys
 import uuid
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from support import TASK, REPO, digest, exclusive_lock, external_path, file_hash, read_json, slug, write_json
+TASK = Path(__file__).resolve().parents[1]
+REPO = TASK.parents[1]
+sys.path.insert(0, str(TASK / "scripts"))
+sys.path.insert(0, str(REPO / "Tasks/train-hf-instability-within-project"))
+from common import digest, exclusive_lock, external_path, file_hash, read_json, slug, write_json
+from diagnostic_config import validate_config
 
 
 def directive(value):
@@ -56,8 +60,6 @@ def render(args, root, command):
 
 
 def submit(args):
-    from run_diagnostics import validate_config
-
     args.run_id = slug(args.run_id)
     if args.cpus < 1:
         raise ValueError("--cpus must be positive.")
