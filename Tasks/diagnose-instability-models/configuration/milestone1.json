@@ -1,0 +1,18 @@
+{
+  "schema": "instability-diagnostics-m1-v1",
+  "seed": 20261109,
+  "boundary_radius": 1,
+  "review_per_stratum": 2,
+  "independent_review_fraction": 0.2,
+  "minimum_slice_rows": 50,
+  "minimum_slice_positives": 10,
+  "minimum_slice_negatives": 10,
+  "bootstrap_samples": 500,
+  "time_block_rows": 20,
+  "metric_tolerance": 1e-10,
+  "reports": {
+    "SLM1": "hf-20261008-report.json",
+    "SLM2": "hf-20261019-report.json",
+    "Jev": "jev-20261029-report.json"
+  }
+}
