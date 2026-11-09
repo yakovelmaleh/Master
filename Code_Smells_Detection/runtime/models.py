@@ -63,6 +63,9 @@ def load_labels(root):
     for language, expected in manifest["profiles"].items():
         if digest(read_json(root / "detection/profiles" / f"{language}.json")) != expected:
             raise ValueError("Detector profile changed after labeling.")
+    for source, expected in manifest.get("exclusion_policies", {}).items():
+        if digest(read_json(root / "detection/policies" / f"{source}.json")) != expected:
+            raise ValueError("Detector exclusion policy changed after labeling.")
     for target in catalog:
         values = labels[target].dropna()
         if not values.isin([0, 1]).all():

@@ -33,6 +33,7 @@ def parser(kind=None):
     result.add_argument("--fixture", type=Path)
     result.add_argument("--expected", type=Path)
     result.add_argument("--exclusions", type=Path)
+    result.add_argument("--max-incomplete-stories", type=int, default=0)
     result.add_argument("--bundle", type=Path)
     result.add_argument("--config", type=Path)
     result.add_argument("--report-output", type=Path)
@@ -44,6 +45,9 @@ def parser(kind=None):
 
 
 def validate_arguments(args):
+    if (not 0 <= args.max_incomplete_stories <= 10 or args.max_incomplete_stories and
+            (args.kind != "detect" or args.stage != "detect" or args.source != "Apache")):
+        raise ValueError("--max-incomplete-stories requires detect/detect --source Apache and a cap of 1-10.")
     if args.stage not in STAGES[args.kind]:
         raise ValueError(f"Unsupported stage for {args.kind}: {args.stage}")
     required = {
@@ -118,7 +122,7 @@ def dispatch(args, root):
         elif args.stage == "qualify":
             qualify(args.storage, args.profile, args.fixture, args.expected)
         elif args.stage == "detect":
-            detect(root, args.storage, args.source, args.profile)
+            detect(root, args.storage, args.source, args.profile, args.max_incomplete_stories)
         elif args.stage == "export-windows":
             export_work(root, args.source, args.profile, args.bundle)
         elif args.stage == "import-windows":

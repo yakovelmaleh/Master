@@ -593,3 +593,34 @@ class CollectionTests(RuntimeCase):
             finally:
                 status_path.write_bytes(status)
         self.assertEqual(attribution_before, common.tree_manifest(latest))
+        with common.stage_state(child, "freeze", "Apache", "fixture"):
+            prepare.freeze(child, "Apache")
+        common.write_json(child / "detection/coverage/Apache-java.json", {
+            "scan_complete": False, "incomplete_stories": ["Apache:T-0"]})
+        native_log = "detection/results/one/attempts/failed/output.err"
+        common.atomic_bytes(child / native_log, b"Ancestors analysis skipped due to memory overflow.")
+        common.write_json(child / "status/detect-Apache-java.json", {"status": "failed"})
+        child_before = common.tree_manifest(child)
+        bounded = self.storage / "runs/child-008"
+        with mock.patch.object(migration, "COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(bounded, child)
+            migration.migrate(bounded, child)
+            prepare.freeze(bounded, "Apache")
+            self.assertEqual(common.file_hash(original / "study.json"),
+                             collection.review_study_hash(bounded, "Apache"))
+            self.assertFalse((bounded / "detection").exists())
+            self.assertFalse((bounded / "evidence").exists())
+            for name, expected in child_before.items():
+                if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
+                    self.assertEqual(expected, common.file_hash(bounded / name), name)
+                elif name.startswith("detection/"):
+                    self.assertEqual(expected, common.file_hash(bounded / "parent" / name), name)
+            for forbidden in ("labels", "models", "reports"):
+                path = child / forbidden
+                path.mkdir()
+                try:
+                    with self.assertRaisesRegex(ValueError, "pre-label"):
+                        migration.migrate(self.storage / "runs/rejected-008", child)
+                finally:
+                    path.rmdir()
+        self.assertEqual(child_before, common.tree_manifest(child))

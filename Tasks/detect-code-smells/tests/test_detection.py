@@ -7,11 +7,242 @@ from unittest import mock
 
 import pandas as pd
 
-from Code_Smells_Detection.runtime import common, detectors, windows
+from Code_Smells_Detection.runtime import cli, cluster, common, detectors, models, windows
 from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
 class DetectionTests(RuntimeCase):
+    def bounded_fixture(self, kinds):
+        _, assignment = self.frozen_study(len(kinds))
+        profile = self.profile()
+        profile.update(platform=platform.system(), command=[sys.executable, "{input}", "{output}"])
+        profile["artifacts"] = [{"name": "DesigniteJavaCommunity.jar", "sha256": detectors.JAVA_COMMUNITY_SHA256}]
+        profile_path = self.storage / "profile.json"
+        common.write_json(profile_path, profile)
+        snapshots = {}
+        for kind in set(kinds):
+            cache = self.storage / kind
+            source = cache / "source"
+            (source / "src").mkdir(parents=True)
+            for name in ("Bad", "Clean", "Gap"):
+                (source / "src" / (name + ".java")).write_text("class " + name + " {}")
+            (source / "kind.txt").write_text(kind)
+            common.write_json(cache / "manifest.json", {"files": common.tree_manifest(source)})
+            snapshots[kind] = {
+                "repository": "example/" + kind, "revision": "a" * 40, "snapshot": str(cache),
+                "snapshot_manifest_sha256": common.file_hash(cache / "manifest.json"),
+                "files": [{"path": "src/Gap.java" if kind == "gap" else "src/Clean.java",
+                           "language": "java", "status": "modified"}],
+            }
+        records, manifest = [], {}
+        for index, kind in enumerate(kinds):
+            row_id = f"Apache:TEST-{index}"
+            record = {"row_id": row_id, "source": "Apache", "partition": assignment[row_id],
+                      "status": "complete", "evidence": [copy.deepcopy(snapshots[kind])]}
+            if kind in ("native", "unconfigured"):
+                record["evidence"][0]["files"].append(
+                    {"path": "script.py", "language": "python", "status": "modified"})
+            records.append(record)
+            path = self.root / "evidence/Apache" / f"TEST-{index}.json"
+            common.write_json(path, record)
+            manifest[row_id] = common.file_hash(path)
+        common.write_json(self.root / "evidence/Apache/manifest.json", {
+            "records": manifest, "split_sha256": common.file_hash(self.root / "splits/Apache.json")})
+        self.succeeded("fetch-code", "Apache")
+        return profile_path, profile, records
+
+    def bounded_native(self, command, **kwargs):
+        source, output = map(Path, command[1:])
+        if (source / "kind.txt").read_text() == "native":
+            kwargs["stdout"].write(
+                'Exception while parsing literal number (during Magic Number detection). '
+                'For input string: "ffffffffffffffff"\nDone.\n')
+            kwargs["stderr"].write("Ancestors analysis skipped due to memory overflow.")
+        else:
+            self.native_output(output)
+
+    def test_bounded_exclusion_continues_caches_and_excludes_whole_multilanguage_story(self):
+        path, profile, records = self.bounded_fixture(["native", "gap", "clean"])
+        before = (self.root / "splits/Apache.json").read_bytes()
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native) as runner:
+            detectors.detect(self.root, self.storage, "Apache", path, 10)
+            self.assertEqual(3, runner.call_count)
+            runner.reset_mock()
+            detectors.detect(self.root, self.storage, "Apache", path, 10)
+            runner.assert_not_called()
+            with self.assertRaisesRegex(ValueError, "Immutable manifest differs"):
+                detectors.detect(self.root, self.storage, "Apache", path)
+        ledger = common.read_json(self.root / "detection/exclusions/Apache.json")
+        self.assertEqual(2, ledger["count"])
+        self.assertEqual({"Apache:TEST-0", "Apache:TEST-1"}, set(ledger["stories"]))
+        failure_dir = self.root / "detection/results" / detectors.detection_key(records[0]["evidence"][0], profile)
+        self.assertFalse((failure_dir / "result.json").exists(), "Native failures must have no findings/coverage result.")
+        failure = common.read_json(failure_dir / "failure.json")
+        self.assertEqual(["ancestor_memory_overflow", "magic_number_literal"], failure["reasons"])
+        detectors.labels(self.root)
+        labels = pd.read_csv(self.root / "labels/story_labels.csv")
+        self.assertEqual(["Apache:TEST-2"], labels.row_id.tolist())
+        self.assertEqual([0], labels.any_supported_smell.tolist())
+        self.assertEqual(before, (self.root / "splits/Apache.json").read_bytes())
+        detectors.labels(self.root)
+        self.succeeded("labels")
+        matrix = models.validate(self.root)
+        self.assertTrue(all(x["reason"] == "fewer_than_100_fully_labeled_stories" for x in matrix["matrix"]))
+        policy_path = self.root / "detection/policies/Apache.json"
+        original_policy = policy_path.read_bytes()
+        policy = common.read_json(policy_path)
+        policy["max_incomplete_stories"] = 9
+        common.write_json(policy_path, policy)
+        with self.assertRaisesRegex(ValueError, "policy changed"):
+            models.load_labels(self.root)
+        policy_path.write_bytes(original_policy)
+        log = failure_dir / failure["attempt"] / "output.err"
+        log.write_text("changed")
+        with mock.patch.object(detectors, "qualified", return_value=self.storage):
+            with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+                detectors.detect(self.root, self.storage, "Apache", path, 10)
+        with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+            detectors.labels(self.root)
+
+    def test_cap_counts_unique_stories_not_snapshots_and_stops_before_later_work(self):
+        path, profile, records = self.bounded_fixture(["native"] * 11 + ["clean"])
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native) as runner:
+            with self.assertRaisesRegex(ValueError, "cap exceeded: 11 stories, limit 10"):
+                detectors.detect(self.root, self.storage, "Apache", path, 10)
+            self.assertEqual(1, runner.call_count, "One failed snapshot affects eleven unique stories.")
+        ledger = common.read_json(self.root / "detection/exclusions/Apache.json")
+        self.assertEqual("cap_exceeded", ledger["status"])
+        self.assertEqual(11, ledger["count"])
+        self.assertFalse(common.read_json(self.root / "detection/coverage/Apache-java.json")["scan_complete"])
+        with self.assertRaisesRegex(ValueError, "cap exceeded"):
+            detectors.labels(self.root)
+        self.assertFalse((self.root / "labels/story_labels.csv").exists())
+
+    def test_unconfigured_language_is_not_an_automatic_exclusion(self):
+        path, profile, records = self.bounded_fixture(["gap", "unconfigured", "clean"])
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native):
+            detectors.detect(self.root, self.storage, "Apache", path, 10)
+        with self.assertRaisesRegex(ValueError, "missing/incomplete"):
+            detectors.labels(self.root)
+        ledger = common.read_json(self.root / "detection/exclusions/Apache.json")
+        self.assertEqual(["Apache:TEST-0"], list(ledger["stories"]))
+        self.assertFalse((self.root / "labels/story_labels.csv").exists())
+
+    def test_source_modification_with_known_native_error_still_aborts(self):
+        path, profile, records = self.bounded_fixture(["native", "clean"])
+        def mutate(command, **kwargs):
+            self.bounded_native(command, **kwargs)
+            (Path(command[1]) / "src/Clean.java").write_text("modified")
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=mutate) as runner:
+            with self.assertRaisesRegex(ValueError, "Analyzer modified original"):
+                detectors.detect(self.root, self.storage, "Apache", path, 10)
+            self.assertEqual(1, runner.call_count)
+        self.assertEqual([], list((self.root / "detection/results").glob("*/failure.json")))
+
+    def test_ten_story_boundary_and_duplicate_evidence_count_once(self):
+        path, profile, records = self.bounded_fixture(["gap"] * 10 + ["clean"])
+        for record in records[:10]:
+            record["evidence"] *= 2
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors, "evidence_records", return_value=records), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native) as runner:
+            detectors.detect(self.root, self.storage, "Apache", path, 10)
+            self.assertEqual(2, runner.call_count)
+        detectors.labels(self.root)
+        self.assertEqual(10, len(common.read_json(self.root / "labels/exclusions.json")))
+        self.assertEqual(["Apache:TEST-10"], pd.read_csv(self.root / "labels/story_labels.csv").row_id.tolist())
+
+    def test_cap_combines_languages_and_cannot_be_bypassed_by_manual_review(self):
+        path, profile, records = self.bounded_fixture(["gap"] * 6 + ["clean"] * 6)
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native):
+            detectors.detect(self.root, self.storage, "Apache", path, 10)
+        policy = detectors.exclusion_policy(self.root, "Apache")
+        python = self.profile("python")
+        extra = copy.deepcopy(records)
+        for record in extra[6:11]:
+            record["evidence"][0]["files"].append({"path": "missing.py", "language": "python"})
+        item = extra[6]["evidence"][0]
+        key = detectors.detection_key(item, python)
+        directory = self.root / "detection/results" / key
+        (directory / "reports").mkdir(parents=True)
+        common.write_json(directory / "result.json", {
+            "key": key, "status": "analyzed", "profile_sha256": common.digest(python),
+            "reports": {}, "coverage": [], "findings": [],
+        })
+        with self.assertRaisesRegex(ValueError, "cap exceeded: 11"):
+            detectors.bounded_exclusions(self.root, "Apache", extra, {"java": profile, "python": python}, policy)
+        review = self.storage / "review.json"
+        common.write_json(review, {f"Apache:TEST-{i}": "reviewed" for i in range(6, 11)})
+        with self.assertRaisesRegex(ValueError, "cap exceeded including reviewed"):
+            detectors.labels(self.root, review)
+
+    def test_native_allowlist_never_swallows_license_unknown_or_configuration_errors(self):
+        profile = self.profile()
+        profile["artifacts"] = [{"name": "DesigniteJavaCommunity.jar", "sha256": detectors.JAVA_COMMUNITY_SHA256}]
+        known = ('Exception while parsing literal number (during Magic Number detection). '
+                 'For input string: "8000000000000000"\n'
+                 'Ancestors analysis skipped due to memory overflow.'
+                 'Cyclic dependency analysis skipped due to memory overflow.')
+        with self.assertRaises(detectors.NativeAnalysisIncomplete) as raised:
+            detectors.check_native_messages(known, profile)
+        self.assertEqual(set(detectors.NATIVE_GAPS), set(raised.exception.reasons))
+        for message in ("Trial edition", "License expired", "ClassNotFoundException",
+                        "Unexpected exception", "failed to load configuration",
+                        "java.lang.NoClassDefFoundError", "java.lang.OutOfMemoryError", "Error: missing runtime"):
+            with self.subTest(message=message):
+                with self.assertRaises(ValueError) as raised:
+                    detectors.check_native_messages(known + "\n" + message, profile)
+                self.assertNotIsInstance(raised.exception, detectors.NativeAnalysisIncomplete)
+        profile["artifacts"][0]["sha256"] = "b" * 64
+        with self.assertRaises(ValueError) as raised:
+            detectors.check_native_messages(known, profile)
+        self.assertNotIsInstance(raised.exception, detectors.NativeAnalysisIncomplete)
+
+    def test_native_failure_is_strict_without_opt_in_and_hard_failures_block_opt_in_labels(self):
+        path, profile, records = self.bounded_fixture(["native", "clean"])
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native):
+            with self.assertRaises(detectors.NativeAnalysisIncomplete):
+                detectors.detect(self.root, self.storage, "Apache", path)
+        self.assertEqual([], list((self.root / "detection/results").glob("*/failure.json")))
+        self.root = self.storage / "runs/opt-in"
+        self.frozen_study(2)
+        def fail(*args, **kwargs):
+            self.bounded_native(*args, **kwargs)
+            kwargs["stderr"].write("\nLicense expired\n")
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors, "evidence_records", return_value=records), mock.patch.object(
+                detectors.subprocess, "run", side_effect=fail):
+            with self.assertRaisesRegex(ValueError, "license/trial"):
+                detectors.detect(self.root, self.storage, "Apache", path, 10)
+            with self.assertRaisesRegex(ValueError, "completed detector scan"):
+                detectors.labels(self.root)
+        self.assertEqual([], list((self.root / "detection/results").glob("*/failure.json")))
+
+    def test_bounded_flag_validates_source_limit_and_cluster_forwarding(self):
+        base = ["--stage", "detect", "--storage", str(self.storage), "--run-id", "test",
+                "--profile", str(self.storage / "profile.json"), "--source", "Apache"]
+        for limit in ("-1", "11"):
+            with self.assertRaisesRegex(ValueError, "cap of 1-10"):
+                cli.validate_arguments(cli.parser("detect").parse_args(base + ["--max-incomplete-stories", limit]))
+        for source in ("RedHat", "MongoDB"):
+            args = cli.parser("detect").parse_args(base + ["--source", source, "--max-incomplete-stories", "10"])
+            with self.assertRaisesRegex(ValueError, "source Apache"):
+                cli.validate_arguments(args)
+        common.write_json(self.storage / "profile.json", self.profile())
+        import contextlib
+        import io
+        output = io.StringIO()
+        with mock.patch.object(sys, "argv", ["cluster", *base, "--max-incomplete-stories", "10", "--dry-run"]), (
+                contextlib.redirect_stdout(output)):
+            cluster.main("detect")
+        self.assertIn("--max-incomplete-stories 10", output.getvalue())
+
     def ambiguous_java_fixture(self):
         source = self.storage / "snapshot/source"
         files = {

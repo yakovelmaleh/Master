@@ -79,6 +79,8 @@ Native logs and reports remain under the installed tool's `qualification/`
 and the study's `detection/results/<key>/attempts/`, including failed attempts.
 Missing reports, unknown catalog entries, unresolved entities, modified input
 files and native execution/license errors still stop the stage immediately.
+The bounded Apache policy below permits only specifically recognized native
+analysis gaps, never arbitrary exceptions.
 
 Qualified-name-only reports can contain the same Java type name in multiple
 modules. A known ambiguity is recorded in `attribution.json` and the normalized
@@ -109,7 +111,8 @@ required and missing files, its complete/incomplete status, and the affected
 story IDs. `scan_complete: true` means every applicable item was checked, not
 that coverage is complete. A hard error leaves `scan_complete: false`.
 After the scan, any incomplete story still makes the detection stage **fail**,
-with an error pointing to that report. A retry verifies and reuses the saved
+unless the explicit bounded policy below accounts for it, with an error
+pointing to that report otherwise. A retry verifies and reuses the saved
 native reports, including coverage-limited results; it does not blindly rerun
 unchanged snapshots or turn a cached coverage gap into success.
 
@@ -126,6 +129,61 @@ Review the coverage report and native attempts before proposing any exclusions.
 Final labels still require complete coverage of every supported language for
 each retained story. A source scan may finish with recorded gaps, but neither
 it nor an `analyzed` result authorizes automatic whole-story exclusions.
+
+### Approved bounded Apache exclusions
+
+For a new study, the operator can explicitly authorize up to ten unique Apache
+stories to be excluded without investigating each one:
+
+```bash
+"$HOME/Master/Tasks/run_cluster_task.sh" detect-code-smells \
+  --stage detect --source Apache \
+  --storage "$HOME/master-code-smells" --run-id code-smells-008 \
+  --profile "$HOME/master-code-smells/profiles/java-community-linux.json" \
+  --max-incomplete-stories 10
+```
+
+Default `0` retains strict behavior. Values `1` through `10` are supported only
+for Apache detection. The first detection saves an immutable, source-wide policy
+in `detection/policies/Apache.json`, bound to the study and frozen split. Use the
+same cap on retries and subsequent language scans; changing it requires a new
+study. The count combines languages, revisions and failure types by story ID,
+not by snapshot, attempt or missing file. A shared failed snapshot can therefore
+exceed the cap immediately. Existing upstream evidence exclusions are not
+reclassified as detector failures.
+
+Eligible causes are required-file coverage gaps and these recognized diagnostic
+messages from the SHA256-pinned Java Community JAR documented above:
+Magic Number literal-parsing exceptions, ancestor-analysis memory-overflow
+skips, and cyclic-dependency-analysis memory-overflow skips. The entire native
+attempt is treated as incomplete; its CSVs provide **no findings or coverage**.
+`failure.json` preserves the reason codes, snapshot/profile identity and hashed
+attempt logs/reports. Resume verifies these bytes and diagnostic reasons rather
+than rerunning unchanged failed snapshots.
+
+Trial/license failures, unknown exceptions, configuration problems, nonzero
+native exits/timeouts, missing or malformed reports, unknown smells, unresolved
+entities and source/report integrity errors still stop immediately. Qualification
+is always strict, even for an otherwise eligible diagnostic. The policy never
+changes the tool profile, deletes input files, or suppresses an error to claim
+successful analysis.
+
+`detection/exclusions/Apache.json` records every eligible story and its reasons.
+An eleventh unique story stops the scan with `cap_exceeded`; it does not select
+an arbitrary first ten. Within the approved cap, detection can succeed with
+explicitly accounted gaps. Final labeling recomputes exclusions from verified
+results, requires completed scans for configured applicable languages, and
+excludes each affected **whole story across all languages**. It freezes the
+combined ledger in `labels/exclusions.json`; manual exclusions cannot bypass
+the total cap. Policy hashes are bound into the label manifest and verified
+before modeling.
+
+Unconfigured languages, missing jobs and unrelated hard failures do not qualify
+for automatic exclusion. They still block labels for retained stories. Frozen
+feature rows/splits remain untouched; only eligible label rows are omitted.
+The 100-fully-labeled-story training minimum remains unchanged and is not
+guaranteed by the exclusion cap. Results are conditional on analyzable stories;
+the audited exclusions must be disclosed in subsequent reporting.
 
 **Isolation is an operator prerequisite, not a sandbox implemented here.**
 Detector subprocesses omit Jira/GitHub credential environment variables, but
@@ -196,7 +254,8 @@ evidence. `catalog.json` maps target IDs to native names.
 
 `labels/coverage.json` distinguishes complete, excluded and incomplete stories.
 By default any required missing/incomplete detector result blocks freezing final
-labels. Restore tool/access prerequisites and rerun first. If some stories
+labels. The explicit bounded Apache policy above is the only automatic exception.
+Restore tool/access prerequisites and rerun first. If some stories
 cannot be fully analyzed, review their failed attempts and explicitly exclude
 the **whole story**, not just its failed language:
 

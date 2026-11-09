@@ -65,7 +65,8 @@ def main(kind):
     submission_id = identifier(args.run_id) + "-" + args.stage + "-" + uuid.uuid4().hex[:8]
     run_root = REPO / "Tasks" / TASKS[kind] / "cluster_runs" / submission_id
     forwarded = ("storage", "run_id", "candidates", "sources", "prior_manifest", "from_run", "missing_records", "profile",
-                 "fixture", "expected", "exclusions", "bundle", "config", "report_output", "input", "output", "family", "variant")
+                 "fixture", "expected", "exclusions", "max_incomplete_stories", "bundle",
+                 "config", "report_output", "input", "output", "family", "variant")
     commands = []
     for source in sources:
         args.source = source
