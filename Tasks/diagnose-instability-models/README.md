@@ -1,12 +1,39 @@
 # Diagnosing unstable-user-story prediction
 
-**Status: milestone 1 tools implemented; investigation not complete.** T1-T3
-have CPU-only analysis tools, focused tests and a SLURM launcher. Local execution
-has verified the frozen datasets and archived classical predictions; missing
-neural row artifacts and source histories block the remaining comparisons and
-label validation. Human review is pending. No new training, label changes,
-model improvements or T4-T7 implementation has been performed. See section 11
-for execution, limitations and the coordination handoff.
+**Coordination status, November 11, 2026:** successful T1-T3 cluster automation
+and both CI reconciliations were reported for `diag-m1-20261109-02`. The
+20-story diagnostic text review is complete. Actual edit histories remain
+unavailable and the recorded labels are **not verified**.
+
+Automated T4/T5 is authorized, **T5 first**, under the research decision below.
+Milestone-two tools are implemented; their actual cluster analyses are pending
+execution. No new predictive-model training, embedding inference/downloads/GPU
+work, relabeling, Data Maps, T6/T7 execution or improvement experiments are
+authorized. The earlier local-only limitations in section 11 remain historical,
+not the status of the successful cluster run.
+
+### Research decision after the 20-story text review
+
+Perceived clarity/completeness may differ from future-edit instability. This is
+a hypothesis, not a finding of wrong labels, unlearnability or causality.
+Use the reviewed test stories only to formulate hypotheses; never as training
+labels, estimates of population rates, human predictive-accuracy estimates or
+data for choosing thresholds.
+
+Prioritize training-defined text-length bins, empty descriptions, nonempty
+summary/description equality and literal reference-only indicators. Compare
+recorded-label prevalence and matched AUC-PRC separately by project and K,
+then examine chronological shifts. Use compatible existing frozen embeddings
+for train-bank neighbor disagreement and bounded label-blind T4 clustering
+where provenance and coverage permit. Do not mix encoders or K-specific
+fine-tuned spaces. Missing compatible embeddings block only dependent work.
+
+Read and verify successful M1/CI artifacts before analysis, preserve all
+completed outputs and write a separate run. Freeze measurable definitions,
+train-only fits, support gates and resources before evaluating test slices.
+The automated M1 evidence is the prerequisite, not history-based label review.
+Keep history-dependent and semantic-name conclusions blocked. Section 12
+documents this bounded implementation and its remaining execution gate.
 
 ## 1. What we want to understand
 
@@ -116,7 +143,8 @@ separation does not prove that the target is impossible to predict.
 
 The **completion criteria below remain pending**. T1-T3 tools and partial local
 artifacts now exist (section 11); implementation is not completion of analysis.
-T4-T7 remain unimplemented and outside the first milestone.
+T4/T5 are implemented separately under the later authorization in section 12;
+T6/T7 remain outside the current execution scope.
 
 ### T1. Establish the evidence and comparison contract
 
@@ -756,3 +784,157 @@ findings and the concise coordination-session handoff. **Do not check off
 T1-T3 merely because these tools pass tests.** Source histories, missing neural
 studies, human review and matched cross-family results remain prerequisites
 for completing the investigation.
+
+## 12. Milestone 2: T5-first characteristics and automated T4
+
+### Inputs and write-once execution
+
+`scripts/run_milestone2.py` consumes the **existing successful** M1 run, its
+hashed population/predictions/row diagnostics, and
+`error-analysis/human-review-01/ci_reconciliation.json` plus its hash manifest.
+It verifies original row/label contracts and preserves M1 support minima.
+It does not rerun M1, the human review exporter or the old bootstrap replays.
+Existing full-cell comparisons are referenced/copied, not reselected.
+Both reconciled CI methods/configurations are preserved in
+`manifest/prior_ci_reconciliation.json`; neither is chosen for its sign.
+Training label/characteristic profiles are available, but training-model
+performance is unavailable in the saved M1 prediction partitions and is not
+regenerated.
+
+`configuration/milestone2.json` is fixed before evaluation: seed 20261111,
+minimum 50 rows / 10 positives / 10 negatives, 500 paired non-circular
+moving-row-block resamples, 20 rows per block, and metric tolerance 1e-10.
+Slice intervals preserve chronological ordering **within the slice**; gaps
+may be compressed and blocks are not fixed calendar windows. They are
+exploratory and multiplicity-unadjusted. AP remains in detailed JSON.
+Prevalence intervals use the same moving-block scheme without discarding
+one-class bootstrap draws; unsupported source slices receive no interval.
+
+The original review answers do not enter any computation. Their role is
+hypothesis provenance only. No raw text, review sheet, row-level diagnostics,
+vectors or checkpoints belong in Git.
+
+### Training-only definitions and resource bounds
+
+- **Length:** Unicode word-token counts from original summary, description and
+  acceptance criteria. Per-project training quartiles at .25/.50/.75 define
+  right-closed bins for all splits. Duplicate cutpoints collapse; empty or
+  unsupported bins remain explicit.
+- **Measurable flags:** empty description; nonempty casefold/whitespace-normalized
+  summary equals description; description containing a URL/issue reference
+  with only declared reference words left over. The exact regex/whitelist is
+  saved in `analysis_contract.json`. These are not semantic clarity scores.
+- **Duplicates:** normalized whole-text equality within project/split and
+  matches in the training bank, excluding self. Label-blind first-occurrence
+  subsets supply duplicate sensitivity. Exact training-duplicate label
+  disagreement is computed even without embeddings; no label-error inference.
+- **Temporal shift:** split-wise counts/prevalence, word/character summaries,
+  flag-rate differences and total-variation differences in the training-defined
+  bin distribution. This adds the new definitions rather than restarting T2.
+- **Embedding space:** select the first predeclared available training encoder
+  (`modernbert`, then `qwen_embedding`) per project, never by test coverage or
+  performance. Use that single label-independent frozen space across all K.
+  Unit normalization only; no PCA, fitted scaling or embedding inference.
+- **Neighbors:** at most 2,048 training rows, selected by seeded identity hash
+  without labels, ten neighbors, 128-query-row batches. Exclude self; repeat
+  excluding identical normalized text. Training-only nearest-similarity p90
+  defines the high-similarity slice. Require ten neighbors for disagreement
+  summaries. Outcome-defined majority-disagreement slices are explicitly
+  retrospective diagnostics, not prospective targeting rules.
+- **T4:** eight spherical k-means groups, at most 2,048 label-blind hash-sampled
+  training rows, at most 50 iterations. Retain the declared primary seed.
+  One alternate training-only seed supplies adjusted-Rand stability, never
+  configuration selection. Repeated vectors can reduce effective group count;
+  degenerate training spaces are blocked. Stable numeric IDs are project-local,
+  not manually reviewed semantic names.
+- **Outliers:** retain nearest-centroid assignment but flag similarity below
+  training p05. Report numeric group profiles, training representatives, label
+  support by K, selected-classifier truncation coverage where available and
+  train-versus-later group-distribution differences.
+
+Train-only bins, banks, centers, similarity thresholds and configuration are
+persisted before validation/test slice evaluation. The CPU implementation
+caps each project at 30,000 rows, embedding width at 8,192, and never creates
+a full query-by-query distance matrix. The default launcher allocates four
+CPUs, 16 GB and two hours, one array element, with the existing global HF
+concurrency guard and email notifications.
+
+### Existing embedding cache integrity and missing coverage
+
+The historical `TextBackend.embeddings` writer stores
+`<artifact-root>/embeddings/<digest>.npy`, where the digest binds **ordered
+source texts**, the pinned model/revision/pooling, original configuration and
+producer versions. The reader reconstructs this key from verified M1 evidence
+and requires the available original producer-code fingerprint to match the
+study. Unknown versions, changed text/order, invalid shapes/norms or ambiguous
+copies are blocked. Arrays use `allow_pickle=False`; no model is loaded.
+
+The original cache has no independent historical vector checksum or row-ID
+sidecar. This limitation is recorded explicitly: the input-addressed key,
+producer and shape establish the available provenance; the observed vector
+bytes are hashed now and checked throughout the new run. Do not claim that a
+historical numerical checksum was verified. More stringent provenance would
+require additional source evidence, not silently regenerating embeddings.
+
+Source inspection shows that the original frozen workflow caches **train and
+validation**, whereas test inference does not call that cache writer. A
+matching test cache may therefore be absent. Analyze verified partitions only;
+report missing test embedding work as blocked. Do not infer test vectors,
+borrow validation rows or substitute selected fine-tuned representations.
+Producer-version mismatches likewise stay blocked while independent T5 text
+diagnostics continue.
+
+### User-operated job and outputs
+
+This follow-up currently exists only in the isolated implementation worktree.
+The latest instruction forbids PRs/pushes, so the coordination session must
+arrange authorized deployment before this new command can run on the cluster.
+Do not assume `git pull` makes unpublished code available; no patch-transfer
+workflow or publication is performed here.
+
+After these task changes are deployed, the user alone submits:
+
+```bash
+bash "$HOME/Master/Tasks/run_cluster_task.sh" diagnose-instability-models \
+  --stage milestone2 \
+  --source-run "$HOME/master-hf/diagnostics/diag-m1-20261109-02" \
+  --batch-id human-review-01 \
+  --run-id diag-m2-20261111-01 \
+  --partition main \
+  --output-root "$HOME/master-hf/diagnostics"
+```
+
+`--dry-run` uses only the standard library and prints the generated script.
+Submission prints exact `.out`/`.err` and job-manifest paths under
+`cluster_runs/<run-id>-milestone2-<submission-id>/`. The manifest maps the job
+to T5 characteristics/shift, T5 neighbors and T4 frozen grouping.
+
+New external output root:
+`$HOME/master-hf/diagnostics/diag-m2-20261111-01/`.
+
+| Output | Purpose |
+|---|---|
+| `run.json`, `manifest/analysis_contract.json` | Frozen configuration, source hashes and train-only fitted definitions |
+| `manifest/embedding_inventory.json`, `manifest/embedding_status.json` | Matching caches, observed checksums, provenance limits and partition-level blocks |
+| `complexity/text_characteristics.csv` | New measurable characteristics and assigned length bins |
+| `complexity/characteristic_profiles.json` | Per-project/split/K/slice counts, prevalence and support |
+| `complexity/matched_characteristic_metrics.json` | Matched AUC-PRC, AP and paired slice intervals |
+| `complexity/length_evidence.json` | Compact test length-bin evidence, with unsupported cells flagged |
+| `complexity/exact_duplicate_disagreement.json` | Exact-text training-bank disagreements, no embedding dependency |
+| `shift/temporal_shift.json`, `shift/representation_shift.json` | Chronological characteristics/labels and available representation shifts |
+| `semantic-groups/` | Centroids, assignments/neighbors, supported profiles and model comparisons for available partitions only |
+| `summary.json`, `manifest/status.json`, `coordination_handoff.md` | Completion state, output hashes and interpretation/coordination boundaries |
+
+Exit 2 means independent work was saved but embedding-dependent work is
+partially/fully blocked; inspect `manifest/t5_text_status.json` and
+`manifest/embedding_status.json` separately. Exit 1 is an execution/input
+failure. Outputs are write-once: use a new run ID rather than overwriting.
+
+Return 3-5 quantified findings **only after real execution**, or state that
+evidence is inconclusive. Include project/K, rows/positives, scores/differences,
+uncertainty, artifact/configuration paths and unresolved hypotheses. Missing
+histories still block label validity and edit-type explanations. The completed
+20-story review does not supply independent second review or population-rate
+evidence. Existing validation ablation comparisons are not included in this
+focused pass; no replacement model fitting, T6/T7 or improvement experiment is
+performed.

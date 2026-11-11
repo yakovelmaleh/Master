@@ -1,0 +1,23 @@
+{
+  "schema": "instability-diagnostics-m2-v1",
+  "seed": 20261111,
+  "minimum_slice_rows": 50,
+  "minimum_slice_positives": 10,
+  "minimum_slice_negatives": 10,
+  "bootstrap_samples": 500,
+  "time_block_rows": 20,
+  "metric_tolerance": 1e-10,
+  "length_quantiles": [0.25, 0.5, 0.75],
+  "embedding_preference": ["modernbert", "qwen_embedding"],
+  "neighbor_bank_rows": 2048,
+  "neighbors": 10,
+  "distance_batch_rows": 128,
+  "similarity_quantile": 0.9,
+  "outlier_quantile": 0.05,
+  "clusters": 8,
+  "cluster_fit_rows": 2048,
+  "cluster_iterations": 50,
+  "stability_seed_offset": 1,
+  "maximum_embedding_dimensions": 8192,
+  "maximum_project_rows": 30000
+}

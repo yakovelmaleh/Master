@@ -1,5 +1,161 @@
 # Milestone 1 handoff to MAster SLM
 
+## Authorized T5-first / automated T4 follow-up, November 11, 2026
+
+This section supersedes earlier scope restrictions below. The updated
+coordination plan in the original Master checkout was read, including
+"Research decision after the 20-story text review." The completed review
+sheet's hash/count/status was checked without using its answers to define
+training labels, tune boundaries or estimate population rates. The saved
+session handoff containing the user-supplied successful CI replay output was
+read. The full machine CI artifacts remain on the cluster and are a mandatory
+runtime input/hash/configuration gate before this new analysis consumes them.
+
+### Current status: implementation, not research findings
+
+| Work | Implemented | Actual execution |
+|---|---|---|
+| T5 length/empty/repetitive/reference/duplicate diagnostics | Yes; training-defined bins, frozen literal flags, existing support gates and paired AUC-PRC intervals | Synthetic validation only; real cluster analysis pending |
+| T5 chronological shift | Yes; per-project/split/K distributions and support | Synthetic validation only; real cluster analysis pending |
+| T5 frozen-vector neighbors | Yes; training-only bounded bank, self exclusion, duplicate sensitivity and per-class disagreement | Synthetic validation only; cache inventory pending on cluster |
+| T4 label-blind grouping | Yes; training-only bounded spherical k-means, fixed stability check, outlier rule and numeric profiles | Synthetic validation only; real embedding coverage unknown |
+
+**No new substantive findings or project/K effect estimates can yet be
+reported.** Evidence for the review-inspired hypotheses is not evaluated
+until the user-operated job reads the successful source run. Do not treat
+fixture counts or passing tests as research results.
+
+### Input audit and boundaries
+
+- Successful source run: `/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02/`.
+  Reconciliation: `error-analysis/human-review-01/ci_reconciliation.json`
+  and its status/hash manifest. The new runner verifies both cells and their
+  original diagnostic configuration, and preserves both methods without a rerun.
+- Completed human text review: `/Users/yakovelmaleh/Downloads/review_sheet_completed.csv`,
+  20 rows reviewed, all 20 label-verification fields unavailable; SHA256
+  `07322a5e59dc95998798dedccccb5e33d88c1d3bdb334255c52387f19eb2db47`.
+  No reviews become model-training labels or automatic clarity annotations.
+- No local successful cluster-run copy, embedding cache or original full CI
+  JSON was found at the checked paths. Older local M1 runs remain partial
+  and are not substituted for the completed cluster source.
+- Available original HF producer fingerprint:
+  `974b8eebd00626edaa8d1b985055722bdaf3dd4d428612dfa6d47863abe771fe`.
+  It matches both sealed HF reports' recorded producer fingerprints. Actual
+  saved cache keys/rows/bytes still require cluster inspection.
+- Historical embeddings bind ordered text/model/configuration/versions in
+  their `.npy` filename. No historical numerical checksum exists in that
+  writer; this limitation remains explicit. Matching producer code, exact
+  cache keys, shape/norms and observed byte hashes are required.
+- Source inspection shows train/validation caching, not test embedding
+  caching. Missing test caches block dependent test analyses, not independent
+  T5. No embeddings are regenerated and no models are loaded.
+- No overlapping T4/T5 implementation was found in the inspected task
+  directories/worktrees or recent coordination history. This does not claim
+  knowledge of unsynchronized work elsewhere.
+
+### Code and configuration
+
+Isolated worktree: `/Users/yakovelmaleh/code/Master-diagnose-t5-characteristics`.
+Branch: `user/yakovelmaleh/diagnose-t5-characteristics`, based on merged
+`origin/main` at `956f721`. The original dirty checkout and its updated plan
+were not modified. No commit, PR, push, external notification or cluster
+connection/submission was performed.
+
+Changed/added within `Tasks/diagnose-instability-models/`:
+
+```text
+configuration/milestone2.json
+scripts/milestone2_text.py
+scripts/milestone2_embeddings.py
+scripts/run_milestone2.py
+scripts/diagnostic_config.py
+scripts/support.py
+cluster/submit_jobs.py
+tests/test_milestone2.py
+README.md
+HANDOFF.md
+```
+
+Default configuration: seed 20261111; project-specific training word-count
+quartiles; minimum 50 rows/10 positives/10 negatives; 500 non-circular paired
+row-block resamples, block size 20; modernbert then qwen_embedding preference;
+2,048-row train bank, ten neighbors, 128-query batches; eight clusters from
+at most 2,048 training rows, 50 iterations; one alternate seed for training-only
+stability; train p90 neighbor similarity and p05 cluster-outlier cutoffs.
+All definitions and train-only fits are frozen before test slice evaluation.
+
+### Validation
+
+Commands executed locally, never submitted to SLURM:
+
+```bash
+cd /Users/yakovelmaleh/code/Master-diagnose-t5-characteristics
+PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
+  python3 -W error::RuntimeWarning -m unittest discover \
+  -s Tasks/diagnose-instability-models/tests -p 'test_*.py' -v
+bash Tasks/run_cluster_task.sh diagnose-instability-models \
+  --stage milestone2 \
+  --source-run "$HOME/master-hf/diagnostics/diag-m1-20261109-02" \
+  --run-id diag-m2-20261111-01 --partition main --dry-run
+git diff --check
+```
+
+The 32-test suite covers old M1/review behavior plus training-only cutpoints,
+literal flags, duplicate/self exclusion, existing metric/support invariants,
+label-independent grouping/bank selection, repeatability/stability, cache
+provenance/order/content rejection, absent test embeddings, independent T5
+completion with no embeddings, M1/CI hash gates, preservation/write-once outputs,
+bounded configurations and a dependency-free launcher under `python3 -S`.
+Generated shell syntax is checked with `bash -n`; runtime warnings are treated
+as errors. No dependencies were installed. Fixture outputs were temporary.
+
+### Next user-operated command
+
+**Deployment remains pending; PRs/pushes are not authorized.** No PR/push or
+patch-transfer workflow was used. The coordinator must arrange authorized
+deployment of these task changes before the cluster can recognize this new
+stage. `git pull` alone cannot retrieve unpublished implementation.
+
+After deployment, the user alone runs:
+
+```bash
+bash "$HOME/Master/Tasks/run_cluster_task.sh" diagnose-instability-models \
+  --stage milestone2 \
+  --source-run "$HOME/master-hf/diagnostics/diag-m1-20261109-02" \
+  --batch-id human-review-01 \
+  --run-id diag-m2-20261111-01 \
+  --partition main \
+  --output-root "$HOME/master-hf/diagnostics"
+```
+
+One CPU SLURM job, four CPUs/16 GB/two hours by default, existing concurrency
+guard and email notifications. Printed `.out`/`.err` and job mapping live under
+`Tasks/diagnose-instability-models/cluster_runs/<submission-id>/`.
+The original source run remains read-only. Planned new output:
+`/home/yakovelm/master-hf/diagnostics/diag-m2-20261111-01/`.
+
+Read `summary.json` and the separate text/embedding statuses first.
+Exit 2 can mean T5 text succeeded but test embedding work is unavailable.
+Use `complexity/length_evidence.json`, `complexity/matched_characteristic_metrics.json`,
+`complexity/exact_duplicate_disagreement.json`, `shift/temporal_shift.json`
+and available `semantic-groups/` artifacts for the eventual 3-5 findings.
+Each finding needs project/K, rows/positives, scores/differences, uncertainty,
+configuration and limitations. Do not interpret unsupported cells as wins.
+
+### Copyable coordination handoff
+
+T5-first/T4 tools implemented in Master-diagnose-t5-characteristics on branch
+user/yakovelmaleh/diagnose-t5-characteristics. Real analyses are NOT executed;
+successful M1/CI inputs and frozen vector caches remain cluster-only. New-run
+worker verifies them, freezes train-only definitions, preserves all M1 outputs,
+and runs new length/empty/repetition/reference/duplicate/shift diagnostics.
+Compatible cached vectors enable bounded training-bank disagreement and
+label-blind grouping for available partitions only; missing test caches block
+only dependent work. No new substantive findings yet. Histories remain absent,
+labels unverified, and the 20 text reviews are hypothesis-generating only.
+32 tests pass; no model training/inference/downloads/GPU, PR/push, notifications
+or T6/T7. Deployment authorization and user-operated SLURM execution are next.
+
 ## T2/T3 review follow-up, November 11, 2026
 
 **Current request status:** review/reconciliation exporter implemented and

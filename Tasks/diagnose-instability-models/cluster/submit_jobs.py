@@ -13,7 +13,7 @@ REPO = TASK.parents[1]
 sys.path.insert(0, str(TASK / "scripts"))
 sys.path.insert(0, str(REPO / "Tasks/train-hf-instability-within-project"))
 from common import digest, exclusive_lock, external_path, file_hash, read_json, slug, write_json
-from diagnostic_config import REVIEW_POLICY, validate_config
+from diagnostic_config import REVIEW_POLICY, validate_config, validate_milestone2
 
 
 def directive(value):
@@ -23,6 +23,11 @@ def directive(value):
 
 
 def command_for(args, config_path):
+    if args.stage == "milestone2":
+        return ["python", "-u", str(TASK / "scripts/run_milestone2.py"),
+                "--source-run", str(args.source_run), "--run-id", args.run_id,
+                "--output-root", str(args.output_root), "--batch-id", args.batch_id,
+                "--config", str(config_path)]
     if args.stage == "review":
         return ["python", "-u", str(TASK / "scripts/prepare_review.py"),
                 "--source-run", str(args.output_root / args.run_id), "--batch-id", args.batch_id,
@@ -71,7 +76,22 @@ def submit(args):
     args.artifact_root = [external_path(p) for p in args.artifact_root or []]
     args.histories = external_path(args.histories) if args.histories else None
     args.tokenizer_cache = external_path(args.tokenizer_cache) if args.tokenizer_cache else None
-    if args.stage == "review":
+    if args.stage == "milestone2":
+        if not args.source_run:
+            raise ValueError("--stage milestone2 requires --source-run.")
+        if any((args.artifact_root, args.histories, args.tokenizer_cache, args.reviews)):
+            raise ValueError("Milestone two consumes the frozen source run; do not override its inputs.")
+        args.source_run = external_path(args.source_run)
+        args.batch_id = slug(args.batch_id)
+        args.config = args.config or TASK / "configuration/milestone2.json"
+        config = read_json(args.config)
+        validate_milestone2(config)
+        output = args.output_root / args.run_id
+        if output == args.source_run or args.source_run in output.parents or output in args.source_run.parents:
+            raise ValueError("Milestone two needs a separate output run, not inside or above its source.")
+        if not args.dry_run and output.exists():
+            raise ValueError("Milestone-two run already exists; choose a new run ID.")
+    elif args.stage == "review":
         args.batch_id = slug(args.batch_id)
         if any((args.artifact_root, args.histories, args.tokenizer_cache, args.reviews)):
             raise ValueError("Review reads the existing run only; omit artifact/history/tokenizer/review overrides.")
@@ -114,8 +134,9 @@ def submit(args):
             "outputs": str(output),
             "stage_job_mapping": [{"array_index": 0, "stages": (
                 ["T1", "T2", "T3"] if args.stage == "milestone1" else
-                (["T2-review-preparation", "T3-interval-reconciliation"] if args.stage == "review"
-                 else [{"inventory": "T1", "profile": "T2", "errors": "T3"}[args.stage]])
+                (["T5-characteristics-and-shift", "T5-neighbors", "T4-frozen-groups"] if args.stage == "milestone2"
+                 else (["T2-review-preparation", "T3-interval-reconciliation"] if args.stage == "review"
+                       else [{"inventory": "T1", "profile": "T2", "errors": "T3"}[args.stage]]))
             )}],
             "stdout": str(root / "logs/slurm-%A_%a.out"),
             "stderr": str(root / "logs/slurm-%A_%a.err"),
@@ -141,9 +162,10 @@ def submit(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage", required=True, choices=("inventory", "profile", "errors", "milestone1", "review"))
+    parser.add_argument("--stage", required=True, choices=("inventory", "profile", "errors", "milestone1", "review", "milestone2"))
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--batch-id", default="human-review-01", help="Write-once supplement name for --stage review.")
+    parser.add_argument("--source-run", type=Path, help="Existing completed M1 run for --stage milestone2.")
     parser.add_argument("--partition", required=True)
     parser.add_argument("--output-root", type=Path, default=Path.home() / "master-hf/diagnostics")
     parser.add_argument("--artifact-root", type=Path, action="append")
