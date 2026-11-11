@@ -627,7 +627,110 @@ near-duplicate screening is bounded and approximate; language identification,
 per-row truncation and audited edit type are explicitly unavailable where
 evidence is absent.
 
-### Verification and current evidence
+### First diagnostic human-review supplement (T2/T3 only)
+
+The score-disclosed review requested for `diag-m1-20261109-02` is a **separate
+diagnostic sample**, not a replacement for the model-blind 522-story label
+audit above. The exporter reads a completed existing run without reinitializing
+it, changing its source fingerprint, rerunning model inference, or altering any
+original outputs. It records both the original run provenance and the new
+exporter's file hashes. Merge the follow-up PR and update the cluster checkout
+before using this new launcher stage; no patch transfer is needed:
+
+```bash
+git -C "$HOME/Master" switch main &&
+git -C "$HOME/Master" pull --ff-only origin main
+```
+
+Stop if Git reports conflicting local changes or a non-fast-forward branch;
+do not reset or overwrite them. After the merged update is present, run:
+
+```bash
+bash "$HOME/Master/Tasks/run_cluster_task.sh" diagnose-instability-models \
+  --stage review \
+  --run-id diag-m1-20261109-02 \
+  --batch-id human-review-01 \
+  --partition main \
+  --output-root "$HOME/master-hf/diagnostics"
+```
+
+Do not pass new artifact roots, histories, tokenizer caches or annotations:
+this stage inherits the source run's evidence. It shares the existing one-job
+concurrency guard, CPU resource limits, email notifications and `.out`/`.err`
+layout. Its `job_manifest.json` maps the one job to T2 review preparation and
+T3 interval reconciliation. `--dry-run` remains standard-library-only.
+
+The frozen policy in `scripts/diagnostic_config.py` requests **20 unique
+stories, five per category**, from full verified test partitions, using SLM1
+and SLM2 versus their validation-selected classical comparator:
+
+- Classical good / SLM poor ranking.
+- SLM good / classical poor ranking.
+- Both poor.
+- Both good.
+
+"Good" means at most 25% of opposite-class pairs inverted; "poor" means at
+least 50%, counting ties as half. These are explicit diagnostic categories,
+not absolute claims of correctness or new classifier thresholds. Inversion
+uses the full project/test/K opposite-class population, never the review
+sample. Recorded fixed-threshold predictions are shown separately.
+
+Selection cycles through categories, preferring least represented project,
+K, family, label and category/project, then breaking ties by seed `20261111`
+and identity hash. A story may appear only once across all K/family pairs.
+Candidate support, quotas, diversity and any shortfall are recorded. The
+exporter never silently relaxes thresholds to obtain 20 examples. This is a
+purposive diagnostic sample, **not an estimate of population error rates**.
+
+The new write-once external directory is:
+
+```text
+/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02/error-analysis/human-review-01/
+  status.json
+  selection_manifest.json
+  review_batch.html
+  review_batch.json
+  review_sheet.csv
+  ci_reconciliation.json
+  ci_reconciliation.md
+  coordination_handoff.md
+```
+
+Open the HTML locally; it contains the full original text, K/label, scores,
+tied ranks, inversion explanations, and real later edits/timestamps **only
+where validated histories exist**. Story text is escaped and the page makes
+no network requests. Scores are initially collapsed to encourage text-first
+inspection, but this is explicitly **not blinded review**. Missing histories
+make label verification unavailable; they never imply no changes occurred.
+Actual edit evidence still requires human interpretation and does not
+automatically reproduce the historical count rule.
+
+Copy `review_sheet.csv` outside the write-once batch before answering. All
+answers/reviewer fields are blank and all review statuses are `pending`.
+This sheet belongs to the new diagnostic sample; it is **not compatible with**
+the original frozen `label_audit.csv` ingestion via `--reviews`. Do not
+relabel records or count any reviews as complete before human answers exist.
+All these artifacts, including the answer sheet, must remain outside Git.
+
+The interval reconciliation is restricted to SLM2 MariaDB K=15 and
+IntelDAOS K=5. It checks the original report/study/selection hashes, native
+prediction bytes, frozen row/label order, exact comparator identity,
+probability direction and unchanged point metrics. It fingerprints original
+and normalized score vectors and records any CSV-roundtrip differences.
+It then reproduces **both** original paired IID issue-bootstrap intervals
+(2,000 draws, seed 7) and diagnostic non-circular moving-block intervals
+(500 draws, seed 20261109, 20 chronological rows per block), using each
+procedure's original score representation. A fixed bridge separately shows
+the CSV representation, seed, draw-count and resampling-law changes; it is
+not a search for a favorable interval. AP/ROC remain in JSON.
+
+Replays that lack inputs or fail agreement are blocked individually. A
+partial review quota or blocked reconciliation gives exit 2; a successful
+export does **not** mean human review or history-based label validation is
+complete. A second attempt requires a new `--batch-id`, preserving all
+previous answers and the original source run.
+
+### Verification commands and original local evidence
 
 Local validation commands (no cluster submission):
 

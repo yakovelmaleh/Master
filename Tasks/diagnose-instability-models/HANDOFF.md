@@ -1,5 +1,111 @@
 # Milestone 1 handoff to MAster SLM
 
+## T2/T3 review follow-up, November 11, 2026
+
+**Current request status:** review/reconciliation exporter implemented and
+validated locally; the actual approximately 20-story batch and exact-input
+CI replays are **pending user-operated cluster execution**, not completed
+analyses. Source run:
+`/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02/`.
+User-supplied results establish that this run completed T1/T2/T3 automation;
+the older local-only status below is retained as historical evidence.
+
+Worktree: `/Users/yakovelmaleh/code/Master-diagnose-review-batch`.
+Branch: `user/yakovelmaleh/diagnose-review-batch`, based on `8aeebc7`.
+The user authorized feature-branch PR publication for this follow-up.
+Original dirty checkout untouched; no Teams notification, cluster
+connection/submission, training or T4-T7 work. No story/model artifacts
+are included in the PR.
+
+Changed within this task: `scripts/prepare_review.py`,
+`scripts/reconcile_intervals.py`, `scripts/diagnostic_config.py`,
+`cluster/submit_jobs.py`, `tests/test_review.py`, `README.md`, `HANDOFF.md`.
+
+The supplement requests five unique stories in each of four explicit
+ranking categories, balancing projects/K/SLM1-SLM2/labels deterministically.
+All original text stays outside Git. The score-disclosed diagnostic sample
+does not estimate population error rates; all human answers remain blank.
+Missing histories explicitly make label verification unavailable.
+
+### Existing interval evidence, not a completed exact-input replay
+
+Original values are from
+`../sprint-data-analysis-summary/data/hf-20261019-report.json`; diagnostic
+values were previously supplied from T3. The exporter must reproduce both
+on the requested run's exact artifacts before reconciliation is complete.
+
+| SLM2 cell | Test n / positives | Delta AUC-PRC | Original paired-IID 95% CI | Previously reported diagnostic time-block 95% CI |
+|---|---:|---:|---|---|
+| MariaDB K=15 | 398 / 33 | +0.0551590111 | [-0.0424117124, +0.1568824135] | [+0.0031760960, +0.1296754246] |
+| IntelDAOS K=5 | 334 / 32 | +0.1343786104 | [+0.0045889405, +0.2767080153] | [-0.0359532116, +0.2820542318] |
+
+Original experiment config digest
+`2bc94a1680d72c09dc8a1a93e4f0806cc6e558c7ad21cdf328626690c7b33440`
+matches both original report cells: seed 7, 2,000 paired IID issue draws.
+The diagnostic config uses seed 20261109, 500 paired non-circular
+chronological block draws, block size 20. Both use percentile limits and
+skip one-class draws; neither interval adjusts for multiple comparisons or
+model selection. The sampling distribution and finite-draw configuration
+both differ. Block sampling need not yield wider intervals. Fixed-threshold
+classification differences cannot explain ranking-metric interval changes.
+The original IntelDAOS AP difference interval includes zero, unlike its
+AUC-PRC interval; keep these metrics separate.
+
+The controlled replay checks hashes, original row order, labels,
+model/comparator selection, probability direction, point metrics and CSV
+representation, then shows both intervals plus a fixed configuration
+bridge. Neither interval is selected based on its sign. A failed replay
+stays blocked. The cluster-only source prediction files are the remaining
+execution input; raw histories and human answers are separately missing.
+
+### Validation and next user action
+
+Executed locally in the isolated worktree:
+
+```bash
+python3 -m unittest discover -s Tasks/diagnose-instability-models/tests -p 'test_*.py' -v
+bash Tasks/run_cluster_task.sh diagnose-instability-models \
+  --stage review --run-id diag-m1-20261109-02 \
+  --batch-id human-review-01 --partition main --dry-run
+git diff --check
+```
+
+**23 tests passed**, including repeatable 20-unique-story selection,
+four-category coverage, multiple projects/K/families, integrity rejection,
+pending blank answers, escaped full text, missing/actual history,
+write-once/source preservation, exact native-input reconciliation and
+both bootstrap replays. The review launcher also passes under
+`python3 -S`; its generated script passes `bash -n`. No new dependencies
+were installed. Fixture outputs were temporary and are not real stories
+or executed cluster analyses.
+
+Deploy through the follow-up PR, not by transferring or applying a patch.
+**After the PR is merged**, update the cluster checkout:
+
+```bash
+git -C "$HOME/Master" switch main &&
+git -C "$HOME/Master" pull --ff-only origin main
+```
+
+If Git reports conflicting local changes or a non-fast-forward branch,
+stop and reconcile them rather than resetting or overwriting anything.
+After the update succeeds, the user alone runs:
+
+```bash
+bash "$HOME/Master/Tasks/run_cluster_task.sh" diagnose-instability-models \
+  --stage review --run-id diag-m1-20261109-02 \
+  --batch-id human-review-01 --partition main \
+  --output-root "$HOME/master-hf/diagnostics"
+```
+
+Planned output directory (not yet generated on the cluster):
+`/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02/error-analysis/human-review-01/`.
+Review `review_batch.html`, answer a copy of `review_sheet.csv`, and return
+`ci_reconciliation.{md,json}`, `selection_manifest.json`, `status.json`
+and `coordination_handoff.md` to the coordination session. Keep raw stories
+local/outside Git. Existing concurrency limits, email and job/log manifests
+remain in effect. Do not start T4-T7.
+
 ## User-authorized PR packaging update
 
 After the implementation handoff, the user requested a PR. Packaging uses the
