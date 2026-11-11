@@ -83,7 +83,7 @@ def metadata(root):
 def emit(root, relative, stage, status, **values):
     run = metadata(root)
     write_json(root / relative, {
-        "schema": "instability-diagnostics-m1-v1", "run_id": run["run_id"],
+        "schema": run.get("schema", "instability-diagnostics-m1-v1"), "run_id": run["run_id"],
         "stage": stage, "status": status, "source_sha256": run["source_sha256"],
         "configuration_sha256": run["configuration_sha256"],
         "projects": list(PROJECTS), "levels": list(LEVELS),
