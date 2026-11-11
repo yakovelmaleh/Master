@@ -1,5 +1,18 @@
 """Analysis configuration validation shared with the dependency-free launcher."""
 
+REVIEW_POLICY = {
+    "schema": "instability-first-human-review-v1",
+    "seed": 20261111,
+    "per_category": 5,
+    "split": "test",
+    "families": ["SLM1", "SLM2"],
+    "good_max_inversion": 0.25,
+    "poor_min_inversion": 0.5,
+    "categories": ["classical_good_slm_poor", "slm_good_classical_poor",
+                   "both_poor", "both_good"],
+    "ci_targets": [["MariaDB", 15], ["IntelDAOS", 5]],
+}
+
 
 def validate_config(config):
     for key in ("seed", "boundary_radius", "review_per_stratum", "minimum_slice_rows",
