@@ -3,6 +3,58 @@
 This folder keeps the sprint PowerPoint in the repository. Maintain this copy
 when adding more experiments; a copy in Downloads is only for convenience.
 
+## November sprint: instability diagnostic findings
+
+`results/Master-Sprint-Summary-2026-11-15.pptx`
+
+This is a **separate November presentation**, not an extension or replacement
+of the October deck. It has five slides: a November title followed by
+introduction, Data Analysis, results and conclusions (slides 2-5).
+Both historical sprint decks remain unchanged.
+
+The results come from completed T5 text diagnostics, run
+`diag-m2-20261111-01`, job 24109367. No model analysis was rerun for this
+presentation. The slides cover length, missing/repetitive text and
+chronological shifts, retaining support counts, uncertainty and limitations.
+All supported test length cells are counted: numerical AUC-PRC wins are
+21/54 for SLM1, 22/54 for SLM2 and 4/54 for Jev. Most paired intervals include
+zero. Both adverse and favorable examples are shown, with validation separated
+from exploratory test results. Labels remain unverified without actual edit
+histories; no test embedding comparisons are available.
+
+Compact aggregate evidence and source fingerprints are in
+`data/diag-m2-20261111-01-presentation.json`; the block specification is in
+`specs/diag-m2-20261111-01.json`. Speaker notes retain full-precision selected
+metrics (including AP), counts, prevalence intervals, definitions and caveats.
+New slice intervals use 500 paired non-circular 20-row blocks, seed 20261111.
+They do not replace the original studies' IID bootstrap intervals or establish
+cross-split, causal or interaction effects.
+
+The bundled presentation generator is included so the new builder has no
+dependency on unpublished local scripts. Its sanitized template retains a
+clean title, the existing layouts and theme, not the original thesis content.
+
+Reproduce to a new path, from the repository root named `Master`:
+
+```bash
+python3 -m pip install -r skills/sprint-presentation/requirements.txt
+python3 skills/sprint-presentation/scripts/sprint_presentation.py create \
+  --sprint "November 2026 | Results reviewed November 15" \
+  --title "Master - November 2026" \
+  --subtitle "Instability diagnostics | Yakov Elmaleh" \
+  --output /path/to/new-november-deck.pptx
+python3 Tasks/sprint-data-analysis-summary/append_instability_diagnostics_presentation.py \
+  --archive /path/to/diag-m2-20261111-01-aggregates.tar.gz \
+  --presentation /path/to/new-november-deck.pptx \
+  --backup /path/to/november-title-backup.pptx \
+  --in-place
+```
+
+The aggregate archive stays outside Git. The builder verifies its included
+hashes, rejects duplicate diagnostic blocks and concurrent input changes,
+and preserves existing slide parts and order. It changes no labels, model
+selection, predictions or studies. No raw story text or embeddings are included.
+
 ## October 8 presentation: completed model studies
 
 `results/Master-Sprint-Summary-2026-10-08.pptx`

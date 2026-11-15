@@ -1,0 +1,68 @@
+{
+  "experiment": "Per-project instability model",
+  "task": "Train one refactored model per project and compare it with the historical project models.",
+  "why": [
+    "A global chronological split does not represent every project in the test set.",
+    "Per-project evaluation is more comparable with the historical experiments."
+  ],
+  "data": {
+    "old": {
+      "name": "Historical pipeline",
+      "metrics": {
+        "Original rows": "23,901",
+        "Retained rows": "23,901",
+        "Test rows": "4,781",
+        "Projects in test": "6"
+      }
+    },
+    "new": {
+      "name": "Refactored pipeline",
+      "metrics": {
+        "Original rows": "23,901",
+        "Retained rows": "23,822",
+        "Test rows": "4,770",
+        "Projects in test": "6"
+      }
+    },
+    "notes": [
+      "The same 60/20/20 chronological strategy is applied independently to every project.",
+      "Rows with invalid sprint-entry timestamps are excluded by the refactored loader."
+    ]
+  },
+  "results": {
+    "visual": "table",
+    "columns": [
+      "Model",
+      "Unstable level",
+      "AUC-PRC",
+      "Accuracy",
+      "ROC AUC"
+    ],
+    "rows": [
+      [
+        "Historical RF",
+        5,
+        0.268,
+        0.860,
+        0.672
+      ],
+      [
+        "Refactored logistic",
+        5,
+        0.300,
+        0.700,
+        0.688
+      ]
+    ]
+  },
+  "conclusions": {
+    "findings": [
+      "Per-project training restores test coverage for all six projects.",
+      "AUC-PRC must be interpreted relative to each project's positive prevalence."
+    ],
+    "next_steps": [
+      "Add training-only sample weights.",
+      "Select hyperparameters using unweighted validation AUC-PRC."
+    ]
+  }
+}

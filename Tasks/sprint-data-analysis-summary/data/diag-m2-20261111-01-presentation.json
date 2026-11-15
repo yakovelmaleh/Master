@@ -1,0 +1,3013 @@
+{
+  "run": {
+    "configuration": {
+      "bootstrap_samples": 500,
+      "cluster_fit_rows": 2048,
+      "cluster_iterations": 50,
+      "clusters": 8,
+      "distance_batch_rows": 128,
+      "embedding_preference": [
+        "modernbert",
+        "qwen_embedding"
+      ],
+      "length_quantiles": [
+        0.25,
+        0.5,
+        0.75
+      ],
+      "maximum_embedding_dimensions": 8192,
+      "maximum_project_rows": 30000,
+      "metric_tolerance": 1e-10,
+      "minimum_slice_negatives": 10,
+      "minimum_slice_positives": 10,
+      "minimum_slice_rows": 50,
+      "neighbor_bank_rows": 2048,
+      "neighbors": 10,
+      "outlier_quantile": 0.05,
+      "schema": "instability-diagnostics-m2-v1",
+      "seed": 20261111,
+      "similarity_quantile": 0.9,
+      "stability_seed_offset": 1,
+      "time_block_rows": 20
+    },
+    "configuration_sha256": "49f8e6ba0db07f3948856e0647e3ac2b24f81845c470606dd49f3f9dc86a05de",
+    "created_utc": "2026-11-11T21:11:27.062781+00:00",
+    "execution_environment": {
+      "MKL_NUM_THREADS": "4",
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4",
+      "SLURM_CPUS_PER_TASK": "4",
+      "SLURM_JOB_ID": "24109367",
+      "SLURM_MEM_PER_NODE": "16384"
+    },
+    "input_sha256": {
+      "error-analysis/error_slices.json": "29360a193147f15635a6e5643c8ffc710807e7a47e970f91cd73c3c930555f11",
+      "error-analysis/human-review-01/ci_reconciliation.json": "da450e946719b963d76d68487f8d0bc63271a81449e7b5d5caed440cfe66d55b",
+      "error-analysis/human-review-01/status.json": "317fcf7604f8b57b9a92059500318270b2ee2bd7fc109fc5dc26c52eebd54dd8",
+      "error-analysis/row_diagnostics.csv": "f2d22cd07e958f6179323d1a55267e89620124f06b00e383a3137eb9db9cef39",
+      "error-analysis/row_diagnostics.csv.metadata.json": "ad077c6a1750a34496cf1cb161e3f5fd763791c1c9252ce128b3457005a95d81",
+      "manifest/artifact_manifest.json": "4a620e8e02d4bd2d037f48e983bb5ca8b1e26a45ee547701190a38f6d337c6d5",
+      "manifest/errors_status.json": "1be7dd8ccd9b52ed7e8d7e762d839061328dd98dc1e11bd57eee56f41e64edef",
+      "manifest/integrity_checks.json": "edad16a559aac8999f2000049bad234492e161073684feb19961ff7b6c2493ce",
+      "manifest/inventory_status.json": "d6473d45ccce73d0a6ae3a477843c537eeb6abd1a62b938c82a242abd5319ec0",
+      "manifest/population.csv": "2c846f86a788bb0494495201dad2bc44a44f0773c036cd4f574e102de9ba98e2",
+      "manifest/population.csv.metadata.json": "4e440e86e127c990e73fd29de200b3a048eb8a3cbc8739405306df304198ec20",
+      "manifest/predictions.csv": "028f223007ffcd7c97323389c4a2cf9606b8908d42d9b88612fe021452fa8a33",
+      "manifest/predictions.csv.metadata.json": "603c00732f461551133cb4abb894e18a13fc81485b9fc5042e6e38d86842d4c3",
+      "manifest/profile_status.json": "26921541686be136c9cbf9aaaa4beaabdf106a4fc702548ed01a5f2484d08f32",
+      "run.json": "d3ec72c28ffdf45ddb48cccf95e07f543700a70551f60f629446882ac66023e4"
+    },
+    "numpy_version": "2.2.6",
+    "pandas_version": "2.2.3",
+    "python": "3.11.17 (main, Oct  1 2026, 20:17:42) [GCC 14.3.0]",
+    "reference_sha256": "91ffc2995a394f3c132d260bb5b1129e97578f1cd425ea36b7de49d8e2318473",
+    "review_use": "Hypothesis generation only; no review rows or answers enter feature fitting, clustering or bank selection.",
+    "run_id": "diag-m2-20261111-01",
+    "schema": "instability-diagnostics-m2-v1",
+    "scope": "T5 prioritized, automated T4; no predictive training, inference, downloads, relabeling, T6/T7.",
+    "source_run": "/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02",
+    "source_run_sha256": "f600fe459ea2b70c2ef90cc6e0b4a1d58b7ea310d7698f8477479be9c7713122",
+    "source_sha256": "f8da0db98b3f996c31bf41f900edc9937d8f6cf95cb5193b1d87b60ef84247b6"
+  },
+  "summary": {
+    "characteristic_comparisons": 2304,
+    "configuration_sha256": "49f8e6ba0db07f3948856e0647e3ac2b24f81845c470606dd49f3f9dc86a05de",
+    "embedding_blocks": [
+      {
+        "project": "Apache",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      },
+      {
+        "project": "Hyperledger",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      },
+      {
+        "project": "IntelDAOS",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      },
+      {
+        "project": "Jira",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      },
+      {
+        "project": "MariaDB",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      },
+      {
+        "project": "Qt",
+        "reason": "Matching cache unavailable.",
+        "split": "test"
+      }
+    ],
+    "embedding_comparisons": 1152,
+    "findings_status": "Read per-project/K counts and supported comparisons before drawing conclusions; automated completion is not causal interpretation.",
+    "history_based_label_verification": "unavailable",
+    "input_rows": 23822,
+    "levels": [
+      5,
+      10,
+      15,
+      20
+    ],
+    "metric_definition": "existing tie-aware trapezoidal PR integral; AP retained separately",
+    "other_work": "Existing validation ablation comparisons and feature-refit experiments are not implemented in this focused pass; no substitute model fits.",
+    "primary_metric": "auc_prc",
+    "prior_ci_artifact": "/home/yakovelm/master-hf/diagnostics/diag-m1-20261109-02/error-analysis/human-review-01/ci_reconciliation.json",
+    "projects": [
+      "Apache",
+      "Hyperledger",
+      "IntelDAOS",
+      "Jira",
+      "MariaDB",
+      "Qt"
+    ],
+    "review_independence": "20 diagnostic text reviews are hypothesis-generating, not new labels.",
+    "run_id": "diag-m2-20261111-01",
+    "schema": "instability-diagnostics-m2-v1",
+    "source_sha256": "f8da0db98b3f996c31bf41f900edc9937d8f6cf95cb5193b1d87b60ef84247b6",
+    "stage": "T4-T5",
+    "status": "blocked",
+    "supported_characteristic_comparisons": 1197,
+    "t5_text_status": "succeeded",
+    "test_interpretation": "exploratory previously observed chronological holdout",
+    "training_model_performance": "Unavailable in M1 saved prediction partitions; no training predictions regenerated."
+  },
+  "source_archive_sha256": "50f488ed144e53a547f0bb2a17ad6895156008b767c2bc5984fe004ac2b5dc43",
+  "source_files_sha256": {
+    "run.json": "95f77535d97aa039a45517032fc97228db9db121e5010c71ad2951eb4e08a8cb",
+    "summary.json": "7898db9cb2b67f873ece79e97d93dc2994395936081e995c4d2556a257b738bc",
+    "manifest/status.json": "2545166107ed10c219ab4b5501a64537ea7c4069a1cc6891f0c50ce0814fe383",
+    "manifest/embedding_status.json": "10c1e94f037b76b0e50af68c68542a2ab62e543d61363531c7ad308add81ee8d",
+    "complexity/length_evidence.json": "2ea69387a908dfc2ea24ded2d5f7663636a87e3fbb443eefac618a8ef1714cd0",
+    "complexity/characteristic_profiles.json": "0f01eb17fadf715c5eb1734b3d7f7ce2b4521bacd4973d10e2d2483dd7b9d731",
+    "complexity/matched_characteristic_metrics.json": "58656e387212ec0f068c3b30e4e7ceeff1fbe84319d569bde7f9d87843a10e1c",
+    "complexity/exact_duplicate_disagreement.json": "755e0174cf06c6cbebe11ac9a4aae46d3dfd876f13dd0b628cf6a9ab9f59a03a",
+    "shift/temporal_shift.json": "52e09b8bf405774732cc1ef3e8f68ae50b7d926841a766322576df71b04290f7"
+  },
+  "balance": [
+    {
+      "family": "SLM1",
+      "validation": {
+        "supported": 52,
+        "wins": 27,
+        "interval_includes_zero": 41
+      },
+      "test": {
+        "supported": 54,
+        "wins": 21,
+        "interval_includes_zero": 45
+      }
+    },
+    {
+      "family": "SLM2",
+      "validation": {
+        "supported": 52,
+        "wins": 30,
+        "interval_includes_zero": 46
+      },
+      "test": {
+        "supported": 54,
+        "wins": 22,
+        "interval_includes_zero": 51
+      }
+    },
+    {
+      "family": "Jev",
+      "validation": {
+        "supported": 52,
+        "wins": 10,
+        "interval_includes_zero": 29
+      },
+      "test": {
+        "supported": 54,
+        "wins": 4,
+        "interval_includes_zero": 41
+      }
+    }
+  ],
+  "selected_scores": [
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": 0.1019831942800754,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM1",
+      "fixed_threshold_outcomes": {
+        "both_correct": 100,
+        "both_wrong": 129,
+        "classical_only_correct": 102,
+        "model_only_correct": 30
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.5595567867036011,
+          "auc_prc": 0.30172529537111725,
+          "average_precision": 0.30924465983922145,
+          "balanced_accuracy": 0.5859592423018225,
+          "confusion_matrix": [
+            [
+              152,
+              130
+            ],
+            [
+              29,
+              50
+            ]
+          ],
+          "f1": 0.38610038610038616,
+          "positive_count": 79,
+          "positive_rate": 0.2188365650969529,
+          "precision": 0.2777777777777778,
+          "recall": 0.6329113924050633,
+          "roc_auc": 0.6082233593679863,
+          "row_count": 361,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.3601108033240997,
+          "auc_prc": 0.40370848965119266,
+          "average_precision": 0.40889114042397334,
+          "balanced_accuracy": 0.5630891462429303,
+          "confusion_matrix": [
+            [
+              57,
+              225
+            ],
+            [
+              6,
+              73
+            ]
+          ],
+          "f1": 0.3872679045092839,
+          "positive_count": 79,
+          "positive_rate": 0.2188365650969529,
+          "precision": 0.24496644295302014,
+          "recall": 0.9240506329113924,
+          "roc_auc": 0.6524822695035462,
+          "row_count": 361,
+          "threshold": 0.06
+        }
+      },
+      "model": "modernbert",
+      "negatives": 282,
+      "positives": 79,
+      "project": "Apache",
+      "rows": 361,
+      "slice": "length_bin:2",
+      "split": "validation",
+      "uncertainty": {
+        "interval_95": [
+          0.005425002019782829,
+          0.17698878057415832
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": -0.10810253008663542,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM1",
+      "fixed_threshold_outcomes": {
+        "both_correct": 40,
+        "both_wrong": 16,
+        "classical_only_correct": 207,
+        "model_only_correct": 36
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.8260869565217391,
+          "auc_prc": 0.2702016733282896,
+          "average_precision": 0.2774530619392979,
+          "balanced_accuracy": 0.5186122448979592,
+          "confusion_matrix": [
+            [
+              244,
+              6
+            ],
+            [
+              46,
+              3
+            ]
+          ],
+          "f1": 0.10344827586206896,
+          "positive_count": 49,
+          "positive_rate": 0.16387959866220736,
+          "precision": 0.3333333333333333,
+          "recall": 0.061224489795918366,
+          "roc_auc": 0.6248979591836735,
+          "row_count": 299,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.25418060200668896,
+          "auc_prc": 0.16209914324165417,
+          "average_precision": 0.16743958373108742,
+          "balanced_accuracy": 0.44734693877551024,
+          "confusion_matrix": [
+            [
+              40,
+              210
+            ],
+            [
+              13,
+              36
+            ]
+          ],
+          "f1": 0.24406779661016947,
+          "positive_count": 49,
+          "positive_rate": 0.16387959866220736,
+          "precision": 0.14634146341463414,
+          "recall": 0.7346938775510204,
+          "roc_auc": 0.4050612244897959,
+          "row_count": 299,
+          "threshold": 0.06
+        }
+      },
+      "model": "modernbert",
+      "negatives": 250,
+      "positives": 49,
+      "project": "Apache",
+      "rows": 299,
+      "slice": "length_bin:2",
+      "split": "test",
+      "uncertainty": {
+        "interval_95": [
+          -0.2479104846267248,
+          -0.012550681534385258
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": -0.0020004355348592073,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 292,
+        "both_wrong": 31,
+        "classical_only_correct": 25,
+        "model_only_correct": 9
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 15,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.8879551820728291,
+          "auc_prc": 0.13394312858432883,
+          "average_precision": 0.14486397236723297,
+          "balanced_accuracy": 0.5722115384615385,
+          "confusion_matrix": [
+            [
+              311,
+              14
+            ],
+            [
+              26,
+              6
+            ]
+          ],
+          "f1": 0.23076923076923075,
+          "positive_count": 32,
+          "positive_rate": 0.0896358543417367,
+          "precision": 0.3,
+          "recall": 0.1875,
+          "roc_auc": 0.5707211538461539,
+          "row_count": 357,
+          "threshold": 0.2099999999999999
+        },
+        "model": {
+          "accuracy": 0.8431372549019608,
+          "auc_prc": 0.13194269304946962,
+          "average_precision": 0.14217279563938834,
+          "balanced_accuracy": 0.5616826923076923,
+          "confusion_matrix": [
+            [
+              294,
+              31
+            ],
+            [
+              25,
+              7
+            ]
+          ],
+          "f1": 0.19999999999999998,
+          "positive_count": 32,
+          "positive_rate": 0.0896358543417367,
+          "precision": 0.18421052631578946,
+          "recall": 0.21875,
+          "roc_auc": 0.6046153846153847,
+          "row_count": 357,
+          "threshold": 0.05
+        }
+      },
+      "model": "qwen",
+      "negatives": 325,
+      "positives": 32,
+      "project": "Qt",
+      "rows": 357,
+      "slice": "length_bin:3",
+      "split": "validation",
+      "uncertainty": {
+        "interval_95": [
+          -0.10769334777667962,
+          0.07264330395837562
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": 0.22273529708267645,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 196,
+        "both_wrong": 17,
+        "classical_only_correct": 11,
+        "model_only_correct": 10
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 15,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.8846153846153846,
+          "auc_prc": 0.1401378939179467,
+          "average_precision": 0.15344175524065692,
+          "balanced_accuracy": 0.48364485981308414,
+          "confusion_matrix": [
+            [
+              207,
+              7
+            ],
+            [
+              20,
+              0
+            ]
+          ],
+          "f1": 0.0,
+          "positive_count": 20,
+          "positive_rate": 0.08547008547008547,
+          "precision": 0.0,
+          "recall": 0.0,
+          "roc_auc": 0.6480140186915888,
+          "row_count": 234,
+          "threshold": 0.2099999999999999
+        },
+        "model": {
+          "accuracy": 0.8803418803418803,
+          "auc_prc": 0.36287319100062315,
+          "average_precision": 0.3783038904584789,
+          "balanced_accuracy": 0.6399532710280373,
+          "confusion_matrix": [
+            [
+              199,
+              15
+            ],
+            [
+              13,
+              7
+            ]
+          ],
+          "f1": 0.3333333333333333,
+          "positive_count": 20,
+          "positive_rate": 0.08547008547008547,
+          "precision": 0.3181818181818182,
+          "recall": 0.35,
+          "roc_auc": 0.8067757009345794,
+          "row_count": 234,
+          "threshold": 0.05
+        }
+      },
+      "model": "qwen",
+      "negatives": 214,
+      "positives": 20,
+      "project": "Qt",
+      "rows": 234,
+      "slice": "length_bin:3",
+      "split": "test",
+      "uncertainty": {
+        "interval_95": [
+          0.04817028471105111,
+          0.35335110087220184
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    }
+  ],
+  "rare_flag_support": {
+    "summary_equals_description": {
+      "validation": 0,
+      "test": 0
+    },
+    "reference_only_description": {
+      "validation": 0,
+      "test": 0
+    },
+    "duplicate_within_split": {
+      "validation": 0,
+      "test": 0
+    },
+    "seen_in_train": {
+      "validation": 0,
+      "test": 0
+    }
+  },
+  "temporal": [
+    {
+      "character_length_quantiles": {
+        "0": 19.0,
+        "0.5": 247.0,
+        "0.9": 788.3999999999999,
+        "0.95": 1203.0499999999993,
+        "0.99": 2956.870000000004,
+        "1": 11475.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.009009009009009009,
+          "rows": 0,
+          "train_rate": 0.009009009009009009
+        },
+        "empty_description": {
+          "rate": 0.0748502994011976,
+          "rate_difference_from_train": -0.36358813903724085,
+          "rows": 25,
+          "train_rate": 0.43843843843843844
+        },
+        "first_text_occurrence": {
+          "rate": 1.0,
+          "rate_difference_from_train": 0.005005005005005003,
+          "rows": 334,
+          "train_rate": 0.994994994994995
+        },
+        "reference_only_description": {
+          "rate": 0.017964071856287425,
+          "rate_difference_from_train": 0.016963070855286422,
+          "rows": 6,
+          "train_rate": 0.001001001001001001
+        },
+        "seen_in_train": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.009009009009009009,
+          "rows": 0,
+          "train_rate": 0.009009009009009009
+        },
+        "summary_equals_description": {
+          "rate": 0.014970059880239521,
+          "rate_difference_from_train": -0.012056967146787508,
+          "rows": 5,
+          "train_rate": 0.02702702702702703
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 29,
+          "prevalence": 0.08682634730538923,
+          "prevalence_difference_from_train": 0.006746267225309147,
+          "training_positives": 80,
+          "training_prevalence": 0.08008008008008008
+        },
+        "15": {
+          "positives": 24,
+          "prevalence": 0.0718562874251497,
+          "prevalence_difference_from_train": 0.01780223337109564,
+          "training_positives": 54,
+          "training_prevalence": 0.05405405405405406
+        },
+        "20": {
+          "positives": 22,
+          "prevalence": 0.0658682634730539,
+          "prevalence_difference_from_train": 0.026829224434014858,
+          "training_positives": 39,
+          "training_prevalence": 0.03903903903903904
+        },
+        "5": {
+          "positives": 32,
+          "prevalence": 0.09580838323353294,
+          "prevalence_difference_from_train": -0.030317742892593175,
+          "training_positives": 126,
+          "training_prevalence": 0.12612612612612611
+        }
+      },
+      "length_bin_counts": {
+        "0": 17,
+        "1": 17,
+        "2": 105,
+        "3": 195
+      },
+      "length_bin_total_variation_from_train": 0.4177231123338907,
+      "project": "IntelDAOS",
+      "rows": 334,
+      "split": "test",
+      "training_rows": 999,
+      "word_length_quantiles": {
+        "0": 3.0,
+        "0.5": 39.5,
+        "0.9": 137.7,
+        "0.95": 186.0499999999999,
+        "0.99": 444.8200000000023,
+        "1": 1950.0
+      }
+    },
+    {
+      "character_length_quantiles": {
+        "0": 13.0,
+        "0.5": 78.0,
+        "0.9": 339.4000000000001,
+        "0.95": 466.59999999999945,
+        "0.99": 1058.2199999999998,
+        "1": 3748.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.009009009009009009,
+          "rate_difference_from_train": 0.0,
+          "rows": 9,
+          "train_rate": 0.009009009009009009
+        },
+        "empty_description": {
+          "rate": 0.43843843843843844,
+          "rate_difference_from_train": 0.0,
+          "rows": 438,
+          "train_rate": 0.43843843843843844
+        },
+        "first_text_occurrence": {
+          "rate": 0.994994994994995,
+          "rate_difference_from_train": 0.0,
+          "rows": 994,
+          "train_rate": 0.994994994994995
+        },
+        "reference_only_description": {
+          "rate": 0.001001001001001001,
+          "rate_difference_from_train": 0.0,
+          "rows": 1,
+          "train_rate": 0.001001001001001001
+        },
+        "seen_in_train": {
+          "rate": 0.009009009009009009,
+          "rate_difference_from_train": 0.0,
+          "rows": 9,
+          "train_rate": 0.009009009009009009
+        },
+        "summary_equals_description": {
+          "rate": 0.02702702702702703,
+          "rate_difference_from_train": 0.0,
+          "rows": 27,
+          "train_rate": 0.02702702702702703
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 80,
+          "prevalence": 0.08008008008008008,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 80,
+          "training_prevalence": 0.08008008008008008
+        },
+        "15": {
+          "positives": 54,
+          "prevalence": 0.05405405405405406,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 54,
+          "training_prevalence": 0.05405405405405406
+        },
+        "20": {
+          "positives": 39,
+          "prevalence": 0.03903903903903904,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 39,
+          "training_prevalence": 0.03903903903903904
+        },
+        "5": {
+          "positives": 126,
+          "prevalence": 0.12612612612612611,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 126,
+          "training_prevalence": 0.12612612612612611
+        }
+      },
+      "length_bin_counts": {
+        "0": 293,
+        "1": 226,
+        "2": 237,
+        "3": 243
+      },
+      "length_bin_total_variation_from_train": 0.0,
+      "project": "IntelDAOS",
+      "rows": 999,
+      "split": "train",
+      "training_rows": 999,
+      "word_length_quantiles": {
+        "0": 2.0,
+        "0.5": 13.0,
+        "0.9": 56.0,
+        "0.95": 77.09999999999991,
+        "0.99": 156.0999999999999,
+        "1": 525.0
+      }
+    },
+    {
+      "character_length_quantiles": {
+        "0": 23.0,
+        "0.5": 313.0,
+        "0.9": 873.0,
+        "0.95": 1109.8,
+        "0.99": 3834.120000000002,
+        "1": 14483.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.009009009009009009,
+          "rows": 0,
+          "train_rate": 0.009009009009009009
+        },
+        "empty_description": {
+          "rate": 0.06006006006006006,
+          "rate_difference_from_train": -0.3783783783783784,
+          "rows": 20,
+          "train_rate": 0.43843843843843844
+        },
+        "first_text_occurrence": {
+          "rate": 1.0,
+          "rate_difference_from_train": 0.005005005005005003,
+          "rows": 333,
+          "train_rate": 0.994994994994995
+        },
+        "reference_only_description": {
+          "rate": 0.003003003003003003,
+          "rate_difference_from_train": 0.002002002002002002,
+          "rows": 1,
+          "train_rate": 0.001001001001001001
+        },
+        "seen_in_train": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.009009009009009009,
+          "rows": 0,
+          "train_rate": 0.009009009009009009
+        },
+        "summary_equals_description": {
+          "rate": 0.018018018018018018,
+          "rate_difference_from_train": -0.00900900900900901,
+          "rows": 6,
+          "train_rate": 0.02702702702702703
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 42,
+          "prevalence": 0.12612612612612611,
+          "prevalence_difference_from_train": 0.046046046046046035,
+          "training_positives": 80,
+          "training_prevalence": 0.08008008008008008
+        },
+        "15": {
+          "positives": 38,
+          "prevalence": 0.11411411411411411,
+          "prevalence_difference_from_train": 0.06006006006006005,
+          "training_positives": 54,
+          "training_prevalence": 0.05405405405405406
+        },
+        "20": {
+          "positives": 30,
+          "prevalence": 0.09009009009009009,
+          "prevalence_difference_from_train": 0.051051051051051045,
+          "training_positives": 39,
+          "training_prevalence": 0.03903903903903904
+        },
+        "5": {
+          "positives": 52,
+          "prevalence": 0.15615615615615616,
+          "prevalence_difference_from_train": 0.030030030030030047,
+          "training_positives": 126,
+          "training_prevalence": 0.12612612612612611
+        }
+      },
+      "length_bin_counts": {
+        "0": 10,
+        "1": 29,
+        "2": 75,
+        "3": 219
+      },
+      "length_bin_total_variation_from_train": 0.41441441441441446,
+      "project": "IntelDAOS",
+      "rows": 333,
+      "split": "validation",
+      "training_rows": 999,
+      "word_length_quantiles": {
+        "0": 4.0,
+        "0.5": 53.0,
+        "0.9": 148.20000000000005,
+        "0.95": 182.39999999999998,
+        "0.99": 600.8000000000006,
+        "1": 2551.0
+      }
+    },
+    {
+      "character_length_quantiles": {
+        "0": 11.0,
+        "0.5": 571.5,
+        "0.9": 1401.0,
+        "0.95": 2058.5,
+        "0.99": 5547.1,
+        "1": 12740.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.0189873417721519,
+          "rate_difference_from_train": 0.016868697704355288,
+          "rows": 6,
+          "train_rate": 0.00211864406779661
+        },
+        "empty_description": {
+          "rate": 0.060126582278481014,
+          "rate_difference_from_train": -0.1750429092469427,
+          "rows": 19,
+          "train_rate": 0.23516949152542374
+        },
+        "first_text_occurrence": {
+          "rate": 0.990506329113924,
+          "rate_difference_from_train": -0.008434348852177642,
+          "rows": 313,
+          "train_rate": 0.9989406779661016
+        },
+        "reference_only_description": {
+          "rate": 0.012658227848101266,
+          "rate_difference_from_train": 0.0031243295430165192,
+          "rows": 4,
+          "train_rate": 0.009533898305084746
+        },
+        "seen_in_train": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.00211864406779661,
+          "rows": 0,
+          "train_rate": 0.00211864406779661
+        },
+        "summary_equals_description": {
+          "rate": 0.00949367088607595,
+          "rate_difference_from_train": 0.00949367088607595,
+          "rows": 3,
+          "train_rate": 0.0
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 164,
+          "prevalence": 0.5189873417721519,
+          "prevalence_difference_from_train": 0.2997076807552027,
+          "training_positives": 207,
+          "training_prevalence": 0.21927966101694915
+        },
+        "15": {
+          "positives": 160,
+          "prevalence": 0.5063291139240507,
+          "prevalence_difference_from_train": 0.29764267324608457,
+          "training_positives": 197,
+          "training_prevalence": 0.2086864406779661
+        },
+        "20": {
+          "positives": 41,
+          "prevalence": 0.12974683544303797,
+          "prevalence_difference_from_train": 0.0026281913752413677,
+          "training_positives": 120,
+          "training_prevalence": 0.1271186440677966
+        },
+        "5": {
+          "positives": 170,
+          "prevalence": 0.5379746835443038,
+          "prevalence_difference_from_train": 0.30386451405277837,
+          "training_positives": 221,
+          "training_prevalence": 0.2341101694915254
+        }
+      },
+      "length_bin_counts": {
+        "0": 31,
+        "1": 26,
+        "2": 45,
+        "3": 214
+      },
+      "length_bin_total_variation_from_train": 0.43145247800901093,
+      "project": "Jira",
+      "rows": 316,
+      "split": "test",
+      "training_rows": 944,
+      "word_length_quantiles": {
+        "0": 2.0,
+        "0.5": 91.0,
+        "0.9": 211.5,
+        "0.95": 314.25,
+        "0.99": 757.9500000000006,
+        "1": 2207.0
+      }
+    },
+    {
+      "character_length_quantiles": {
+        "0": 14.0,
+        "0.5": 196.0,
+        "0.9": 599.1000000000001,
+        "0.95": 788.6999999999998,
+        "0.99": 1544.0799999999908,
+        "1": 20738.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.00211864406779661,
+          "rate_difference_from_train": 0.0,
+          "rows": 2,
+          "train_rate": 0.00211864406779661
+        },
+        "empty_description": {
+          "rate": 0.23516949152542374,
+          "rate_difference_from_train": 0.0,
+          "rows": 222,
+          "train_rate": 0.23516949152542374
+        },
+        "first_text_occurrence": {
+          "rate": 0.9989406779661016,
+          "rate_difference_from_train": 0.0,
+          "rows": 943,
+          "train_rate": 0.9989406779661016
+        },
+        "reference_only_description": {
+          "rate": 0.009533898305084746,
+          "rate_difference_from_train": 0.0,
+          "rows": 9,
+          "train_rate": 0.009533898305084746
+        },
+        "seen_in_train": {
+          "rate": 0.00211864406779661,
+          "rate_difference_from_train": 0.0,
+          "rows": 2,
+          "train_rate": 0.00211864406779661
+        },
+        "summary_equals_description": {
+          "rate": 0.0,
+          "rate_difference_from_train": 0.0,
+          "rows": 0,
+          "train_rate": 0.0
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 207,
+          "prevalence": 0.21927966101694915,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 207,
+          "training_prevalence": 0.21927966101694915
+        },
+        "15": {
+          "positives": 197,
+          "prevalence": 0.2086864406779661,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 197,
+          "training_prevalence": 0.2086864406779661
+        },
+        "20": {
+          "positives": 120,
+          "prevalence": 0.1271186440677966,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 120,
+          "training_prevalence": 0.1271186440677966
+        },
+        "5": {
+          "positives": 221,
+          "prevalence": 0.2341101694915254,
+          "prevalence_difference_from_train": 0.0,
+          "training_positives": 221,
+          "training_prevalence": 0.2341101694915254
+        }
+      },
+      "length_bin_counts": {
+        "0": 244,
+        "1": 234,
+        "2": 234,
+        "3": 232
+      },
+      "length_bin_total_variation_from_train": 0.0,
+      "project": "Jira",
+      "rows": 944,
+      "split": "train",
+      "training_rows": 944,
+      "word_length_quantiles": {
+        "0": 1.0,
+        "0.5": 33.0,
+        "0.9": 105.0,
+        "0.95": 130.69999999999982,
+        "0.99": 234.69999999999936,
+        "1": 2018.0
+      }
+    },
+    {
+      "character_length_quantiles": {
+        "0": 27.0,
+        "0.5": 369.0,
+        "0.9": 986.9999999999999,
+        "0.95": 1215.9499999999994,
+        "0.99": 2078.0,
+        "1": 48781.0
+      },
+      "characteristics": {
+        "duplicate_within_split": {
+          "rate": 0.012738853503184714,
+          "rate_difference_from_train": 0.010620209435388104,
+          "rows": 4,
+          "train_rate": 0.00211864406779661
+        },
+        "empty_description": {
+          "rate": 0.03821656050955414,
+          "rate_difference_from_train": -0.1969529310158696,
+          "rows": 12,
+          "train_rate": 0.23516949152542374
+        },
+        "first_text_occurrence": {
+          "rate": 0.9936305732484076,
+          "rate_difference_from_train": -0.0053101047176939975,
+          "rows": 312,
+          "train_rate": 0.9989406779661016
+        },
+        "reference_only_description": {
+          "rate": 0.009554140127388535,
+          "rate_difference_from_train": 2.0241822303788265e-05,
+          "rows": 3,
+          "train_rate": 0.009533898305084746
+        },
+        "seen_in_train": {
+          "rate": 0.0,
+          "rate_difference_from_train": -0.00211864406779661,
+          "rows": 0,
+          "train_rate": 0.00211864406779661
+        },
+        "summary_equals_description": {
+          "rate": 0.0,
+          "rate_difference_from_train": 0.0,
+          "rows": 0,
+          "train_rate": 0.0
+        }
+      },
+      "interpretation": "Descriptive chronological split difference, not a causal or significance test.",
+      "labels": {
+        "10": {
+          "positives": 152,
+          "prevalence": 0.4840764331210191,
+          "prevalence_difference_from_train": 0.26479677210406993,
+          "training_positives": 207,
+          "training_prevalence": 0.21927966101694915
+        },
+        "15": {
+          "positives": 143,
+          "prevalence": 0.4554140127388535,
+          "prevalence_difference_from_train": 0.2467275720608874,
+          "training_positives": 197,
+          "training_prevalence": 0.2086864406779661
+        },
+        "20": {
+          "positives": 19,
+          "prevalence": 0.06050955414012739,
+          "prevalence_difference_from_train": -0.06660908992766922,
+          "training_positives": 120,
+          "training_prevalence": 0.1271186440677966
+        },
+        "5": {
+          "positives": 154,
+          "prevalence": 0.49044585987261147,
+          "prevalence_difference_from_train": 0.25633569038108606,
+          "training_positives": 221,
+          "training_prevalence": 0.2341101694915254
+        }
+      },
+      "length_bin_counts": {
+        "0": 28,
+        "1": 54,
+        "2": 68,
+        "3": 164
+      },
+      "length_bin_total_variation_from_train": 0.27653028176616645,
+      "project": "Jira",
+      "rows": 314,
+      "split": "validation",
+      "training_rows": 944,
+      "word_length_quantiles": {
+        "0": 4.0,
+        "0.5": 62.5,
+        "0.9": 164.39999999999998,
+        "0.95": 203.74999999999983,
+        "0.99": 360.05000000000007,
+        "1": 5152.0
+      }
+    }
+  ],
+  "temporal_label_profiles": [
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 302,
+      "positives": 32,
+      "prevalence_interval_95": [
+        0.04333832335329341,
+        0.17664670658682635
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.09580838323353294,
+      "rows": 334,
+      "slice": "all",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 312,
+      "positives": 22,
+      "prevalence_interval_95": [
+        0.023952095808383235,
+        0.1377245508982036
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.0658682634730539,
+      "rows": 334,
+      "slice": "all",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 873,
+      "positives": 126,
+      "prevalence_interval_95": [
+        0.10658158158158158,
+        0.14767267267267264
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.12612612612612611,
+      "rows": 999,
+      "slice": "all",
+      "split": "train",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 960,
+      "positives": 39,
+      "prevalence_interval_95": [
+        0.024024024024024024,
+        0.05105105105105105
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.03903903903903904,
+      "rows": 999,
+      "slice": "all",
+      "split": "train",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 281,
+      "positives": 52,
+      "prevalence_interval_95": [
+        0.1021021021021021,
+        0.23423423423423423
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.15615615615615616,
+      "rows": 333,
+      "slice": "all",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 303,
+      "positives": 30,
+      "prevalence_interval_95": [
+        0.057057057057057055,
+        0.13213213213213212
+      ],
+      "project": "IntelDAOS",
+      "recorded_label_prevalence": 0.09009009009009009,
+      "rows": 333,
+      "slice": "all",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 146,
+      "positives": 170,
+      "prevalence_interval_95": [
+        0.3780854430379747,
+        0.6630537974683544
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.5379746835443038,
+      "rows": 316,
+      "slice": "all",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 275,
+      "positives": 41,
+      "prevalence_interval_95": [
+        0.07911392405063292,
+        0.18204113924050624
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.12974683544303797,
+      "rows": 316,
+      "slice": "all",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 723,
+      "positives": 221,
+      "prevalence_interval_95": [
+        0.19541843220338984,
+        0.2828389830508475
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.2341101694915254,
+      "rows": 944,
+      "slice": "all",
+      "split": "train",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 824,
+      "positives": 120,
+      "prevalence_interval_95": [
+        0.09957627118644068,
+        0.16475105932203388
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.1271186440677966,
+      "rows": 944,
+      "slice": "all",
+      "split": "train",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 160,
+      "positives": 154,
+      "prevalence_interval_95": [
+        0.40764331210191085,
+        0.5605095541401274
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.49044585987261147,
+      "rows": 314,
+      "slice": "all",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 20,
+      "negatives": 295,
+      "positives": 19,
+      "prevalence_interval_95": [
+        0.03654458598726115,
+        0.09402866242038209
+      ],
+      "project": "Jira",
+      "recorded_label_prevalence": 0.06050955414012739,
+      "rows": 314,
+      "slice": "all",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    }
+  ],
+  "empty_scores": [
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": -0.014988244800620318,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 462,
+        "both_wrong": 38,
+        "classical_only_correct": 0,
+        "model_only_correct": 0
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.924,
+          "auc_prc": 0.07959713716375853,
+          "average_precision": 0.08488221946759698,
+          "balanced_accuracy": 0.5,
+          "confusion_matrix": [
+            [
+              462,
+              0
+            ],
+            [
+              38,
+              0
+            ]
+          ],
+          "f1": 0.0,
+          "positive_count": 38,
+          "positive_rate": 0.076,
+          "precision": 0.0,
+          "recall": 0.0,
+          "roc_auc": 0.5378503075871497,
+          "row_count": 500,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.924,
+          "auc_prc": 0.06460889236313822,
+          "average_precision": 0.06823214980512521,
+          "balanced_accuracy": 0.5,
+          "confusion_matrix": [
+            [
+              462,
+              0
+            ],
+            [
+              38,
+              0
+            ]
+          ],
+          "f1": 0.0,
+          "positive_count": 38,
+          "positive_rate": 0.076,
+          "precision": 0.0,
+          "recall": 0.0,
+          "roc_auc": 0.4486785144679882,
+          "row_count": 500,
+          "threshold": 0.06
+        }
+      },
+      "model": "phi",
+      "negatives": 462,
+      "positives": 38,
+      "project": "Apache",
+      "rows": 500,
+      "slice": "empty_description:true",
+      "split": "test",
+      "uncertainty": {
+        "interval_95": [
+          -0.04407501203097124,
+          0.015992792881640246
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": -0.06504877967716571,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 833,
+        "both_wrong": 137,
+        "classical_only_correct": 23,
+        "model_only_correct": 42
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.8270531400966183,
+          "auc_prc": 0.20775752547613283,
+          "average_precision": 0.21136769725585042,
+          "balanced_accuracy": 0.5228363235381772,
+          "confusion_matrix": [
+            [
+              842,
+              41
+            ],
+            [
+              138,
+              14
+            ]
+          ],
+          "f1": 0.13526570048309175,
+          "positive_count": 152,
+          "positive_rate": 0.1468599033816425,
+          "precision": 0.2545454545454545,
+          "recall": 0.09210526315789473,
+          "roc_auc": 0.5876423079215592,
+          "row_count": 1035,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.8454106280193237,
+          "auc_prc": 0.1427087457989671,
+          "average_precision": 0.14476330349686795,
+          "balanced_accuracy": 0.5009164332121356,
+          "confusion_matrix": [
+            [
+              873,
+              10
+            ],
+            [
+              150,
+              2
+            ]
+          ],
+          "f1": 0.024390243902439022,
+          "positive_count": 152,
+          "positive_rate": 0.1468599033816425,
+          "precision": 0.16666666666666666,
+          "recall": 0.013157894736842105,
+          "roc_auc": 0.4672766287178876,
+          "row_count": 1035,
+          "threshold": 0.06
+        }
+      },
+      "model": "phi",
+      "negatives": 883,
+      "positives": 152,
+      "project": "Apache",
+      "rows": 1035,
+      "slice": "empty_description:false",
+      "split": "test",
+      "uncertainty": {
+        "interval_95": [
+          -0.10568326846613868,
+          -0.022735670043927108
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": -0.014867548657184135,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 273,
+        "both_wrong": 17,
+        "classical_only_correct": 6,
+        "model_only_correct": 15
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.8971061093247589,
+          "auc_prc": 0.05587768608468993,
+          "average_precision": 0.06759998214978442,
+          "balanced_accuracy": 0.5543230944254836,
+          "confusion_matrix": [
+            [
+              276,
+              17
+            ],
+            [
+              15,
+              3
+            ]
+          ],
+          "f1": 0.15789473684210525,
+          "positive_count": 18,
+          "positive_rate": 0.05787781350482315,
+          "precision": 0.15,
+          "recall": 0.16666666666666666,
+          "roc_auc": 0.38519150549867276,
+          "row_count": 311,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.9260450160771704,
+          "auc_prc": 0.0410101374275058,
+          "average_precision": 0.044203682126507694,
+          "balanced_accuracy": 0.49146757679180886,
+          "confusion_matrix": [
+            [
+              288,
+              5
+            ],
+            [
+              18,
+              0
+            ]
+          ],
+          "f1": 0.0,
+          "positive_count": 18,
+          "positive_rate": 0.05787781350482315,
+          "precision": 0.0,
+          "recall": 0.0,
+          "roc_auc": 0.3553280242700038,
+          "row_count": 311,
+          "threshold": 0.06
+        }
+      },
+      "model": "phi",
+      "negatives": 293,
+      "positives": 18,
+      "project": "Apache",
+      "rows": 311,
+      "slice": "empty_description:true",
+      "split": "validation",
+      "uncertainty": {
+        "interval_95": [
+          -0.09630813326228037,
+          0.0027579521955871937
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    },
+    {
+      "adequate_support": true,
+      "auc_prc_difference_model_minus_classical": 0.022699199432423267,
+      "classical_model": "XGboost/baseline",
+      "family": "SLM2",
+      "fixed_threshold_outcomes": {
+        "both_correct": 707,
+        "both_wrong": 198,
+        "classical_only_correct": 76,
+        "model_only_correct": 242
+      },
+      "interpretation": "descriptive_exploratory",
+      "level": 5,
+      "metrics": {
+        "classical": {
+          "accuracy": 0.6402289452166803,
+          "auc_prc": 0.38001331905113367,
+          "average_precision": 0.3792347001601152,
+          "balanced_accuracy": 0.6344179128804857,
+          "confusion_matrix": [
+            [
+              625,
+              345
+            ],
+            [
+              95,
+              158
+            ]
+          ],
+          "f1": 0.41798941798941797,
+          "positive_count": 253,
+          "positive_rate": 0.20686835650040883,
+          "precision": 0.31411530815109345,
+          "recall": 0.6245059288537549,
+          "roc_auc": 0.6648812191842223,
+          "row_count": 1223,
+          "threshold": 0.1699999999999999
+        },
+        "model": {
+          "accuracy": 0.7759607522485691,
+          "auc_prc": 0.40271251848355694,
+          "average_precision": 0.4062620141347604,
+          "balanced_accuracy": 0.6367181451448596,
+          "confusion_matrix": [
+            [
+              848,
+              122
+            ],
+            [
+              152,
+              101
+            ]
+          ],
+          "f1": 0.4243697478991597,
+          "positive_count": 253,
+          "positive_rate": 0.20686835650040883,
+          "precision": 0.452914798206278,
+          "recall": 0.39920948616600793,
+          "roc_auc": 0.6792877225866917,
+          "row_count": 1223,
+          "threshold": 0.06
+        }
+      },
+      "model": "phi",
+      "negatives": 970,
+      "positives": 253,
+      "project": "Apache",
+      "rows": 1223,
+      "slice": "empty_description:false",
+      "split": "validation",
+      "uncertainty": {
+        "interval_95": [
+          -0.0366326069094795,
+          0.0860819396004852
+        ],
+        "limitations": "Exploratory unadjusted interval; block size fixed in config, not tuned. Does not pool K or projects; no significance claim.",
+        "method": "paired non-circular moving time-block bootstrap within project/split/K",
+        "requested_samples": 500,
+        "time_block_rows": 20,
+        "valid_samples": 500
+      },
+      "uncertainty_scope": "Chronological row blocks within the slice; not fixed-duration blocks."
+    }
+  ],
+  "length_profiles": [
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 555,
+      "positives": 54,
+      "prevalence_interval_95": [
+        0.06403940886699508,
+        0.12151067323481117
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.08866995073891626,
+      "rows": 609,
+      "slice": "length_bin:0",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 342,
+      "positives": 60,
+      "prevalence_interval_95": [
+        0.10199004975124377,
+        0.2003109452736318
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.14925373134328357,
+      "rows": 402,
+      "slice": "length_bin:1",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 250,
+      "positives": 49,
+      "prevalence_interval_95": [
+        0.12709030100334448,
+        0.2158026755852842
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.16387959866220736,
+      "rows": 299,
+      "slice": "length_bin:2",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 198,
+      "positives": 27,
+      "prevalence_interval_95": [
+        0.07555555555555556,
+        0.1688888888888889
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.12,
+      "rows": 225,
+      "slice": "length_bin:3",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 335,
+      "positives": 29,
+      "prevalence_interval_95": [
+        0.038461538461538464,
+        0.1346153846153846
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.07967032967032966,
+      "rows": 364,
+      "slice": "length_bin:0",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 414,
+      "positives": 73,
+      "prevalence_interval_95": [
+        0.10882956878850103,
+        0.1899897330595482
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.14989733059548255,
+      "rows": 487,
+      "slice": "length_bin:1",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 282,
+      "positives": 79,
+      "prevalence_interval_95": [
+        0.18005540166204986,
+        0.27977839335180055
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.2188365650969529,
+      "rows": 361,
+      "slice": "length_bin:2",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 232,
+      "positives": 90,
+      "prevalence_interval_95": [
+        0.20496894409937888,
+        0.38198757763975155
+      ],
+      "project": "Apache",
+      "recorded_label_prevalence": 0.2795031055900621,
+      "rows": 322,
+      "slice": "length_bin:3",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": false,
+      "level": 5,
+      "negatives": 193,
+      "positives": 8,
+      "prevalence_interval_95": null,
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.03980099502487562,
+      "rows": 201,
+      "slice": "length_bin:0",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 0
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 199,
+      "positives": 33,
+      "prevalence_interval_95": [
+        0.11206896551724138,
+        0.17672413793103448
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.14224137931034483,
+      "rows": 232,
+      "slice": "length_bin:1",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 153,
+      "positives": 37,
+      "prevalence_interval_95": [
+        0.12631578947368421,
+        0.29473684210526313
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.19473684210526315,
+      "rows": 190,
+      "slice": "length_bin:2",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 243,
+      "positives": 98,
+      "prevalence_interval_95": [
+        0.21994134897360704,
+        0.35051319648093837
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.2873900293255132,
+      "rows": 341,
+      "slice": "length_bin:3",
+      "split": "test",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 254,
+      "positives": 10,
+      "prevalence_interval_95": [
+        0.003787878787878788,
+        0.08712121212121213
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.03787878787878788,
+      "rows": 264,
+      "slice": "length_bin:0",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 143,
+      "positives": 24,
+      "prevalence_interval_95": [
+        0.0658682634730539,
+        0.20359281437125748
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.1437125748502994,
+      "rows": 167,
+      "slice": "length_bin:1",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 153,
+      "positives": 42,
+      "prevalence_interval_95": [
+        0.1641025641025641,
+        0.27692307692307694
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.2153846153846154,
+      "rows": 195,
+      "slice": "length_bin:2",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    },
+    {
+      "adequate_support": true,
+      "level": 5,
+      "negatives": 255,
+      "positives": 82,
+      "prevalence_interval_95": [
+        0.21068249258160238,
+        0.2953264094955489
+      ],
+      "project": "Hyperledger",
+      "recorded_label_prevalence": 0.2433234421364985,
+      "rows": 337,
+      "slice": "length_bin:3",
+      "split": "validation",
+      "uncertainty_block_rows": 20,
+      "uncertainty_method": "non-circular chronological row moving blocks; descriptive, not a population survey",
+      "uncertainty_note": "Chronological row blocks within this slice, not fixed calendar windows; gaps may be compressed. Preserves local dependence only. Exploratory, unadjusted; no inference for unsupported slices.",
+      "uncertainty_samples": 500
+    }
+  ],
+  "duplicate_profiles": [
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.7674418604651163,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.09302325581395349,
+      "negatives": 41,
+      "positives": 2,
+      "project": "Apache",
+      "rows": 43,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.32558139534883723,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.046511627906976744,
+      "negatives": 42,
+      "positives": 1,
+      "project": "Apache",
+      "rows": 43,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.32558139534883723,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.046511627906976744,
+      "negatives": 42,
+      "positives": 1,
+      "project": "Apache",
+      "rows": 43,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 43,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 43,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Apache",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 18,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 18,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 18,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 18,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 18,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 18,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 18,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 18,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Hyperledger",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.2222222222222222,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.2222222222222222,
+      "negatives": 8,
+      "positives": 1,
+      "project": "IntelDAOS",
+      "rows": 9,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.2222222222222222,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.2222222222222222,
+      "negatives": 8,
+      "positives": 1,
+      "project": "IntelDAOS",
+      "rows": 9,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.2222222222222222,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.2222222222222222,
+      "negatives": 8,
+      "positives": 1,
+      "project": "IntelDAOS",
+      "rows": 9,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 9,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 9,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "IntelDAOS",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 2,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 2,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 2,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 2,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 2,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 2,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 2,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 2,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "Jira",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 26,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 26,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 26,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 26,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 26,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 26,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 26,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 26,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": null,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": null,
+      "negatives": 0,
+      "positives": 0,
+      "project": "MariaDB",
+      "rows": 0,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 33,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 33,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": true,
+      "fraction_with_any_opposite_label_training_duplicate": 0.1762295081967213,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.08196721311475409,
+      "negatives": 234,
+      "positives": 10,
+      "project": "Qt",
+      "rows": 244,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 5,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 16,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 16,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 33,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 33,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.12704918032786885,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.04918032786885246,
+      "negatives": 238,
+      "positives": 6,
+      "project": "Qt",
+      "rows": 244,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 10,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 16,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 16,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 33,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 33,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0778688524590164,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.03278688524590164,
+      "negatives": 240,
+      "positives": 4,
+      "project": "Qt",
+      "rows": 244,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 15,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 16,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 16,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 33,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 33,
+      "self_excluded": true,
+      "split": "test",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.02459016393442623,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.00819672131147541,
+      "negatives": 243,
+      "positives": 1,
+      "project": "Qt",
+      "rows": 244,
+      "self_excluded": true,
+      "split": "train",
+      "training_only_bank": true
+    },
+    {
+      "adequate_support": false,
+      "fraction_with_any_opposite_label_training_duplicate": 0.0,
+      "interpretation": "Descriptive recorded-label conflict among exact normalized-text matches; structured inputs may differ; no label-error or causality inference.",
+      "level": 20,
+      "mean_training_duplicate_label_disagreement": 0.0,
+      "negatives": 16,
+      "positives": 0,
+      "project": "Qt",
+      "rows": 16,
+      "self_excluded": true,
+      "split": "validation",
+      "training_only_bank": true
+    }
+  ],
+  "selection_note": "All supported length cells counted. Apache/Qt paired split examples illustrate adverse and favorable test outcomes, not a random sample or a model-selection rule."
+}

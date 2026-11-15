@@ -1,0 +1,60 @@
+{
+  "experiment": "Why do instability models disagree?",
+  "task": "Inspect saved predictions using frozen text characteristics.",
+  "why": [
+    "Explain heterogeneous results without changing labels or training new models."
+  ],
+  "data": {
+    "old": {
+      "name": "Earlier studies",
+      "metrics": {
+        "Population": "23,822 stories"
+      }
+    },
+    "new": {
+      "name": "T5 diagnostics",
+      "metrics": {
+        "Population": "Same 23,822 stories"
+      }
+    },
+    "notes": [
+      "Same chronological splits; test interpretation remains exploratory."
+    ]
+  },
+  "results": {
+    "visual": "table",
+    "columns": [
+      "Family",
+      "Validation wins",
+      "Test wins"
+    ],
+    "rows": [
+      [
+        "SLM1",
+        "27/52",
+        "21/54"
+      ],
+      [
+        "SLM2",
+        "30/52",
+        "22/54"
+      ],
+      [
+        "Jev",
+        "10/52",
+        "4/54"
+      ]
+    ]
+  },
+  "conclusions": {
+    "findings": [
+      "No general SLM length advantage.",
+      "Missing/repetitive-text mechanisms unresolved."
+    ],
+    "next_steps": [
+      "Return evidence to coordination; no improvement experiments."
+    ]
+  },
+  "source_evidence": "data/diag-m2-20261111-01-presentation.json",
+  "source_evidence_sha256": "a9bad4ffd6e3b14a80c57451c4480af0654b0213252296930b0ce53b44a871c2"
+}
