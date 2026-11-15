@@ -58,6 +58,7 @@ class DetectionTests(RuntimeCase):
                 'Exception while parsing literal number (during Magic Number detection). '
                 'For input string: "ffffffffffffffff"\nDone.\n')
             kwargs["stderr"].write("Ancestors analysis skipped due to memory overflow.")
+            kwargs["stderr"].write("Inheritance depth analysis step skipped due to memory overflow." * 3)
         else:
             self.native_output(output)
 
@@ -79,7 +80,8 @@ class DetectionTests(RuntimeCase):
         failure_dir = self.root / "detection/results" / detectors.detection_key(records[0]["evidence"][0], profile)
         self.assertFalse((failure_dir / "result.json").exists(), "Native failures must have no findings/coverage result.")
         failure = common.read_json(failure_dir / "failure.json")
-        self.assertEqual(["ancestor_memory_overflow", "magic_number_literal"], failure["reasons"])
+        self.assertEqual(["ancestor_memory_overflow", "inheritance_depth_memory_overflow", "magic_number_literal"],
+                         failure["reasons"])
         detectors.labels(self.root)
         labels = pd.read_csv(self.root / "labels/story_labels.csv")
         self.assertEqual(["Apache:TEST-2"], labels.row_id.tolist())
@@ -187,6 +189,7 @@ class DetectionTests(RuntimeCase):
         known = ('Exception while parsing literal number (during Magic Number detection). '
                  'For input string: "8000000000000000"\n'
                  'Ancestors analysis skipped due to memory overflow.'
+                 'Inheritance depth analysis step skipped due to memory overflow.'
                  'Cyclic dependency analysis skipped due to memory overflow.')
         with self.assertRaises(detectors.NativeAnalysisIncomplete) as raised:
             detectors.check_native_messages(known, profile)
@@ -201,6 +204,17 @@ class DetectionTests(RuntimeCase):
         profile["artifacts"][0]["sha256"] = "b" * 64
         with self.assertRaises(ValueError) as raised:
             detectors.check_native_messages(known, profile)
+        self.assertNotIsInstance(raised.exception, detectors.NativeAnalysisIncomplete)
+
+    def test_inheritance_depth_skip_alone_is_bounded_but_unknown_memory_skips_are_not(self):
+        profile = self.profile()
+        profile["artifacts"] = [{"name": "DesigniteJavaCommunity.jar", "sha256": detectors.JAVA_COMMUNITY_SHA256}]
+        warning = "Inheritance depth analysis step skipped due to memory overflow."
+        with self.assertRaises(detectors.NativeAnalysisIncomplete) as raised:
+            detectors.check_native_messages(warning * 20, profile)
+        self.assertEqual(["inheritance_depth_memory_overflow"], raised.exception.reasons)
+        with self.assertRaises(ValueError) as raised:
+            detectors.check_native_messages(warning + "Unknown analysis skipped due to memory overflow.", profile)
         self.assertNotIsInstance(raised.exception, detectors.NativeAnalysisIncomplete)
 
     def test_native_failure_is_strict_without_opt_in_and_hard_failures_block_opt_in_labels(self):

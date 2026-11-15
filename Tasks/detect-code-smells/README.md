@@ -138,7 +138,7 @@ stories to be excluded without investigating each one:
 ```bash
 "$HOME/Master/Tasks/run_cluster_task.sh" detect-code-smells \
   --stage detect --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-008 \
+  --storage "$HOME/master-code-smells" --run-id code-smells-009 \
   --profile "$HOME/master-code-smells/profiles/java-community-linux.json" \
   --max-incomplete-stories 10
 ```
@@ -155,7 +155,8 @@ reclassified as detector failures.
 Eligible causes are required-file coverage gaps and these recognized diagnostic
 messages from the SHA256-pinned Java Community JAR documented above:
 Magic Number literal-parsing exceptions, ancestor-analysis memory-overflow
-skips, and cyclic-dependency-analysis memory-overflow skips. The entire native
+skips, inheritance-depth-analysis memory-overflow skips, and
+cyclic-dependency-analysis memory-overflow skips. The entire native
 attempt is treated as incomplete; its CSVs provide **no findings or coverage**.
 `failure.json` preserves the reason codes, snapshot/profile identity and hashed
 attempt logs/reports. Resume verifies these bytes and diagnostic reasons rather

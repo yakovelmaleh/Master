@@ -624,3 +624,33 @@ class CollectionTests(RuntimeCase):
                 finally:
                     path.rmdir()
         self.assertEqual(child_before, common.tree_manifest(child))
+        with common.stage_state(bounded, "freeze", "Apache", "fixture"):
+            prepare.freeze(bounded, "Apache")
+        common.write_json(bounded / "detection/policies/Apache.json", {"max_incomplete_stories": 10})
+        common.write_json(bounded / "detection/exclusions/Apache.json", {"count": 2, "status": "within_cap"})
+        common.atomic_bytes(bounded / native_log, b"Inheritance depth analysis step skipped due to memory overflow.")
+        common.write_json(bounded / "status/detect-Apache-java.json", {"status": "failed"})
+        bounded_before = common.tree_manifest(bounded)
+        target = self.storage / "runs/child-009"
+        with mock.patch.object(migration, "BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(target, bounded)
+            migration.migrate(target, bounded)
+            prepare.freeze(target, "Apache")
+            self.assertEqual(common.file_hash(original / "study.json"),
+                             collection.review_study_hash(target, "Apache"))
+            self.assertFalse((target / "detection").exists(), "Old policy/results must be archival only")
+            self.assertFalse((target / "evidence").exists())
+            for name, expected in bounded_before.items():
+                if name.startswith(("features/", "splits/", "raw/")) and not name.endswith(".lock"):
+                    self.assertEqual(expected, common.file_hash(target / name), name)
+                elif name.startswith("detection/"):
+                    self.assertEqual(expected, common.file_hash(target / "parent" / name), name)
+            for forbidden in ("labels", "models", "reports"):
+                path = bounded / forbidden
+                path.mkdir()
+                try:
+                    with self.assertRaisesRegex(ValueError, "pre-label"):
+                        migration.migrate(self.storage / "runs/rejected-009", bounded)
+                finally:
+                    path.rmdir()
+        self.assertEqual(bounded_before, common.tree_manifest(bounded))

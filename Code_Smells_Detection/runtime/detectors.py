@@ -28,6 +28,7 @@ NATIVE_GAPS = {
     "magic_number_literal": r'Exception while parsing literal number \(during Magic Number detection\)\. '
                             r'For input string: "[^\r\n"]*"',
     "ancestor_memory_overflow": r"Ancestors analysis skipped due to memory overflow\.",
+    "inheritance_depth_memory_overflow": r"Inheritance depth analysis step skipped due to memory overflow\.",
     "cyclic_dependency_memory_overflow": r"Cyclic dependency analysis skipped due to memory overflow\.",
 }
 
