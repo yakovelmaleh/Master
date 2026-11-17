@@ -408,6 +408,8 @@ def freeze(root, source):
 
 
 def frozen_frame(root, source):
+    from .common import require_reuse_complete
+    require_reuse_complete(root)
     require_stage(root, "freeze", source)
     split = read_json(root / "splits" / f"{source}.json")
     if "raw_manifest_sha256" in split:

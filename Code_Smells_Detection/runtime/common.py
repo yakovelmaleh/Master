@@ -175,6 +175,14 @@ def require_stage(root, stage, unit):
         raise ValueError(f"Required stage is not successful: {stage}/{unit}")
 
 
+def require_reuse_complete(root):
+    migration = root / "migration.json"
+    if migration.exists() and read_json(migration).get("reuse_verified"):
+        summary = root / "reuse.json"
+        if not summary.exists() or read_json(summary).get("migration_sha256") != file_hash(migration):
+            raise ValueError("Verified work reuse is incomplete; resume migration before downstream stages.")
+
+
 def tree_manifest(root):
     root = Path(root)
     result = {}

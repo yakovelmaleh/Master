@@ -34,6 +34,8 @@ def parser(kind=None):
     result.add_argument("--expected", type=Path)
     result.add_argument("--exclusions", type=Path)
     result.add_argument("--max-incomplete-stories", type=int, default=0)
+    result.add_argument("--exclude-incomplete", action="store_true")
+    result.add_argument("--reuse-verified", action="store_true")
     result.add_argument("--bundle", type=Path)
     result.add_argument("--config", type=Path)
     result.add_argument("--report-output", type=Path)
@@ -45,6 +47,11 @@ def parser(kind=None):
 
 
 def validate_arguments(args):
+    if args.exclude_incomplete and (args.kind != "detect" or
+            args.stage not in ("detect", "export-windows") or args.max_incomplete_stories):
+        raise ValueError("--exclude-incomplete requires detection/export and cannot be combined with a cap.")
+    if args.reuse_verified and (args.kind != "prepare" or args.stage != "migrate"):
+        raise ValueError("--reuse-verified requires prepare/migrate.")
     if (not 0 <= args.max_incomplete_stories <= 10 or args.max_incomplete_stories and
             (args.kind != "detect" or args.stage != "detect" or args.source != "Apache")):
         raise ValueError("--max-incomplete-stories requires detect/detect --source Apache and a cap of 1-10.")
@@ -90,7 +97,7 @@ def dispatch(args, root):
     if args.kind == "prepare":
         if args.stage == "migrate":
             from .migration import migrate
-            migrate(root, args.from_run)
+            migrate(root, args.from_run, reuse_verified=args.reuse_verified)
             return
         if args.stage == "environment":
             import json
@@ -122,9 +129,10 @@ def dispatch(args, root):
         elif args.stage == "qualify":
             qualify(args.storage, args.profile, args.fixture, args.expected)
         elif args.stage == "detect":
-            detect(root, args.storage, args.source, args.profile, args.max_incomplete_stories)
+            detect(root, args.storage, args.source, args.profile,
+                   -1 if args.exclude_incomplete else args.max_incomplete_stories)
         elif args.stage == "export-windows":
-            export_work(root, args.source, args.profile, args.bundle)
+            export_work(root, args.source, args.profile, args.bundle, args.exclude_incomplete)
         elif args.stage == "import-windows":
             import_work(root, args.bundle)
         else:

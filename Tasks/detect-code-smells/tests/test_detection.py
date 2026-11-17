@@ -12,6 +12,156 @@ from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
 class DetectionTests(RuntimeCase):
+    def test_best_effort_excludes_over_100_stories_and_keeps_later_clean_story(self):
+        path, profile, records = self.bounded_fixture(["native"] * 100 + ["gap", "clean"])
+        before = (self.root / "splits/Apache.json").read_bytes()
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=self.bounded_native) as runner:
+            detectors.detect(self.root, self.storage, "Apache", path, -1)
+            self.assertEqual(3, runner.call_count)
+            runner.reset_mock()
+            detectors.detect(self.root, self.storage, "Apache", path, -1)
+            runner.assert_not_called()
+        ledger = common.read_json(self.root / "detection/exclusions/Apache.json")
+        self.assertEqual(("uncapped", 101), (ledger["status"], ledger["count"]))
+        detectors.labels(self.root)
+        self.assertEqual(["Apache:TEST-101"], pd.read_csv(self.root / "labels/story_labels.csv").row_id.tolist())
+        self.assertEqual(before, (self.root / "splits/Apache.json").read_bytes())
+        self.succeeded("labels")
+        matrix = models.validate(self.root)
+        self.assertTrue(all(x["reason"] == "fewer_than_100_fully_labeled_stories" for x in matrix["matrix"]))
+
+    def test_best_effort_policy_is_available_for_every_selected_source(self):
+        self.frozen_study(1)
+        for source in ("Apache", "IntelDAOS", "MongoDB", "RedHat"):
+            (self.root / "splits" / f"{source}.json").write_bytes((self.root / "splits/Apache.json").read_bytes())
+            policy = detectors.exclusion_policy(self.root, source, -1)
+            self.assertEqual(-1, policy["max_incomplete_stories"])
+            args = cli.parser("detect").parse_args([
+                "--stage", "detect", "--storage", str(self.storage), "--run-id", "test",
+                "--source", source, "--profile", "fixture.json", "--exclude-incomplete"])
+            cli.validate_arguments(args)
+            with mock.patch.object(detectors, "detect") as run:
+                cli.dispatch(args, self.root)
+                self.assertEqual(-1, run.call_args.args[-1])
+
+    def test_best_effort_generic_analysis_skip_and_attribution_failure_are_not_clean(self):
+        path, profile, records = self.bounded_fixture(["native", "gap", "clean"])
+        def native(command, **kwargs):
+            source, output = map(Path, command[1:])
+            kind = (source / "kind.txt").read_text()
+            if kind == "native":
+                kwargs["stderr"].write("Some future analysis step skipped due to memory overflow.")
+            else:
+                self.native_output(output)
+                if kind == "gap":
+                    (output / "coverage.csv").write_text("Path\nsrc/Unknown.java\n")
+        with mock.patch.object(detectors, "qualified", return_value=self.storage), mock.patch.object(
+                detectors.subprocess, "run", side_effect=native) as runner:
+            detectors.detect(self.root, self.storage, "Apache", path, -1)
+            self.assertEqual(3, runner.call_count)
+            runner.reset_mock()
+            detectors.detect(self.root, self.storage, "Apache", path, -1)
+            runner.assert_not_called()
+        reasons = []
+        for record in records[:2]:
+            key = detectors.detection_key(record["evidence"][0], profile)
+            directory = self.root / "detection/results" / key
+            self.assertFalse((directory / "result.json").exists())
+            reasons += common.read_json(directory / "failure.json")["reasons"]
+        self.assertEqual(["native_analysis_memory_skip", "report_attribution"], reasons)
+        detectors.labels(self.root)
+        self.assertEqual(["Apache:TEST-2"], pd.read_csv(self.root / "labels/story_labels.csv").row_id.tolist())
+        for message in ("License expired", "ClassNotFoundException", "Error: configuration missing"):
+            with self.assertRaises(ValueError) as raised:
+                detectors.check_native_messages("Some future analysis skipped due to memory overflow." + message,
+                                                profile, best_effort=True)
+            self.assertNotIsInstance(raised.exception, detectors.NativeAnalysisIncomplete)
+
+    def test_catalog_error_takes_precedence_over_unresolved_entity(self):
+        source, profile = self.ambiguous_java_fixture()
+        output = self.storage / "output"
+        self.ambiguous_java_reports(output)
+        (output / "coverage.csv").write_text("Package,Type\ndemo,Missing\n")
+        (output / "design.csv").write_text("Package,Type,Smell\ndemo,Missing,Unconfigured smell\n")
+        with self.assertRaisesRegex(ValueError, "Unregistered native smell") as raised:
+            detectors.parse_reports(output, source, profile)
+        self.assertNotIsInstance(raised.exception, detectors.ReportAttributionIncomplete)
+
+    def test_windows_best_effort_round_trip_retains_coverage_gaps(self):
+        self.frozen_study(2)
+        source = self.storage / "snapshot/source"
+        (source / "src").mkdir(parents=True)
+        for name in ("Bad", "Clean", "Gap"):
+            (source / "src" / (name + ".cs")).write_text("class " + name + " {}")
+        common.write_json(source.parent / "manifest.json", {"files": common.tree_manifest(source)})
+        profile = self.profile("csharp")
+        profile["platform"] = "Windows"
+        path = self.storage / "profile.json"
+        common.write_json(path, profile)
+        records = [{"row_id": f"Apache:TEST-{i}", "source": "Apache", "partition": "test", "status": "complete",
+                    "evidence": [{"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                                  "snapshot_manifest_sha256": common.file_hash(source.parent / "manifest.json"),
+                                  "files": [{"path": "src/" + name + ".cs", "language": "csharp"}]}]}
+                   for i, name in enumerate(("Gap", "Clean"))]
+        bundle = self.storage / "exchange"
+        tool = self.storage / "tool"
+        common.write_json(tool / "qualified.json", {"status": "succeeded", "profile_sha256": common.digest(profile)})
+        def execute(tool, profile, copied, output):
+            self.native_output(output, "csharp")
+            return detectors.parse_reports(output, copied, profile)
+        with mock.patch.object(windows, "evidence_records", return_value=records):
+            windows.export_work(self.root, "Apache", path, bundle, True)
+            with mock.patch.object(windows, "qualified", return_value=tool), mock.patch.object(
+                    windows, "execute", side_effect=execute) as run:
+                windows.run_work(bundle, self.storage)
+                windows.run_work(bundle, self.storage)
+                self.assertEqual(1, run.call_count)
+            windows.import_work(self.root, bundle)
+            windows.import_work(self.root, bundle)
+        with mock.patch.object(detectors, "evidence_records", return_value=records):
+            detectors.labels(self.root)
+        self.assertEqual(["Apache:TEST-1"], pd.read_csv(self.root / "labels/story_labels.csv").row_id.tolist())
+        # A schema-valid but unresolvable report is accounted without findings.
+        broken_bundle = self.storage / "unresolved-exchange"
+        def unresolved(tool, profile, copied, output):
+            self.native_output(output, "csharp")
+            (output / "coverage.csv").write_text("Path\nsrc/Unknown.cs\n")
+            return detectors.parse_reports(output, copied, profile)
+        with mock.patch.object(windows, "evidence_records", return_value=records):
+            windows.export_work(self.root, "Apache", path, broken_bundle, True)
+        with mock.patch.object(windows, "qualified", return_value=tool), mock.patch.object(
+                windows, "execute", side_effect=unresolved):
+            windows.run_work(broken_bundle, self.storage)
+        key = next(iter(common.read_json(broken_bundle / "work.json")["jobs"]))
+        result = common.read_json(broken_bundle / "results" / key / "result.json")
+        self.assertEqual("report_attribution", result["incomplete_reason"])
+        self.assertEqual([], result["coverage"])
+        self.assertEqual([], result["findings"])
+
+    def test_best_effort_cluster_flags_forward_and_conflicts_are_rejected(self):
+        import contextlib
+        import io
+        base = ["--stage", "detect", "--storage", str(self.storage), "--run-id", "test",
+                "--profile", "fixture.json", "--source", "RedHat", "--exclude-incomplete"]
+        output = io.StringIO()
+        with mock.patch.object(sys, "argv", ["cluster", *base, "--dry-run"]), contextlib.redirect_stdout(output):
+            cluster.main("detect")
+        self.assertIn("--exclude-incomplete", output.getvalue())
+        self.assertIn("--source RedHat", output.getvalue())
+        args = cli.parser("detect").parse_args(base + ["--max-incomplete-stories", "10"])
+        with self.assertRaisesRegex(ValueError, "cannot be combined"):
+            cli.validate_arguments(args)
+        args = cli.parser("detect").parse_args(base + ["--reuse-verified"])
+        with self.assertRaisesRegex(ValueError, "requires prepare/migrate"):
+            cli.validate_arguments(args)
+        output = io.StringIO()
+        migration = ["--stage", "migrate", "--storage", str(self.storage), "--run-id", "test",
+                     "--from-run", str(self.storage / "previous"), "--reuse-verified"]
+        with mock.patch.object(sys, "argv", ["cluster", *migration, "--dry-run"]), contextlib.redirect_stdout(output):
+            cluster.main("prepare")
+        self.assertIn("--reuse-verified", output.getvalue())
+
     def bounded_fixture(self, kinds):
         _, assignment = self.frozen_study(len(kinds))
         profile = self.profile()

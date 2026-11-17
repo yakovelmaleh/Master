@@ -244,6 +244,50 @@ inaccessible.
 
 ## Recovering the frozen run after code-evidence failures
 
+### Reuse verified work from `009` instead of resubmitting successful stages
+
+The pinned `009` runtime from PR #402
+(`33e847ba327d6a02329aaea78a12a471089aa189c20aa60d67329b8882effea8`)
+supports a new opt-in migration:
+
+```bash
+"$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-010 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-009" \
+  --reuse-verified
+```
+
+Update the checkout once before migration and do not pull between stages.
+Wait for migration success. This migration revalidates the frozen preparation
+**inside the migration job**, rather than requiring four more freeze submissions.
+For each successful parent fetch it checks every evidence-record hash and
+membership/partition, recomputes audit counts/overlaps, and verifies complete
+snapshot manifests and source bytes. Those evidence artifacts are copied
+unchanged and receive a newly validated fetch status: no GitHub/Jira requests.
+Failed or absent fetches are not promoted to success.
+
+`reuse.json` lists `frozen_sources`, `evidence_sources`,
+`missing_evidence_sources`, reused native result keys and skipped result reasons.
+Proceed directly to detection for `evidence_sources`; fetch only missing
+sources. Unfinished reuse blocks downstream evidence/feature consumption and
+can be resumed with the identical migration command.
+
+Compatible Java results are sought in the pinned `009` and archived `008`
+ancestry only. Snapshot/profile keys, report hashes, matching native attempt
+logs and current report attribution must agree. Known failure manifests are
+hash-verified and their diagnostic reasons rechecked. Results without matching
+logs, uncommitted failed attempts, and unverified other-language caches are not
+silently reused. No old detection success status, exclusion policy or decision
+ledger is activated. Select `--exclude-incomplete` on the next detection run
+to apply the newly approved uncapped policy.
+
+All raw records, original collection approvals, frozen features and partitions
+remain byte-identical; parents are read-only. The ordinary migration path below
+remains archival-only. Verified reuse is restricted to this explicitly supported
+parent version, not a general override for incompatible runtime hashes.
+
+### Older archival-only migrations
+
 The `migrate` stage also supports the finalized, fully frozen implementation
 from PR #377 (source hash
 `c0005a0d6467c4e053ccceb7d8b27b910d2131eed863650d660a1fc6153c1fb7`).

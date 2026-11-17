@@ -39,7 +39,11 @@ class NativeAnalysisIncomplete(ValueError):
         super().__init__("Incomplete native analysis: " + ", ".join(self.reasons))
 
 
-def check_native_messages(messages, profile):
+class ReportAttributionIncomplete(ValueError):
+    pass
+
+
+def check_native_messages(messages, profile, best_effort=False):
     # Licensing and unknown errors must never be swallowed by the bounded policy.
     if re.search(r"(?i)trial|licen[cs]e.*(?:invalid|expired|restrict|missing|fail|not found|not valid|required)",
                  messages):
@@ -52,6 +56,11 @@ def check_native_messages(messages, profile):
         for reason, pattern in NATIVE_GAPS.items():
             if re.search(pattern, messages):
                 reasons.append(reason)
+                remaining = re.sub(pattern, "", remaining)
+        if best_effort:
+            pattern = r"[A-Za-z][A-Za-z -]*analysis(?: step)? skipped due to memory overflow\."
+            if re.search(pattern, remaining):
+                reasons.append("native_analysis_memory_skip")
                 remaining = re.sub(pattern, "", remaining)
     patterns = [
         r"(?i)parse error", r"(?i)failed to (?:parse|analy[sz]e|load)", r"(?i)exception",
@@ -212,22 +221,28 @@ def report_path(row, spec, source, index, ambiguous=None):
         ambiguous[value] = sorted(matches)
         return None
     if len(matches) != 1:
-        raise ValueError(f"Ambiguous/unresolved detector entity: {value!r}")
+        raise ReportAttributionIncomplete(f"Ambiguous/unresolved detector entity: {value!r}")
     return next(iter(matches))
 
 
 def parse_reports(output, source, profile):
     index = source_index(source, profile["language"])
+    coverage_rows = [(spec, csv_report(output, spec)) for spec in profile["coverage"]]
+    smell_rows = [(category, spec, csv_report(output, spec)) for category, spec in profile["reports"].items()]
+    for category, spec, rows in smell_rows:
+        for row in rows:
+            if row[spec["smell_column"]].strip() not in profile["catalog"][category]:
+                raise ValueError(f"Unregistered native smell: {category}/{row[spec['smell_column']].strip()}")
     coverage, ambiguous = set(), {}
-    for spec in profile["coverage"]:
-        for row in csv_report(output, spec):
+    for spec, rows in coverage_rows:
+        for row in rows:
             path = report_path(row, spec, source, index, ambiguous)
             if path is not None:
                 coverage.add(path)
     findings = {}
-    for category, spec in profile["reports"].items():
+    for category, spec, rows in smell_rows:
         allowed = set(profile["catalog"][category])
-        for row in csv_report(output, spec):
+        for row in rows:
             smell = row[spec["smell_column"]].strip()
             if smell not in allowed:
                 raise ValueError(f"Unregistered native smell: {category}/{smell}")
@@ -245,7 +260,7 @@ def parse_reports(output, source, profile):
     coverage -= blocked
     findings = [value for value in findings.values() if value["path"] not in blocked]
     if any(value["path"] not in coverage for value in findings):
-        raise ValueError("Finding is outside reported analyzed-file coverage.")
+        raise ReportAttributionIncomplete("Finding is outside reported analyzed-file coverage.")
     result = {"coverage": sorted(coverage), "findings": findings}
     if ambiguous:
         result["ambiguous_entities"] = [
@@ -253,7 +268,7 @@ def parse_reports(output, source, profile):
     return result
 
 
-def execute(tool_root, profile, source, output):
+def execute(tool_root, profile, source, output, best_effort=False):
     if profile["platform"] != platform.system():
         raise ValueError(f"Detector requires {profile['platform']}; use the matching worker.")
     output.mkdir(parents=True, exist_ok=False)
@@ -277,7 +292,7 @@ def execute(tool_root, profile, source, output):
                        env=environment, timeout=profile.get("timeout_seconds", 14400))
     messages = "\n".join((output.parent / (output.name + suffix)).read_text(errors="replace")
                          for suffix in (".out", ".err"))
-    check_native_messages(messages, profile)
+    check_native_messages(messages, profile, best_effort)
     result = parse_reports(output, source, profile)
     if result.get("ambiguous_entities"):
         write_json(output / "attribution.json", {
@@ -343,6 +358,8 @@ def qualified(storage, profile):
 
 
 def evidence_records(root, source):
+    from .common import require_reuse_complete
+    require_reuse_complete(root)
     require_stage(root, "fetch-code", source)
     manifest = read_json(root / "evidence" / source / "manifest.json")
     if file_hash(root / "splits" / f"{source}.json") != manifest["split_sha256"]:
@@ -376,13 +393,26 @@ def load_failure(directory, key, profile):
     value = read_json(directory / "failure.json")
     if (value["status"] != "incomplete" or value["key"] != key or
             value["profile_sha256"] != digest(profile) or not value["reasons"] or
-            set(value["reasons"]) - set(NATIVE_GAPS)):
+            set(value["reasons"]) - (set(NATIVE_GAPS) |
+                                    ({"native_analysis_memory_skip", "report_attribution"}
+                                     if value.get("best_effort") else set()))):
         raise ValueError("Native failure manifest is invalid.")
     attempt = directory / relative(value["attempt"])
     verify_tree(attempt, value["reports"])
     messages = "\n".join((attempt / name).read_text(errors="replace") for name in ("output.out", "output.err"))
+    if value["reasons"] == ["report_attribution"]:
+        check_native_messages(messages, profile, best_effort=True)
+        snapshot = Path(value["snapshot"])
+        if file_hash(snapshot / "manifest.json") != value["snapshot_manifest_sha256"]:
+            raise ValueError("Failure snapshot manifest changed.")
+        verify_tree(snapshot / "source", read_json(snapshot / "manifest.json")["files"])
+        try:
+            parse_reports(attempt / "output", snapshot / "source", profile)
+        except ReportAttributionIncomplete:
+            return value
+        raise ValueError("Failure attribution no longer matches preserved reports.")
     try:
-        check_native_messages(messages, profile)
+        check_native_messages(messages, profile, value.get("best_effort", False))
     except NativeAnalysisIncomplete as error:
         if error.reasons == value["reasons"]:
             return value
@@ -395,7 +425,8 @@ def exclusion_policy(root, source, limit=None):
         if not path.exists():
             return None
         limit = read_json(path)["max_incomplete_stories"]
-    if type(limit) is not int or not 0 <= limit <= 10 or limit and source != "Apache":
+    if (type(limit) is not int or not -1 <= limit <= 10 or
+            limit > 0 and source != "Apache"):
         raise ValueError("Bounded exclusions require Apache and a cap from 1 to 10 (0 disables).")
     policy = {
         "source": source, "max_incomplete_stories": limit,
@@ -443,10 +474,10 @@ def bounded_exclusions(root, source, records, profiles, policy):
     limit = policy["max_incomplete_stories"]
     write_json(root / "detection/exclusions" / f"{source}.json", {
         "policy_sha256": digest(policy), "limit": limit, "count": len(reasons),
-        "status": "cap_exceeded" if len(reasons) > limit else "within_cap",
+        "status": "uncapped" if limit == -1 else "cap_exceeded" if len(reasons) > limit else "within_cap",
         "stories": reasons,
     })
-    if len(reasons) > limit:
+    if limit > 0 and len(reasons) > limit:
         raise ValueError(f"{source} exclusion cap exceeded: {len(reasons)} stories, limit {limit}.")
     return reasons
 
@@ -510,17 +541,27 @@ def detect_source(root, storage, source, profile_path, max_incomplete_stories):
                         shutil.copytree(cache / "source", workspace)
                         output = destination / "attempts" / uuid.uuid4().hex / "output"
                         try:
-                            result = execute(tool, profile, workspace, output)
-                        except NativeAnalysisIncomplete as error:
+                            if max_incomplete_stories == -1:
+                                result = execute(tool, profile, workspace, output, best_effort=True)
+                            else:
+                                result = execute(tool, profile, workspace, output)
+                        except (NativeAnalysisIncomplete, ReportAttributionIncomplete) as error:
                             verify_original_files(workspace, snapshot["files"])
-                            if not max_incomplete_stories:
+                            if not max_incomplete_stories or (isinstance(error, ReportAttributionIncomplete) and
+                                                             max_incomplete_stories != -1):
                                 raise
                             result = {
                                 "key": key, "profile_sha256": digest(profile), "status": "incomplete",
-                                "reasons": error.reasons,
+                                "reasons": (["report_attribution"] if isinstance(error, ReportAttributionIncomplete)
+                                            else error.reasons),
                                 "attempt": output.parent.relative_to(destination).as_posix(),
                                 "reports": tree_manifest(output.parent),
                             }
+                            if max_incomplete_stories == -1:
+                                result["best_effort"] = True
+                            if isinstance(error, ReportAttributionIncomplete):
+                                result.update(snapshot=str(cache),
+                                              snapshot_manifest_sha256=evidence["snapshot_manifest_sha256"])
                             immutable_json(destination / "failure.json", result)
                         verify_original_files(workspace, snapshot["files"])
                         if result.get("status") != "incomplete":
@@ -575,7 +616,8 @@ def labels(root, exclusions_path=None):
         automatic.update(selected)
         if policy and policy["max_incomplete_stories"]:
             reviewed_ids = {row for row in exclusions if row.startswith(source + ":")}
-            if len(set(selected) | reviewed_ids) > policy["max_incomplete_stories"]:
+            if (policy["max_incomplete_stories"] > 0 and
+                    len(set(selected) | reviewed_ids) > policy["max_incomplete_stories"]):
                 raise ValueError(f"{source} exclusion cap exceeded including reviewed exclusions.")
             for language, profile in profiles.items():
                 if not any(f["language"] == language for record in records if record["status"] == "complete"
@@ -628,7 +670,9 @@ def labels(root, exclusions_path=None):
                     status.update(status="excluded", reason="reviewed_incomplete_detection",
                                   review_reason=exclusions[record["row_id"]])
                 elif record["row_id"] in selected:
-                    status.update(status="excluded", reason="bounded_incomplete_detection",
+                    status.update(status="excluded",
+                                  reason=("best_effort_incomplete_detection" if policy["max_incomplete_stories"] == -1
+                                          else "bounded_incomplete_detection"),
                                   review_reason=selected[record["row_id"]])
                 statuses.append(status)
                 continue
