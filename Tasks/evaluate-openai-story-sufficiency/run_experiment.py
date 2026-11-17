@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from sufficiency import (
-    EXPERIMENT, FROZEN, METHOD, REPORT_SCHEMA, approval_template, check_approval,
+    EXPERIMENT, FROZEN, METHOD, REPORT_SCHEMA, InputLimitExceeded, approval_template, check_approval,
     demonstrations, frozen_study, messages, prepare, root_at,
 )
 from protocol import (
@@ -26,7 +26,7 @@ spec = importlib.util.spec_from_file_location("sufficiency_runner_core", FROZEN 
 core = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(core)
 
-STAGES = ("prepare", "preflight", "smoke", "validate", "seal", "test", "report", "reconcile")
+STAGES = ("plan", "prepare", "preflight", "smoke", "validate", "seal", "test", "report", "reconcile")
 
 
 def smoke(root, config, ledger, backend, tokenizer=None):
@@ -172,8 +172,25 @@ def main(argv=None):
     parser.add_argument("--run-id", default="openai-sufficiency-01")
     parser.add_argument("--source-run", type=Path)
     parser.add_argument("--approval", type=Path)
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--execute-approved-stage", action="store_true")
     args = parser.parse_args(argv)
+    if args.stage == "plan":
+        from input_plan import plan, summary
+
+        if args.approval or args.execute_approved_stage:
+            parser.error("Sizing is offline and cannot use execution approval flags.")
+        storage = external_path(args.storage)
+        output = external_path(args.output or storage / "openai-sufficiency-input-plan.json")
+        if output.exists():
+            parser.error("Keep the existing plan; select a new --output path.")
+        source = args.source_run or storage / "openai-runs/openai-prompt-01"
+        value = plan(source)
+        write_json(output, value)
+        print(json.dumps({**summary(value), "report": str(output)}, indent=2))
+        return
+    if args.output:
+        parser.error("--output is only available for offline plan.")
     if args.stage == "prepare":
         if args.approval or args.execute_approved_stage:
             parser.error("Preparation is offline and cannot use an execution approval.")
@@ -188,7 +205,7 @@ def main(argv=None):
     if not args.execute_approved_stage:
         parser.error("This stage needs renewed approvals and explicit --execute-approved-stage.")
     if args.source_run or (args.approval and args.stage != "preflight"):
-        parser.error("--source-run is prepare-only; --approval is preflight-only.")
+        parser.error("--source-run is plan/prepare-only; --approval is preflight-only.")
     root = root_at(args.storage, args.run_id)
     config = frozen_study(root)
     examples = demonstrations(root)
@@ -250,5 +267,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as error:
-        print(f"SUFFICIENCY STOPPED: {type(error).__name__}; keep private evidence and reservations.")
+        detail = str(error) if isinstance(error, InputLimitExceeded) else type(error).__name__
+        print(f"SUFFICIENCY STOPPED: {detail}; keep private evidence and reservations.")
         raise SystemExit(1) from None

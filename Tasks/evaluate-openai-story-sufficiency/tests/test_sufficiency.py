@@ -26,6 +26,7 @@ from cost_control import approval_checks
 from cloud_control import ControlError, ROOT
 from ledger import RECOVERY_SCHEMA, SufficiencyLedger
 from backend import SufficiencyBackend
+import input_plan
 from renew_storage import CHECKS as STORAGE_CHECKS, REVIEW_SCHEMA as STORAGE_REVIEW, renew
 
 sys.path.insert(0, str(FROZEN / "tests"))
@@ -202,7 +203,7 @@ class SufficiencyTests(unittest.TestCase):
     def test_cli_cannot_dispatch_without_explicit_stage_consent(self):
         with patch.object(runner.SufficiencyLedger, "configured") as configured, redirect_stderr(io.StringIO()):
             for stage in runner.STAGES:
-                if stage == "prepare":
+                if stage in ("plan", "prepare"):
                     continue
                 with self.subTest(stage=stage), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                     runner.main([stage])
@@ -390,6 +391,74 @@ class SufficiencyTests(unittest.TestCase):
             with self.subTest(mutation=mutation), self.assertRaises(ControlError):
                 renew(store, BINDING, {**review, **mutation}, self.root)
             self.assertEqual(store.get(ROOT)[0], before)
+
+    def test_offline_plan_matches_preparation_without_changing_any_run_files(self):
+        approval = {
+            **self.approval("full"), "study_sha256": digest(read_json(self.source / "study.json")),
+            "expires_at": "2000-01-01T00:00:00Z",
+        }
+        write_json(self.source / "authorization.json", {"approval": approval})
+        before = {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()}
+        value = input_plan.plan(self.source, FakeTokenizer())
+        self.assertFalse(value["cloud_access"])
+        self.assertFalse(value["authorizes_execution"])
+        costs = value["historical_cost_estimate"]
+        self.assertTrue(costs["available"])
+        self.assertFalse(costs["current_rates_verified"])
+        self.assertEqual(costs["source_approval_expires_at"], "2000-01-01T00:00:00Z")
+        self.assertEqual(costs["max_attempts"], 3)
+        prepared = read_json(self.root / "prepared.json")
+        maximum = max(value["smoke_input_tokens"])
+        for key, entry in value["entries"].items():
+            self.assertEqual(entry["demonstrations_sha256"], digest(self.examples[key]))
+            for split, part in entry["partitions"].items():
+                for field in ("rows", "tokens", "max_tokens"):
+                    self.assertEqual(part[field], prepared["entries"][key]["partitions"][split][field])
+                self.assertEqual(part["over_current_limit"], 0)
+                maximum = max(maximum, part["max_tokens"])
+        self.assertEqual(value["maximum_required_input_tokens"], maximum)
+        self.assertEqual(value["prepared_payload_jsonl_bytes"],
+                         sum(p.stat().st_size for p in (self.root / "prepared").rglob("*.jsonl")))
+        from cost_control import estimate
+        expected = estimate(prepared, {**self.config, "max_input_tokens":
+                                      value["hypothetical_input_limit_for_costing"]}, approval)
+        self.assertEqual(costs["bounds"], expected)
+        self.assertEqual(before, {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()})
+        serialized = json.dumps(value)
+        self.assertNotIn(approval["resource_id"], serialized)
+        self.assertNotIn(SYSTEM, serialized)
+        self.assertNotIn("Jira:0:", serialized)
+
+    def test_plan_measures_oversized_prompts_but_prepare_guard_still_stops(self):
+        class LargeSystemTokenizer(FakeTokenizer):
+            def encode(self, text):
+                result = super().encode(text)
+                return result * 4 if text.startswith(SYSTEM) else result
+
+        before = {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()}
+        value = input_plan.plan(self.source, LargeSystemTokenizer())
+        self.assertGreater(value["maximum_required_input_tokens"], 8192)
+        self.assertGreater(sum(value["over_current_limit"].values()), 0)
+        self.assertGreaterEqual(value["hypothetical_input_limit_for_costing"],
+                                value["maximum_required_input_tokens"])
+        self.assertEqual(value["hypothetical_input_limit_for_costing"] % 1024, 0)
+        demo = self.examples[cell_key("Jira", 5, "structured")]["examples"]
+        with self.assertRaisesRegex(experiment.InputLimitExceeded, "input limit is 8192"):
+            messages("Jira", "target", {"feature": 1.0}, LargeSystemTokenizer(), self.config, demo)
+        self.assertEqual(before, {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()})
+
+    def test_plan_cli_works_without_completed_preparation_or_cloud_access(self):
+        output = self.storage / "new-size-plan.json"
+        with patch.object(input_plan, "Tokenizer", FakeTokenizer), patch.object(
+            runner.SufficiencyLedger, "configured"
+        ) as configured, patch("builtins.print"):
+            runner.main(["plan", "--storage", str(self.storage), "--source-run", str(self.source),
+                         "--output", str(output), "--run-id", "never-prepared"])
+            self.assertTrue(output.exists())
+            self.assertFalse((self.storage / "openai-sufficiency-runs/never-prepared").exists())
+            with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                runner.main(["plan", "--output", str(output)])
+            configured.assert_not_called()
 
 
 if __name__ == "__main__":

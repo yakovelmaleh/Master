@@ -52,6 +52,10 @@ SYSTEM = (
 CHECK = "story_sufficiency_experiment_approved"
 
 
+class InputLimitExceeded(ValueError):
+    """Only numeric size diagnostics; safe to display without story content."""
+
+
 def system_message(project, examples):
     if project not in protocol.PROJECTS or len(examples) != EXAMPLE_POLICY["count"]:
         raise ValueError("Exactly ten training examples and a supported project are required.")
@@ -68,7 +72,8 @@ def system_message(project, examples):
     )
 
 
-def messages(project, original_text, features, tokenizer, config, examples):
+def measure_messages(project, original_text, features, tokenizer, examples):
+    """Construct and count a prompt without authorizing preparation or inference."""
     if project not in protocol.PROJECTS or not isinstance(original_text, str):
         raise ValueError("Expected a supported project and original story text.")
     payload = {"project": project, "question": QUESTION, "original_text": original_text}
@@ -84,8 +89,16 @@ def messages(project, original_text, features, tokenizer, config, examples):
         {"role": "user", "content": json.dumps(payload, ensure_ascii=False, allow_nan=False)},
     ]
     tokens = 32 + sum(16 + len(tokenizer.encode(item["content"])) for item in result)
+    return result, tokens
+
+
+def messages(project, original_text, features, tokenizer, config, examples):
+    result, tokens = measure_messages(project, original_text, features, tokenizer, examples)
     if tokens > config["max_input_tokens"]:
-        raise ValueError("Sufficiency prompt exceeds the original input limit; no rows may be dropped.")
+        raise InputLimitExceeded(
+            f"Sufficiency prompt requires {tokens} tokens; input limit is {config['max_input_tokens']}. "
+            "Run the offline plan stage; no rows may be dropped."
+        )
     return result, tokens
 
 
@@ -191,6 +204,51 @@ def root_at(storage, run_id):
     return external_path(storage) / "openai-sufficiency-runs" / slug(run_id)
 
 
+def training_examples(source, config, tokenizer):
+    selected = {}
+    for project in protocol.PROJECTS:
+        for level in protocol.LEVELS:
+            key = cell_key(project, level, "text")
+            _, train_rows = partition(source, key, "train")
+            excluded = set()
+            for split in ("validation", "test"):
+                _, heldout = partition(source, key, split)
+                excluded.update(r["row_id"] for r in heldout)
+            selected[project, level] = select_examples(
+                project, level, train_rows, excluded, config["seed"],
+            )
+    entries = {}
+    for project, level, variant in CELLS:
+        key = cell_key(project, level, variant)
+        train_records, train_rows = partition(source, key, "train")
+        by_id = {row["row_id"]: (record, row) for record, row in zip(train_records, train_rows)}
+        examples, example_rows = [], []
+        for chosen in selected[project, level]:
+            record, row = by_id[chosen["row_id"]]
+            if row["label"] != chosen["label"]:
+                raise ValueError("Training example labels differ between variants.")
+            payload = source_payload(record, level, variant)
+            tokens = tokenizer.encode(payload["original_text"])
+            selected_tokens = tokens[:EXAMPLE_POLICY["text_tokens"]]
+            text = tokenizer.decode(selected_tokens)
+            while len(tokenizer.encode(text)) > EXAMPLE_POLICY["text_tokens"]:
+                selected_tokens.pop()
+                text = tokenizer.decode(selected_tokens)
+            example = {"original_text": text, "prediction": str(row["label"])}
+            if variant == "structured":
+                example["train_fitted_structured_features"] = payload["train_fitted_structured_features"]
+            examples.append(example)
+            example_rows.append({"row_id": row["row_id"], "label": row["label"],
+                                 "text_tokens": len(tokenizer.encode(text)),
+                                 "truncated": text != payload["original_text"]})
+        entries[key] = {
+            "project": project, "level": level, "variant": variant,
+            "rows": example_rows, "examples": examples,
+            "system": system_message(project, examples),
+        }
+    return entries
+
+
 def prepare(storage, run_id, source, tokenizer=None):
     root = root_at(storage, run_id)
     current = signature(source)
@@ -214,19 +272,7 @@ def prepare(storage, run_id, source, tokenizer=None):
             raise ValueError("Tokenizer differs from the original experiment.")
         entries = {}
         matched = {}
-        selected = {}
-        for project in protocol.PROJECTS:
-            for level in protocol.LEVELS:
-                key = cell_key(project, level, "text")
-                _, train_rows = partition(source, key, "train")
-                excluded = set()
-                for split in ("validation", "test"):
-                    _, heldout = partition(source, key, split)
-                    excluded.update(r["row_id"] for r in heldout)
-                selected[project, level] = select_examples(
-                    project, level, train_rows, excluded, config["seed"],
-                )
-        example_entries = {}
+        example_entries = training_examples(source, config, tokenizer)
         for project, level, variant in CELLS:
             key = cell_key(project, level, variant)
             target = root / "prepared" / key
@@ -234,35 +280,8 @@ def prepare(storage, run_id, source, tokenizer=None):
             transformer = root / "prepared" / project / "transformer.json"
             transformer.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / "prepared" / project / "transformer.json", transformer)
-            train_records, train_rows = partition(source, key, "train")
-            by_id = {row["row_id"]: (record, row) for record, row in zip(train_records, train_rows)}
-            examples, example_rows = [], []
-            for chosen in selected[project, level]:
-                record, row = by_id[chosen["row_id"]]
-                if row["label"] != chosen["label"]:
-                    raise ValueError("Training example labels differ between variants.")
-                payload = source_payload(record, level, variant)
-                tokens = tokenizer.encode(payload["original_text"])
-                selected_tokens = tokens[:EXAMPLE_POLICY["text_tokens"]]
-                text = tokenizer.decode(selected_tokens)
-                while len(tokenizer.encode(text)) > EXAMPLE_POLICY["text_tokens"]:
-                    selected_tokens.pop()
-                    text = tokenizer.decode(selected_tokens)
-                example = {
-                    "original_text": text,
-                    "prediction": str(row["label"]),
-                }
-                if variant == "structured":
-                    example["train_fitted_structured_features"] = payload["train_fitted_structured_features"]
-                examples.append(example)
-                example_rows.append({"row_id": row["row_id"], "label": row["label"],
-                                     "text_tokens": len(tokenizer.encode(text)),
-                                     "truncated": text != payload["original_text"]})
-            example_entries[key] = {
-                "project": project, "level": level, "variant": variant,
-                "rows": example_rows, "examples": examples,
-                "system": system_message(project, examples),
-            }
+            examples = example_entries[key]["examples"]
+            example_rows = example_entries[key]["rows"]
             parts = {}
             for split in ("train", "validation", "test"):
                 old_records, old_rows = partition(source, key, split)
