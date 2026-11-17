@@ -5,6 +5,65 @@ complete pinned snapshots and attribute implementation/design findings only
 to the story-associated changed files. Findings supply labels, never model
 features. Each language has its own native smell catalog.
 
+## Recommended: finish the analyzable cohort
+
+Use `--exclude-incomplete` on detection for **any selected source**. This mode
+has no numerical exclusion cap: 100 incomplete stories are accounted for just
+like one. It attempts the source's applicable snapshots, caches completed work,
+records failure reasons, and excludes incomplete **whole stories across all
+languages** at labeling. An incomplete story is never labeled negative or
+partially labeled in another language.
+
+```bash
+"$HOME/Master/Tasks/run_cluster_task.sh" detect-code-smells \
+  --stage detect --source Apache \
+  --storage "$HOME/master-code-smells" --run-id code-smells-010 \
+  --profile "$HOME/master-code-smells/profiles/java-community-linux.json" \
+  --exclude-incomplete
+```
+
+Omit `--source` to submit the same language profile for all selected sources
+whose code-evidence stages have completed. Repeat for qualified applicable
+languages; every retained story still needs all its supported languages.
+Use the same mode on retries and subsequent language scans. This policy is
+immutable per source; do not combine it with `--max-incomplete-stories`.
+The persisted policy uses `max_incomplete_stories: -1` for uncapped accounting;
+the public opt-in is the named flag, not a negative cap argument.
+
+This mode accounts for uncovered changed files (including enums and ambiguous
+types), otherwise schema-valid reports whose entities cannot be attributed,
+and recognized native analysis failures. For the pinned Java Community JAR,
+memory-overflow analysis-skip messages are classified by their diagnostic
+structure rather than by a continually growing list of analysis names.
+Incomplete attempts contribute **no findings or coverage**. Native failure
+logs and attribution-failure reports are preserved, hashed and revalidated
+when resumed. Later snapshots continue without a separate approval per story.
+
+Configuration, licensing, missing/invalid report schemas, unknown smell
+catalogs, source/report integrity errors and unclassified process failures
+remain blockers. They do not silently discard a dataset. Qualification is
+always strict. Missing jobs and unconfigured languages alone do not authorize
+an automatic exclusion.
+
+Audit `detection/exclusions/<source>.json` (`status: uncapped`),
+`detection/coverage/<source>-<language>.json`, and final `labels/coverage.json`.
+Final labels include only fully covered retained stories. Sources below 100
+fully labeled stories remain ineligible for training; frozen partitions are
+never reshuffled to compensate. Publish the actual retained/excluded counts
+and reasons, not an assumed eligible cohort size.
+
+For Windows C#, pass `--exclude-incomplete` to `export-windows`. The exported
+policy is bound into the work exchange. Coverage/attribution gaps do not stop
+the other Windows jobs; import accounts for affected whole stories under the
+same source policy. Tool/configuration/integrity errors still stop the worker.
+
+To move the verified `009` study forward without another freeze/fetch cycle,
+use preparation migration with `--reuse-verified`, described in the preparation
+README. Once that migration succeeds, run detection directly for sources in
+`reuse.json`'s `evidence_sources`. Cached compatible analyses are verified and
+reused. Sources listed in `missing_evidence_sources` still need their first
+successful fetch.
+
 ## Required native-tool qualification
 
 The `profiles/*.example.json` files are **templates, not qualified releases**.
@@ -130,7 +189,7 @@ Final labels still require complete coverage of every supported language for
 each retained story. A source scan may finish with recorded gaps, but neither
 it nor an `analyzed` result authorizes automatic whole-story exclusions.
 
-### Approved bounded Apache exclusions
+### Legacy bounded Apache exclusions
 
 For a new study, the operator can explicitly authorize up to ten unique Apache
 stories to be excluded without investigating each one:
@@ -138,11 +197,13 @@ stories to be excluded without investigating each one:
 ```bash
 "$HOME/Master/Tasks/run_cluster_task.sh" detect-code-smells \
   --stage detect --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-009 \
+  --storage "$HOME/master-code-smells" --run-id code-smells-legacy-bounded \
   --profile "$HOME/master-code-smells/profiles/java-community-linux.json" \
   --max-incomplete-stories 10
 ```
 
+This older mode remains available for reproducibility. Prefer
+`--exclude-incomplete` for the newly approved uncapped study.
 Default `0` retains strict behavior. Values `1` through `10` are supported only
 for Apache detection. The first detection saves an immutable, source-wide policy
 in `detection/policies/Apache.json`, bound to the study and frozen split. Use the
@@ -255,7 +316,8 @@ evidence. `catalog.json` maps target IDs to native names.
 
 `labels/coverage.json` distinguishes complete, excluded and incomplete stories.
 By default any required missing/incomplete detector result blocks freezing final
-labels. The explicit bounded Apache policy above is the only automatic exception.
+labels. The explicit uncapped or legacy bounded policies above permit audited
+whole-story exclusions.
 Restore tool/access prerequisites and rerun first. If some stories
 cannot be fully analyzed, review their failed attempts and explicitly exclude
 the **whole story**, not just its failed language:

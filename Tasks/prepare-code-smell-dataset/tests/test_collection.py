@@ -1,10 +1,11 @@
 import copy
 import json
+import shutil
 from unittest import mock
 
 import pandas as pd
 
-from Code_Smells_Detection.runtime import collection, common, migration, prepare
+from Code_Smells_Detection.runtime import collection, common, detectors, migration, prepare
 from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
@@ -33,6 +34,118 @@ class Client:
 
 
 class CollectionTests(RuntimeCase):
+    def test_verified_reuse_skips_network_and_native_work_but_rejects_changed_artifacts(self):
+        original = self.reviewed_frozen_parent(migrated=True)
+        parent = self.storage / "runs/009"
+        with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
+            migration.migrate(parent, original)
+        with common.stage_state(parent, "freeze", "Apache", "test"):
+            prepare.freeze(parent, "Apache")
+        source = self.storage / "snapshot/source"
+        (source / "src").mkdir(parents=True)
+        for name in ("Bad", "Clean"):
+            (source / "src" / (name + ".java")).write_text("class " + name + " {}")
+        common.write_json(source.parent / "manifest.json", {
+            "repository": "a/b", "revision": "a" * 40, "files": common.tree_manifest(source)})
+        evidence = {"repository": "a/b", "revision": "a" * 40, "snapshot": str(source.parent),
+                    "snapshot_manifest_sha256": common.file_hash(source.parent / "manifest.json"),
+                    "files": [{"path": "src/Bad.java", "language": "java", "status": "modified"}]}
+        split = common.read_json(parent / "splits/Apache.json")
+        records = {}
+        first = split["rows"][0]
+        for row in split["rows"]:
+            path = parent / "evidence/Apache" / (row.split(":")[1] + ".json")
+            common.write_json(path, {"row_id": row, "source": "Apache", "partition": split["assignment"][row],
+                                     "status": "complete" if row == first else "excluded",
+                                     "reason": None if row == first else "no_complete_supported_evidence",
+                                     "evidence": [evidence] if row == first else []})
+            records[row] = common.file_hash(path)
+        common.write_json(parent / "evidence/Apache/manifest.json", {
+            "records": records, "split_sha256": common.file_hash(parent / "splits/Apache.json")})
+        common.write_json(parent / "evidence/Apache/audit.json", {
+            "counts": {"complete": 1, "excluded": len(records) - 1}, "cross_partition_revisions": []})
+        common.write_json(parent / "status/fetch-code-Apache.json", {"status": "succeeded"})
+        profile = self.profile()
+        detectors.register_profile(parent, profile)
+        key = detectors.detection_key(evidence, profile)
+        directory = parent / "detection/results" / key
+        output = directory / "attempts/one/output"
+        self.native_output(output)
+        (output.parent / "output.out").write_text("Done.")
+        (output.parent / "output.err").write_text("")
+        shutil.copytree(output, directory / "reports")
+        common.write_json(directory / "result.json", {
+            "key": key, "status": "analyzed", "profile_sha256": common.digest(profile),
+            **detectors.parse_reports(output, source, profile), "reports": common.tree_manifest(output)})
+        common.write_json(parent / "detection/policies/Apache.json", {"max_incomplete_stories": 10})
+        before = common.tree_manifest(parent)
+        target = self.storage / "runs/010"
+        with mock.patch.object(migration, "INHERITANCE_PARENT_SOURCE_SHA256", common.source_hash()), mock.patch(
+                "requests.sessions.Session.request", side_effect=AssertionError("No network")), mock.patch.object(
+                detectors.subprocess, "run", side_effect=AssertionError("No native rerun")):
+            from Code_Smells_Detection.runtime import reuse
+            with mock.patch.object(reuse, "copy_verified", side_effect=OSError("interrupted reuse")):
+                with self.assertRaisesRegex(OSError, "interrupted reuse"):
+                    migration.migrate(target, parent, reuse_verified=True)
+            with self.assertRaisesRegex(ValueError, "reuse is incomplete"):
+                prepare.frozen_frame(target, "Apache")
+            migration.migrate(target, parent, reuse_verified=True)
+            migration.migrate(target, parent, reuse_verified=True)
+            reused = common.read_json(target / "reuse.json")
+            self.assertEqual(["Apache"], reused["frozen_sources"])
+            self.assertEqual(["Apache"], reused["evidence_sources"])
+            self.assertEqual([], reused["missing_evidence_sources"])
+            self.assertEqual([key], list(reused["results"]))
+            self.assertFalse((target / "detection/policies").exists())
+            self.assertEqual(before, common.tree_manifest(parent))
+            self.assertEqual(common.file_hash(original / "study.json"),
+                             collection.review_study_hash(target, "Apache"))
+            profile_path = target / "detection/profiles/java.json"
+            with mock.patch.object(detectors, "qualified", return_value=self.storage):
+                detectors.detect(target, self.storage, "Apache", profile_path, -1)
+            detectors.labels(target)
+            self.assertEqual([first], pd.read_csv(target / "labels/story_labels.csv").row_id.tolist())
+            # A corrupt completed evidence record is never silently refetched or activated.
+            bad = parent / "evidence/Apache" / (first.split(":")[1] + ".json")
+            previous = bad.read_bytes()
+            bad.write_text("{}")
+            with self.assertRaisesRegex(ValueError, "evidence hash changed"):
+                migration.migrate(self.storage / "runs/corrupt", parent, reuse_verified=True)
+            bad.write_bytes(previous)
+            logs = output.parent / "output.out"
+            original_log = logs.read_bytes()
+            logs.unlink()
+            no_logs = self.storage / "runs/no-native-logs"
+            migration.migrate(no_logs, parent, reuse_verified=True)
+            self.assertIn(key, common.read_json(no_logs / "reuse.json")["skipped_results"])
+            self.assertFalse((no_logs / "detection/results" / key).exists())
+            logs.write_bytes(original_log)
+            # An incomplete parent fetch is not imported as a successful stage.
+            status = parent / "status/fetch-code-Apache.json"
+            common.write_json(status, {"status": "failed"})
+            missing = self.storage / "runs/no-evidence"
+            migration.migrate(missing, parent, reuse_verified=True)
+            self.assertEqual(["Apache"], common.read_json(missing / "reuse.json")["missing_evidence_sources"])
+            self.assertFalse((missing / "status/fetch-code-Apache.json").exists())
+            common.write_json(status, {"status": "succeeded"})
+            # Compatible results in an archived predecessor are reused even when
+            # the immediate parent never ran native detection.
+            archived = parent / "parent/detection"
+            shutil.move(str(parent / "detection"), archived)
+            ancestor = self.storage / "runs/ancestor-results"
+            migration.migrate(ancestor, parent, reuse_verified=True)
+            self.assertEqual("parent/parent/detection/results/" + key,
+                             common.read_json(ancestor / "reuse.json")["results"][key])
+            report = archived / "results" / key / "reports/design.csv"
+            report.write_text("changed")
+            with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+                migration.migrate(self.storage / "runs/corrupt-reports", parent, reuse_verified=True)
+            shutil.copyfile(archived / "results" / key / "attempts/one/output/design.csv", report)
+            # Source bytes are checked, not just the snapshot manifest's existence.
+            (source / "src/Bad.java").write_text("changed")
+            with self.assertRaisesRegex(ValueError, "Artifact tree changed"):
+                migration.migrate(self.storage / "runs/corrupt-snapshot", parent, reuse_verified=True)
+
     def setUp(self):
         super().setUp()
         self.make_study(120)

@@ -20,6 +20,7 @@ SOURCE_PATH_PARENT_SOURCE_SHA256 = "075a48ab04792e520d0efdac9229e50512b02d545ca0
 ATTRIBUTION_PARENT_SOURCE_SHA256 = "09c3e46d55ae1fd9fc68d19f3a78dfc2dc45323e4a39b3c1bd3ae59ba5044400"
 COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256 = "21e404a3f8ba14e8e1478216b391ac787c9bc1808f20fe926508041eebd7a776"
 BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256 = "6f57fd48e84f7b775cb00100bad6c48f9797d4d9f021ccbd7a3f435abeb6352e"
+INHERITANCE_PARENT_SOURCE_SHA256 = "33e847ba327d6a02329aaea78a12a471089aa189c20aa60d67329b8882effea8"
 
 
 def inventory(parent):
@@ -27,18 +28,21 @@ def inventory(parent):
     frozen_import = study["source_sha256"] in (
         FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256,
         COVERAGE_PARENT_SOURCE_SHA256, SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
-        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256)
+        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+        INHERITANCE_PARENT_SOURCE_SHA256)
     if study["schema"] != SCHEMA or study["source_sha256"] not in (
             PARENT_SOURCE_SHA256, FROZEN_PARENT_SOURCE_SHA256,
             RECOVERY_PARENT_SOURCE_SHA256, COVERAGE_PARENT_SOURCE_SHA256,
             SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
-            COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256):
+            COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+            INHERITANCE_PARENT_SOURCE_SHA256):
         raise ValueError("Unsupported parent code/schema; migration requires the pinned preparation implementation.")
     if study.get("prior") or study.get("migration_sha256") and not frozen_import:
         raise ValueError("This migration supports original runs without prior imports only.")
     detector_import = study["source_sha256"] in (
         SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
-        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256)
+        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+        INHERITANCE_PARENT_SOURCE_SHA256)
     forbidden = ("labels", "models", "reports")
     if not detector_import:
         forbidden += ("detection",)
@@ -66,7 +70,8 @@ def inventory(parent):
         expected_schema = ("code-smell-frozen-import-v1" if study["source_sha256"] in (
             RECOVERY_PARENT_SOURCE_SHA256, COVERAGE_PARENT_SOURCE_SHA256,
             SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
-            COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256)
+            COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+            INHERITANCE_PARENT_SOURCE_SHA256)
                            else "code-smell-preparation-import-v1")
         if (file_hash(parent / "migration.json") != study["migration_sha256"] or
                 read_json(parent / "migration_complete.json") != {"migration_sha256": study["migration_sha256"]} or
@@ -197,23 +202,31 @@ def inventory(parent):
     return study, files, sources
 
 
-def migrate(root, parent):
+def migrate(root, parent, reuse_verified=False):
     root, parent = external(root), external(parent)
     if root == parent or root in parent.parents or parent in root.parents:
         raise ValueError("Migration must use distinct, non-nested run directories.")
-    if root.exists() and any(path.name not in ("status", "migration.json", "migration_complete.json", "study.json",
-                                              "cohort", "raw", "features", "splits", "parent")
+    allowed = ("status", "migration.json", "migration_complete.json", "study.json",
+               "cohort", "raw", "features", "splits", "parent")
+    if reuse_verified:
+        allowed += ("evidence", "detection", "reuse.json")
+    if root.exists() and any(path.name not in allowed
                              for path in root.iterdir()):
         raise ValueError("Migration destination is not a preparation-only run.")
     old, files, sources = inventory(parent)
+    if reuse_verified and old["source_sha256"] != INHERITANCE_PARENT_SOURCE_SHA256:
+        raise ValueError("Verified reuse supports only the pinned 009 parent.")
     frozen_import = old["source_sha256"] in (
         FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256,
         COVERAGE_PARENT_SOURCE_SHA256, SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
-        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256)
+        COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+        INHERITANCE_PARENT_SOURCE_SHA256)
     migration = {"schema": "code-smell-frozen-import-v1" if frozen_import else "code-smell-preparation-import-v1",
                  "parent": str(parent),
                  "parent_study_sha256": file_hash(parent / "study.json"),
                  "source_sha256": source_hash(), "files": files, "sources": sources}
+    if reuse_verified:
+        migration["reuse_verified"] = True
     if (root / "study.json").exists() and not (root / "migration.json").exists():
         raise ValueError("Do not migrate into an existing independent study.")
     immutable_json(root / "migration.json", migration)
@@ -244,7 +257,12 @@ def migrate(root, parent):
         if state["complete"]:
             with stage_state(root, "enrich", source, digest({"migration": migration["parent_study_sha256"], "source": source})):
                 collection.load_manifest(root, source, set(source_candidates(root, source).issue_key))
-    if frozen_import:
+    if reuse_verified:
+        from .reuse import reuse_verified_work
+        reuse_verified_work(root, sources)
+        print("Verified frozen stages and completed evidence reused. See reuse.json for native result reuse. "
+              "Proceed to detection for reused sources; fetch only sources listed as missing.", flush=True)
+    elif frozen_import:
         print("Imported frozen preparation and original collection approvals byte-for-byte. "
               "Run freeze to revalidate every source before fetch-code. Parent evidence and detection are archived only; "
               "re-resolve links under the new code, reusing verified shared snapshots.", flush=True)

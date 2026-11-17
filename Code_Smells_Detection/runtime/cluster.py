@@ -81,6 +81,9 @@ def main(kind):
                 command.extend(["--" + name.replace("_", "-"), str(value)])
         if source:
             command += ["--source", source]
+        for flag in ("exclude_incomplete", "reuse_verified"):
+            if getattr(args, flag):
+                command.append("--" + flag.replace("_", "-"))
         if args.stage == "report" and args.report_output is None:
             command += ["--report-output", str(run_root / "results/code_smell_report.json")]
         commands.append(command)
