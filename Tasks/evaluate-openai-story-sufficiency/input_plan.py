@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from sufficiency import (
-    EXAMPLE_POLICY, METHOD, Tokenizer, implementation_hash, measure_messages,
+    EXAMPLE_POLICY, METHOD, Tokenizer, experiment_config, implementation_hash, measure_messages,
     source_evidence, source_payload, training_examples,
 )
 from protocol import CELLS, PILOT_LEVEL, PILOT_PROJECT, cell_key, digest, file_hash, read_json
@@ -25,7 +25,7 @@ class CountingTokenizer:
 def plan(source, tokenizer=None):
     evidence = source_evidence(source)
     source = Path(evidence["root"])
-    config = read_json(source / "study.json")["config"]
+    config = experiment_config(read_json(source / "study.json")["config"])
     old = read_json(source / "prepared.json")
     tokenizer = CountingTokenizer(tokenizer or Tokenizer(config["model"]))
     if tokenizer.name != old["tokenizer"] or tokenizer.labels != old["label_tokens"]:

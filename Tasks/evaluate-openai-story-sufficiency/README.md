@@ -22,7 +22,7 @@ judgments, not human assessments of detail sufficiency.
 
 Each example's story is capped at **256 tokens**; the structured variant keeps
 its original structured fields. The target story keeps its original prepared
-text budget. The complete system-plus-user prompt must fit **8,192 tokens**.
+text budget. The complete system-plus-user prompt must fit **10,240 tokens**.
 Preparation stops if it cannot fit, rather than dropping examples, selecting
 shorter stories, changing the request limit, or dropping evaluation rows.
 Preparation also stops if a project/K has fewer than five training rows of
@@ -49,10 +49,17 @@ either class or if training and held-out row identities overlap.
 ## Matched design
 
 Same versioned `gpt-4.1-mini-2025-04-14`, Jira/Qt, K=5/20, text/structured
-variants, original splits, token limits, input truncation, train-fitted
+variants, original splits, target/example text limits, input truncation, train-fitted
 features, scoring settings, validation threshold selection, and metrics.
 The source is the completed `openai-prompt-01` study, including its original
 seal and final recovery-annotated report.
+
+The only configuration override is `max_input_tokens: 10240`, raised from the
+source study's 8,192 after offline measurement found a maximum of 9,677.
+The new config and explicit override are bound into the new study signature
+and its approval hash. Source validation still requires the unchanged original
+config. Three total request attempts, all financial caps, the protected reserve,
+and historical reservations remain unchanged.
 
 Preparation reads only the original prepared prompts/sidecars. It preserves
 the target's exact already-truncated story and structured feature values.
@@ -77,7 +84,7 @@ no runtime prompt monkey-patches.
 
 ## Offline sizing before preparation
 
-If preparation stops at the 8,192-token guard, keep the partial run untouched.
+If an earlier preparation stopped at the 8,192-token guard, keep that partial run untouched.
 Do not delete its markers, shorten examples, or raise its limit silently.
 Run the sizing-only command, which does not need a completed new preparation:
 
@@ -105,15 +112,21 @@ storage reserve, and unchanged three-attempt bounds. The source approval may
 be expired: these numbers are illustrative, not permission to spend.
 The full-scope bound already includes the pilot; do not add them together.
 It does not establish available global capacity or account for all prior
-reservations. Current rates, credit, storage retention/capacity, and the proposed
-new limit require separate review. If the historical authorization is missing,
+reservations. Current rates, credit, and storage retention/capacity still
+require separate review. If the historical authorization is missing,
 the sizing report still works and reports cost estimates as unavailable.
 
-The live input limit remains 8,192. This tool does not approve or install the
-larger hypothetical value. Because implementation fingerprints include this new
-planner, a partial run made with the earlier revision must remain preserved;
-after a larger limit is explicitly reviewed and implemented, prepare under a
-**new run ID** rather than rewriting the partial study.
+The implemented input limit is now 10,240; sizing uses that same new-experiment
+config. The planner still cannot approve or install a larger hypothetical value.
+The earlier sizing report remains evidence for its original implementation.
+Keep earlier partial runs and plans; prepare under the new default
+**`openai-sufficiency-02`** rather than rewriting the old study.
+
+The measured full-study bound exceeds the unchanged global cap even before
+including prior retained model reservations. Input-limit approval is not
+spending approval. A higher cumulative cap and sufficient credit must be
+separately reviewed before execution; this change adds no cap-amendment path
+and does not authorize or unblock paid work.
 
 ## Offline preparation
 
@@ -129,7 +142,7 @@ Defaults:
 
 - Storage: `$HOME/master-openai`.
 - Source: `openai-runs/openai-prompt-01`.
-- New run: `openai-sufficiency-runs/openai-sufficiency-01`.
+- New run: `openai-sufficiency-runs/openai-sufficiency-02`.
 
 Optional `--storage`, `--run-id`, and prepare-only `--source-run` are explicit.
 Source files and dependency versions must still match the old study fingerprint.
@@ -204,7 +217,7 @@ storage approval, without cloud access:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py template \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-01" \
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-02" \
   --output "$HOME/.local/state/master-openai/sufficiency-storage-template.json"
 ```
 
@@ -219,7 +232,7 @@ Only after explicit approval:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py renew \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-01" \
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-02" \
   --review /absolute/private/approved-storage-renewal.json \
   --output /absolute/private/storage-renewal-result.json \
   --storage-renewal-approved

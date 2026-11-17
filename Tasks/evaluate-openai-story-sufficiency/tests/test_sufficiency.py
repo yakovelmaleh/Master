@@ -89,6 +89,7 @@ class SufficiencyTests(unittest.TestCase):
             ],
         })
         self.root = prepare(self.storage, "fixture", self.source, FakeTokenizer())
+        self.config = frozen_study(self.root)
         self.examples = demonstrations(self.root)
 
     def approval(self, scope="pilot"):
@@ -161,6 +162,56 @@ class SufficiencyTests(unittest.TestCase):
             messages("Jira", "small target", None, FakeTokenizer(), self.config, oversized)
         with self.assertRaisesRegex(ValueError, "finite"):
             messages("Qt", "story", {"feature": float("nan")}, FakeTokenizer(), self.config, demo["examples"])
+
+    def test_reviewed_limit_preserves_prompts_and_source_with_larger_inputs(self):
+        class ReviewedSizeTokenizer(FakeTokenizer):
+            def encode(self, text):
+                result = super().encode(text)
+                return result + ["padding"] * max(0, 8000 - len(result)) if text.startswith(SYSTEM) else result
+
+        before = {str(p): file_hash(p) for p in self.source.rglob("*") if p.is_file()}
+        source_config = read_json(self.source / "study.json")["config"]
+        self.assertEqual(self.config, {**source_config, "max_input_tokens": 10240})
+        larger = prepare(self.storage, "reviewed-size", self.source, ReviewedSizeTokenizer())
+        self.assertEqual(demonstrations(larger), self.examples)
+        planned = input_plan.plan(self.source, ReviewedSizeTokenizer())
+        self.assertEqual(planned["current_input_limit"], 10240)
+        self.assertEqual(sum(planned["over_current_limit"].values()), 0)
+        self.assertGreater(planned["maximum_required_input_tokens"], 8192)
+        self.assertLessEqual(planned["maximum_required_input_tokens"], 10240)
+        counts = []
+        for cell in CELLS:
+            for split in ("train", "validation", "test"):
+                expected, _ = partition(self.root, cell_key(*cell), split)
+                actual, rows = partition(larger, cell_key(*cell), split)
+                self.assertEqual(actual, expected)
+                counts.extend(row["input_tokens"] for row in rows)
+        self.assertGreater(max(counts), 8192)
+        self.assertLessEqual(max(counts), 10240)
+        demo = self.examples[cell_key("Jira", 5, "text")]["examples"]
+        with self.assertRaises(experiment.InputLimitExceeded):
+            messages("Jira", "x" * 2048, None, ReviewedSizeTokenizer(), source_config, demo)
+        self.assertEqual(before, {str(p): file_hash(p) for p in self.source.rglob("*") if p.is_file()})
+
+    def test_limit_change_rejects_old_approval_and_preserves_old_runs(self):
+        with patch.object(experiment, "CONFIG_OVERRIDES", {"max_input_tokens": 8192}):
+            old_root = prepare(self.storage, "old-limit", self.source, FakeTokenizer())
+            old_approval = {
+                **self.approval(), "study_sha256": digest(read_json(old_root / "study.json")),
+            }
+            partial = experiment.root_at(self.storage, "old-partial")
+            write_json(partial / "study.json", experiment.signature(self.source))
+        for root in (old_root, partial):
+            before = {str(p): file_hash(p) for p in root.rglob("*") if p.is_file()}
+            with self.assertRaisesRegex(ValueError, "new run ID"):
+                prepare(self.storage, root.name, self.source, FakeTokenizer())
+            for path, checksum in before.items():
+                self.assertEqual(file_hash(Path(path)), checksum)
+            with self.assertRaisesRegex(ValueError, "provenance"):
+                frozen_study(root)
+        with self.assertRaises(ValueError):
+            check_approval(old_approval, digest(read_json(self.root / "study.json")), self.config)
+        check_approval(self.approval(), digest(read_json(self.root / "study.json")), self.config)
 
     def test_example_selection_is_fixed_balanced_and_training_only(self):
         _, rows = partition(self.source, cell_key("Jira", 5, "text"), "train")
@@ -437,13 +488,13 @@ class SufficiencyTests(unittest.TestCase):
 
         before = {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()}
         value = input_plan.plan(self.source, LargeSystemTokenizer())
-        self.assertGreater(value["maximum_required_input_tokens"], 8192)
+        self.assertGreater(value["maximum_required_input_tokens"], self.config["max_input_tokens"])
         self.assertGreater(sum(value["over_current_limit"].values()), 0)
         self.assertGreaterEqual(value["hypothetical_input_limit_for_costing"],
                                 value["maximum_required_input_tokens"])
         self.assertEqual(value["hypothetical_input_limit_for_costing"] % 1024, 0)
         demo = self.examples[cell_key("Jira", 5, "structured")]["examples"]
-        with self.assertRaisesRegex(experiment.InputLimitExceeded, "input limit is 8192"):
+        with self.assertRaisesRegex(experiment.InputLimitExceeded, "input limit is 10240"):
             messages("Jira", "target", {"feature": 1.0}, LargeSystemTokenizer(), self.config, demo)
         self.assertEqual(before, {str(p): file_hash(p) for p in self.storage.rglob("*") if p.is_file()})
 

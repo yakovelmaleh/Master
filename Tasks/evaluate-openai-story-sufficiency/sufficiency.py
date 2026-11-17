@@ -21,6 +21,7 @@ from cost_control import check_approval as original_check_approval
 EXPERIMENT = "openai-story-sufficiency-v1"
 REPORT_SCHEMA = "openai-story-sufficiency-report-v1"
 METHOD = "ten-shot-system-user"
+CONFIG_OVERRIDES = {"max_input_tokens": 10240}
 EXAMPLE_POLICY = {
     "count": 10, "per_class": 5, "text_tokens": 256,
     "selection": "seeded SHA-256 ranking of training row IDs per project/K/class",
@@ -178,11 +179,16 @@ def source_evidence(source):
     }
 
 
+def experiment_config(source_config):
+    return {**source_config, **CONFIG_OVERRIDES}
+
+
 def signature(source):
     evidence = source_evidence(source)
-    config = read_json(Path(evidence["root"]) / "study.json")["config"]
+    config = experiment_config(read_json(Path(evidence["root"]) / "study.json")["config"])
     return {
         "experiment_schema": EXPERIMENT, "config": config,
+        "config_overrides": CONFIG_OVERRIDES,
         "prompt": SYSTEM, "question": QUESTION, "method": METHOD,
         "demonstration_policy": EXAMPLE_POLICY,
         "prediction": {"0": "sufficient details", "1": "insufficient details"},
