@@ -43,6 +43,8 @@ either class or if training and held-out row identities overlap.
 - `run_experiment.py`: preparation, preflight, smoke, bounded validation/test,
   sealing, reporting, and receipt-only reconciliation.
 - `run.sh`: short entry point using the existing `master-openai` interpreter.
+- `cluster/submit_jobs.sh` and `cluster/submit_jobs.py`: standard master-launcher
+  integration for one offline preparation sbatch job, with email and saved status.
 - `tests/test_sufficiency.py`: offline prompt, provenance, workflow, and
   accounting regression tests with synthetic data and fake transports.
 
@@ -128,34 +130,61 @@ spending approval. A higher cumulative cap and sufficient credit must be
 separately reviewed before execution; this change adds no cap-amendment path
 and does not authorize or unblock paid work.
 
-## Offline preparation
+## Offline preparation through the cluster launcher
 
-Install **only this new task folder** in the cluster checkout, using the existing
-pinned environment. Do not pull unrelated changes into the frozen experiment.
-From the repository root:
+Use the normal `--pull` workflow after the launcher PR is merged. From the
+cluster login node, on the intended `main` branch:
 
 ```bash
-bash Tasks/evaluate-openai-story-sufficiency/run.sh prepare
+cd "$HOME/Master"
+git switch main
+bash Tasks/run_cluster_task.sh --pull evaluate-openai-story-sufficiency --stage prepare
 ```
+
+The master launcher runs `git pull --ff-only`, then submits **one CPU sbatch
+job** using the existing `master-openai` environment. No environments or
+dependencies are installed. The job prepares the new study only: it never
+runs preflight, smoke, validation, or any Azure stage. Email uses `MailType=ALL`
+and the existing launcher recipient; `--mail-user` can override it.
+
+If Git reports local changes or untracked files from earlier archive installs,
+stop and inspect them; do not reset, clean, delete files, or force the pull.
+Source provenance is checked before submission and again on the worker.
+A pull that changes the frozen source/config/dependencies will therefore block
+preparation, not silently rewrite the original experiment.
 
 Defaults:
 
 - Storage: `$HOME/master-openai`.
 - Source: `openai-runs/openai-prompt-01`.
 - New run: `openai-sufficiency-runs/openai-sufficiency-02`.
+- Partition: `main`; time: `04:00:00`; memory: `8G`; CPUs: `2`.
 
-Optional `--storage`, `--run-id`, and prepare-only `--source-run` are explicit.
+Optional `--storage`, `--run-id`, `--source-run`, `--partition`, `--time`,
+and `--mail-user` follow the task name. Add `--dry-run` to render the job
+without submitting it (omit master `--pull` if no Git update is wanted).
 Source files and dependency versions must still match the old study fingerprint.
 Changed or missing source data fail closed; do not regenerate or edit old
 provenance to work around that failure.
 
-The command makes **no Azure calls**. It writes the new `study.json`, private
+Job evidence lives under the new run's `jobs/prepare/`: `submission.json`,
+`submit.sbatch`, `slurm-<job-id>.out/.err`, `worker.started`, and
+`worker-status.json`. The launcher records intent before calling sbatch and
+refuses repeated submission, including after an ambiguous scheduler response.
+Inspect the saved job/status before any retry; keep its markers. A failed
+job needs investigation and an explicitly chosen fresh run ID, not automatic
+resubmission. `--no-requeue` also prevents automatic scheduler requeue.
+
+The worker makes **no Azure calls**. It writes the new `study.json`, private
 prepared payloads/sidecars/transformers, `demonstrations.json`, `prepared.json`, and
 `approval.template.json`. Template checks default to false, rates are unset,
 and expiry is empty. Do not upload these private files to Git.
 `demonstrations.json` records selected row identities, proxy labels, example
 truncation, and exact system messages; its hash is bound into the preparation
 manifest and the cell's model reference. Changed examples invalidate reuse.
+
+For diagnostics only, direct offline preparation remains available:
+`bash Tasks/evaluate-openai-story-sufficiency/run.sh prepare`.
 
 ## Approval and execution
 
@@ -195,8 +224,9 @@ bash Tasks/evaluate-openai-story-sufficiency/run.sh validate --execute-approved-
 Each validation/test invocation handles at most the original 400-row batch.
 Complete the Jira/20 pilot, review it, then use a separately approved full-scope
 preflight. Complete all eight validation entries, `seal`, run the reviewed
-number of `test` batches, then `report`. No automatic SLURM submission, stage
-loop, approval expansion, or retry after ambiguous failure is included.
+number of `test` batches, then `report`. The cluster launcher supports only
+offline preparation; no paid-stage submission, stage loop, approval expansion,
+or retry after ambiguous failure is included.
 
 Known 429 rejections retain the original bounded attempt policy. HTTP 500,
 timeouts, and other ambiguous outcomes stop with reservations retained.
