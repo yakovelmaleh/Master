@@ -34,6 +34,8 @@ either class or if training and held-out row identities overlap.
   fixed training-example selection, and separate approval contract.
 - `backend.py`: the original Azure request/scoring settings with the new exact
   prompt guard; no training or repository retrieval.
+- `input_plan.py`: read-only sizing of all prompts, including oversized prompts,
+  with explicitly historical-rate cost estimates.
 - `ledger.py`: new-run-only accounting, preserving existing global reservations,
   historical recovery evidence, and unknown training quarantine.
 - `renew_storage.py`: separately reviewed, bounded storage renewal on the existing
@@ -72,6 +74,46 @@ stages. Project/company knowledge is not assumed from the role alone.
 The original task, recovery task, original results, and sprint presentation
 are unchanged. Existing scientific helpers are imported read-only; there are
 no runtime prompt monkey-patches.
+
+## Offline sizing before preparation
+
+If preparation stops at the 8,192-token guard, keep the partial run untouched.
+Do not delete its markers, shorten examples, or raise its limit silently.
+Run the sizing-only command, which does not need a completed new preparation:
+
+```bash
+bash Tasks/evaluate-openai-story-sufficiency/run.sh plan
+```
+
+It reads the frozen source study and constructs the same ten demonstrations
+using the same shared selection/truncation logic. It measures **every**
+train/validation/test prompt and both synthetic capability prompts without
+calling Azure, writing prepared data, or altering any run or approval.
+The result is written to
+`$HOME/master-openai/openai-sufficiency-input-plan.json`; use `--output` with
+a new external path if a previous plan already exists.
+
+The summary gives the maximum required token count, validation/test maximum,
+over-limit counts by split, and a rounded-up **hypothetical** limit used only
+for cost calculations. The detailed report includes each cell/partition's
+token counts, system lengths, example hashes, and estimated JSONL payload bytes.
+It contains no story text, example identities, or account/resource identifiers.
+
+If the source authorization is available, the cost worksheet uses its
+**historical, unverified-for-current-use** input/output prices, rate margin,
+storage reserve, and unchanged three-attempt bounds. The source approval may
+be expired: these numbers are illustrative, not permission to spend.
+The full-scope bound already includes the pilot; do not add them together.
+It does not establish available global capacity or account for all prior
+reservations. Current rates, credit, storage retention/capacity, and the proposed
+new limit require separate review. If the historical authorization is missing,
+the sizing report still works and reports cost estimates as unavailable.
+
+The live input limit remains 8,192. This tool does not approve or install the
+larger hypothetical value. Because implementation fingerprints include this new
+planner, a partial run made with the earlier revision must remain preserved;
+after a larger limit is explicitly reviewed and implemented, prepare under a
+**new run ID** rather than rewriting the partial study.
 
 ## Offline preparation
 
