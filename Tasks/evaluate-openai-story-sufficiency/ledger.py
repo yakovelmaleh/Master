@@ -41,8 +41,17 @@ class SufficiencyLedger(Ledger):
 
     def authorize(self, run, approval, estimate_value, config, evidence=None):
         self.require_run(run)
+        if config != self.config:
+            raise ControlError("Configuration differs from the bound study.")
         check_approval(approval, self.study_hash, config)
-        return super().authorize(run, approval, estimate_value, config, evidence)
+        try:
+            return super().authorize(run, approval, estimate_value, config, evidence)
+        except ControlError as error:
+            if str(error) == "Global experiment reservations exceed $80 including storage.":
+                raise ControlError(
+                    f"Global experiment reservations exceed ${config['total_limit_usd']} including storage."
+                ) from error
+            raise
 
     def _allow_operation(self, state, run, kind, request=None):
         self.require_run(run)

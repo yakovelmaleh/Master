@@ -21,7 +21,7 @@ from cost_control import check_approval as original_check_approval
 EXPERIMENT = "openai-story-sufficiency-v1"
 REPORT_SCHEMA = "openai-story-sufficiency-report-v1"
 METHOD = "ten-shot-system-user"
-CONFIG_OVERRIDES = {"max_input_tokens": 10240}
+CONFIG_OVERRIDES = {"max_input_tokens": 10240, "total_limit_usd": 100}
 EXAMPLE_POLICY = {
     "count": 10, "per_class": 5, "text_tokens": 256,
     "selection": "seeded SHA-256 ranking of training row IDs per project/K/class",
@@ -51,6 +51,7 @@ SYSTEM = (
     "verify completion; 0 if there are sufficient details for both. Do not explain."
 )
 CHECK = "story_sufficiency_experiment_approved"
+BUDGET_CHECK = "cumulative_budget_approved"
 
 
 class InputLimitExceeded(ValueError):
@@ -181,6 +182,10 @@ def source_evidence(source):
 
 def experiment_config(source_config):
     return {**source_config, **CONFIG_OVERRIDES}
+
+
+def budget_limits(config):
+    return {key: config[key] for key in ("total_limit_usd", "pilot_limit_usd", "credit_reserve_usd")}
 
 
 def signature(source):
@@ -340,6 +345,8 @@ def approval_template(root):
     value["experiment_schema"] = EXPERIMENT
     value["prompt_method"] = METHOD
     value["checks"][CHECK] = False
+    value["checks"][BUDGET_CHECK] = False
+    value["budget_limits"] = budget_limits(read_json(root / "study.json")["config"])
     return value
 
 
@@ -348,3 +355,6 @@ def check_approval(value, study_hash, config):
     if (value.get("experiment_schema") != EXPERIMENT or value.get("prompt_method") != METHOD
             or value.get("checks", {}).get(CHECK) is not True):
         raise ValueError("Separate approval of the detail-sufficiency experiment is required.")
+    if (value.get("budget_limits") != budget_limits(config)
+            or value.get("checks", {}).get(BUDGET_CHECK) is not True):
+        raise ValueError("Explicit cumulative budget approval must match the new study limits.")
