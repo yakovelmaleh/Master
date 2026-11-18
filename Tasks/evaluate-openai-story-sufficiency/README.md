@@ -56,12 +56,14 @@ features, scoring settings, validation threshold selection, and metrics.
 The source is the completed `openai-prompt-01` study, including its original
 seal and final recovery-annotated report.
 
-The only configuration override is `max_input_tokens: 10240`, raised from the
-source study's 8,192 after offline measurement found a maximum of 9,677.
-The new config and explicit override are bound into the new study signature
-and its approval hash. Source validation still requires the unchanged original
-config. Three total request attempts, all financial caps, the protected reserve,
-and historical reservations remain unchanged.
+The reviewed configuration overrides are `max_input_tokens: 10240`, raised
+from the source study's 8,192 after measurement found a maximum of 9,677, and
+`total_limit_usd: 100`, raised from 80 by explicit budget review.
+Both are bound into the new study signature and its approval hash. Source
+validation still requires the unchanged original config. Three total attempts,
+the cumulative pilot limit of 9, the protected reserve of 20, and all historical
+reservations remain unchanged. The new total cap includes previous reservations
+and storage; it is not an additional allowance for this run.
 
 Preparation reads only the original prepared prompts/sidecars. It preserves
 the target's exact already-truncated story and structured feature values.
@@ -122,13 +124,16 @@ The implemented input limit is now 10,240; sizing uses that same new-experiment
 config. The planner still cannot approve or install a larger hypothetical value.
 The earlier sizing report remains evidence for its original implementation.
 Keep earlier partial runs and plans; prepare under the new default
-**`openai-sufficiency-02`** rather than rewriting the old study.
+**`openai-sufficiency-03`** rather than rewriting the old study. Preserve the
+successfully prepared `openai-sufficiency-02`: the budget change requires a
+new configuration identity, not different prompts or data.
 
-The measured full-study bound exceeds the unchanged global cap even before
-including prior retained model reservations. Input-limit approval is not
-spending approval. A higher cumulative cap and sufficient credit must be
-separately reviewed before execution; this change adds no cap-amendment path
-and does not authorize or unblock paid work.
+The earlier bound exceeded the old total cap. The reviewed cap is now 100,
+but that alone is not spending permission or a guarantee of affordability.
+Fresh rates, credit, storage capacity/retention, and cumulative reservations
+must still be checked. In particular, prior pilot allocations continue to
+count against the unchanged cumulative pilot cap; insufficient pilot headroom
+must stop for separate review, never trigger full-scope authorization as a bypass.
 
 ## Offline preparation through the cluster launcher
 
@@ -157,7 +162,7 @@ Defaults:
 
 - Storage: `$HOME/master-openai`.
 - Source: `openai-runs/openai-prompt-01`.
-- New run: `openai-sufficiency-runs/openai-sufficiency-02`.
+- New run: `openai-sufficiency-runs/openai-sufficiency-03`.
 - Partition: `main`; time: `04:00:00`; memory: `8G`; CPUs: `2`.
 
 Optional `--storage`, `--run-id`, `--source-run`, `--partition`, `--time`,
@@ -201,9 +206,12 @@ or authorize current Azure access. Before any live stage:
    this task leaves it unchanged and does not auto-renew storage.
 4. Approve a new model allocation bound to this study, including
    `story_sufficiency_experiment_approved`. Old study/recovery approval is not
-   reusable. Keep the existing global cap and protected reserve.
+   reusable. The new cumulative cap is 100; the protected reserve remains 20.
 
 The fresh approval explicitly binds `prompt_method: ten-shot-system-user`.
+It also records `budget_limits` and requires `cumulative_budget_approved`.
+This check defaults to false. Model and storage review files must both match
+the new study's total/pilot/protected limits; old approvals cannot be reused.
 The original transport/accounting protocol identifiers are retained only for
 compatibility with the unchanged cost-control helpers; the new study and all
 scientific results identify the actual ten-shot method. Recalculate both
@@ -247,7 +255,7 @@ storage approval, without cloud access:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py template \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-02" \
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-03" \
   --output "$HOME/.local/state/master-openai/sufficiency-storage-template.json"
 ```
 
@@ -262,7 +270,7 @@ Only after explicit approval:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py renew \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-02" \
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-03" \
   --review /absolute/private/approved-storage-renewal.json \
   --output /absolute/private/storage-renewal-result.json \
   --storage-renewal-approved
@@ -280,6 +288,8 @@ After confirmed success, preserve the old local `cloud-approval.json` and instal
 the reviewed renewal there. No local approval file is overwritten automatically.
 Model preflight then separately checks whether the complete requested scope fits
 the renewed capacity and existing global financial limits.
+Renewal checks the new study's explicitly reviewed cap and protected reserve,
+without reducing prior allocations or resetting session/request counters.
 
 ## Reporting and interpretation
 

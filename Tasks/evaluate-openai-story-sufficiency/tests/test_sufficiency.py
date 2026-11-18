@@ -17,12 +17,12 @@ TASK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TASK))
 import sufficiency as experiment
 from sufficiency import (
-    CHECK, EXPERIMENT, FROZEN, METHOD, QUESTION, REPORT_SCHEMA, SYSTEM,
+    BUDGET_CHECK, CHECK, EXPERIMENT, FROZEN, METHOD, QUESTION, REPORT_SCHEMA, SYSTEM, budget_limits,
     approval_template, check_approval, demonstrations, frozen_study, messages, prepare, select_examples,
 )
 from protocol import CELLS, PILOT, cell_key, digest, file_hash, read_json, study_id, write_json
 from prepare_data import partition, prepare as prepare_original
-from cost_control import approval_checks
+from cost_control import approval_checks, money
 from cloud_control import ControlError, ROOT
 from ledger import RECOVERY_SCHEMA, SufficiencyLedger
 from backend import SufficiencyBackend
@@ -101,7 +101,7 @@ class SufficiencyTests(unittest.TestCase):
             expires_at="2099-01-01T00:00:00Z", remaining_credit_usd="100",
             rates={"input_per_million": ".1", "output_per_million": ".4"},
         )
-        value["checks"] = {name: True for name in (*approval_checks(self.config), CHECK)}
+        value["checks"] = {name: True for name in (*approval_checks(self.config), CHECK, BUDGET_CHECK)}
         return value
 
     def ledger(self):
@@ -171,7 +171,7 @@ class SufficiencyTests(unittest.TestCase):
 
         before = {str(p): file_hash(p) for p in self.source.rglob("*") if p.is_file()}
         source_config = read_json(self.source / "study.json")["config"]
-        self.assertEqual(self.config, {**source_config, "max_input_tokens": 10240})
+        self.assertEqual(self.config, {**source_config, "max_input_tokens": 10240, "total_limit_usd": 100})
         larger = prepare(self.storage, "reviewed-size", self.source, ReviewedSizeTokenizer())
         self.assertEqual(demonstrations(larger), self.examples)
         planned = input_plan.plan(self.source, ReviewedSizeTokenizer())
@@ -230,6 +230,46 @@ class SufficiencyTests(unittest.TestCase):
         write_json(demo_path, changed)
         with self.assertRaisesRegex(ValueError, "demonstrations changed"):
             demonstrations(self.root)
+
+    def test_budget_change_preserves_inputs_but_requires_fresh_run_and_approval(self):
+        with patch.object(experiment, "CONFIG_OVERRIDES", {"max_input_tokens": 10240}):
+            old_root = prepare(self.storage, "old-budget", self.source, FakeTokenizer())
+        self.assertEqual(read_json(old_root / "prepared.json"), read_json(self.root / "prepared.json"))
+        with self.assertRaisesRegex(ValueError, "new run ID"):
+            prepare(self.storage, "old-budget", self.source, FakeTokenizer())
+        for mutation in (
+            {"study_sha256": digest(read_json(old_root / "study.json"))},
+            {"budget_limits": {**budget_limits(self.config), "total_limit_usd": 80}},
+            {"checks": {**self.approval()["checks"], BUDGET_CHECK: False}},
+        ):
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                check_approval({**self.approval(), **mutation}, digest(read_json(self.root / "study.json")),
+                               self.config)
+
+    def test_cumulative_cap_retains_previous_reservations_and_protected_credit(self):
+        ledger = self.ledger()
+        ledger.remaining_credit = money("130")
+        state, etag = ledger.store.get(ROOT)
+        state["total"] = "15"
+        ledger.store.transaction([(ROOT, state, etag)])
+        approval = {**self.approval("full"), "remaining_credit_usd": "130"}
+        with ledger.session():
+            before = ledger._root()[0]
+            with self.assertRaisesRegex(ControlError, r"\$100"):
+                ledger.authorize(study_id(self.root), approval, {"full": "85.01"}, self.config)
+            self.assertEqual(ledger._root()[0], before)
+            with self.assertRaisesRegex(ControlError, "protected reserve"):
+                ledger.authorize(study_id(self.root), {**approval, "remaining_credit_usd": "119.99"},
+                                 {"full": "85"}, self.config)
+            self.assertEqual(ledger._root()[0], before)
+            ledger.authorize(study_id(self.root), approval, {"full": "85"}, self.config)
+            after = ledger._root()[0]
+            self.assertEqual(money(after["total"]) + money(PLAN["reserve_usd"]), money("100"))
+            self.assertEqual(after["pilot_total"], before["pilot_total"])
+            self.assertEqual(ledger.allocation(study_id(self.root))["reserved"], "84.99")
+            with self.assertRaisesRegex(ControlError, "Configuration differs"):
+                ledger.authorize(study_id(self.root), approval, {"full": "85"},
+                                 {**self.config, "total_limit_usd": 101})
 
     def test_provenance_change_and_old_approval_fail_closed(self):
         approval = self.approval()
@@ -407,6 +447,7 @@ class SufficiencyTests(unittest.TestCase):
             "authority_sha256": digest(BINDING), "historical_recovery_sha256": digest(history),
             "previous_storage_sha256": digest(old_plan), "study_sha256": digest(read_json(self.root / "study.json")),
             "run": study_id(self.root), "scope": "full", "expires_at": "2098-01-01T00:00:00Z",
+            "budget_limits": budget_limits(self.config),
             "remaining_credit_usd": "100", "storage_extension_approved": True,
             "checks": {key: True for key in STORAGE_CHECKS}, "storage": dict(PLAN),
         }
@@ -436,12 +477,28 @@ class SufficiencyTests(unittest.TestCase):
             {"remaining_credit_usd": "24"},
             {"storage_extension_approved": False},
             {"expires_at": "2000-01-01T00:00:00Z"},
+            {"budget_limits": {**budget_limits(self.config), "total_limit_usd": 80}},
             {"storage": {**PLAN, "session_requests": PLAN["session_requests"] - 1}},
         ):
             store, before, review = self.renewal_fixture()
             with self.subTest(mutation=mutation), self.assertRaises(ControlError):
                 renew(store, BINDING, {**review, **mutation}, self.root)
             self.assertEqual(store.get(ROOT)[0], before)
+
+    def test_storage_renewal_obeys_reviewed_cumulative_cap_without_releasing_reservations(self):
+        for total, permitted in (("99.99", True), ("100", False)):
+            store, before, review = self.renewal_fixture()
+            state, etag = store.get(ROOT)
+            state["total"] = total
+            store.transaction([(ROOT, state, etag)])
+            review["remaining_credit_usd"] = "130"
+            if permitted:
+                renew(store, BINDING, review, self.root)
+                self.assertEqual(store.get(ROOT)[0]["total"], total)
+            else:
+                with self.assertRaisesRegex(ControlError, "global cap"):
+                    renew(store, BINDING, review, self.root)
+                self.assertEqual(store.get(ROOT)[0], state)
 
     def test_offline_plan_matches_preparation_without_changing_any_run_files(self):
         approval = {

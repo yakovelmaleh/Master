@@ -10,7 +10,7 @@ from pathlib import Path
 import time
 import uuid
 
-from sufficiency import EXPERIMENT, frozen_study
+from sufficiency import BUDGET_CHECK, EXPERIMENT, budget_limits, frozen_study
 from protocol import digest, external_path, read_json, study_id, write_json
 from cost_control import CONTROL, money
 from cloud_control import AzureStore, ControlError, RequestBudget, ROOT, binding_at, storage_plan, unexpired
@@ -21,11 +21,12 @@ CHECKS = (
     "zero_use_migration_verified", "old_workers_stopped", "storage_rates_verified",
     "credit_covers_storage", "private_storage_verified", "spending_limit_enabled",
     "prior_reservations_and_quarantine_retained", "expired_retention_reviewed",
+    BUDGET_CHECK,
 )
 
 
 def template(root, previous):
-    frozen_study(root)
+    config = frozen_study(root)
     study = read_json(root / "study.json")
     prior_report = read_json(Path(study["source"]["root"]) / "recovery/llm_report.json")
     return {
@@ -34,6 +35,7 @@ def template(root, previous):
         "historical_recovery_sha256": prior_report["execution_recovery"]["review_sha256"],
         "previous_storage_sha256": digest(previous["storage"]),
         "study_sha256": digest(study), "run": study_id(root), "scope": "full",
+        "budget_limits": budget_limits(config),
         "expires_at": "", "remaining_credit_usd": "0", "storage_extension_approved": False,
         "checks": {key: False for key in CHECKS},
         "storage": {**previous["storage"], "retention_until": "", "evidence": ""},
@@ -41,12 +43,14 @@ def template(root, previous):
 
 
 def validate(review, binding, root):
+    config = frozen_study(root)
     if (review.get("schema") != REVIEW_SCHEMA or review.get("experiment_schema") != EXPERIMENT
             or review.get("authority_sha256") != digest(binding)
             or review.get("scope") != "full"
             or review.get("storage_extension_approved") is not True
             or review.get("run") != study_id(root)
             or review.get("study_sha256") != digest(read_json(root / "study.json"))
+            or review.get("budget_limits") != budget_limits(config)
             or any(review.get("checks", {}).get(key) is not True for key in CHECKS)):
         raise ControlError("Separate storage-renewal review is incomplete or bound to a different study.")
     unexpired(review["expires_at"])
@@ -55,10 +59,11 @@ def validate(review, binding, root):
         review["storage"]["retention_until"].replace("Z", "+00:00")
     ):
         raise ControlError("Access cannot outlive approved storage retention.")
+    return config
 
 
 def renew(store, binding, review, root):
-    validate(review, binding, root)
+    config = validate(review, binding, root)
     store.verify_account()
     lease = store.acquire()
     start = time.monotonic()
@@ -93,7 +98,8 @@ def renew(store, binding, review, root):
         ):
             raise ControlError("Retention cannot shrink.")
         total = money(state["total"]) + money(new["reserve_usd"])
-        if total > money("80") or total + money("20") > money(review["remaining_credit_usd"]):
+        if (total > money(config["total_limit_usd"])
+                or total + money(config["credit_reserve_usd"]) > money(review["remaining_credit_usd"])):
             raise ControlError("Renewal exceeds the global cap or protected credit.")
         if state["sessions"] + 1 > new["max_sessions"] or state["io_reserved"] + 100 > new["max_requests"]:
             raise ControlError("Insufficient reviewed capacity for this 100-request renewal.")
