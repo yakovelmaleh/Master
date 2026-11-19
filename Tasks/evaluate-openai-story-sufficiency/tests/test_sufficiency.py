@@ -37,6 +37,10 @@ spec = importlib.util.spec_from_file_location("sufficiency_entrypoint", TASK / "
 runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
 
+spec = importlib.util.spec_from_file_location("sufficiency_inspection", TASK / "cluster/inspect_storage.py")
+inspection = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(inspection)
+
 
 class FakeTokenizer(ByteTokenizer):
     name = "fixture-four-character-tokens"
@@ -499,6 +503,78 @@ class SufficiencyTests(unittest.TestCase):
                 with self.assertRaisesRegex(ControlError, "global cap"):
                     renew(store, BINDING, review, self.root)
                 self.assertEqual(store.get(ROOT)[0], state)
+
+    def test_storage_inspection_retains_uncertain_recovery_once_with_hard_transport_cap(self):
+        store, _, review = self.renewal_fixture()
+        renew(store, BINDING, review, self.root)
+        before = store.get(ROOT)[0]
+        for index in range(2):
+            connection = FakeStore(store.storage)
+            connection.budget = inspection.InspectionBudget(100)
+            result = inspection.inspect(self.root, connection, BINDING, review)
+            self.assertEqual(result["recovery_accounting_added"], index == 0)
+            self.assertEqual(result["requests_reserved"], before["io_reserved"] + 200 + index * 100)
+            self.assertEqual(result["sessions_reserved"], before["sessions"] + 2 + index)
+            self.assertLessEqual(result["inspection_requests_used"], 100)
+            self.assertFalse(result["authorizes_inference"])
+            self.assertEqual(result["model_calls"], 0)
+            after = connection.get(ROOT)[0]
+            for key in ("total", "pilot_total", "training", "quarantine", "inference_recovery", "storage"):
+                self.assertEqual(after[key], before[key])
+            self.assertNotIn(BINDING["resource_id"], json.dumps(result))
+        budget = inspection.InspectionBudget(100)
+        budget.limit = 200
+        self.assertEqual(budget.limit, 100)
+        with self.assertRaises(ControlError):
+            budget.charge(101)
+
+    def test_storage_inspection_keeps_recovery_accounting_after_lost_commit_response(self):
+        store, _, review = self.renewal_fixture()
+        renew(store, BINDING, review, self.root)
+
+        def lost_reply():
+            raise RuntimeError("lost accounting reply")
+
+        store.storage.after_commit = lambda: setattr(store.storage, "after_commit", lost_reply)
+        store.budget = inspection.InspectionBudget(100)
+        with self.assertRaises(RuntimeError):
+            inspection.inspect(self.root, store, BINDING, review)
+        retained = store.get(ROOT)[0]
+        recovered = FakeStore(store.storage)
+        recovered.budget = inspection.InspectionBudget(100)
+        result = inspection.inspect(self.root, recovered, BINDING, review)
+        self.assertFalse(result["recovery_accounting_added"])
+        self.assertEqual(result["requests_reserved"], retained["io_reserved"] + 100)
+        self.assertEqual(result["sessions_reserved"], retained["sessions"] + 1)
+
+    def test_storage_inspection_rejects_missing_receipt_capacity_and_expired_approval(self):
+        for problem in ("receipt", "sessions", "requests"):
+            store, _, review = self.renewal_fixture()
+            renew(store, BINDING, review, self.root)
+            state, etag = store.get(ROOT)
+            if problem == "receipt":
+                key = "sufficiency-storage-renewal:" + digest(review)
+                previous, version = store.get(key)
+                store.transaction([(key, {**previous, "storage_renewed": False}, version)])
+            elif problem == "sessions":
+                state["sessions"] = PLAN["max_sessions"] - 1
+                store.transaction([(ROOT, state, etag)])
+            else:
+                state["io_reserved"] = PLAN["max_requests"] - 100
+                store.transaction([(ROOT, state, etag)])
+            store.budget = inspection.InspectionBudget(100)
+            with self.subTest(problem=problem), self.assertRaises(ControlError):
+                inspection.inspect(self.root, store, BINDING, review)
+            self.assertEqual(store.get(ROOT)[0]["total"], state["total"])
+        output = self.storage / "expired-inspection.json"
+        with patch.object(inspection, "binding_at", return_value=BINDING), patch.object(
+            inspection, "access_at", return_value={**review, "expires_at": "2000-01-01T00:00:00Z"}
+        ), patch.object(inspection, "AzureStore") as azure:
+            with self.assertRaises(ControlError):
+                inspection.main(["--root", str(self.root), "--output", str(output),
+                                 "--execute-approved-inspection"])
+            azure.assert_not_called()
+        self.assertFalse(output.with_suffix(".started").exists())
 
     def test_offline_plan_matches_preparation_without_changing_any_run_files(self):
         approval = {

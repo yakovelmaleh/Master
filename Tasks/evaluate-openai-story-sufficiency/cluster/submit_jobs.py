@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit one offline sufficiency preparation job; never launch Azure stages."""
+"""Submit one sufficiency preparation or explicitly approved storage-inspection job."""
 
 import argparse
 import json
@@ -14,6 +14,8 @@ sys.path.insert(0, str(TASK))
 
 from sufficiency import root_at, signature
 from protocol import digest, exclusive_lock, external_path, file_hash, read_json, slug, write_json
+
+STAGES = ("prepare", "inspect-storage")
 
 
 def directive(value):
@@ -33,7 +35,7 @@ def render(args, manifest):
     directory = manifest.parent
     return "\n".join([
         "#!/usr/bin/env bash",
-        "#SBATCH --job-name=master-openai-sufficiency-prepare",
+        "#SBATCH --job-name=master-openai-sufficiency-" + args.stage,
         "#SBATCH --partition=" + directive(args.partition),
         "#SBATCH --time=" + directive(args.time),
         "#SBATCH --mem=8G",
@@ -47,6 +49,8 @@ def render(args, manifest):
         "set -euo pipefail", "umask 077",
         "module load anaconda", "source activate master-openai",
         "export PYTHONUNBUFFERED=1",
+        *(['export PATH="$PATH:$HOME/.local/share/master-azure-cli/bin"',
+           "export AZURE_TOKEN_CREDENTIALS=AzureCliCredential"] if args.stage == "inspect-storage" else []),
         shlex.join(["python", "-u", str(Path(__file__).resolve()), "--execute", str(manifest)]),
         "",
     ])
@@ -60,7 +64,9 @@ def submit(args):
     current = signature(source)
     if (root / "study.json").exists() and read_json(root / "study.json") != current:
         raise ValueError("Keep the existing run; select a new --run-id.")
-    directory = root / "jobs/prepare"
+    if args.stage == "inspect-storage" and not (root / "prepared.json").is_file():
+        raise ValueError("Complete offline preparation before requesting storage inspection.")
+    directory = root / "jobs" / args.stage
     manifest = directory / "submission.json"
     script = render(args, manifest)
     if args.dry_run:
@@ -79,12 +85,15 @@ def submit(args):
         with script_path.open("x") as stream:
             stream.write(script)
         plan = {
-            "schema": "openai-sufficiency-prepare-job-v1",
-            "status": "submission_unconfirmed", "cloud_access": False,
+            "schema": "openai-sufficiency-cluster-job-v1",
+            "status": "submission_unconfirmed", "cloud_access": args.stage == "inspect-storage",
+            "stage": args.stage, "inspection_approved": args.execute_approved_inspection,
             "storage": str(storage), "run_id": run_id, "source": str(source),
             "study_sha256": digest(current), "launcher_sha256": file_hash(Path(__file__)),
             "script_sha256": file_hash(script_path),
         }
+        if args.stage == "inspect-storage":
+            plan["inspection_sha256"] = file_hash(TASK / "cluster/inspect_storage.py")
         # A lost sbatch response must not trigger another submission.
         exclusive_json(manifest, plan)
         job_id = subprocess.check_output(
@@ -93,7 +102,7 @@ def submit(args):
         if not job_id.isdigit():
             raise ValueError("Submission unconfirmed; inspect the queue and saved evidence.")
         write_json(manifest, {**plan, "status": "submitted", "job_id": job_id})
-    print(f"Submitted offline preparation job {job_id}. Logs and status: {directory}")
+    print(f"Submitted {args.stage} job {job_id}. Logs and status: {directory}")
     return job_id
 
 
@@ -101,24 +110,45 @@ def run_job(manifest):
     manifest = external_path(manifest)
     plan = read_json(manifest)
     root = root_at(plan["storage"], plan["run_id"])
-    directory = root / "jobs/prepare"
+    stage = plan.get("stage", "prepare")
+    if stage not in STAGES or (stage == "inspect-storage" and plan.get("inspection_approved") is not True):
+        raise ValueError("Unknown stage or missing explicit inspection approval.")
+    directory = root / "jobs" / stage
     if (manifest != directory / "submission.json"
-            or plan.get("schema") != "openai-sufficiency-prepare-job-v1"
+            or plan.get("schema") != "openai-sufficiency-cluster-job-v1"
             or plan.get("status") not in ("submission_unconfirmed", "submitted")
-            or plan.get("cloud_access") is not False
+            or plan.get("cloud_access") is not (stage == "inspect-storage")
             or plan["launcher_sha256"] != file_hash(Path(__file__))
             or plan["script_sha256"] != file_hash(directory / "submit.sbatch")
             or plan["study_sha256"] != digest(signature(plan["source"]))):
         raise ValueError("Submission or source provenance changed; keep evidence and stop.")
+    if stage == "inspect-storage" and plan.get("inspection_sha256") != file_hash(TASK / "cluster/inspect_storage.py"):
+        raise ValueError("Storage inspection implementation changed after submission.")
     job_id = os.environ.get("SLURM_JOB_ID", "")
     if not job_id.isdigit() or (plan.get("job_id") and plan["job_id"] != job_id):
         raise ValueError("Scheduled job identity differs from submission.")
     with exclusive_lock(Path.home() / ".local/state/master-openai/.submission.lock"):
         exclusive_json(directory / "worker.started", {"job_id": job_id})
     status_path = directory / "worker-status.json"
-    status = {"status": "running", "job_id": job_id, "cloud_access": False}
+    status = {"status": "running", "job_id": job_id, "cloud_access": stage == "inspect-storage"}
     write_json(status_path, status)
     try:
+        if stage == "inspect-storage":
+            output = directory / "inspection.json"
+            subprocess.run([
+                sys.executable, "-u", str(TASK / "cluster/inspect_storage.py"),
+                "--root", str(root), "--output", str(output), "--execute-approved-inspection",
+            ], check=True)
+            result = read_json(output)
+            if (result.get("schema") != "sufficiency-storage-inspection-v1"
+                    or result.get("authorizes_inference") is not False
+                    or result.get("model_calls") != 0
+                    or result.get("inspection_request_limit") != 100
+                    or not 0 <= result["inspection_requests_used"] <= 100):
+                raise ValueError("Inspection did not produce the expected bounded storage-only result.")
+            write_json(status_path, {**status, "status": "succeeded", "inspected": True})
+            print("STORAGE_INSPECTION_COMPLETE; no inference authorized.")
+            return
         subprocess.run([
             sys.executable, "-u", str(TASK / "run_experiment.py"), "prepare",
             "--storage", plan["storage"], "--run-id", plan["run_id"],
@@ -138,7 +168,7 @@ def run_job(manifest):
 def main(argv=None):
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage", choices=("prepare",), default="prepare")
+    parser.add_argument("--stage", choices=STAGES, default="prepare")
     parser.add_argument("--storage", default=str(Path.home() / "master-openai"))
     parser.add_argument("--run-id", default="openai-sufficiency-03")
     parser.add_argument("--source-run", type=Path)
@@ -146,11 +176,16 @@ def main(argv=None):
     parser.add_argument("--time", default="04:00:00")
     parser.add_argument("--mail-user", default="yakovelm@post.bgu.ac.il")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--execute-approved-inspection", action="store_true")
     parser.add_argument("--execute", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.execute:
         run_job(args.execute)
     else:
+        if args.stage == "inspect-storage" and not args.execute_approved_inspection and not args.dry_run:
+            parser.error("Storage inspection needs explicit --execute-approved-inspection.")
+        if args.stage == "prepare" and args.execute_approved_inspection:
+            parser.error("Offline preparation cannot use storage-inspection approval.")
         submit(args)
 
 
