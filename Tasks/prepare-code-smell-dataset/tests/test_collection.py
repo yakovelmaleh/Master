@@ -5,7 +5,7 @@ from unittest import mock
 
 import pandas as pd
 
-from Code_Smells_Detection.runtime import collection, common, detectors, migration, prepare
+from Code_Smells_Detection.runtime import collection, common, detectors, evidence, migration, prepare
 from Code_Smells_Detection.runtime.tests.support import RuntimeCase
 
 
@@ -34,9 +34,56 @@ class Client:
 
 
 class CollectionTests(RuntimeCase):
+    def test_010_reuse_preserves_partial_link_cache_without_promoting_failed_fetch(self):
+        urls = ["https://github.com/a/b/pull/1", "https://github.com/a/b/pull/2",
+                "https://github.com/a/b/commit/" + "f" * 39]
+        client = Client()
+        comments = client.comments
+        client.comments = lambda key: [{**comments(key)[0], "body": urls[int(key[2:])] if int(key[2:]) < 3 else ""}]
+        prepare.enrich(self.root, "Apache", lambda _: client)
+        self.succeeded("enrich", "Apache")
+        prepare.freeze(self.root, "Apache")
+        self.succeeded("freeze", "Apache")
+        parent, target = self.storage / "runs/010", self.storage / "runs/011"
+        with mock.patch.object(migration, "INHERITANCE_PARENT_SOURCE_SHA256", common.source_hash()), mock.patch.object(
+                migration, "BEST_EFFORT_PARENT_SOURCE_SHA256", common.source_hash()), mock.patch(
+                "requests.sessions.Session.request", side_effect=AssertionError("No network")):
+            migration.migrate(parent, self.root, reuse_verified=True)
+            cached = [
+                {"status": "resolved", "value": {"url": urls[0], "repository": "a/b", "revision": "a" * 40, "files": []}},
+                {"status": "excluded", "url": urls[1], "reason": "pr_not_merged"},
+            ]
+            for url, item in zip(urls, cached):
+                common.write_json(parent / "evidence/resolved" / (common.digest(url) + ".json"), item)
+            common.write_json(parent / "evidence/Apache/T-0.json", {"status": "excluded"})
+            common.write_json(parent / "status/fetch-code-Apache.json", {"status": "failed", "error_type": "HTTPError"})
+            before = common.tree_manifest(parent)
+            migration.migrate(target, parent, reuse_verified=True)
+            migration.migrate(target, parent, reuse_verified=True)
+            summary = common.read_json(target / "reuse.json")
+            self.assertEqual(2, summary["resolved_links"])
+            self.assertEqual(["Apache"], summary["missing_evidence_sources"])
+            self.assertFalse((target / "status/fetch-code-Apache.json").exists())
+            self.assertFalse((target / "evidence/Apache/T-0.json").exists())
+            github = mock.Mock()
+            github.resolve.side_effect = evidence.EvidenceExcluded("commit_not_found")
+            evidence.fetch_code(target, self.storage, "Apache", github=github)
+            github.resolve.assert_called_once_with(urls[2])
+            self.assertEqual(before, common.tree_manifest(parent))
+            summary_path = parent / "reuse.json"
+            summary_bytes = summary_path.read_bytes()
+            summary_path.unlink()
+            with self.assertRaisesRegex(ValueError, "reuse is incomplete"):
+                migration.migrate(self.storage / "runs/incomplete-parent", parent, reuse_verified=True)
+            summary_path.write_bytes(summary_bytes)
+            common.write_json(parent / "evidence/resolved" / (common.digest(urls[0]) + ".json"),
+                              {"status": "excluded", "url": "https://github.com/foreign/repo/pull/9", "reason": "pr_not_merged"})
+            with self.assertRaisesRegex(ValueError, "does not match frozen story links"):
+                migration.migrate(self.storage / "runs/foreign-cache", parent, reuse_verified=True)
+
     def test_verified_reuse_skips_network_and_native_work_but_rejects_changed_artifacts(self):
         original = self.reviewed_frozen_parent(migrated=True)
-        parent = self.storage / "runs/009"
+        parent = self.storage / "runs/010"
         with mock.patch.object(migration, "FROZEN_PARENT_SOURCE_SHA256", common.source_hash()):
             migration.migrate(parent, original)
         with common.stage_state(parent, "freeze", "Apache", "test"):
@@ -79,8 +126,8 @@ class CollectionTests(RuntimeCase):
             **detectors.parse_reports(output, source, profile), "reports": common.tree_manifest(output)})
         common.write_json(parent / "detection/policies/Apache.json", {"max_incomplete_stories": 10})
         before = common.tree_manifest(parent)
-        target = self.storage / "runs/010"
-        with mock.patch.object(migration, "INHERITANCE_PARENT_SOURCE_SHA256", common.source_hash()), mock.patch(
+        target = self.storage / "runs/011"
+        with mock.patch.object(migration, "BEST_EFFORT_PARENT_SOURCE_SHA256", common.source_hash()), mock.patch(
                 "requests.sessions.Session.request", side_effect=AssertionError("No network")), mock.patch.object(
                 detectors.subprocess, "run", side_effect=AssertionError("No native rerun")):
             from Code_Smells_Detection.runtime import reuse

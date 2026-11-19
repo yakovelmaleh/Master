@@ -17,7 +17,7 @@ partially labeled in another language.
 ```bash
 "$HOME/Master/Tasks/run_cluster_task.sh" detect-code-smells \
   --stage detect --source Apache \
-  --storage "$HOME/master-code-smells" --run-id code-smells-010 \
+  --storage "$HOME/master-code-smells" --run-id code-smells-011 \
   --profile "$HOME/master-code-smells/profiles/java-community-linux.json" \
   --exclude-incomplete
 ```
@@ -57,7 +57,7 @@ policy is bound into the work exchange. Coverage/attribution gaps do not stop
 the other Windows jobs; import accounts for affected whole stories under the
 same source policy. Tool/configuration/integrity errors still stop the worker.
 
-To move the verified `009` study forward without another freeze/fetch cycle,
+To move a verified `009` or `010` study forward without another freeze/fetch cycle,
 use preparation migration with `--reuse-verified`, described in the preparation
 README. Once that migration succeeds, run detection directly for sources in
 `reuse.json`'s `evidence_sources`. Cached compatible analyses are verified and

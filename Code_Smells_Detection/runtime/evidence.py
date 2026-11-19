@@ -63,6 +63,15 @@ class GitHub:
                 continue
             if response.status_code in (404, 410):
                 raise EvidenceExcluded("repository_or_revision_unavailable")
+            commit = re.fullmatch(r"/repos/[^/]+/[^/]+/commits/([0-9a-fA-F]{7,40})", path)
+            if response.status_code == 422 and commit:
+                try:
+                    payload = response.json()
+                except ValueError:
+                    response.raise_for_status()
+                if (isinstance(payload, dict) and not payload.get("errors") and
+                        payload.get("message") == f"No commit found for SHA: {commit[1]}"):
+                    raise EvidenceExcluded("commit_not_found")
             if response.status_code == 409 and re.fullmatch(r"/repos/[^/]+/[^/]+/commits/[^/]+", path):
                 try:
                     payload = response.json()
