@@ -7,7 +7,7 @@ import pandas as pd
 from . import collection
 from .common import (
     PARTITIONS, SCHEMA, atomic_bytes, digest, external, file_hash, identifier,
-    immutable_json, read_json, relative as safe_relative, source_hash, stage_state, tree_manifest,
+    immutable_json, read_json, relative as safe_relative, require_reuse_complete, source_hash, stage_state, tree_manifest,
 )
 from .prepare import audit, source_candidates
 
@@ -21,6 +21,7 @@ ATTRIBUTION_PARENT_SOURCE_SHA256 = "09c3e46d55ae1fd9fc68d19f3a78dfc2dc45323e4a39
 COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256 = "21e404a3f8ba14e8e1478216b391ac787c9bc1808f20fe926508041eebd7a776"
 BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256 = "6f57fd48e84f7b775cb00100bad6c48f9797d4d9f021ccbd7a3f435abeb6352e"
 INHERITANCE_PARENT_SOURCE_SHA256 = "33e847ba327d6a02329aaea78a12a471089aa189c20aa60d67329b8882effea8"
+BEST_EFFORT_PARENT_SOURCE_SHA256 = "46cb99d9cbbe30ac78678ec8454744f3d4a0741e2203f3e51e303be51e53358b"
 
 
 def inventory(parent):
@@ -29,20 +30,20 @@ def inventory(parent):
         FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256,
         COVERAGE_PARENT_SOURCE_SHA256, SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
         COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
-        INHERITANCE_PARENT_SOURCE_SHA256)
+        INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256)
     if study["schema"] != SCHEMA or study["source_sha256"] not in (
             PARENT_SOURCE_SHA256, FROZEN_PARENT_SOURCE_SHA256,
             RECOVERY_PARENT_SOURCE_SHA256, COVERAGE_PARENT_SOURCE_SHA256,
             SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
             COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
-            INHERITANCE_PARENT_SOURCE_SHA256):
+            INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256):
         raise ValueError("Unsupported parent code/schema; migration requires the pinned preparation implementation.")
     if study.get("prior") or study.get("migration_sha256") and not frozen_import:
         raise ValueError("This migration supports original runs without prior imports only.")
     detector_import = study["source_sha256"] in (
         SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
         COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
-        INHERITANCE_PARENT_SOURCE_SHA256)
+        INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256)
     forbidden = ("labels", "models", "reports")
     if not detector_import:
         forbidden += ("detection",)
@@ -71,7 +72,7 @@ def inventory(parent):
             RECOVERY_PARENT_SOURCE_SHA256, COVERAGE_PARENT_SOURCE_SHA256,
             SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
             COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
-            INHERITANCE_PARENT_SOURCE_SHA256)
+            INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256)
                            else "code-smell-preparation-import-v1")
         if (file_hash(parent / "migration.json") != study["migration_sha256"] or
                 read_json(parent / "migration_complete.json") != {"migration_sha256": study["migration_sha256"]} or
@@ -83,6 +84,9 @@ def inventory(parent):
             path = parent / safe_relative(name)
             if path.is_symlink() or file_hash(path) != entry["sha256"]:
                 raise ValueError(f"Parent imported artifact changed: {name}")
+        if previous.get("reuse_verified"):
+            require_reuse_complete(parent)
+            add("reuse.json", "parent/reuse.json")
         for name in tree_manifest(parent / "parent"):
             add("parent/" + name, "parent/parent/" + name)
     if frozen_import and (parent / "evidence").exists():
@@ -214,13 +218,14 @@ def migrate(root, parent, reuse_verified=False):
                              for path in root.iterdir()):
         raise ValueError("Migration destination is not a preparation-only run.")
     old, files, sources = inventory(parent)
-    if reuse_verified and old["source_sha256"] != INHERITANCE_PARENT_SOURCE_SHA256:
-        raise ValueError("Verified reuse supports only the pinned 009 parent.")
+    if reuse_verified and old["source_sha256"] not in (
+            INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256):
+        raise ValueError("Verified reuse supports only the pinned 009/010 parents.")
     frozen_import = old["source_sha256"] in (
         FROZEN_PARENT_SOURCE_SHA256, RECOVERY_PARENT_SOURCE_SHA256,
         COVERAGE_PARENT_SOURCE_SHA256, SOURCE_PATH_PARENT_SOURCE_SHA256, ATTRIBUTION_PARENT_SOURCE_SHA256,
         COVERAGE_ACCOUNTING_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
-        INHERITANCE_PARENT_SOURCE_SHA256)
+        INHERITANCE_PARENT_SOURCE_SHA256, BEST_EFFORT_PARENT_SOURCE_SHA256)
     migration = {"schema": "code-smell-frozen-import-v1" if frozen_import else "code-smell-preparation-import-v1",
                  "parent": str(parent),
                  "parent_study_sha256": file_hash(parent / "study.json"),

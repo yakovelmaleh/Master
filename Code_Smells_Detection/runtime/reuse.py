@@ -1,4 +1,4 @@
-"""Revalidate compatible pinned work during an explicit 009 migration."""
+"""Revalidate compatible pinned work during an explicit 009/010 migration."""
 
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -11,6 +11,7 @@ from .detectors import (
     NativeAnalysisIncomplete, check_native_messages, detection_key, load_failure,
     load_profile, load_result, parse_reports, register_profile,
 )
+from .evidence import links
 from .prepare import freeze
 
 
@@ -28,25 +29,30 @@ def copy_verified(source, destination):
 
 
 def reuse_verified_work(root, sources):
-    from .migration import BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256, INHERITANCE_PARENT_SOURCE_SHA256
+    from .migration import (
+        BEST_EFFORT_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
+        INHERITANCE_PARENT_SOURCE_SHA256,
+    )
 
     parent = root / "parent"
     summary = {"migration_sha256": file_hash(root / "migration.json"),
                "frozen_sources": [], "evidence_sources": [], "missing_evidence_sources": [],
-               "results": {}, "skipped_results": {}}
-    snapshots = {}
+               "results": {}, "skipped_results": {}, "resolved_links": 0}
+    snapshots, urls = {}, set()
     for source in sources:
         with stage_state(root, "freeze", source, digest({"reuse": file_hash(root / "migration.json"), "source": source})):
             freeze(root, source)
         summary["frozen_sources"].append(source)
+        split_path = root / "splits" / f"{source}.json"
+        split = read_json(split_path)
+        for row in split["rows"]:
+            urls.update(links(read_json(root / "raw" / source / (row.split(":", 1)[1] + ".json"))))
         status = parent / "status" / f"fetch-code-{source}.json"
         if not status.exists() or read_json(status)["status"] != "succeeded":
             summary["missing_evidence_sources"].append(source)
             continue
         directory = parent / "evidence" / source
         manifest = read_json(directory / "manifest.json")
-        split_path = root / "splits" / f"{source}.json"
-        split = read_json(split_path)
         if manifest["split_sha256"] != file_hash(split_path) or set(manifest["records"]) != set(split["assignment"]):
             raise ValueError("Reused evidence does not match frozen membership.")
         counts, shared = Counter(), defaultdict(set)
@@ -81,9 +87,26 @@ def reuse_verified_work(root, sources):
             copy_verified(directory, root / "evidence" / source)
         summary["evidence_sources"].append(source)
 
+    # Unfinished fetches have no final story manifest. Reuse only their atomic
+    # link decisions, anchored by the migration inventory, not partial stories.
+    resolved = parent / "evidence/resolved"
+    for name in tree_manifest(resolved):
+        item = read_json(resolved / name)
+        if item.get("status") == "resolved":
+            url = item["value"]["url"]
+        elif item.get("status") == "excluded" and isinstance(item.get("reason"), str) and item["reason"]:
+            url = item["url"]
+        else:
+            raise ValueError("Invalid cached link decision.")
+        if url not in urls or name != digest(url) + ".json":
+            raise ValueError("Cached link decision does not match frozen story links.")
+        summary["resolved_links"] += 1
+    copy_verified(resolved, root / "evidence/resolved")
+
     # Only these predecessor formats share the source attribution and evidence semantics.
     while (parent / "study.json").exists() and read_json(parent / "study.json")["source_sha256"] in (
-            INHERITANCE_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256):
+            BEST_EFFORT_PARENT_SOURCE_SHA256, INHERITANCE_PARENT_SOURCE_SHA256,
+            BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256):
         for path in sorted((parent / "detection/profiles").glob("*.json")):
             profile = load_profile(path)
             if profile["language"] != "java":

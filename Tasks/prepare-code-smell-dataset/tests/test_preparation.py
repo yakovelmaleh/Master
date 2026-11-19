@@ -199,6 +199,77 @@ class PreparationTests(RuntimeCase):
         with self.assertRaises(requests.HTTPError):
             github.get("/repos/a/b/commits/main")
 
+    def test_missing_commit_excludes_whole_story_and_continues_using_cache(self):
+        self.frozen_study(2)
+        split_before = (self.root / "splits/Apache.json").read_bytes()
+        good, missing, default = "a" * 40, "f" * 39, "b" * 40
+        prefix = "https://github.com/a/b/commit/"
+        saved = common.read_json(self.root / "raw/Apache/manifest.json")
+        for index, body in enumerate((prefix + good + " " + prefix + missing, prefix + good)):
+            path = self.root / "raw/Apache" / f"TEST-{index}.json"
+            record = common.read_json(path)
+            record["comments"] = [{"body": body}]
+            common.write_json(path, record)
+            saved["records"][f"TEST-{index}"] = common.file_hash(path)
+        common.write_json(self.root / "raw/Apache/manifest.json", saved)
+        github = object.__new__(evidence.GitHub)
+        github.session = mock.Mock()
+        def response(url, **kwargs):
+            path = url.removeprefix("https://api.github.com")
+            if path == "/repos/a/b":
+                return self.github_response(200, {"id": 123, "full_name": "a/b", "default_branch": "main"})
+            if path == "/repos/a/b/commits/main":
+                return self.github_response(200, {"sha": default})
+            if path == "/repos/a/b/commits/" + missing:
+                return self.github_response(422, {"message": "No commit found for SHA: " + missing})
+            if path == "/repos/a/b/commits/" + good:
+                return self.github_response(200, {
+                    "sha": good, "parents": [], "commit": {"committer": {"date": "2020-01-01"}},
+                    "files": [{"filename": "src/A.py", "status": "modified", "sha": "c" * 40}]})
+            if path == f"/repos/a/b/compare/{good}...{default}":
+                return self.github_response(200, {"status": "ahead", "merge_base_commit": {"sha": good}})
+            raise AssertionError(path)
+        github.session.get.side_effect = response
+        cache = self.storage / "snapshot"
+        common.atomic_bytes(cache / "source/src/A.py", b"pass\n")
+        snapshot = {"repository": "a/b", "revision": good, "files": common.tree_manifest(cache / "source")}
+        common.write_json(cache / "manifest.json", snapshot)
+        loader = mock.Mock(return_value=(cache, snapshot))
+        evidence.fetch_code(self.root, self.storage, "Apache", github=github, snapshot_loader=loader)
+        excluded = common.read_json(self.root / "evidence/Apache/TEST-0.json")
+        self.assertEqual("excluded", excluded["status"])
+        self.assertEqual("commit_not_found", excluded["exclusions"][0]["reason"])
+        self.assertEqual(1, len(excluded["evidence"]), "Other valid code must not make the partial story complete")
+        self.assertEqual("complete", common.read_json(self.root / "evidence/Apache/TEST-1.json")["status"])
+        self.assertEqual({"complete": 1, "excluded": 1},
+                         common.read_json(self.root / "evidence/Apache/audit.json")["counts"])
+        self.assertEqual(split_before, (self.root / "splits/Apache.json").read_bytes())
+        github.session.get.side_effect = AssertionError("Do not refetch cached decisions")
+        evidence.fetch_code(self.root, self.storage, "Apache", github=github, snapshot_loader=loader)
+
+    def test_other_422_responses_are_not_missing_commit_exclusions(self):
+        github = object.__new__(evidence.GitHub)
+        github.session = mock.Mock()
+        sha = "a" * 40
+        message = {"message": "No commit found for SHA: " + sha}
+        for path, payload in (
+                ("/repos/a/b/pulls/746", message),
+                ("/repos/a/b/commits/main", message),
+                ("/repos/a/b/commits/" + "b" * 40, message),
+                ("/repos/a/b/commits/" + sha, {"message": "Validation Failed"}),
+                ("/repos/a/b/commits/" + sha, {**message, "errors": ["request rejected"]}),
+                ("/repos/a/b/commits/" + sha, [message]),
+                ("/repos/a/b/commits/" + sha, None)):
+            with self.subTest(path=path, payload=payload):
+                result = self.github_response(422, payload)
+                if payload is None:
+                    result._content = b"not json"
+                github.session.get.return_value = result
+                with mock.patch.object(evidence.time, "sleep") as sleep:
+                    with self.assertRaises(requests.HTTPError):
+                        github.get(path)
+                    sleep.assert_not_called()
+
     def test_transport_errors_retry_boundedly_but_tls_errors_fail_immediately(self):
         github = object.__new__(evidence.GitHub)
         github.session = mock.Mock()

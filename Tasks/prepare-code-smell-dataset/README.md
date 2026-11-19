@@ -132,6 +132,15 @@ the exact GitHub response `Git Repository is empty.` is classified as
 `repository_empty`; other conflicts still stop the stage. Empty repositories
 are recorded as unavailable code evidence, never as negative smell labels.
 
+A commit endpoint's HTTP 422 is also classified as `commit_not_found` **only**
+when its requested reference is 7-40 hexadecimal characters and GitHub's JSON
+message exactly says `No commit found for SHA: <requested reference>`, without
+additional validation errors. The affected whole story is excluded even if
+another linked revision was available; later stories continue. This does not
+prove that a commit was deleted or never existed. Other 422 responses (including
+PR endpoints, validation/spam errors and malformed bodies) remain failures.
+Do not treat every HTTP 422 as transient or silently discard its story.
+
 Unavailable Jira records stop enrichment after recording failures by default;
 rerun after restoring access, or use the explicit reviewed policy below.
 Evidence failures and unsupported links are explicitly
@@ -244,16 +253,19 @@ inaccessible.
 
 ## Recovering the frozen run after code-evidence failures
 
-### Reuse verified work from `009` instead of resubmitting successful stages
+### Reuse verified work from `010` instead of resubmitting successful stages
 
+The pinned `010` runtime from PR #404
+(`46cb99d9cbbe30ac78678ec8454744f3d4a0741e2203f3e51e303be51e53358b`)
+supports migration to the missing-commit fix without repeating successful work.
 The pinned `009` runtime from PR #402
 (`33e847ba327d6a02329aaea78a12a471089aa189c20aa60d67329b8882effea8`)
-supports a new opt-in migration:
+also remains supported.
 
 ```bash
 "$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
-  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-010 \
-  --from-run "$HOME/master-code-smells/runs/code-smells-009" \
+  --stage migrate --storage "$HOME/master-code-smells" --run-id code-smells-011 \
+  --from-run "$HOME/master-code-smells/runs/code-smells-010" \
   --reuse-verified
 ```
 
@@ -266,13 +278,22 @@ snapshot manifests and source bytes. Those evidence artifacts are copied
 unchanged and receive a newly validated fetch status: no GitHub/Jira requests.
 Failed or absent fetches are not promoted to success.
 
+Atomic link-resolution decisions from unfinished fetches are also imported.
+Their URL-derived filenames must match links in frozen story records, and their
+bytes are anchored in the migration inventory. These are **transfer-time hashes**,
+not a claim that unfinished fetches had final record manifests. Partial story
+records are archived, not activated; the resumed fetch rebuilds them using
+cached link decisions and verified shared snapshots, requesting only unresolved
+links. An unfinished parent reuse migration blocks this migration.
+
 `reuse.json` lists `frozen_sources`, `evidence_sources`,
-`missing_evidence_sources`, reused native result keys and skipped result reasons.
+`missing_evidence_sources`, `resolved_links` (the imported link-decision count),
+reused native result keys and skipped result reasons.
 Proceed directly to detection for `evidence_sources`; fetch only missing
 sources. Unfinished reuse blocks downstream evidence/feature consumption and
 can be resumed with the identical migration command.
 
-Compatible Java results are sought in the pinned `009` and archived `008`
+Compatible Java results are sought in the pinned `010`, `009` and archived `008`
 ancestry only. Snapshot/profile keys, report hashes, matching native attempt
 logs and current report attribution must agree. Known failure manifests are
 hash-verified and their diagnostic reasons rechecked. Results without matching
@@ -283,8 +304,21 @@ to apply the newly approved uncapped policy.
 
 All raw records, original collection approvals, frozen features and partitions
 remain byte-identical; parents are read-only. The ordinary migration path below
-remains archival-only. Verified reuse is restricted to this explicitly supported
-parent version, not a general override for incompatible runtime hashes.
+remains archival-only. Verified reuse is restricted to these explicitly supported
+parent versions, not a general override for incompatible runtime hashes.
+
+For the interrupted MongoDB fetch, after migration succeeds and the summary
+confirms Apache/IntelDAOS evidence reuse, submit only:
+
+```bash
+"$HOME/Master/Tasks/run_cluster_task.sh" prepare-code-smell-dataset \
+  --stage fetch-code --source MongoDB \
+  --storage "$HOME/master-code-smells" --run-id code-smells-011
+```
+
+Use the shell with `GITHUB_TOKEN` exported. Do not pull again or repeat
+Apache/IntelDAOS fetches or native analysis. Existing eligibility decisions
+still apply; this fix does not lower the 100-story minimum or imply new labels.
 
 ### Older archival-only migrations
 
