@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit one sufficiency preparation or explicitly approved storage-inspection job."""
+"""Submit one offline preparation or explicitly approved, bounded cloud-stage job."""
 
 import argparse
 import json
@@ -12,10 +12,13 @@ import sys
 TASK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TASK))
 
-from sufficiency import root_at, signature
+from sufficiency import check_approval, root_at, signature
 from protocol import digest, exclusive_lock, external_path, file_hash, read_json, slug, write_json
+from cost_control import CONTROL, money
+from renew_storage import binding_at, validate as validate_storage
 
-STAGES = ("prepare", "inspect-storage")
+MODEL_STAGES = ("preflight", "smoke", "validate", "seal", "test", "report")
+STAGES = ("prepare", "inspect-storage", *MODEL_STAGES)
 
 
 def directive(value):
@@ -29,6 +32,32 @@ def exclusive_json(path, value):
         json.dump(value, stream, indent=2)
         stream.flush()
         os.fsync(stream.fileno())
+
+
+def job_directory(root, stage, label=None):
+    return root / "jobs" / (stage if label is None else stage + "-" + slug(label))
+
+
+def model_review(root, stage, approval_path, study):
+    if read_json(root / "study.json") != study:
+        raise ValueError("Prepared study differs from current source.")
+    path = external_path(approval_path) if stage == "preflight" else root / "authorization.json"
+    value = read_json(path)
+    approval = value if stage == "preflight" else value["approval"]
+    check_approval(approval, digest(study), study["config"])
+    storage_path = CONTROL / "cloud-approval.json"
+    storage = read_json(storage_path)
+    validate_storage(storage, binding_at(), root)
+    if (approval["authority_sha256"] != storage["authority_sha256"]
+            or money(approval["storage_reserve_usd"]) != money(storage["storage"]["reserve_usd"])):
+        raise ValueError("Model and storage approvals differ.")
+    if stage in ("seal", "test") and approval["scope"] != "full":
+        raise ValueError("Sealing and final test require separate full-study approval.")
+    return {
+        "approval_path": str(path), "approval_sha256": file_hash(path),
+        "storage_approval_sha256": file_hash(storage_path),
+        "prepared_sha256": file_hash(root / "prepared.json"),
+    }
 
 
 def render(args, manifest):
@@ -50,7 +79,7 @@ def render(args, manifest):
         "module load anaconda", "source activate master-openai",
         "export PYTHONUNBUFFERED=1",
         *(['export PATH="$PATH:$HOME/.local/share/master-azure-cli/bin"',
-           "export AZURE_TOKEN_CREDENTIALS=AzureCliCredential"] if args.stage == "inspect-storage" else []),
+           "export AZURE_TOKEN_CREDENTIALS=AzureCliCredential"] if args.stage != "prepare" else []),
         shlex.join(["python", "-u", str(Path(__file__).resolve()), "--execute", str(manifest)]),
         "",
     ])
@@ -64,9 +93,10 @@ def submit(args):
     current = signature(source)
     if (root / "study.json").exists() and read_json(root / "study.json") != current:
         raise ValueError("Keep the existing run; select a new --run-id.")
-    if args.stage == "inspect-storage" and not (root / "prepared.json").is_file():
-        raise ValueError("Complete offline preparation before requesting storage inspection.")
-    directory = root / "jobs" / args.stage
+    if args.stage != "prepare" and not (root / "prepared.json").is_file():
+        raise ValueError("Complete offline preparation before requesting a cloud stage.")
+    review = model_review(root, args.stage, args.approval, current) if args.stage in MODEL_STAGES else None
+    directory = job_directory(root, args.stage, args.job_label)
     manifest = directory / "submission.json"
     script = render(args, manifest)
     if args.dry_run:
@@ -86,14 +116,17 @@ def submit(args):
             stream.write(script)
         plan = {
             "schema": "openai-sufficiency-cluster-job-v1",
-            "status": "submission_unconfirmed", "cloud_access": args.stage == "inspect-storage",
+            "status": "submission_unconfirmed", "cloud_access": args.stage != "prepare",
             "stage": args.stage, "inspection_approved": args.execute_approved_inspection,
+            "model_stage_approved": args.execute_approved_stage, "job_label": args.job_label,
             "storage": str(storage), "run_id": run_id, "source": str(source),
             "study_sha256": digest(current), "launcher_sha256": file_hash(Path(__file__)),
             "script_sha256": file_hash(script_path),
         }
         if args.stage == "inspect-storage":
             plan["inspection_sha256"] = file_hash(TASK / "cluster/inspect_storage.py")
+        if review is not None:
+            plan["model_review"] = review
         # A lost sbatch response must not trigger another submission.
         exclusive_json(manifest, plan)
         job_id = subprocess.check_output(
@@ -113,24 +146,32 @@ def run_job(manifest):
     stage = plan.get("stage", "prepare")
     if stage not in STAGES or (stage == "inspect-storage" and plan.get("inspection_approved") is not True):
         raise ValueError("Unknown stage or missing explicit inspection approval.")
-    directory = root / "jobs" / stage
+    if stage in MODEL_STAGES and plan.get("model_stage_approved") is not True:
+        raise ValueError("Missing explicit model-stage approval.")
+    if stage not in MODEL_STAGES and plan.get("job_label") is not None:
+        raise ValueError("Job labels are only for reviewed model-stage invocations.")
+    directory = job_directory(root, stage, plan.get("job_label"))
     if (manifest != directory / "submission.json"
             or plan.get("schema") != "openai-sufficiency-cluster-job-v1"
             or plan.get("status") not in ("submission_unconfirmed", "submitted")
-            or plan.get("cloud_access") is not (stage == "inspect-storage")
+            or plan.get("cloud_access") is not (stage != "prepare")
             or plan["launcher_sha256"] != file_hash(Path(__file__))
             or plan["script_sha256"] != file_hash(directory / "submit.sbatch")
             or plan["study_sha256"] != digest(signature(plan["source"]))):
         raise ValueError("Submission or source provenance changed; keep evidence and stop.")
     if stage == "inspect-storage" and plan.get("inspection_sha256") != file_hash(TASK / "cluster/inspect_storage.py"):
         raise ValueError("Storage inspection implementation changed after submission.")
+    if stage in MODEL_STAGES:
+        review = plan["model_review"]
+        if model_review(root, stage, review["approval_path"], signature(plan["source"])) != review:
+            raise ValueError("Queued model/storage approval or prepared manifest changed.")
     job_id = os.environ.get("SLURM_JOB_ID", "")
     if not job_id.isdigit() or (plan.get("job_id") and plan["job_id"] != job_id):
         raise ValueError("Scheduled job identity differs from submission.")
     with exclusive_lock(Path.home() / ".local/state/master-openai/.submission.lock"):
         exclusive_json(directory / "worker.started", {"job_id": job_id})
     status_path = directory / "worker-status.json"
-    status = {"status": "running", "job_id": job_id, "cloud_access": stage == "inspect-storage"}
+    status = {"status": "running", "job_id": job_id, "cloud_access": stage != "prepare"}
     write_json(status_path, status)
     try:
         if stage == "inspect-storage":
@@ -148,6 +189,21 @@ def run_job(manifest):
                 raise ValueError("Inspection did not produce the expected bounded storage-only result.")
             write_json(status_path, {**status, "status": "succeeded", "inspected": True})
             print("STORAGE_INSPECTION_COMPLETE; no inference authorized.")
+            return
+        if stage in MODEL_STAGES:
+            command = [
+                sys.executable, "-u", str(TASK / "run_experiment.py"), stage,
+                "--storage", plan["storage"], "--run-id", plan["run_id"], "--execute-approved-stage",
+            ]
+            if stage == "preflight":
+                command += ["--approval", plan["model_review"]["approval_path"]]
+            subprocess.run(command, check=True)
+            result = read_json(root / "status" / f"{stage}.json")
+            if result.get("status") != "succeeded" or not isinstance(result.get("result"), dict):
+                raise ValueError("Model stage did not produce successful status evidence.")
+            write_json(directory / "result.json", result)
+            write_json(status_path, {**status, "status": "succeeded", "stage": stage, "result": result["result"]})
+            print(f"APPROVED_STAGE_COMPLETE: {stage}; no subsequent stage submitted.")
             return
         subprocess.run([
             sys.executable, "-u", str(TASK / "run_experiment.py"), "prepare",
@@ -177,15 +233,25 @@ def main(argv=None):
     parser.add_argument("--mail-user", default="yakovelm@post.bgu.ac.il")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--execute-approved-inspection", action="store_true")
+    parser.add_argument("--execute-approved-stage", action="store_true")
+    parser.add_argument("--approval", type=Path, help="Private model approval, for preflight only.")
+    parser.add_argument("--job-label", help="Unique label for a separately reviewed model-stage invocation.")
     parser.add_argument("--execute", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.execute:
         run_job(args.execute)
     else:
+        if args.stage in MODEL_STAGES:
+            if not args.execute_approved_stage and not args.dry_run:
+                parser.error("Model stages need explicit --execute-approved-stage.")
+            if (args.stage == "preflight") != (args.approval is not None):
+                parser.error("Supply --approval for preflight only.")
+        elif args.execute_approved_stage or args.approval or args.job_label is not None:
+            parser.error("Model-stage flags cannot be used for preparation or storage inspection.")
         if args.stage == "inspect-storage" and not args.execute_approved_inspection and not args.dry_run:
             parser.error("Storage inspection needs explicit --execute-approved-inspection.")
-        if args.stage == "prepare" and args.execute_approved_inspection:
-            parser.error("Offline preparation cannot use storage-inspection approval.")
+        if args.stage != "inspect-storage" and args.execute_approved_inspection:
+            parser.error("Only storage inspection can use storage-inspection approval.")
         submit(args)
 
 

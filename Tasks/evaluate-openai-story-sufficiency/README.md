@@ -225,23 +225,62 @@ scientific results identify the actual ten-shot method. Recalculate both
 token and storage bounds: examples are included in every request and private
 prepared payload, and the previous cost estimate does not cover this design.
 
-Each cloud stage additionally requires `--execute-approved-stage`. That flag
-does not replace the reviewed model or storage approval. For example, only
-after renewed approvals have been reviewed:
+Each model-workflow stage additionally requires `--execute-approved-stage`.
+That flag does not replace the reviewed model or storage approval. Only after
+the private approvals and this specific preflight have been reviewed:
 
 ```bash
-bash Tasks/evaluate-openai-story-sufficiency/run.sh preflight \
+bash Tasks/run_cluster_task.sh --pull evaluate-openai-story-sufficiency --stage preflight \
   --approval /absolute/private/new-approval.json --execute-approved-stage
-bash Tasks/evaluate-openai-story-sufficiency/run.sh smoke --execute-approved-stage
-bash Tasks/evaluate-openai-story-sufficiency/run.sh validate --execute-approved-stage
 ```
 
 Each validation/test invocation handles at most the original 400-row batch.
 Complete the Jira/20 pilot, review it, then use a separately approved full-scope
 preflight. Complete all eight validation entries, `seal`, run the reviewed
-number of `test` batches, then `report`. The cluster launcher supports preparation
-and separately approved storage inspection, not model-stage submission.
+number of `test` batches, then `report`.
 No stage loop, approval expansion, or retry after ambiguous failure is included.
+
+### Bounded model-stage jobs
+
+The standard launcher supports `preflight`, `smoke`, `validate`, `seal`, `test`,
+and `report`. Every invocation submits **one CPU job running one stage once**;
+it never chains or queues the next stage. Wait for the saved worker status and
+review the result before submitting another job.
+
+Preflight reads Azure account/deployment metadata and checks data-plane access,
+then records a cumulative pilot/full allocation in Storage. It makes no inference
+request, but is not an offline or read-only operation. `smoke` performs at most
+22 logical capability/control predictions; `validate` and `test` each handle at
+most one 400-row batch under the existing attempt and uncertain-call rules.
+Sealing and final test require full-study approval, not merely a pilot approval.
+
+Use `--approval` only for preflight. Other stages require the already-created
+`authorization.json` and still check the cloud authority. The launcher checks
+model and storage approvals offline before submission, pins their file hashes
+and the prepared-manifest hash, and rechecks them before worker dispatch.
+Changed/expired approvals stop the queued job rather than silently using new
+permission. Even `--dry-run` requires valid review files but submits nothing.
+No private approval contents are embedded in the sbatch script or manifest.
+
+For repeated validation/test batches or a separately reviewed full preflight,
+use a unique `--job-label`. For example, only after smoke succeeds and this
+pilot batch is explicitly authorized:
+
+```bash
+bash Tasks/run_cluster_task.sh --pull evaluate-openai-story-sufficiency --stage validate \
+  --job-label pilot-01 --execute-approved-stage
+```
+
+The label identifies job evidence, not a row selection or a new spending scope.
+The runner chooses the next unfinished work under the existing authorization.
+Evidence is saved in `jobs/<stage>-<label>/`, or `jobs/<stage>/` without a label,
+including `worker-status.json` and a job-local `result.json`.
+Do not change labels or remove markers to retry failed or uncertain work without
+review. Duplicate submission and worker reentry remain blocked.
+
+This launcher-only change preserves prepared run `04` and the study signature.
+Do not prepare another run just to use these stages. Model execution still needs
+its own explicit approval; merging the launcher does not grant it.
 
 Known 429 rejections retain the original bounded attempt policy. HTTP 500,
 timeouts, and other ambiguous outcomes stop with reservations retained.
