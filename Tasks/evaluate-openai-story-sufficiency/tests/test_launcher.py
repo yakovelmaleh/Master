@@ -98,6 +98,43 @@ class LauncherTests(unittest.TestCase):
             launcher.main(self.args)
         calls.assert_not_called()
 
+    def test_inspection_requires_consent_and_dispatches_only_the_bounded_helper(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        args = [*self.args, "--stage", "inspect-storage"]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                launcher.main(args)
+            commands.assert_not_called()
+        with patch.object(launcher.subprocess, "check_output", side_effect=["", "456"]), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--execute-approved-inspection"])
+        directory = root / "jobs/inspect-storage"
+        self.assertIn("AzureCliCredential", (directory / "submit.sbatch").read_text())
+
+        def inspected(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2], str(TASK / "cluster/inspect_storage.py"))
+            self.assertIn("--execute-approved-inspection", command)
+            launcher.write_json(directory / "inspection.json", {
+                "schema": "sufficiency-storage-inspection-v1", "authorizes_inference": False,
+                "model_calls": 0, "inspection_request_limit": 100, "inspection_requests_used": 20,
+            })
+
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "456"}), patch.object(
+            launcher.subprocess, "run", side_effect=inspected
+        ) as run, redirect_stdout(io.StringIO()):
+            original_hash = launcher.file_hash
+            with patch.object(launcher, "file_hash", side_effect=lambda p: (
+                "changed" if Path(p) == TASK / "cluster/inspect_storage.py" else original_hash(p)
+            )):
+                with self.assertRaisesRegex(ValueError, "inspection implementation changed"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        self.assertTrue(launcher.read_json(directory / "worker-status.json")["inspected"])
+
     def test_worker_runs_only_preparation_and_blocks_reentry(self):
         self.submit()
         root = self.directory.parent.parent

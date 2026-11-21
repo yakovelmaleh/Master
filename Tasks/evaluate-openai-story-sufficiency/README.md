@@ -44,7 +44,10 @@ either class or if training and held-out row identities overlap.
   sealing, reporting, and receipt-only reconciliation.
 - `run.sh`: short entry point using the existing `master-openai` interpreter.
 - `cluster/submit_jobs.sh` and `cluster/submit_jobs.py`: standard master-launcher
-  integration for one offline preparation sbatch job, with email and saved status.
+  integration for one preparation or explicitly approved storage-inspection job,
+  with email and saved status.
+- `cluster/inspect_storage.py`: 100-request storage-only inspection with
+  conservative, once-only accounting for the uncertain renewal recovery.
 - `tests/test_sufficiency.py`: offline prompt, provenance, workflow, and
   accounting regression tests with synthetic data and fake transports.
 
@@ -232,9 +235,9 @@ bash Tasks/evaluate-openai-story-sufficiency/run.sh validate --execute-approved-
 Each validation/test invocation handles at most the original 400-row batch.
 Complete the Jira/20 pilot, review it, then use a separately approved full-scope
 preflight. Complete all eight validation entries, `seal`, run the reviewed
-number of `test` batches, then `report`. The cluster launcher supports only
-offline preparation; no paid-stage submission, stage loop, approval expansion,
-or retry after ambiguous failure is included.
+number of `test` batches, then `report`. The cluster launcher supports preparation
+and separately approved storage inspection, not model-stage submission.
+No stage loop, approval expansion, or retry after ambiguous failure is included.
 
 Known 429 rejections retain the original bounded attempt policy. HTTP 500,
 timeouts, and other ambiguous outcomes stop with reservations retained.
@@ -290,6 +293,45 @@ Model preflight then separately checks whether the complete requested scope fits
 the renewed capacity and existing global financial limits.
 Renewal checks the new study's explicitly reviewed cap and protected reserve,
 without reducing prior allocations or resetting session/request counters.
+
+### Bounded storage inspection after renewal
+
+After confirming the renewal receipt and backing up/installing its exact reviewed
+approval as `cloud-approval.json`, obtain separate approval for **at most 100 new
+storage requests**. Then use the usual launcher, without preparing the run again:
+
+```bash
+bash Tasks/run_cluster_task.sh --pull evaluate-openai-story-sufficiency \
+  --stage inspect-storage --execute-approved-inspection
+```
+
+This submits one CPU job for the existing run. It validates the current study,
+unexpired storage approval, fixed account, recovery history, and exact renewal
+receipt. The transport cannot exceed 100 requests, even when accounting for
+historical uncertainty. It never creates a model client or authorizes inference.
+Its source is checksum-bound into the submission separately from the study;
+adding this helper does not invalidate already-prepared run `03`.
+
+The earlier renewal recovery may have made requests without incrementing the
+authority's counters. Conservatively retain **100 previous requests and one
+previous session**, in addition to this inspection's 100-request/one-session
+envelope. A conditional transaction records the extra session and a unique
+marker tied to the exact renewal review. The request reservation includes both
+envelopes. Once the marker commits, subsequent separately approved inspections
+do not count that historical allowance twice. No financial allocation, pending
+operation, quarantine, or historical record is reset or released.
+
+Existing cumulative capacity must cover that bookkeeping. If it cannot, the job
+stops for review rather than silently increasing limits. A lost response leaves
+reservations and markers retained; do not retry automatically.
+
+The numeric summary is in
+`openai-sufficiency-runs/openai-sufficiency-03/jobs/inspect-storage/inspection.json`,
+beside the worker status and private SLURM logs. It reports cumulative and pilot
+reservations/headroom, remaining request/session capacity, stop flags, and the
+retained recovery allowance. It omits account identifiers and story text.
+These are reserved bounds and a dated snapshot, not actual billing or permission
+to start inference.
 
 ## Reporting and interpretation
 
