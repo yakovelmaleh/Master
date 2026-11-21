@@ -21,7 +21,7 @@ from cost_control import check_approval as original_check_approval
 EXPERIMENT = "openai-story-sufficiency-v1"
 REPORT_SCHEMA = "openai-story-sufficiency-report-v1"
 METHOD = "ten-shot-system-user"
-CONFIG_OVERRIDES = {"max_input_tokens": 10240, "total_limit_usd": 100}
+CONFIG_OVERRIDES = {"max_input_tokens": 10240, "total_limit_usd": 100, "pilot_limit_usd": 16}
 EXAMPLE_POLICY = {
     "count": 10, "per_class": 5, "text_tokens": 256,
     "selection": "seeded SHA-256 ranking of training row IDs per project/K/class",

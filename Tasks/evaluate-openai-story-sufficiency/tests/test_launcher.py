@@ -26,7 +26,7 @@ class LauncherTests(unittest.TestCase):
             mock.start()
             self.addCleanup(mock.stop)
         self.args = ["--storage", str(self.storage)]
-        self.directory = self.storage / "openai-sufficiency-runs/openai-sufficiency-03/jobs/prepare"
+        self.directory = self.storage / "openai-sufficiency-runs/openai-sufficiency-04/jobs/prepare"
         self.manifest = self.directory / "submission.json"
 
     def submit(self):
