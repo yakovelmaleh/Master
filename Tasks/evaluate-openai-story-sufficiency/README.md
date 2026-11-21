@@ -127,16 +127,19 @@ The implemented input limit is now 10,240; sizing uses that same new-experiment
 config. The planner still cannot approve or install a larger hypothetical value.
 The earlier sizing report remains evidence for its original implementation.
 Keep earlier partial runs and plans; prepare under the new default
-**`openai-sufficiency-03`** rather than rewriting the old study. Preserve the
-successfully prepared `openai-sufficiency-02`: the budget change requires a
+**`openai-sufficiency-04`** rather than rewriting the old study. Preserve the
+successfully prepared runs `02` and `03`: the pilot-budget change requires a
 new configuration identity, not different prompts or data.
 
 The earlier bound exceeded the old total cap. The reviewed cap is now 100,
 but that alone is not spending permission or a guarantee of affordability.
 Fresh rates, credit, storage capacity/retention, and cumulative reservations
 must still be checked. In particular, prior pilot allocations continue to
-count against the unchanged cumulative pilot cap; insufficient pilot headroom
+count against the reviewed cumulative pilot cap of 16; insufficient pilot headroom
 must stop for separate review, never trigger full-scope authorization as a bypass.
+The total cap remains 100 and the protected reserve remains 20. No previous
+reservation is released. The input limit, three-attempt ceiling, examples,
+target inputs, and evaluation scope are unchanged.
 
 ## Offline preparation through the cluster launcher
 
@@ -165,7 +168,7 @@ Defaults:
 
 - Storage: `$HOME/master-openai`.
 - Source: `openai-runs/openai-prompt-01`.
-- New run: `openai-sufficiency-runs/openai-sufficiency-03`.
+- New run: `openai-sufficiency-runs/openai-sufficiency-04`.
 - Partition: `main`; time: `04:00:00`; memory: `8G`; CPUs: `2`.
 
 Optional `--storage`, `--run-id`, `--source-run`, `--partition`, `--time`,
@@ -209,7 +212,8 @@ or authorize current Azure access. Before any live stage:
    this task leaves it unchanged and does not auto-renew storage.
 4. Approve a new model allocation bound to this study, including
    `story_sufficiency_experiment_approved`. Old study/recovery approval is not
-   reusable. The new cumulative cap is 100; the protected reserve remains 20.
+   reusable. The cumulative total/pilot caps are 100/16; the protected reserve
+   remains 20.
 
 The fresh approval explicitly binds `prompt_method: ten-shot-system-user`.
 It also records `budget_limits` and requires `cumulative_budget_approved`.
@@ -258,13 +262,16 @@ storage approval, without cloud access:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py template \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-03" \
-  --output "$HOME/.local/state/master-openai/sufficiency-storage-template.json"
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-04" \
+  --output "$HOME/.local/state/master-openai/sufficiency-04-storage-template.json"
 ```
 
 Review current credit, pricing, all previous reservations, worker termination,
 and expired-retention implications. Set new explicit access/retention deadlines
 and sufficient cumulative request/session limits in a separate approved copy.
+The template preserves the installed storage bounds; the pilot-cap code change
+does not increase them or install an approval. Review the full request/session
+envelope plus administrative and recovery capacity, not just token costs.
 The historical `zero_use_migration_verified` check refers to the original
 bootstrap evidence, not a claim that the now-used authority is empty.
 
@@ -273,7 +280,7 @@ Only after explicit approval:
 ```bash
 "$HOME/.conda/envs/master-openai/bin/python" \
   Tasks/evaluate-openai-story-sufficiency/renew_storage.py renew \
-  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-03" \
+  --root "$HOME/master-openai/openai-sufficiency-runs/openai-sufficiency-04" \
   --review /absolute/private/approved-storage-renewal.json \
   --output /absolute/private/storage-renewal-result.json \
   --storage-renewal-approved
@@ -310,7 +317,8 @@ unexpired storage approval, fixed account, recovery history, and exact renewal
 receipt. The transport cannot exceed 100 requests, even when accounting for
 historical uncertainty. It never creates a model client or authorizes inference.
 Its source is checksum-bound into the submission separately from the study;
-adding this helper does not invalidate already-prepared run `03`.
+adding this helper alone does not change study provenance. The subsequent
+pilot-budget change does require the new run `04` and fresh approvals.
 
 The earlier renewal recovery may have made requests without incrementing the
 authority's counters. Conservatively retain **100 previous requests and one
@@ -326,7 +334,7 @@ stops for review rather than silently increasing limits. A lost response leaves
 reservations and markers retained; do not retry automatically.
 
 The numeric summary is in
-`openai-sufficiency-runs/openai-sufficiency-03/jobs/inspect-storage/inspection.json`,
+`openai-sufficiency-runs/openai-sufficiency-04/jobs/inspect-storage/inspection.json`,
 beside the worker status and private SLURM logs. It reports cumulative and pilot
 reservations/headroom, remaining request/session capacity, stop flags, and the
 retained recovery allowance. It omits account identifiers and story text.

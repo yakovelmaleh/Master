@@ -170,7 +170,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=STAGES, default="prepare")
     parser.add_argument("--storage", default=str(Path.home() / "master-openai"))
-    parser.add_argument("--run-id", default="openai-sufficiency-03")
+    parser.add_argument("--run-id", default="openai-sufficiency-04")
     parser.add_argument("--source-run", type=Path)
     parser.add_argument("--partition", default="main")
     parser.add_argument("--time", default="04:00:00")

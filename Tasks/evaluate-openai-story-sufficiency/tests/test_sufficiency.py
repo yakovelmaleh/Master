@@ -175,7 +175,9 @@ class SufficiencyTests(unittest.TestCase):
 
         before = {str(p): file_hash(p) for p in self.source.rglob("*") if p.is_file()}
         source_config = read_json(self.source / "study.json")["config"]
-        self.assertEqual(self.config, {**source_config, "max_input_tokens": 10240, "total_limit_usd": 100})
+        self.assertEqual(self.config, {
+            **source_config, "max_input_tokens": 10240, "total_limit_usd": 100, "pilot_limit_usd": 16,
+        })
         larger = prepare(self.storage, "reviewed-size", self.source, ReviewedSizeTokenizer())
         self.assertEqual(demonstrations(larger), self.examples)
         planned = input_plan.plan(self.source, ReviewedSizeTokenizer())
@@ -236,19 +238,40 @@ class SufficiencyTests(unittest.TestCase):
             demonstrations(self.root)
 
     def test_budget_change_preserves_inputs_but_requires_fresh_run_and_approval(self):
-        with patch.object(experiment, "CONFIG_OVERRIDES", {"max_input_tokens": 10240}):
+        with patch.object(experiment, "CONFIG_OVERRIDES", {"max_input_tokens": 10240, "total_limit_usd": 100}):
             old_root = prepare(self.storage, "old-budget", self.source, FakeTokenizer())
+        before = {str(p): file_hash(p) for p in old_root.rglob("*") if p.is_file()}
         self.assertEqual(read_json(old_root / "prepared.json"), read_json(self.root / "prepared.json"))
         with self.assertRaisesRegex(ValueError, "new run ID"):
             prepare(self.storage, "old-budget", self.source, FakeTokenizer())
+        self.assertEqual(before, {str(p): file_hash(p) for p in old_root.rglob("*") if p.is_file()})
         for mutation in (
             {"study_sha256": digest(read_json(old_root / "study.json"))},
             {"budget_limits": {**budget_limits(self.config), "total_limit_usd": 80}},
+            {"budget_limits": {**budget_limits(self.config), "pilot_limit_usd": 9}},
             {"checks": {**self.approval()["checks"], BUDGET_CHECK: False}},
         ):
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 check_approval({**self.approval(), **mutation}, digest(read_json(self.root / "study.json")),
                                self.config)
+
+    def test_cumulative_pilot_cap_keeps_prior_reservations_at_exact_boundary(self):
+        ledger = self.ledger()
+        state, etag = ledger.store.get(ROOT)
+        state.update(total="15", pilot_total="6")
+        ledger.store.transaction([(ROOT, state, etag)])
+        with ledger.session():
+            before = ledger._root()[0]
+            with self.assertRaisesRegex(ControlError, r"Global pilot.*\$16"):
+                ledger.authorize(study_id(self.root), self.approval(), {"pilot": "10.01"}, self.config)
+            self.assertEqual(ledger._root()[0], before)
+            ledger.authorize(study_id(self.root), self.approval(), {"pilot": "10"}, self.config)
+            after = ledger._root()[0]
+            self.assertEqual(money(after["pilot_total"]) + money(PLAN["reserve_usd"]), money("16"))
+            self.assertEqual(money(after["total"]) + money(PLAN["reserve_usd"]), money("25"))
+            self.assertEqual(ledger.allocation(study_id(self.root))["reserved"], "9.99")
+            ledger.authorize(study_id(self.root), self.approval(), {"pilot": "10"}, self.config)
+            self.assertEqual(ledger._root()[0], after)
 
     def test_cumulative_cap_retains_previous_reservations_and_protected_credit(self):
         ledger = self.ledger()
@@ -482,6 +505,7 @@ class SufficiencyTests(unittest.TestCase):
             {"storage_extension_approved": False},
             {"expires_at": "2000-01-01T00:00:00Z"},
             {"budget_limits": {**budget_limits(self.config), "total_limit_usd": 80}},
+            {"budget_limits": {**budget_limits(self.config), "pilot_limit_usd": 9}},
             {"storage": {**PLAN, "session_requests": PLAN["session_requests"] - 1}},
         ):
             store, before, review = self.renewal_fixture()
