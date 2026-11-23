@@ -156,6 +156,49 @@ class LauncherTests(unittest.TestCase):
                 launcher.run_job(self.manifest)
             self.assertEqual(run.call_count, 1)
 
+    def test_failure_inspection_pins_review_and_dispatches_no_model_stage(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        failure = root / "failures/smoke.json"
+        review = {"failure_path": str(failure), "inspector_sha256": "fixture",
+                  "context": {"request_sha256": "fixture"}}
+        args = [*self.args, "--stage", "inspect-failure", "--failure", str(failure)]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                launcher.main(args)
+            commands.assert_not_called()
+        with patch.object(launcher, "failure_review", return_value=review), patch.object(
+            launcher.subprocess, "check_output", side_effect=["", "456"]
+        ), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--execute-approved-inspection"])
+        directory = root / "jobs/inspect-failure"
+        self.assertIn("AzureCliCredential", (directory / "submit.sbatch").read_text())
+
+        def inspected(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2], str(launcher.FAILURE_TASK / "inspect_failure.py"))
+            self.assertNotIn("--execute-approved-stage", command)
+            self.assertEqual(command[command.index("--failure") + 1], str(failure))
+            launcher.write_json(directory / "inspection.json", {
+                "schema": "sufficiency-failure-inspection-v1", "authorizes_inference": False,
+                "model_calls": 0, "inspection_request_limit": 100, "inspection_requests_used": 30,
+            })
+
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "456"}), patch.object(
+            launcher.subprocess, "run", side_effect=inspected
+        ) as run, redirect_stdout(io.StringIO()):
+            with patch.object(launcher, "failure_review", return_value={**review, "changed": True}):
+                with self.assertRaisesRegex(ValueError, "Queued failure evidence"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            with patch.object(launcher, "failure_review", return_value=review):
+                launcher.run_job(directory / "submission.json")
+                with self.assertRaises(FileExistsError):
+                    launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        self.assertTrue(launcher.read_json(directory / "worker-status.json")["inspected"])
+
     def test_worker_refuses_changed_provenance_and_records_preparation_failure(self):
         self.submit()
         with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "123"}), patch.object(
