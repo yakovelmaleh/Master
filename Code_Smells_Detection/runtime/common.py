@@ -25,7 +25,7 @@ SOURCES = {"Apache": 3289, "IntelDAOS": 866, "Jira": 3, "JiraEcosystem": 23,
            "MongoDB": 39169, "Qt": 86, "RedHat": 24920, "Sakai": 2}
 CANDIDATE_HASH = "a96d260478dfe2c6eb78ce8c47bac74707039c05853e90e0c8e2775d103d0aab"
 TASKS = {"prepare": "prepare-code-smell-dataset", "detect": "detect-code-smells",
-         "train": "train-code-smell-models"}
+         "train": "train-code-smell-models", "stories": "process-code-smell-stories"}
 
 
 def now():

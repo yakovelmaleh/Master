@@ -1,5 +1,11 @@
 # Detect code smells
 
+For bounded source storage, use the new
+[`process-code-smell-stories`](../process-code-smell-stories/README.md) task.
+It processes one story/revision at a time, commits CSV/JSON results and removes
+temporary source files. This document describes the legacy bulk stages, which
+remain available for existing studies.
+
 Second task, after `prepare-code-smell-dataset --stage fetch-code`. Analyze
 complete pinned snapshots and attribute implementation/design findings only
 to the story-associated changed files. Findings supply labels, never model

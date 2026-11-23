@@ -1,5 +1,10 @@
 # Prepare code-smell dataset
 
+For the sequential replacement that avoids accumulating repository snapshots,
+see [`process-code-smell-stories`](../process-code-smell-stories/README.md).
+Its initialization reuses frozen preparation; do not run bulk `fetch-code`
+for a sequential study.
+
 First of three tasks: prepare stories and pinned code evidence, then run
 `detect-code-smells`, then `train-code-smell-models`. The shared implementation is
 in `Code_Smells_Detection/runtime/`; the old detector entry points are not used.
