@@ -156,6 +156,55 @@ class LauncherTests(unittest.TestCase):
                 launcher.run_job(self.manifest)
             self.assertEqual(run.call_count, 1)
 
+    def test_one_shot_job_needs_distinct_review_consent_and_cannot_reenter(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        review_path = self.storage / "one-shot-review.json"
+        review = {"review_path": str(review_path), "review_sha256": "fixture",
+                  "implementation_sha256": "fixture"}
+        args = [*self.args, "--stage", "diagnose-smoke", "--review", str(review_path)]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            for extra in ([], ["--execute-approved-stage"], ["--execute-approved-inspection"],
+                          ["--execute-approved-diagnostic", "--job-label", "again"]):
+                with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                    launcher.main([*args, *extra])
+            commands.assert_not_called()
+        with patch.object(launcher, "diagnostic_review", return_value=review), patch.object(
+            launcher.subprocess, "check_output", side_effect=["", "456"]
+        ), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--execute-approved-diagnostic"])
+        directory = root / "jobs/diagnose-smoke"
+
+        def diagnosed(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2:4], [str(launcher.FAILURE_TASK / "one_shot.py"), "diagnose"])
+            self.assertIn("--execute-approved-diagnostic", command)
+            self.assertNotIn("--execute-approved-stage", command)
+            launcher.write_json(directory / "diagnostic.json", {
+                "schema": "sufficiency-one-shot-diagnostic-v1", "pending_retained": True,
+                "completes_smoke": False, "authorizes_continuation": False,
+                "captured": {"attempt": 2}, "model_requests": 1,
+                "storage_requests_used": 60, "scorable_response": False,
+            })
+
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "456"}), patch.object(
+            launcher.subprocess, "run", side_effect=diagnosed
+        ) as run, redirect_stdout(io.StringIO()):
+            with patch.object(launcher, "diagnostic_review", return_value={**review, "changed": True}):
+                with self.assertRaisesRegex(ValueError, "Queued one-shot"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            with patch.object(launcher, "diagnostic_review", return_value=review):
+                launcher.run_job(directory / "submission.json")
+                with self.assertRaises(FileExistsError):
+                    launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        status = launcher.read_json(directory / "worker-status.json")
+        self.assertTrue(status["diagnostic_recorded"])
+        self.assertFalse(status["completes_smoke"])
+        self.assertTrue(status["pending_retained"])
+
     def test_failure_inspection_pins_review_and_dispatches_no_model_stage(self):
         root = self.directory.parent.parent
         launcher.write_json(root / "study.json", self.study)
