@@ -7,13 +7,15 @@ import json
 import os
 from pathlib import Path
 import sys
+import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from diagnostics import audit
-from cloud_control import AzureStore, ControlError, RequestBudget, access_at, binding_at
+from cloud_control import ControlError, RequestBudget, access_at, binding_at
+from inspection_auth import InspectionStore, failure_reason
 from cost_control import CONTROL, money
 from ledger import SufficiencyLedger
-from protocol import digest, external_path, file_hash, read_json, study_id, write_json
+from protocol import digest, external_path, file_hash, read_json, slug, study_id, write_json
 from renew_storage import validate
 from sufficiency import check_approval
 
@@ -54,6 +56,7 @@ def queued_review(root, failure):
         "model_authorization_sha256": file_hash(root / "authorization.json"),
         "storage_approval_sha256": file_hash(CONTROL / "cloud-approval.json"),
         "inspector_sha256": file_hash(Path(__file__)),
+        "authentication_helper_sha256": file_hash(Path(__file__).with_name("inspection_auth.py")),
     }
 
 
@@ -133,6 +136,7 @@ def inspect(root, store, binding, storage, context, config, authorization):
             "historical_recovery_sha256": state.get("inference_recovery"),
             "prepared_sha256": file_hash(root / "prepared.json"),
             "inspector_sha256": file_hash(Path(__file__)),
+            "authentication_helper_sha256": file_hash(Path(__file__).with_name("inspection_auth.py")),
             "expires_at": "", "execution_approved": False,
             "checks": {key: False for key in CHECKS},
         }
@@ -161,13 +165,14 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", required=True, type=Path)
     parser.add_argument("--failure", required=True, type=Path)
+    parser.add_argument("--job-label", help="New evidence directory for a separately approved inspection.")
     parser.add_argument("--execute-approved-inspection", action="store_true")
     args = parser.parse_args(argv)
     if not args.execute_approved_inspection:
         parser.error("Separate consent for one 100-request Storage inspection is required.")
     root, failure = external_path(args.root), external_path(args.failure)
     config, authorization, binding, storage, context = inputs(root, failure)
-    directory = root / "jobs/inspect-failure"
+    directory = root / "jobs" / ("inspect-failure" + ("-" + slug(args.job_label) if args.job_label else ""))
     output = directory / "inspection.json"
     if output.exists():
         parser.error("Inspection already exists; preserve evidence and do not repeat.")
@@ -177,7 +182,22 @@ def main(argv=None):
                    "request_limit": 100}, stream)
         stream.flush()
         os.fsync(stream.fileno())
-    with closing(AzureStore(binding, InspectionBudget(100))) as store:
+    with closing(InspectionStore(binding, InspectionBudget(100))) as store:
+        start = time.monotonic()
+        auth = {"process_timeout_seconds": 60, "scope_count": 2, "model_calls": 0}
+        try:
+            store.authenticate()
+        except Exception as error:
+            write_json(directory / "authentication.json", {
+                **auth, "authenticated": False, "reason": failure_reason(error),
+                "elapsed_seconds": round(time.monotonic() - start, 3),
+                "storage_requests_used": store.budget.used,
+            })
+            raise
+        write_json(directory / "authentication.json", {
+            **auth, "authenticated": True, "elapsed_seconds": round(time.monotonic() - start, 3),
+            "storage_requests_used": store.budget.used,
+        })
         result = inspect(root, store, binding, storage, context, config, authorization)
     write_json(output, result)
     print(json.dumps({key: value for key, value in result.items() if key != "review_template"}, indent=2))
