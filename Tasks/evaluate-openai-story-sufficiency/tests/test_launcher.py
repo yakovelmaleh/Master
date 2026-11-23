@@ -205,6 +205,56 @@ class LauncherTests(unittest.TestCase):
         self.assertFalse(status["completes_smoke"])
         self.assertTrue(status["pending_retained"])
 
+    def test_resolution_job_requires_distinct_consent_and_runs_storage_only_once(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        review_path = self.storage / "resolution-review.json"
+        review = {"review_path": str(review_path), "review_sha256": "fixture",
+                  "implementation_sha256": "fixture"}
+        args = [*self.args, "--stage", "resolve-smoke", "--resolution-review", str(review_path)]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            for extra in ([], ["--execute-approved-stage"], ["--execute-approved-diagnostic"],
+                          ["--execute-approved-inspection"],
+                          ["--execute-approved-resolution", "--job-label", "again"]):
+                with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                    launcher.main([*args, *extra])
+            commands.assert_not_called()
+        with patch.object(launcher, "resolution_review", return_value=review), patch.object(
+            launcher.subprocess, "check_output", side_effect=["", "789"]
+        ), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--execute-approved-resolution"])
+        directory = root / "jobs/resolve-smoke"
+
+        def resolved(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2:4], [str(launcher.RESOLUTION_TASK / "resolution.py"), "resolve"])
+            self.assertIn("--execute-approved-resolution", command)
+            self.assertNotIn("--execute-approved-stage", command)
+            launcher.write_json(directory / "resolution.json", {
+                "schema": "sufficiency-smoke-resolution-v1", "resolved": True, "breached": False,
+                "pending_retained": False, "completes_smoke": False, "authorizes_continuation": False,
+                "captured": {"attempt": 2}, "model_calls": 0, "storage_requests_used": 60,
+            })
+
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "789"}), patch.object(
+            launcher.subprocess, "run", side_effect=resolved
+        ) as run, redirect_stdout(io.StringIO()):
+            with patch.object(launcher, "resolution_review", return_value={**review, "changed": True}):
+                with self.assertRaisesRegex(ValueError, "Queued resolution"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            with patch.object(launcher, "resolution_review", return_value=review):
+                launcher.run_job(directory / "submission.json")
+                with self.assertRaises(FileExistsError):
+                    launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        status = launcher.read_json(directory / "worker-status.json")
+        self.assertTrue(status["resolved"])
+        self.assertEqual(status["model_calls"], 0)
+        self.assertFalse(status["completes_smoke"])
+        self.assertFalse(status["authorizes_continuation"])
+
     def test_failure_inspection_pins_review_and_dispatches_no_model_stage(self):
         root = self.directory.parent.parent
         launcher.write_json(root / "study.json", self.study)
