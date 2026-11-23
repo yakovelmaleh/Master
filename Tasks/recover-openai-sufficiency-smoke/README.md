@@ -14,7 +14,10 @@ sufficiency study and historical task implementations remain unchanged.
   failure-identity, non-overwrite, and scoring-contract checks.
 - `inspect_failure.py`: explicit 100-request Storage-only snapshot and
   false-default review template, not a recovery executor.
+- `inspection_auth.py`: bounded CLI token acquisition before the lease, with
+  cache-only credential use during inspection.
 - `tests/test_inspection.py`: offline Storage fault-injection tests.
+- `tests/test_inspection_auth.py`: credential lifetime, no-refresh, and timeout tests.
 
 ## Offline diagnostic
 
@@ -79,8 +82,16 @@ bash Tasks/run_cluster_task.sh --pull evaluate-openai-story-sufficiency \
   --execute-approved-inspection
 ```
 
-This submits one CPU job in the existing environment. It verifies the Storage
-account through its management API, then acquires the coordinator lease and
+This submits one CPU job in the existing environment. Before any lease or
+Storage request, it obtains management and Storage tokens using explicit
+`AzureCliCredential(process_timeout=60)`, once per scope with no retry loop.
+Tokens stay in memory and must have more than five minutes remaining.
+During inspection, the shared credential serves only these cached tokens;
+an unexpected scope/challenge or token within two minutes of expiry stops
+the job without invoking the CLI again. This avoids extending authentication
+waits inside the coordinator's lease-safe window.
+
+It verifies the Storage account through its management API, then acquires the coordinator lease and
 reserves exactly 100 Storage requests/one session using the existing ledger.
 Thus this is **not read-only**: normal session/request counters and ownership
 change. Financial reservations, pending state, attempt/operation records,
@@ -94,16 +105,27 @@ A mismatched pending operation, conflicting receipt, expired approval, missing
 capacity, lost lease, or changing snapshot stops the job without reconciliation.
 The transport limit cannot exceed 100 even if a larger allowance is assigned.
 
-Submission binds source, helper, local failure, prepared study and approval
+Submission binds source, inspector/authentication helpers, local failure, prepared study and approval
 provenance; changes before worker dispatch stop the job. The inspector also
 creates a fixed `inspection.started` marker before constructing the Storage
 client. Lost responses, failures, duplicate submission, and worker reentry do
-not cause automatic retries. Do not remove markers or rerun under another label.
-This stage accepts no model-stage flag or job label and never constructs a
-model client.
+not cause automatic retries. This stage accepts no model-stage flag and never
+constructs a model client.
+
+After a failed inspection, preserve the original directory and markers.
+Only after diagnosing the failure and obtaining **fresh inspection consent**,
+use `--job-label auth-02` (or another separately reviewed unique label) to save
+a new attempt in `jobs/inspect-failure-auth-02/`. A label is not retry permission,
+does not reset request/session counters, and does not change model attempt IDs.
+Reusing a label is blocked. Never remove old evidence to submit again.
 
 Evidence is saved in run04's `jobs/inspect-failure/`: submission and SLURM logs,
 `worker-status.json`, `inspection.started`, and `inspection.json`.
+`authentication.json` records authentication success/failure, elapsed time,
+scope count and an allowlisted failure reason (`cli_timeout` or
+`authentication_failed`), not tokens or provider messages. An authentication
+failure stops before account verification, lease acquisition or ledger mutation.
+Partial or missing output must not trigger an automatic rerun.
 The inspection report includes only numeric accounting, status flags, and hashes,
 plus a private `review_template` with empty expiry, false checks, and
 `execution_approved: false`. It binds the operation/attempt/allocation/receipt,

@@ -156,8 +156,8 @@ def run_job(manifest):
         raise ValueError("Unknown stage or missing explicit inspection approval.")
     if stage in MODEL_STAGES and plan.get("model_stage_approved") is not True:
         raise ValueError("Missing explicit model-stage approval.")
-    if stage not in MODEL_STAGES and plan.get("job_label") is not None:
-        raise ValueError("Job labels are only for reviewed model-stage invocations.")
+    if stage not in (*MODEL_STAGES, "inspect-failure") and plan.get("job_label") is not None:
+        raise ValueError("Job labels require a reviewed model stage or failure inspection.")
     directory = job_directory(root, stage, plan.get("job_label"))
     if (manifest != directory / "submission.json"
             or plan.get("schema") != "openai-sufficiency-cluster-job-v1"
@@ -187,11 +187,14 @@ def run_job(manifest):
     write_json(status_path, status)
     try:
         if stage == "inspect-failure":
-            subprocess.run([
+            command = [
                 sys.executable, "-u", str(FAILURE_TASK / "inspect_failure.py"),
                 "--root", str(root), "--failure", plan["failure_review"]["failure_path"],
                 "--execute-approved-inspection",
-            ], check=True)
+            ]
+            if plan.get("job_label") is not None:
+                command += ["--job-label", plan["job_label"]]
+            subprocess.run(command, check=True)
             result = read_json(directory / "inspection.json")
             if (result.get("schema") != "sufficiency-failure-inspection-v1"
                     or result.get("authorizes_inference") is not False
@@ -277,7 +280,9 @@ def main(argv=None):
                 parser.error("Model stages need explicit --execute-approved-stage.")
             if (args.stage == "preflight") != (args.approval is not None):
                 parser.error("Supply --approval for preflight only.")
-        elif args.execute_approved_stage or args.approval or args.job_label is not None:
+        elif args.execute_approved_stage or args.approval or (
+            args.job_label is not None and args.stage != "inspect-failure"
+        ):
             parser.error("Model-stage flags cannot be used for preparation or storage inspection.")
         if args.stage in INSPECTION_STAGES and not args.execute_approved_inspection and not args.dry_run:
             parser.error("Storage inspection needs explicit --execute-approved-inspection.")

@@ -4,7 +4,7 @@ import io
 from pathlib import Path
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 TASK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TASK))
@@ -23,6 +23,7 @@ class InspectionTests(unittest.TestCase):
         self.addCleanup(self.fixture.doCleanups)
         self.root, self.config = self.fixture.root, self.fixture.config
         self.store, _, self.storage = self.fixture.renewal_fixture()
+        self.store.authenticate = Mock()
         self.binding = fixtures.BINDING
         renew(self.store, self.binding, self.storage, self.root)
         self.run_id = study_id(self.root)
@@ -209,13 +210,13 @@ class InspectionTests(unittest.TestCase):
 
     def test_cli_requires_consent_and_retains_marker_after_failure(self):
         args = ["--root", str(self.root), "--failure", str(self.root / "failure.json")]
-        with patch.object(inspection, "AzureStore") as azure, redirect_stderr(io.StringIO()):
+        with patch.object(inspection, "InspectionStore") as azure, redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
                 inspection.main(args)
             azure.assert_not_called()
         with patch.object(inspection, "inputs", return_value=(
             self.config, self.authorization, self.binding, self.storage, self.context,
-        )), patch.object(inspection, "AzureStore", return_value=self.store) as azure, patch.object(
+        )), patch.object(inspection, "InspectionStore", return_value=self.store) as azure, patch.object(
             inspection, "inspect", side_effect=RuntimeError("lost reply")
         ):
             with self.assertRaises(RuntimeError):
@@ -231,7 +232,7 @@ class InspectionTests(unittest.TestCase):
                 "--execute-approved-inspection"]
         with patch.object(inspection, "inputs", return_value=(
             self.config, self.authorization, self.binding, self.storage, self.context,
-        )), patch.object(inspection, "AzureStore", return_value=self.store) as azure, redirect_stdout(io.StringIO()):
+        )), patch.object(inspection, "InspectionStore", return_value=self.store) as azure, redirect_stdout(io.StringIO()):
             inspection.main(args)
             with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 inspection.main(args)
@@ -239,6 +240,35 @@ class InspectionTests(unittest.TestCase):
         report = read_json(self.root / "jobs/inspect-failure/inspection.json")
         self.assertFalse(report["receipt_present"])
         self.assertEqual(report["schema"], inspection.SCHEMA)
+        auth = read_json(self.root / "jobs/inspect-failure/authentication.json")
+        self.assertTrue(auth["authenticated"])
+        self.assertEqual(auth["storage_requests_used"], 0)
+        self.store.authenticate.assert_called_once()
+
+    def test_auth_failure_saves_safe_reason_before_any_storage_session(self):
+        args = ["--root", str(self.root), "--failure", str(self.root / "failure.json"),
+                "--execute-approved-inspection", "--job-label", "auth-02"]
+        old = self.root / "jobs/inspect-failure/inspection.started"
+        write_json(old, {"failed": True})
+        before = copy.deepcopy(self.store.storage.rows)
+        self.store.authenticate.side_effect = RuntimeError("PRIVATE AUTH DETAILS")
+        with patch.object(inspection, "inputs", return_value=(
+            self.config, self.authorization, self.binding, self.storage, self.context,
+        )), patch.object(inspection, "InspectionStore", return_value=self.store), patch.object(
+            inspection, "inspect"
+        ) as inspect:
+            with self.assertRaises(RuntimeError):
+                inspection.main(args)
+            inspect.assert_not_called()
+            with self.assertRaises(FileExistsError):
+                inspection.main(args)
+        auth = read_json(self.root / "jobs/inspect-failure-auth-02/authentication.json")
+        self.assertFalse(auth["authenticated"])
+        self.assertEqual(auth["reason"], "authentication_failed")
+        self.assertNotIn("PRIVATE", str(auth))
+        self.assertEqual(self.store.storage.rows, before)
+        self.assertEqual(read_json(old), {"failed": True})
+        self.store.authenticate.assert_called_once()
 
 
 if __name__ == "__main__":

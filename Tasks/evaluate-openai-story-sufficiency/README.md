@@ -395,6 +395,11 @@ renewal-recovery accounting. `inspect-failure` reserves only its own session,
 preserves the original failure, and emits a false-default review template.
 Neither stage grants permission to reconcile or retry.
 
+Failure inspection authenticates with a bounded 60-second CLI timeout before
+acquiring the lease and uses only cached tokens during the Storage session.
+After a diagnosed failure and fresh inspection consent, an explicit `--job-label`
+saves a new inspection separately; never delete the failed job's evidence.
+
 ## Reporting and interpretation
 
 New output: `openai-sufficiency-runs/<run-id>/llm_report.json`, schema

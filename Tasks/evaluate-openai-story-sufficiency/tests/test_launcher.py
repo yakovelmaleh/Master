@@ -163,7 +163,10 @@ class LauncherTests(unittest.TestCase):
         failure = root / "failures/smoke.json"
         review = {"failure_path": str(failure), "inspector_sha256": "fixture",
                   "context": {"request_sha256": "fixture"}}
-        args = [*self.args, "--stage", "inspect-failure", "--failure", str(failure)]
+        old_marker = root / "jobs/inspect-failure/inspection.started"
+        launcher.write_json(old_marker, {"old_failed_job": True})
+        args = [*self.args, "--stage", "inspect-failure", "--failure", str(failure),
+                "--job-label", "auth-02"]
         with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
                 launcher.main(args)
@@ -172,7 +175,7 @@ class LauncherTests(unittest.TestCase):
             launcher.subprocess, "check_output", side_effect=["", "456"]
         ), redirect_stdout(io.StringIO()):
             launcher.main([*args, "--execute-approved-inspection"])
-        directory = root / "jobs/inspect-failure"
+        directory = root / "jobs/inspect-failure-auth-02"
         self.assertIn("AzureCliCredential", (directory / "submit.sbatch").read_text())
 
         def inspected(command, check):
@@ -180,6 +183,7 @@ class LauncherTests(unittest.TestCase):
             self.assertEqual(command[2], str(launcher.FAILURE_TASK / "inspect_failure.py"))
             self.assertNotIn("--execute-approved-stage", command)
             self.assertEqual(command[command.index("--failure") + 1], str(failure))
+            self.assertEqual(command[command.index("--job-label") + 1], "auth-02")
             launcher.write_json(directory / "inspection.json", {
                 "schema": "sufficiency-failure-inspection-v1", "authorizes_inference": False,
                 "model_calls": 0, "inspection_request_limit": 100, "inspection_requests_used": 30,
@@ -198,6 +202,7 @@ class LauncherTests(unittest.TestCase):
                     launcher.run_job(directory / "submission.json")
             run.assert_called_once()
         self.assertTrue(launcher.read_json(directory / "worker-status.json")["inspected"])
+        self.assertEqual(launcher.read_json(old_marker), {"old_failed_job": True})
 
     def test_worker_refuses_changed_provenance_and_records_preparation_failure(self):
         self.submit()
