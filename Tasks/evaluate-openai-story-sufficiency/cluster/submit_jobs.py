@@ -17,8 +17,13 @@ from protocol import digest, exclusive_lock, external_path, file_hash, read_json
 from cost_control import CONTROL, money
 from renew_storage import binding_at, validate as validate_storage
 
+FAILURE_TASK = TASK.parent / "recover-openai-sufficiency-smoke"
+sys.path.insert(0, str(FAILURE_TASK))
+from inspect_failure import queued_review as failure_review
+
 MODEL_STAGES = ("preflight", "smoke", "validate", "seal", "test", "report")
-STAGES = ("prepare", "inspect-storage", *MODEL_STAGES)
+INSPECTION_STAGES = ("inspect-storage", "inspect-failure")
+STAGES = ("prepare", *INSPECTION_STAGES, *MODEL_STAGES)
 
 
 def directive(value):
@@ -96,6 +101,7 @@ def submit(args):
     if args.stage != "prepare" and not (root / "prepared.json").is_file():
         raise ValueError("Complete offline preparation before requesting a cloud stage.")
     review = model_review(root, args.stage, args.approval, current) if args.stage in MODEL_STAGES else None
+    failure = failure_review(root, external_path(args.failure)) if args.stage == "inspect-failure" else None
     directory = job_directory(root, args.stage, args.job_label)
     manifest = directory / "submission.json"
     script = render(args, manifest)
@@ -127,6 +133,8 @@ def submit(args):
             plan["inspection_sha256"] = file_hash(TASK / "cluster/inspect_storage.py")
         if review is not None:
             plan["model_review"] = review
+        if failure is not None:
+            plan["failure_review"] = failure
         # A lost sbatch response must not trigger another submission.
         exclusive_json(manifest, plan)
         job_id = subprocess.check_output(
@@ -144,7 +152,7 @@ def run_job(manifest):
     plan = read_json(manifest)
     root = root_at(plan["storage"], plan["run_id"])
     stage = plan.get("stage", "prepare")
-    if stage not in STAGES or (stage == "inspect-storage" and plan.get("inspection_approved") is not True):
+    if stage not in STAGES or (stage in INSPECTION_STAGES and plan.get("inspection_approved") is not True):
         raise ValueError("Unknown stage or missing explicit inspection approval.")
     if stage in MODEL_STAGES and plan.get("model_stage_approved") is not True:
         raise ValueError("Missing explicit model-stage approval.")
@@ -161,6 +169,10 @@ def run_job(manifest):
         raise ValueError("Submission or source provenance changed; keep evidence and stop.")
     if stage == "inspect-storage" and plan.get("inspection_sha256") != file_hash(TASK / "cluster/inspect_storage.py"):
         raise ValueError("Storage inspection implementation changed after submission.")
+    if stage == "inspect-failure":
+        review = plan["failure_review"]
+        if failure_review(root, external_path(review["failure_path"])) != review:
+            raise ValueError("Queued failure evidence, approvals or inspection implementation changed.")
     if stage in MODEL_STAGES:
         review = plan["model_review"]
         if model_review(root, stage, review["approval_path"], signature(plan["source"])) != review:
@@ -174,6 +186,22 @@ def run_job(manifest):
     status = {"status": "running", "job_id": job_id, "cloud_access": stage != "prepare"}
     write_json(status_path, status)
     try:
+        if stage == "inspect-failure":
+            subprocess.run([
+                sys.executable, "-u", str(FAILURE_TASK / "inspect_failure.py"),
+                "--root", str(root), "--failure", plan["failure_review"]["failure_path"],
+                "--execute-approved-inspection",
+            ], check=True)
+            result = read_json(directory / "inspection.json")
+            if (result.get("schema") != "sufficiency-failure-inspection-v1"
+                    or result.get("authorizes_inference") is not False
+                    or result.get("model_calls") != 0
+                    or result.get("inspection_request_limit") != 100
+                    or not 0 <= result["inspection_requests_used"] <= 100):
+                raise ValueError("Failure inspection did not produce bounded storage-only evidence.")
+            write_json(status_path, {**status, "status": "succeeded", "inspected": True})
+            print("FAILURE_INSPECTION_COMPLETE; pending state retained, no inference authorized.")
+            return
         if stage == "inspect-storage":
             output = directory / "inspection.json"
             subprocess.run([
@@ -233,6 +261,7 @@ def main(argv=None):
     parser.add_argument("--mail-user", default="yakovelm@post.bgu.ac.il")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--execute-approved-inspection", action="store_true")
+    parser.add_argument("--failure", type=Path, help="Saved failure evidence, for inspect-failure only.")
     parser.add_argument("--execute-approved-stage", action="store_true")
     parser.add_argument("--approval", type=Path, help="Private model approval, for preflight only.")
     parser.add_argument("--job-label", help="Unique label for a separately reviewed model-stage invocation.")
@@ -241,6 +270,8 @@ def main(argv=None):
     if args.execute:
         run_job(args.execute)
     else:
+        if (args.stage == "inspect-failure") != (args.failure is not None):
+            parser.error("Supply --failure for inspect-failure only.")
         if args.stage in MODEL_STAGES:
             if not args.execute_approved_stage and not args.dry_run:
                 parser.error("Model stages need explicit --execute-approved-stage.")
@@ -248,9 +279,9 @@ def main(argv=None):
                 parser.error("Supply --approval for preflight only.")
         elif args.execute_approved_stage or args.approval or args.job_label is not None:
             parser.error("Model-stage flags cannot be used for preparation or storage inspection.")
-        if args.stage == "inspect-storage" and not args.execute_approved_inspection and not args.dry_run:
+        if args.stage in INSPECTION_STAGES and not args.execute_approved_inspection and not args.dry_run:
             parser.error("Storage inspection needs explicit --execute-approved-inspection.")
-        if args.stage != "inspect-storage" and args.execute_approved_inspection:
+        if args.stage not in INSPECTION_STAGES and args.execute_approved_inspection:
             parser.error("Only storage inspection can use storage-inspection approval.")
         submit(args)
 

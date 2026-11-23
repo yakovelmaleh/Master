@@ -380,6 +380,21 @@ retained recovery allowance. It omits account identifiers and story text.
 These are reserved bounds and a dated snapshot, not actual billing or permission
 to start inference.
 
+### Failed smoke inspection
+
+For an unresolved `smoke-0` attempt 1, the separate
+[`recover-openai-sufficiency-smoke`](../recover-openai-sufficiency-smoke/README.md)
+task provides offline diagnostics and a narrowly scoped `inspect-failure`
+launcher stage. It requires `--failure` pointing to the saved evidence and
+separate `--execute-approved-inspection` consent for at most 100 Storage requests
+and one session. It checks pending identity and receipt presence without retrying
+inference, changing pending state, or releasing financial reservations.
+
+Do not use `inspect-storage` for this: that older helper also carries historical
+renewal-recovery accounting. `inspect-failure` reserves only its own session,
+preserves the original failure, and emits a false-default review template.
+Neither stage grants permission to reconcile or retry.
+
 ## Reporting and interpretation
 
 New output: `openai-sufficiency-runs/<run-id>/llm_report.json`, schema
