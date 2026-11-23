@@ -66,7 +66,7 @@ def main(kind):
     run_root = REPO / "Tasks" / TASKS[kind] / "cluster_runs" / submission_id
     forwarded = ("storage", "run_id", "candidates", "sources", "prior_manifest", "from_run", "missing_records", "profile",
                  "fixture", "expected", "exclusions", "max_incomplete_stories", "bundle",
-                 "config", "report_output", "input", "output", "family", "variant")
+                 "config", "report_output", "input", "output", "family", "variant", "scratch")
     commands = []
     for source in sources:
         args.source = source
@@ -81,6 +81,8 @@ def main(kind):
                 command.extend(["--" + name.replace("_", "-"), str(value)])
         if source:
             command += ["--source", source]
+        if args.profiles:
+            command += ["--profiles", *(str(path.expanduser().resolve()) for path in args.profiles)]
         for flag in ("exclude_incomplete", "reuse_verified"):
             if getattr(args, flag):
                 command.append("--" + flag.replace("_", "-"))

@@ -144,6 +144,12 @@ class CollectionTests(RuntimeCase):
             self.assertEqual([], reused["missing_evidence_sources"])
             self.assertEqual([key], list(reused["results"]))
             self.assertFalse((target / "detection/policies").exists())
+            from Code_Smells_Detection.runtime import streaming
+            portable = self.storage / "runs/portable"
+            streaming.initialize(portable, parent)
+            streaming.initialize(portable, parent)
+            converted = streaming.load_revision(portable, "a/b", evidence["revision"], profile)
+            self.assertEqual("analyzed", converted["status"])
             self.assertEqual(before, common.tree_manifest(parent))
             self.assertEqual(common.file_hash(original / "study.json"),
                              collection.review_study_hash(target, "Apache"))

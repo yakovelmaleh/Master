@@ -227,6 +227,10 @@ def report_path(row, spec, source, index, ambiguous=None):
 
 def parse_reports(output, source, profile):
     index = source_index(source, profile["language"])
+    return parse_indexed_reports(output, source, profile, index)
+
+
+def parse_indexed_reports(output, source, profile, index):
     coverage_rows = [(spec, csv_report(output, spec)) for spec in profile["coverage"]]
     smell_rows = [(category, spec, csv_report(output, spec)) for category, spec in profile["reports"].items()]
     for category, spec, rows in smell_rows:

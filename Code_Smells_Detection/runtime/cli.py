@@ -10,8 +10,10 @@ STAGES = {
     "prepare": ("environment", "audit", "migrate", "diagnose", "enrich", "freeze", "fetch-code"),
     "detect": ("setup", "qualify", "detect", "export-windows", "import-windows", "labels"),
     "train": ("validate", "train", "seal", "test", "report", "predict"),
+    "stories": ("initialize", "process", "labels"),
 }
-SOURCE_STAGES = {"diagnose", "enrich", "freeze", "fetch-code", "detect", "export-windows", "train", "test", "predict"}
+SOURCE_STAGES = {"diagnose", "enrich", "freeze", "fetch-code", "detect", "export-windows", "train", "test", "predict",
+                 "process"}
 
 
 def parser(kind=None):
@@ -30,6 +32,8 @@ def parser(kind=None):
     result.add_argument("--from-run", type=Path)
     result.add_argument("--missing-records", type=Path)
     result.add_argument("--profile", type=Path)
+    result.add_argument("--profiles", type=Path, nargs="+")
+    result.add_argument("--scratch", type=Path)
     result.add_argument("--fixture", type=Path)
     result.add_argument("--expected", type=Path)
     result.add_argument("--exclusions", type=Path)
@@ -47,6 +51,8 @@ def parser(kind=None):
 
 
 def validate_arguments(args):
+    if (args.profiles is not None or args.scratch is not None) and (args.kind != "stories" or args.stage != "process"):
+        raise ValueError("--profiles/--scratch require stories/process.")
     if args.exclude_incomplete and (args.kind != "detect" or
             args.stage not in ("detect", "export-windows") or args.max_incomplete_stories):
         raise ValueError("--exclude-incomplete requires detection/export and cannot be combined with a cap.")
@@ -62,6 +68,7 @@ def validate_arguments(args):
         "qualify": ("profile", "fixture", "expected"), "detect": ("profile",),
         "export-windows": ("profile", "bundle"), "import-windows": ("bundle",),
         "predict": ("input", "output", "family", "variant"),
+        "initialize": ("from_run",), "process": ("profiles",),
     }.get(args.stage, ())
     for name in required:
         if getattr(args, name) is None:
@@ -70,7 +77,8 @@ def validate_arguments(args):
         raise ValueError("--source is required for source-level execution.")
     if args.missing_records is not None and (args.kind != "prepare" or args.stage != "enrich" or not args.source):
         raise ValueError("--missing-records requires prepare/enrich and one explicit --source.")
-    if args.from_run is not None and (args.kind != "prepare" or args.stage != "migrate" or args.source):
+    if args.from_run is not None and (args.source or (args.kind, args.stage) not in
+                                      (("prepare", "migrate"), ("stories", "initialize"))):
         raise ValueError("--from-run requires prepare/migrate without --source.")
 
 
@@ -78,12 +86,15 @@ def main(kind=None):
     args = parser(kind).parse_args()
     validate_arguments(args)
     root = study(args.storage, args.run_id)
-    if args.stage == "migrate":
+    if args.stage in ("migrate", "initialize"):
         parent = external(args.from_run)
         if root == parent or root in parent.parents or parent in root.parents:
             raise ValueError("Migration must use distinct, non-nested run directories.")
-    if args.stage not in ("environment", "audit", "migrate", "setup", "qualify"):
+    if args.stage not in ("environment", "audit", "migrate", "initialize", "setup", "qualify"):
         verify_study(root)
+    if ((root / "streaming/mode.json").exists() and args.kind in ("prepare", "detect") and
+            args.stage not in ("environment", "setup", "qualify")):
+        raise ValueError("Use the sequential task for this run; bulk stages cannot mutate its checkpoints.")
     unit = args.source or "all"
     if args.stage in ("setup", "qualify", "detect"):
         from .detectors import load_profile
@@ -137,6 +148,14 @@ def dispatch(args, root):
             import_work(root, args.bundle)
         else:
             labels(root, args.exclusions)
+    elif args.kind == "stories":
+        from . import streaming
+        if args.stage == "initialize":
+            streaming.initialize(root, args.from_run)
+        elif args.stage == "process":
+            streaming.process(root, args.storage, args.source, args.profiles, args.scratch)
+        else:
+            streaming.finalize(root)
     else:
         from . import models
         if args.stage == "validate":

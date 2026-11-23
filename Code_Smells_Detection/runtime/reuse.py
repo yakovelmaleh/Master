@@ -28,10 +28,11 @@ def copy_verified(source, destination):
             raise ValueError(f"Reused copy differs: {target}")
 
 
-def reuse_verified_work(root, sources):
+def reuse_verified_work(root, sources, portable=False):
     from .migration import (
         BEST_EFFORT_PARENT_SOURCE_SHA256, BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256,
         INHERITANCE_PARENT_SOURCE_SHA256,
+        MISSING_COMMIT_PARENT_SOURCE_SHA256,
     )
 
     parent = root / "parent"
@@ -106,7 +107,7 @@ def reuse_verified_work(root, sources):
     # Only these predecessor formats share the source attribution and evidence semantics.
     while (parent / "study.json").exists() and read_json(parent / "study.json")["source_sha256"] in (
             BEST_EFFORT_PARENT_SOURCE_SHA256, INHERITANCE_PARENT_SOURCE_SHA256,
-            BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256):
+            BOUNDED_EXCLUSIONS_PARENT_SOURCE_SHA256, MISSING_COMMIT_PARENT_SOURCE_SHA256):
         for path in sorted((parent / "detection/profiles").glob("*.json")):
             profile = load_profile(path)
             if profile["language"] != "java":
@@ -144,6 +145,9 @@ def reuse_verified_work(root, sources):
                         raise ValueError("Reused native reports differ under current attribution.")
                     copy_verified(directory, root / "detection/results" / key)
                 register_profile(root, profile)
+                if portable:
+                    from .streaming import import_legacy
+                    import_legacy(root, item, profile, root / "detection/results" / key)
                 summary["results"][key] = directory.relative_to(root).as_posix()
                 summary["skipped_results"].pop(key, None)
         parent = parent / "parent"
