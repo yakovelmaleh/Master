@@ -30,9 +30,15 @@ CONTINUATION_TASK = TASK.parent / "continue-openai-sufficiency-smoke"
 sys.path.insert(0, str(CONTINUATION_TASK))
 from continuation import queued_review as continuation_review
 
+EVALUATION_TASK = TASK.parent / "run-openai-sufficiency-evaluation"
+sys.path.insert(0, str(EVALUATION_TASK))
+from evaluation import STAGES as SAFE_EVAL_STAGES, queued_review as evaluation_review
+
 MODEL_STAGES = ("preflight", "smoke", "validate", "seal", "test", "report")
 INSPECTION_STAGES = ("inspect-storage", "inspect-failure")
-STAGES = ("prepare", *INSPECTION_STAGES, *MODEL_STAGES, "diagnose-smoke", "resolve-smoke", "continue-smoke")
+EVALUATION_STAGES = tuple("eval-" + stage for stage in SAFE_EVAL_STAGES)
+STAGES = ("prepare", *INSPECTION_STAGES, *MODEL_STAGES, "diagnose-smoke", "resolve-smoke", "continue-smoke",
+          *EVALUATION_STAGES)
 
 
 def directive(value):
@@ -114,6 +120,8 @@ def submit(args):
     diagnostic = diagnostic_review(root, external_path(args.review)) if args.stage == "diagnose-smoke" else None
     resolution = resolution_review(root, external_path(args.resolution_review)) if args.stage == "resolve-smoke" else None
     continuation = continuation_review(root, external_path(args.continuation_review)) if args.stage == "continue-smoke" else None
+    evaluation = (evaluation_review(root, external_path(args.evaluation_review), args.stage[5:], args.job_label)
+                  if args.stage in EVALUATION_STAGES else None)
     directory = job_directory(root, args.stage, args.job_label)
     manifest = directory / "submission.json"
     script = render(args, manifest)
@@ -140,6 +148,7 @@ def submit(args):
             "diagnostic_approved": args.execute_approved_diagnostic,
             "resolution_approved": args.execute_approved_resolution,
             "continuation_approved": args.execute_approved_continuation,
+            "evaluation_approved": args.execute_approved_evaluation,
             "storage": str(storage), "run_id": run_id, "source": str(source),
             "study_sha256": digest(current), "launcher_sha256": file_hash(Path(__file__)),
             "script_sha256": file_hash(script_path),
@@ -156,6 +165,8 @@ def submit(args):
             plan["resolution_review"] = resolution
         if continuation is not None:
             plan["continuation_review"] = continuation
+        if evaluation is not None:
+            plan["evaluation_review"] = evaluation
         # A lost sbatch response must not trigger another submission.
         exclusive_json(manifest, plan)
         job_id = subprocess.check_output(
@@ -183,7 +194,9 @@ def run_job(manifest):
         raise ValueError("Missing separate Storage-only resolution approval.")
     if stage == "continue-smoke" and plan.get("continuation_approved") is not True:
         raise ValueError("Missing separate remaining-smoke approval.")
-    if stage not in (*MODEL_STAGES, "inspect-failure") and plan.get("job_label") is not None:
+    if stage in EVALUATION_STAGES and plan.get("evaluation_approved") is not True:
+        raise ValueError("Missing separate evaluation-job approval.")
+    if stage not in (*MODEL_STAGES, *EVALUATION_STAGES, "inspect-failure") and plan.get("job_label") is not None:
         raise ValueError("Job labels require a reviewed model stage or failure inspection.")
     directory = job_directory(root, stage, plan.get("job_label"))
     if (manifest != directory / "submission.json"
@@ -212,6 +225,10 @@ def run_job(manifest):
         review = plan["continuation_review"]
         if continuation_review(root, external_path(review["review_path"])) != review:
             raise ValueError("Queued continuation review, resolution or implementation changed.")
+    if stage in EVALUATION_STAGES:
+        review = plan["evaluation_review"]
+        if evaluation_review(root, external_path(review["review_path"]), stage[5:], plan.get("job_label")) != review:
+            raise ValueError("Queued evaluation review, stage or implementation changed.")
     if stage in MODEL_STAGES:
         review = plan["model_review"]
         if model_review(root, stage, review["approval_path"], signature(plan["source"])) != review:
@@ -225,6 +242,28 @@ def run_job(manifest):
     status = {"status": "running", "job_id": job_id, "cloud_access": stage != "prepare"}
     write_json(status_path, status)
     try:
+        if stage in EVALUATION_STAGES:
+            subprocess.run([
+                sys.executable, "-u", str(EVALUATION_TASK / "evaluation.py"), "execute",
+                "--root", str(root), "--review", plan["evaluation_review"]["review_path"],
+                "--execute-approved-evaluation",
+            ], check=True)
+            result = read_json(directory / "result.json")
+            approved = read_json(plan["evaluation_review"]["review_path"])
+            if (result.get("schema") != "sufficiency-evaluation-job-result-v1"
+                    or result.get("stage") != stage[5:] or result.get("job_label") != plan["job_label"]
+                    or result.get("review_sha256") != digest(approved)
+                    or result.get("authorizes_next_job") is not False
+                    or type(result.get("model_requests")) is not int
+                    or not 0 <= result["model_requests"] <= approved["max_model_requests"]
+                    or type(result.get("storage_requests_used")) is not int
+                    or not 0 <= result["storage_requests_used"] <= approved["storage_request_limit"]):
+                raise ValueError("Evaluation did not produce bounded stage evidence.")
+            write_json(status_path, {**status, "status": "succeeded", "stage": stage[5:],
+                                    "result": result["result"], "model_requests": result["model_requests"],
+                                    "authorizes_next_job": False})
+            print("EVALUATION_JOB_COMPLETE; next job requires separate approval.")
+            return
         if stage == "continue-smoke":
             subprocess.run([
                 sys.executable, "-u", str(CONTINUATION_TASK / "continuation.py"), "continue",
@@ -373,6 +412,8 @@ def main(argv=None):
     parser.add_argument("--resolution-review", type=Path, help="Separate private Storage-only resolution review.")
     parser.add_argument("--execute-approved-continuation", action="store_true")
     parser.add_argument("--continuation-review", type=Path, help="Separate private remaining-smoke review.")
+    parser.add_argument("--execute-approved-evaluation", action="store_true")
+    parser.add_argument("--evaluation-review", type=Path, help="Private bounded evaluation-job review.")
     parser.add_argument("--approval", type=Path, help="Private model approval, for preflight only.")
     parser.add_argument("--job-label", help="Unique label for a separately reviewed model-stage invocation.")
     parser.add_argument("--execute", type=Path, help=argparse.SUPPRESS)
@@ -380,6 +421,13 @@ def main(argv=None):
     if args.execute:
         run_job(args.execute)
     else:
+        if args.stage in EVALUATION_STAGES:
+            if not args.evaluation_review or not args.job_label or (
+                not args.execute_approved_evaluation and not args.dry_run
+            ):
+                parser.error("Evaluation needs --evaluation-review, --job-label and --execute-approved-evaluation.")
+        elif args.evaluation_review or args.execute_approved_evaluation:
+            parser.error("Evaluation review/consent is only for eval-* stages.")
         if args.stage == "continue-smoke":
             if not args.continuation_review or (not args.execute_approved_continuation and not args.dry_run):
                 parser.error("Continuation requires --continuation-review and --execute-approved-continuation.")
@@ -403,7 +451,7 @@ def main(argv=None):
             if (args.stage == "preflight") != (args.approval is not None):
                 parser.error("Supply --approval for preflight only.")
         elif args.execute_approved_stage or args.approval or (
-            args.job_label is not None and args.stage != "inspect-failure"
+            args.job_label is not None and args.stage not in (*EVALUATION_STAGES, "inspect-failure")
         ):
             parser.error("Model-stage flags cannot be used for preparation or storage inspection.")
         if args.stage in INSPECTION_STAGES and not args.execute_approved_inspection and not args.dry_run:
