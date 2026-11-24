@@ -26,9 +26,13 @@ RESOLUTION_TASK = TASK.parent / "resolve-openai-sufficiency-smoke"
 sys.path.insert(0, str(RESOLUTION_TASK))
 from resolution import queued_review as resolution_review
 
+CONTINUATION_TASK = TASK.parent / "continue-openai-sufficiency-smoke"
+sys.path.insert(0, str(CONTINUATION_TASK))
+from continuation import queued_review as continuation_review
+
 MODEL_STAGES = ("preflight", "smoke", "validate", "seal", "test", "report")
 INSPECTION_STAGES = ("inspect-storage", "inspect-failure")
-STAGES = ("prepare", *INSPECTION_STAGES, *MODEL_STAGES, "diagnose-smoke", "resolve-smoke")
+STAGES = ("prepare", *INSPECTION_STAGES, *MODEL_STAGES, "diagnose-smoke", "resolve-smoke", "continue-smoke")
 
 
 def directive(value):
@@ -109,6 +113,7 @@ def submit(args):
     failure = failure_review(root, external_path(args.failure)) if args.stage == "inspect-failure" else None
     diagnostic = diagnostic_review(root, external_path(args.review)) if args.stage == "diagnose-smoke" else None
     resolution = resolution_review(root, external_path(args.resolution_review)) if args.stage == "resolve-smoke" else None
+    continuation = continuation_review(root, external_path(args.continuation_review)) if args.stage == "continue-smoke" else None
     directory = job_directory(root, args.stage, args.job_label)
     manifest = directory / "submission.json"
     script = render(args, manifest)
@@ -134,6 +139,7 @@ def submit(args):
             "model_stage_approved": args.execute_approved_stage, "job_label": args.job_label,
             "diagnostic_approved": args.execute_approved_diagnostic,
             "resolution_approved": args.execute_approved_resolution,
+            "continuation_approved": args.execute_approved_continuation,
             "storage": str(storage), "run_id": run_id, "source": str(source),
             "study_sha256": digest(current), "launcher_sha256": file_hash(Path(__file__)),
             "script_sha256": file_hash(script_path),
@@ -148,6 +154,8 @@ def submit(args):
             plan["diagnostic_review"] = diagnostic
         if resolution is not None:
             plan["resolution_review"] = resolution
+        if continuation is not None:
+            plan["continuation_review"] = continuation
         # A lost sbatch response must not trigger another submission.
         exclusive_json(manifest, plan)
         job_id = subprocess.check_output(
@@ -173,6 +181,8 @@ def run_job(manifest):
         raise ValueError("Missing separate one-shot diagnostic approval.")
     if stage == "resolve-smoke" and plan.get("resolution_approved") is not True:
         raise ValueError("Missing separate Storage-only resolution approval.")
+    if stage == "continue-smoke" and plan.get("continuation_approved") is not True:
+        raise ValueError("Missing separate remaining-smoke approval.")
     if stage not in (*MODEL_STAGES, "inspect-failure") and plan.get("job_label") is not None:
         raise ValueError("Job labels require a reviewed model stage or failure inspection.")
     directory = job_directory(root, stage, plan.get("job_label"))
@@ -198,6 +208,10 @@ def run_job(manifest):
         review = plan["resolution_review"]
         if resolution_review(root, external_path(review["review_path"])) != review:
             raise ValueError("Queued resolution review, diagnostic or implementation changed.")
+    if stage == "continue-smoke":
+        review = plan["continuation_review"]
+        if continuation_review(root, external_path(review["review_path"])) != review:
+            raise ValueError("Queued continuation review, resolution or implementation changed.")
     if stage in MODEL_STAGES:
         review = plan["model_review"]
         if model_review(root, stage, review["approval_path"], signature(plan["source"])) != review:
@@ -211,6 +225,26 @@ def run_job(manifest):
     status = {"status": "running", "job_id": job_id, "cloud_access": stage != "prepare"}
     write_json(status_path, status)
     try:
+        if stage == "continue-smoke":
+            subprocess.run([
+                sys.executable, "-u", str(CONTINUATION_TASK / "continuation.py"), "continue",
+                "--root", str(root), "--review", plan["continuation_review"]["review_path"],
+                "--execute-approved-continuation",
+            ], check=True)
+            result = read_json(directory / "continuation.json")
+            if (result.get("schema") != "sufficiency-smoke-continuation-v1"
+                    or result.get("smoke_complete") is not True
+                    or result.get("resolved_sample_reused") is not True
+                    or result.get("new_predictions") != 21
+                    or result.get("authorizes_validation") is not False
+                    or type(result.get("model_requests")) is not int or not 21 <= result["model_requests"] <= 63
+                    or type(result.get("storage_requests_used")) is not int
+                    or not 0 <= result["storage_requests_used"] <= 3640):
+                raise ValueError("Continuation did not produce complete bounded smoke evidence.")
+            write_json(status_path, {**status, "status": "succeeded", "smoke_complete": True,
+                                    "model_requests": result["model_requests"], "authorizes_validation": False})
+            print("SMOKE_COMPLETE; validation requires separate approval.")
+            return
         if stage == "resolve-smoke":
             subprocess.run([
                 sys.executable, "-u", str(RESOLUTION_TASK / "resolution.py"), "resolve",
@@ -337,6 +371,8 @@ def main(argv=None):
     parser.add_argument("--review", type=Path, help="Separate private one-shot diagnostic review.")
     parser.add_argument("--execute-approved-resolution", action="store_true")
     parser.add_argument("--resolution-review", type=Path, help="Separate private Storage-only resolution review.")
+    parser.add_argument("--execute-approved-continuation", action="store_true")
+    parser.add_argument("--continuation-review", type=Path, help="Separate private remaining-smoke review.")
     parser.add_argument("--approval", type=Path, help="Private model approval, for preflight only.")
     parser.add_argument("--job-label", help="Unique label for a separately reviewed model-stage invocation.")
     parser.add_argument("--execute", type=Path, help=argparse.SUPPRESS)
@@ -344,6 +380,11 @@ def main(argv=None):
     if args.execute:
         run_job(args.execute)
     else:
+        if args.stage == "continue-smoke":
+            if not args.continuation_review or (not args.execute_approved_continuation and not args.dry_run):
+                parser.error("Continuation requires --continuation-review and --execute-approved-continuation.")
+        elif args.continuation_review or args.execute_approved_continuation:
+            parser.error("Continuation review/consent is only for continue-smoke.")
         if args.stage == "resolve-smoke":
             if not args.resolution_review or (not args.execute_approved_resolution and not args.dry_run):
                 parser.error("Resolution requires --resolution-review and --execute-approved-resolution.")

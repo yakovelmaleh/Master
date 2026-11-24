@@ -255,6 +255,55 @@ class LauncherTests(unittest.TestCase):
         self.assertFalse(status["completes_smoke"])
         self.assertFalse(status["authorizes_continuation"])
 
+    def test_smoke_continuation_job_requires_its_own_review_and_consent(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        review_path = self.storage / "continuation-review.json"
+        review = {"review_path": str(review_path), "review_sha256": "fixture",
+                  "implementation_sha256": "fixture"}
+        args = [*self.args, "--stage", "continue-smoke", "--continuation-review", str(review_path)]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            for extra in ([], ["--execute-approved-stage"], ["--execute-approved-resolution"],
+                          ["--execute-approved-diagnostic"], ["--execute-approved-inspection"],
+                          ["--execute-approved-continuation", "--job-label", "again"]):
+                with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                    launcher.main([*args, *extra])
+            commands.assert_not_called()
+        with patch.object(launcher, "continuation_review", return_value=review), patch.object(
+            launcher.subprocess, "check_output", side_effect=["", "890"]
+        ), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--execute-approved-continuation"])
+        directory = root / "jobs/continue-smoke"
+
+        def completed(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2:4], [str(launcher.CONTINUATION_TASK / "continuation.py"), "continue"])
+            self.assertIn("--execute-approved-continuation", command)
+            self.assertNotIn("--execute-approved-stage", command)
+            launcher.write_json(directory / "continuation.json", {
+                "schema": "sufficiency-smoke-continuation-v1", "smoke_complete": True,
+                "resolved_sample_reused": True, "new_predictions": 21,
+                "authorizes_validation": False, "model_requests": 21, "storage_requests_used": 1500,
+            })
+
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "890"}), patch.object(
+            launcher.subprocess, "run", side_effect=completed
+        ) as run, redirect_stdout(io.StringIO()):
+            with patch.object(launcher, "continuation_review", return_value={**review, "changed": True}):
+                with self.assertRaisesRegex(ValueError, "Queued continuation"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            with patch.object(launcher, "continuation_review", return_value=review):
+                launcher.run_job(directory / "submission.json")
+                with self.assertRaises(FileExistsError):
+                    launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        status = launcher.read_json(directory / "worker-status.json")
+        self.assertTrue(status["smoke_complete"])
+        self.assertEqual(status["model_requests"], 21)
+        self.assertFalse(status["authorizes_validation"])
+
     def test_failure_inspection_pins_review_and_dispatches_no_model_stage(self):
         root = self.directory.parent.parent
         launcher.write_json(root / "study.json", self.study)
