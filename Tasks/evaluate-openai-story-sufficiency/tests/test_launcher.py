@@ -304,6 +304,57 @@ class LauncherTests(unittest.TestCase):
         self.assertEqual(status["model_requests"], 21)
         self.assertFalse(status["authorizes_validation"])
 
+    def test_evaluation_job_binds_stage_label_review_and_runs_one_batch_only(self):
+        root = self.directory.parent.parent
+        launcher.write_json(root / "study.json", self.study)
+        launcher.write_json(root / "prepared.json", {})
+        path = self.storage / "evaluation-review.json"
+        approved = {"max_model_requests": 1200, "storage_request_limit": 73760}
+        launcher.write_json(path, approved)
+        review = {"review_path": str(path), "review_sha256": "fixture",
+                  "implementation_sha256": "fixture"}
+        args = [*self.args, "--stage", "eval-validate", "--evaluation-review", str(path)]
+        with patch.object(launcher.subprocess, "check_output") as commands, redirect_stderr(io.StringIO()):
+            for extra in (
+                [], ["--execute-approved-evaluation"],
+                ["--job-label", "pilot-01", "--execute-approved-stage"],
+                ["--job-label", "pilot-01", "--execute-approved-continuation"],
+            ):
+                with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                    launcher.main([*args, *extra])
+            commands.assert_not_called()
+        with patch.object(launcher, "evaluation_review", return_value=review) as check, patch.object(
+            launcher.subprocess, "check_output", side_effect=["", "901"]
+        ), redirect_stdout(io.StringIO()):
+            launcher.main([*args, "--job-label", "pilot-01", "--execute-approved-evaluation"])
+            self.assertEqual(check.call_args.args[2:], ("validate", "pilot-01"))
+        directory = root / "jobs/eval-validate-pilot-01"
+        def completed(command, check):
+            self.assertTrue(check)
+            self.assertEqual(command[2:4], [str(launcher.EVALUATION_TASK / "evaluation.py"), "execute"])
+            self.assertIn("--execute-approved-evaluation", command)
+            self.assertNotIn("--execute-approved-stage", command)
+            launcher.write_json(directory / "result.json", {
+                "schema": "sufficiency-evaluation-job-result-v1", "stage": "validate", "job_label": "pilot-01",
+                "review_sha256": launcher.digest(approved), "authorizes_next_job": False,
+                "model_requests": 314, "storage_requests_used": 1000, "result": {"batch_rows": 314},
+            })
+        with patch.dict(launcher.os.environ, {"SLURM_JOB_ID": "901"}), patch.object(
+            launcher.subprocess, "run", side_effect=completed
+        ) as run, redirect_stdout(io.StringIO()):
+            with patch.object(launcher, "evaluation_review", return_value={**review, "changed": True}):
+                with self.assertRaisesRegex(ValueError, "Queued evaluation"):
+                    launcher.run_job(directory / "submission.json")
+                run.assert_not_called()
+            with patch.object(launcher, "evaluation_review", return_value=review):
+                launcher.run_job(directory / "submission.json")
+                with self.assertRaises(FileExistsError):
+                    launcher.run_job(directory / "submission.json")
+            run.assert_called_once()
+        status = launcher.read_json(directory / "worker-status.json")
+        self.assertEqual(status["result"], {"batch_rows": 314})
+        self.assertFalse(status["authorizes_next_job"])
+
     def test_failure_inspection_pins_review_and_dispatches_no_model_stage(self):
         root = self.directory.parent.parent
         launcher.write_json(root / "study.json", self.study)
